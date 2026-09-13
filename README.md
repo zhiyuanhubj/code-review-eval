@@ -35,8 +35,6 @@ Dataset dumps are **not** in this repo (upstream licenses / size). Trajectories 
 4. **Martian is invalid.** There is no local diff. All four models approved all 50 rows (F1 = 0). The files are kept only to document that.
 5. The style split is stable: Glimmer / Opus lean `approve` on SWR+AACR; Nemotron over-flags; on SWE-Review, Opus/GPT flip into high-recall reviewers.
 
-DeepSeek-V4.1-Flash was still running at snapshot time and is not in this table.
-
 ---
 
 ## Repo layout
