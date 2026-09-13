@@ -1,14 +1,33 @@
 # Code Review Eval Trajectories
 
+Official-protocol rerun is **in progress**. The tables below the fold are the **old unofficial proxy** (single-shot chat, truncated payloads, decision-vs-`gold_clean` only). Do not cite those numbers as SWR / AACR / SWE-Review / Martian scores.
+
+## Official protocol (running now)
+
+| Bench | Official setting we are now using | Status |
+|---|---|---|
+| **SWR-Bench** | Upstream `swrbench/generation.py` **base_review** (full `pr_commits[].diff[].patch`, temperature 0.2 / 1.0 if the API rejects 0.2) then `evaluation_struct.py` LLM-as-judge (PR-level + point-level) | Generating: Nemotron, V4.1-Flash, Opus 4.8, GPT-5.6. Glimmer weights downloaded; vLLM coming up. Judge not started yet. |
+| **AACR-Bench** | 200 PRs, `git clone` + checkout `source_commit..target_commit`, emit OCR-schema comments, official `evaluate.py` / `judge.py` finding match | Nemotron reviewing cloned repos. |
+| **Martian offline** | Real GitHub PR file diffs + comments `{path,line,body}`, then official `step3_judge_comments.py` vs golden comments | Generating candidates for Nemotron / V4.1 / Opus / GPT-5.6 (50 PRs). |
+| **SWE-Review-Bench** | Harbor + OpenHands-SDK agentic review on `glm5_500` (500 PRs), decision accuracy. Not SWE-Review-Traj. | Task generation started for Nemotron; `--skip-revision` DA first. |
+
+Claude/GPT-5 APIs only accept `temperature=1`; we keep the official SWR prompt and only bump temperature when the provider 400s.
+
+New trajectories will land under `official/` in this repo and replace the headline tables once the official judges finish.
+
+---
+
+## Legacy unofficial proxy (do not cite)
+
 Single-shot code-review rollouts and scores for **Muse-Glimmer**, **Nemotron-3-Ultra**, **claude-opus-4-8**, and **gpt-5.6** on SWR-Bench, AACR-Bench, SWE-Review-Traj, and Martian.
 
-This is **not** an agent / Harbor harness. Each model sees a truncated PR payload and must return JSON `{decision, findings}`. We score **decision vs `gold_clean` only**. That is a proxy, not official finding-match.
+This was **not** an agent / Harbor harness. Each model saw a truncated PR payload and returned JSON `{decision, findings}`. We scored **decision vs `gold_clean` only**. That is a proxy, not official finding-match.
 
 Dataset dumps are **not** in this repo (upstream licenses / size). Trajectories and scoring code are.
 
 ---
 
-## Takeaways
+## Legacy takeaways (unofficial proxy only)
 
 1. **SWE-Review is the only relatively clean leaderboard.** The payload includes a patch. Claude Opus 4.8 F1 is **0.768** and GPT-5.6 is **0.737**, both above the trivial always-`request_changes` baseline of **0.676**. Nemotron (**0.609**) and Glimmer (**0.396**) are not.
 2. **No model beats that trivial baseline on SWR or AACR.** Always requesting changes scores 0.667 F1 on SWR; the best model (Nemotron) is **0.570**. On AACR the dummy scores 0.825; Nemotron is **0.787**. This is not because the models cannot review. **SWR often has no usable diff**, and AACR was rewritten into an awkward binary task.
