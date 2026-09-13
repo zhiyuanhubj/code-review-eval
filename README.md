@@ -2,111 +2,111 @@
 
 Single-shot code-review rollouts and scores for **Muse-Glimmer**, **Nemotron-3-Ultra**, **claude-opus-4-8**, and **gpt-5.6** on SWR-Bench, AACR-Bench, SWE-Review-Traj, and Martian.
 
-This is **not** an agent / Harbor harness. Each model sees a truncated PR payload and must return JSON `{decision, findings}`. We score **decision vs `gold_clean`** only. That is a proxy, not official finding-match.
+This is **not** an agent / Harbor harness. Each model sees a truncated PR payload and must return JSON `{decision, findings}`. We score **decision vs `gold_clean` only**. That is a proxy, not official finding-match.
 
-Dataset dumps are **not** in this repo (upstream licenses / size). Trajectories + scoring code are.
-
----
-
-## 先看结论
-
-1. **唯一比较干净的榜是 SWE-Review。** 这里 payload 里有 patch。Claude Opus 4.8 F1 **0.768**，GPT-5.6 **0.737**，都超过「永远 `request_changes`」的傻瓜基线 **0.676**。Nemotron **0.609**、Glimmer **0.396** 没有超过。
-2. **SWR / AACR 上没有任何模型超过傻瓜基线。** SWR 永远提意见 F1=0.667，最好的 Nemotron 只有 **0.570**。AACR 傻瓜基线 0.825，Nemotron **0.787** 接近但仍低。原因不是「模型不会 review」，而是 **SWR 经常几乎没有可用 diff**，AACR 又被我们改成了一个别扭的二分类。
-3. **Glimmer 的数字不能当 reviewer 分数用。** 100% 轨迹在回显评分 prompt（`to=selfYou are a senior code reviewer...`）。解析器会从 schema 示例里扫到 `"decision": "approve"`，所以它看起来特别「保守」。
-4. **Martian 作废。** 没 local diff，四家全是 50/50 `approve`，F1=0。轨迹留着只为证明这一点。
-5. 风格分裂很稳定：Glimmer / Opus 在 SWR+AACR 上偏 approve；Nemotron 偏乱提意见；到了 SWE-Review，Opus/GPT 反过来变成高召回。
-
-DeepSeek-V4.1-Flash 还在跑，本仓库先不含它的分数。
+Dataset dumps are **not** in this repo (upstream licenses / size). Trajectories and scoring code are.
 
 ---
 
-## 仓库里有什么
+## Takeaways
+
+1. **SWE-Review is the only relatively clean leaderboard.** The payload includes a patch. Claude Opus 4.8 F1 is **0.768** and GPT-5.6 is **0.737**, both above the trivial always-`request_changes` baseline of **0.676**. Nemotron (**0.609**) and Glimmer (**0.396**) are not.
+2. **No model beats that trivial baseline on SWR or AACR.** Always requesting changes scores 0.667 F1 on SWR; the best model (Nemotron) is **0.570**. On AACR the dummy scores 0.825; Nemotron is **0.787**. This is not because the models cannot review. **SWR often has no usable diff**, and AACR was rewritten into an awkward binary task.
+3. **Do not treat Glimmer numbers as reviewer scores.** 100% of its trajectories echo the scoring prompt (`to=selfYou are a senior code reviewer...`). The parser then picks `"decision": "approve"` out of the schema example, so Glimmer looks artificially conservative.
+4. **Martian is invalid.** There is no local diff. All four models approved all 50 rows (F1 = 0). The files are kept only to document that.
+5. The style split is stable: Glimmer / Opus lean `approve` on SWR+AACR; Nemotron over-flags; on SWE-Review, Opus/GPT flip into high-recall reviewers.
+
+DeepSeek-V4.1-Flash was still running at snapshot time and is not in this table.
+
+---
+
+## Repo layout
 
 ```
-run_openai_reviews.py   # 调 OpenAI-compatible 接口，写出 jsonl
-score_cr_results.py     # 从 jsonl 重算 P/R/F1
-results/scores.json     # 本 README 用的汇总
+run_openai_reviews.py   # OpenAI-compatible client; writes jsonl
+score_cr_results.py     # recompute P/R/F1 from jsonl
+results/scores.json     # snapshot used by this README
 results/diagnostics.json
 results/<model>_<bench>.jsonl
-results/retries/        # 空输出补打的中间文件
+results/retries/        # extra calls that filled empty outputs
 ```
 
-每条轨迹一行 JSON：
+Each trajectory is one JSON object:
 
-| 字段 | 含义 |
+| Field | Meaning |
 |---|---|
-| `instance_id` | 题目 id |
+| `instance_id` | example id |
 | `bench` | `swrbench` / `aacr` / `swe-review` / `martian` |
-| `gold_clean` | `true` = 标签认为「干净 / 不应提意见」 |
-| `model` | 模型名 |
-| `latency_s` | 单条墙钟 |
-| `output` | 模型原文（含 reasoning，若有） |
-| `error` | 请求失败时的异常摘要 |
+| `gold_clean` | `true` = label says clean / should not request changes |
+| `model` | model name |
+| `latency_s` | wall clock per example |
+| `output` | raw model text (including reasoning, if any) |
+| `error` | short exception if the request failed |
 
-正类 = `decision == request_changes`。`gold_clean=true` 是否类。于是：
+Positive class = `decision == request_changes`. `gold_clean=true` is the negative class.
 
-- TP：有问题的 PR，模型提了意见
-- FN / **false approve (miss)**：有问题却 approve
-- FP / **false reject (noise)**：干净却 request_changes
-- TN：干净且 approve
+- TP: buggy / unresolved item, model requested changes
+- FN / **false approve (miss)**: should have requested changes, approved instead
+- FP / **false reject (noise)**: clean item, requested changes
+- TN: clean and approved
 
 ---
 
-## 主表（decision vs gold_clean）
+## Main table (decision vs `gold_clean`)
 
-傻瓜基线 = 全部 `request_changes`（SWR 金标正类率 50.0%，AACR 70.2%，SWE-Review 51.1%）。
+The dummy baseline is always `request_changes` (gold positive rates: SWR 50.0%, AACR 70.2%, SWE-Review 51.1%).
 
-### SWR-Bench（n=1000，平衡）
+### SWR-Bench (n=1000, balanced)
 
-| Model | P | R | F1 | miss | noise | 提意见率 | vs 基线 0.667 |
+| Model | P | R | F1 | miss | noise | request rate | vs baseline 0.667 |
 |---|---:|---:|---:|---:|---:|---:|---|
 | always `request_changes` | 0.50 | 1.00 | **0.667** | 0% | 100% | 100% | — |
-| Nemotron-3-Ultra | 0.53 | 0.62 | 0.570 | 38.0% | 55.4% | 58.7% | 低于基线 |
-| gpt-5.6 | 0.56 | 0.35 | 0.432 | 64.8% | 27.8% | 31.5% | 低于基线 |
-| claude-opus-4-8 | 0.57 | 0.29 | 0.387 | 70.8% | 21.8% | 25.5% | 低于基线 |
-| Muse-Glimmer | 0.52 | 0.14 | 0.226 | 85.6% | 13.2% | 13.8% | 不可比 |
+| Nemotron-3-Ultra | 0.53 | 0.62 | 0.570 | 38.0% | 55.4% | 58.7% | below |
+| gpt-5.6 | 0.56 | 0.35 | 0.432 | 64.8% | 27.8% | 31.5% | below |
+| claude-opus-4-8 | 0.57 | 0.29 | 0.387 | 70.8% | 21.8% | 25.5% | below |
+| Muse-Glimmer | 0.52 | 0.14 | 0.226 | 85.6% | 13.2% | 13.8% | not comparable |
 
-混淆矩阵：Nemotron TP/FP/TN/FN = 310/277/223/190；Opus 146/109/391/354；GPT 176/139/361/324；Glimmer 72/66/434/428。
+Confusion matrices (TP/FP/TN/FN): Nemotron 310/277/223/190; Opus 146/109/391/354; GPT 176/139/361/324; Glimmer 72/66/434/428.
 
-### AACR-Bench（n=2145，正类 70.2%）
+### AACR-Bench (n=2145, 70.2% positive)
 
-这里的题目其实是「这条 review comment 是不是有效」，我们硬映射成 `request_changes`=有效、`approve`=噪声。**不是官方 AACR finding-match。**
+The underlying items are “is this review comment valid?”. We mapped valid → `request_changes` and noise → `approve`. **This is not official AACR finding-match.**
 
-| Model | P | R | F1 | miss | noise | 提意见率 | vs 基线 0.825 |
+| Model | P | R | F1 | miss | noise | request rate | vs baseline 0.825 |
 |---|---:|---:|---:|---:|---:|---:|---|
 | always `request_changes` | 0.70 | 1.00 | **0.825** | 0% | 100% | 100% | — |
-| Nemotron-3-Ultra | 0.72 | 0.87 | 0.787 | 12.8% | **80.8%** | 85.3% | 接近基线（几乎总是说有问题） |
-| gpt-5.6 | 0.77 | 0.40 | 0.522 | 60.5% | 28.0% | 36.1% | 低于基线 |
-| Muse-Glimmer | 0.72 | 0.29 | 0.411 | 71.2% | 26.6% | 28.1% | 不可比 |
-| claude-opus-4-8 | 0.80 | 0.19 | 0.304 | 81.2% | 11.4% | 16.6% | 最保守 |
+| Nemotron-3-Ultra | 0.72 | 0.87 | 0.787 | 12.8% | **80.8%** | 85.3% | near dummy (almost always flags) |
+| gpt-5.6 | 0.77 | 0.40 | 0.522 | 60.5% | 28.0% | 36.1% | below |
+| Muse-Glimmer | 0.72 | 0.29 | 0.411 | 71.2% | 26.6% | 28.1% | not comparable |
+| claude-opus-4-8 | 0.80 | 0.19 | 0.304 | 81.2% | 11.4% | 16.6% | most conservative |
 
-Nemotron 在 AACR 上 1830/2145 条都 `request_changes`。精确率和金标正类率差不多，召回高，噪声也高：它像一个「默认这条评论成立」的分类器，不是精细裁判。Opus 相反，只在 16.6% 的题上同意「这是真问题」，漏掉 81% 的正类。
+Nemotron requested changes on 1830/2145 AACR rows. Precision matches the base rate; recall is high; noise is high. It behaves like “assume the comment is real,” not a careful judge. Opus agrees that the comment is a real issue on only 16.6% of rows and misses 81% of positives.
 
-### SWE-Review-Traj（n=8914，正类 51.1%）
+### SWE-Review-Traj (n=8914, 51.1% positive)
 
-`gold_clean = patch_resolved`。payload 里带 `patch`（截到 12k 字符）。这是四套里面最接近「看 diff 做审查」的。
+`gold_clean = patch_resolved`. The payload includes `patch` (truncated to 12k chars). This is the closest of the four to “read a diff and review it.”
 
-| Model | P | R | F1 | miss | noise | 提意见率 | vs 基线 0.676 |
+| Model | P | R | F1 | miss | noise | request rate | vs baseline 0.676 |
 |---|---:|---:|---:|---:|---:|---:|---|
-| claude-opus-4-8 | 0.66 | 0.91 | **0.768** | 9.0% | 48.3% | 70.2% | **超过基线** |
-| gpt-5.6 | 0.62 | 0.92 | **0.737** | 8.4% | 59.5% | 75.9% | **超过基线** |
+| claude-opus-4-8 | 0.66 | 0.91 | **0.768** | 9.0% | 48.3% | 70.2% | **above** |
+| gpt-5.6 | 0.62 | 0.92 | **0.737** | 8.4% | 59.5% | 75.9% | **above** |
 | always `request_changes` | 0.51 | 1.00 | 0.676 | 0% | 100% | 100% | — |
-| Nemotron-3-Ultra | 0.83 | 0.48 | 0.609 | 52.0% | 10.0% | 29.3% | 低于基线 |
-| Muse-Glimmer | 0.83 | 0.26 | 0.396 | 74.0% | 5.6% | 16.0% | 不可比 |
+| Nemotron-3-Ultra | 0.83 | 0.48 | 0.609 | 52.0% | 10.0% | 29.3% | below |
+| Muse-Glimmer | 0.83 | 0.26 | 0.396 | 74.0% | 5.6% | 16.0% | not comparable |
 
-Opus：TP/FP/TN/FN = 4150/2105/2251/408。GPT：4175/2591/1764/383。两家几乎不漏未解决的 patch（miss ~9%），代价是把大约一半干净 patch 也打回。Nemotron 在这套上突然变得保守（提意见率 29%），精确率 0.83 是四家里最高的，但漏了一半真问题。
+Opus TP/FP/TN/FN = 4150/2105/2251/408. GPT = 4175/2591/1764/383. Both barely miss unresolved patches (~9% miss) and bounce about half of the clean ones. Nemotron becomes conservative here (29% request rate): highest precision of the four (0.83), but it misses half of the real issues.
 
-### Martian（n=50，作废）
+### Martian (n=50, invalid)
 
-四家全部 `approve`，F1=0。Prompt 只有 PR 标题和 URL，明确写了没 local diff。金标却全是「有问题」（`clean=False` 写死）。轨迹在 `*_martian.jsonl`，不要画进主图。
+All four models approved every row, F1 = 0. The prompt only had a PR title and URL and said there was no local diff. Gold is hardcoded `clean=False`. Files: `*_martian.jsonl`. Do not plot this bench.
 
 ---
 
-## 这些数字到底在说什么
+## What the numbers actually say
 
-### 1. 模型在两套「人格」之间切换
+### 1. Models switch “personality” with the input
 
-把 **提意见率** 摊开看：
+Request-change rate:
 
 | Model | SWR | AACR | SWE-Review |
 |---|---:|---:|---:|
@@ -115,13 +115,13 @@ Opus：TP/FP/TN/FN = 4150/2105/2251/408。GPT：4175/2591/1764/383。两家几�
 | GPT-5.6 | 32% | 36% | **76%** |
 | Nemotron | **59%** | **85%** | 29% |
 
-开源 Nemotron 在「短评论 / 残缺 diff」设定里爱找茬；有完整 patch 的 SWE-Review 上反而收着。闭源 Opus/GPT 正好反过来：SWR/AACR 很克制，SWE-Review 上变成高召回审查员。这更像 **输入里有没有可审的代码** 在驱动行为，而不是一条固定的「严格/宽松」人格。
+Open Nemotron nitpicks when the input is a short comment or a missing diff, then holds back when a full patch is present. Closed Opus/GPT do the opposite: restrained on SWR/AACR, high-recall reviewers on SWE-Review. That looks like **whether there is reviewable code in the prompt**, not a fixed strict/lenient personality.
 
-### 2. SWR 的 diff 经常是空的
+### 2. SWR diffs are often missing
 
-SWR 构造 payload 时只从 `pr_commits[*].diffs|files` 里各截 2000 字符。很多行这个字段对不上，模型实际只看到标题/描述。
+SWR payloads are built from `pr_commits[*].diffs|files`, 2000 chars each. On many rows those fields do not match, so the model only sees title/description.
 
-输出里出现「没有 diff / 无法审查」这类话的比例：
+Share of outputs that talk about a missing diff / inability to review:
 
 | Model | SWR | AACR | SWE-Review |
 |---|---:|---:|---:|
@@ -129,32 +129,32 @@ SWR 构造 payload 时只从 `pr_commits[*].diffs|files` 里各截 2000 字符�
 | Opus 4.8 | 26.2% | 1.0% | 2.1% |
 | GPT-5.6 | 17.8% | 0.1% | 0.3% |
 
-Nemotron 在 SWR 上的一条 TP 长这样（`astropy__astropy-187`，金标是脏 PR）：
+A Nemotron SWR true positive (`astropy__astropy-187`, gold dirty):
 
 ```json
 {"decision":"request_changes","findings":[{"title":"Missing PR diff for review",
   "body":"The pull request description was provided but no code changes were included."}]}
 ```
 
-同一题型的 FP（金标干净）也是同一句话。也就是说 **SWR 的 F1 很大一块在奖励/惩罚「会不会抱怨没 diff」**，不是在奖励找到真实 bug。GPT 较少抱怨（17.8%），F1 反而更低，因为它更常直接 `approve`。
+False positives on gold-clean rows say the same thing. A large slice of SWR F1 is **rewarding or punishing “complained about a missing diff”**, not finding real bugs. GPT complains less (17.8%) and scores lower F1 because it more often just approves.
 
-在这种输入下，永远 `request_changes` 是很强的基线。没有模型打过它，是预期内的，不要解释成「Nemotron 比 Opus 更会做 code review」。
+Under this input, always-`request_changes` is a strong baseline. No model beating it is expected. Do not read it as “Nemotron is better at code review than Opus.”
 
-### 3. Glimmer：轨迹是 prompt 回显
+### 3. Glimmer trajectories are prompt echoes
 
-`Muse-Glimmer_*` 里 **100%** 的 `output` 以 `to=selfYou are a senior code reviewer...` 开头，把评分 prompt 和 PR 原文又打了一遍。平均输出长度：SWR 3428 字符，AACR 8490，SWE-Review 8341（Nemotron 分别只有 298 / 500 / 575）。
+Every `Muse-Glimmer_*` `output` starts with `to=selfYou are a senior code reviewer...` and dumps the scoring prompt plus the PR. Mean output length: SWR 3428 chars, AACR 8490, SWE-Review 8341 (Nemotron: 298 / 500 / 575).
 
-`score_cr_results.py` 用正则取 **最后一次** `"decision": "approve"|"request_changes"`。Schema 示例里就有 `"decision": "approve"`，所以回显会被算成 approve。这正好对齐 Glimmer 13–28% 的提意见率和 74–86% 的 miss。
+`score_cr_results.py` takes the **last** `"decision": "approve"|"request_changes"` match. The schema example contains `"decision": "approve"`, so an echo is scored as approve. That matches Glimmer’s 13–28% request rate and 74–86% miss.
 
-Glimmer jsonl 仍然上传了，方便复现这个故障；**不要拿它的 F1 去和另外三家比。**
+The Glimmer jsonl is still here so the failure is reproducible. **Do not compare its F1 to the other three.**
 
-### 4. AACR 是任务错位
+### 4. AACR is the wrong task
 
-官方 AACR 评的是「模型写的评论 vs 人类标注的有效/无效」。我们做的是：把已有评论塞进 prompt，让模型用 `request_changes` 表示「这是真问题」。Nemotron 85% 的时间说是，接近 70% 的基线率，所以 F1 好看。Opus 把大部分评论当成噪声（提意见率 17%），F1 最差。谁「更好」取决于你想要高召回过滤器还是高精确过滤器；当前 proxy **不能**回答「谁更会写 review」。
+Official AACR scores model-written comments against human valid/invalid labels. Here we stuffed an existing comment into the prompt and asked the model to use `request_changes` for “this is a real issue.” Nemotron says yes 85% of the time, near the 70% base rate, so F1 looks good. Opus treats most comments as noise (17% request rate) and gets the worst F1. Which is “better” depends on whether you want a high-recall filter or a high-precision filter. This proxy **cannot** answer “who writes better reviews.”
 
-### 5. 模型两两同意率
+### 5. Pairwise decision agreement
 
-同一条 `instance_id` 上 decision 是否一致：
+Same `instance_id`, same binary decision:
 
 | Pair | SWR | AACR | SWE-Review |
 |---|---:|---:|---:|
@@ -164,9 +164,9 @@ Glimmer jsonl 仍然上传了，方便复现这个故障；**不要拿它的 F1 
 | Nemotron vs GPT | 0.57 | 0.47 | 0.51 |
 | Glimmer vs Nemotron | 0.48 | 0.41 | 0.75 |
 
-Opus 和 GPT 在 SWE-Review 上最齐（都高召回）。Nemotron 和 Opus 在 AACR 上几乎反着来（0.31）：一个默认「评论成立」，一个默认「评论不成立」。Glimmer 和 Opus 在 SWR/AACR 上「一致」是因为两家都大量 approve，到 SWE-Review 就散了。
+Opus and GPT are most aligned on SWE-Review (both high recall). Nemotron and Opus almost invert on AACR (0.31): one defaults to “the comment is valid,” the other to “it is not.” Glimmer vs Opus looks high on SWR/AACR only because both approve a lot; they diverge on SWE-Review.
 
-### 6. 延迟（墙钟，含网络）
+### 6. Latency (wall clock, including network)
 
 | Model | SWR p50 | AACR p50 | SWE-Review p50 | SWE-Review mean |
 |---|---:|---:|---:|---:|
@@ -175,42 +175,42 @@ Opus 和 GPT 在 SWE-Review 上最齐（都高召回）。Nemotron 和 Opus 在 
 | Nemotron | 14.3s | 17.5s | 11.8s | 13.8s |
 | GPT-5.6 (`reasoning_effort=high`) | 18.0s | 22.0s | 29.0s | **40.8s** |
 
-GPT 明显更慢（SWE-Review p90=86s，max=382s），和 high reasoning 一致。Nemotron 空 `content` 时要靠 `reasoning_content` 拼出 JSON，所以比「短回答」看起来的更慢。解析失败率：SWR/AACR 四家都约 100%；SWE-Review 上 Glimmer 99.6%、Nemotron 99.7%、GPT 1 条空、Opus 全解析。
+GPT is clearly slower (SWE-Review p90 = 86s, max = 382s), consistent with high reasoning. Nemotron often spends the token budget on think and leaves `content` empty; the runner concatenates `reasoning_content` + `content`, so it is slower than the short final JSON suggests. Parse rates: ~100% on SWR/AACR for all four; on SWE-Review, Glimmer 99.6%, Nemotron 99.7%, GPT one empty row, Opus fully parsed.
 
 ---
 
-## 协议细节
+## Protocol
 
-- 接口：OpenAI-compatible `chat.completions`，**stream=true**。
-- 输出约束：只要 JSON，`decision` ∈ {`approve`, `request_changes`}，外加 findings 列表（severity / category / path / line / title / body）。
-- Prompt 截断：整段 payload **24000** 字符。SWR 最多 8 个 commit × 20 个 file × 2000 字符。SWE-Review patch 12000 字符。
-- 温度：Glimmer/Nemotron 0.2；Claude / GPT-5.x 1.0。GPT-5.6 额外 `reasoning_effort=high`。
-- `max_tokens=8192`。Nemotron 开了 `--reasoning-parser` 时，预算会先花在 think 上，runner 会把 `reasoning_content` 和 `content` 拼起来再解析。
-- 空输出会按 `instance_id` 补打。`results/retries/` 是补打原始文件；主 jsonl 已经 merge 过。
-- **不是** Harbor、不是多轮 agent、不跑测试、不对照 gold finding 文本。
+- API: OpenAI-compatible `chat.completions`, **stream=true**.
+- Output: JSON only. `decision` ∈ {`approve`, `request_changes`} plus a findings list (`severity` / `category` / `path` / `line` / `title` / `body`).
+- Truncation: full payload **24000** chars. SWR: up to 8 commits × 20 files × 2000 chars. SWE-Review patch: 12000 chars.
+- Temperature: Glimmer/Nemotron 0.2; Claude / GPT-5.x 1.0. GPT-5.6 also uses `reasoning_effort=high`.
+- `max_tokens=8192`. With Nemotron `--reasoning-parser`, the budget is spent on thinking first; the runner concatenates `reasoning_content` and `content` before parsing.
+- Empty outputs were retried by `instance_id`. `results/retries/` holds the raw retry files; the main jsonl files are already merged.
+- **Not** Harbor, not a multi-turn agent, no tests executed, no gold-finding text match.
 
-数据集（需自行下载，不要指望本仓库）：
+Datasets (download yourself; they are not in this repo):
 
-- SWR：`swr_datasets_d5c5.jsonl`，金标 `change_introduced`（有变更/引入问题 → 非 clean）
-- AACR：`dataset.json`，金标 `label`（真值 → 非 clean）
-- SWE-Review-Traj：HF parquet，金标 `patch_resolved` / `resolved`（已解决 → clean）
-- Martian offline：只有标题，金标在本 harness 里无意义
+- SWR: `swr_datasets_d5c5.jsonl`, gold `change_introduced` (introduced a change/bug → not clean)
+- AACR: `dataset.json`, gold `label` (truthy → not clean)
+- SWE-Review-Traj: HF parquet, gold `patch_resolved` / `resolved` (resolved → clean)
+- Martian offline: title only; gold is meaningless in this harness
 
 ---
 
-## 复现打分
+## Recompute scores
 
 ```bash
 python3 score_cr_results.py --results ./results
 ```
 
-不需要 GPU。产出打印表，并写 `results/updated_scores.json`。
+No GPU. Prints a table and writes `results/updated_scores.json`.
 
-重新跑模型（需要自己的 OpenAI-compatible endpoint）：
+Rerun a model (needs your own OpenAI-compatible endpoint):
 
 ```bash
 pip install openai
-export OPENAI_API_KEY=dummy   # 本地 vLLM 可填 EMPTY
+export OPENAI_API_KEY=dummy   # EMPTY is fine for local vLLM
 python3 run_openai_reviews.py \
   --base-url http://127.0.0.1:8000/v1 \
   --model Nemotron-3-Ultra \
@@ -220,33 +220,33 @@ python3 run_openai_reviews.py \
   --workers 8 --max-tokens 8192
 ```
 
-`--bench` ∈ `swrbench|aacr|swe-review|martian`。已成功的 `instance_id` 会跳过，所以可以断点续跑。
+`--bench` ∈ `swrbench|aacr|swe-review|martian`. Successful `instance_id`s are skipped, so runs are resume-safe.
 
 ---
 
-## 局限（读数字前请看完）
+## Limitations
 
-1. Binary decision proxy ≠ code-review 质量。Findings 的对错完全没评。
-2. SWR payload 经常没有 diff；那一列 F1 被「有没有抱怨缺 diff」污染。
-3. AACR 任务被改写了，不能和官方 leaderboard 比。
-4. Glimmer 是 prompt echo，不是 reviewer。
-5. Martian 没 diff。
-6. 截断 24k / 12k 会切掉大 PR。
-7. SWE-Review 的「未解决 patch」≠「patch 里一定有该提的 bug」；高召回可能只是模型看到不完整修复就打回。
-8. 单次采样，温度对 Claude/GPT 是 1.0，所以有方差。
-9. DeepSeek-V4.1-Flash 未完成，未进表。
-
----
-
-## 建议怎么用这些轨迹
-
-- 要比较「会不会看 patch 做审查」：只用 **SWE-Review**，并自己再做 finding-level 评测；本仓库的 F1 只是门禁。
-- 要研究失败模式：SWR 里搜 `Missing PR diff` / `No implementation diff`；Glimmer 里搜 `to=self`。
-- 不要把四套 bench 平均成一个总分。输入质量差了一个数量级。
-- 若要重跑 SWR，先修 `load_swr()` 的 diff 字段，再谈模型高低。
+1. Binary decision proxy ≠ code-review quality. Finding correctness is not scored.
+2. SWR payloads often have no diff; that column’s F1 is contaminated by “complained about missing diff.”
+3. AACR was rewritten; do not compare to the official leaderboard.
+4. Glimmer is prompt echo, not a reviewer.
+5. Martian has no diff.
+6. 24k / 12k truncation cuts large PRs.
+7. An unresolved SWE-Review patch is not the same as “this patch contains a bug worth flagging.” High recall may just mean the model bounces incomplete fixes.
+8. Single sample. Claude/GPT temperature is 1.0, so there is variance.
+9. DeepSeek-V4.1-Flash was incomplete and is not in the table.
 
 ---
 
-## 许可
+## How to use these trajectories
 
-评分脚本 MIT。jsonl 是模型输出，供研究使用。上游 benchmark 文本/diff **没有** 放进本仓库，请走原项目许可。
+- To compare “can this model review a patch”: use **SWE-Review only**, and add your own finding-level eval. F1 here is only a gate.
+- For failure modes: search SWR for `Missing PR diff` / `No implementation diff`; search Glimmer for `to=self`.
+- Do not average the four benches into one score. Input quality differs by an order of magnitude.
+- If you rerun SWR, fix the diff fields in `load_swr()` before ranking models.
+
+---
+
+## License
+
+Scoring scripts are MIT. jsonl files are model outputs, intended for research. Upstream benchmark text/diffs are **not** in this repo; follow the original project licenses.
