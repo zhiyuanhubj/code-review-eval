@@ -1,0 +1,47 @@
+{
+  "instance_id": "bitcoin__bitcoin@e98c51f",
+  "repo": "bitcoin/bitcoin",
+  "base_commit": "663a9cabf811e2fc53102bc6da00d09fc99d1d81",
+  "head_commit": "e98c51fcce9ae3f441a416cab32a5c85756c6c64",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:18:56.591449+00:00",
+  "duration_seconds": 26.96,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/init.cpp",
+        "start_line": 1595,
+        "end_line": 1595,
+        "content": "The logic for handling empty proxy_str (proxy_str.empty() || proxy_str == \"0\") sets proxy to an invalid/default Proxy object, but then the code proceeds to check net_str and assign this invalid proxy to specific network proxies. This could override a previously set valid proxy with an invalid one when using -proxy=0=ipv4 or similar. The fix should skip the network-specific assignment entirely when proxy_str is empty or \"0\"."
+      },
+      {
+        "path": "src/init.cpp",
+        "start_line": 1608,
+        "end_line": 1608,
+        "content": "When net_str is empty (no network suffix), the code assigns the proxy to all networks including name_proxy. However, the documentation states that DNS requests use the proxy from -proxy=addr:port or -proxy=addr:port=ipv4/ipv6, not from -proxy=addr:port=tor. The current implementation correctly sets name_proxy when net_str is empty, but the documentation should clarify that -proxy=addr:port (no suffix) sets the name proxy, while -proxy=addr:port=tor does not."
+      },
+      {
+        "path": "src/init.cpp",
+        "start_line": 1615,
+        "end_line": 1615,
+        "content": "The code accepts both \"tor\" and \"onion\" as network suffixes for -proxy. However, the documentation only mentions \"tor\" as a valid network suffix. The documentation should be updated to mention that \"onion\" is also accepted as an alias for \"tor\"."
+      },
+      {
+        "path": "doc/tor.md",
+        "start_line": 45,
+        "end_line": 45,
+        "content": "The documentation states that the proxy for DNS requests is taken from -proxy=addr:port or -proxy=addr:port=ipv4 or -proxy=addr:port=ipv6 (last one if multiple). However, the code in init.cpp sets name_proxy from the generic -proxy (no suffix) and from -proxy=ipv4 and -proxy=ipv6, but the 'last one if multiple' behavior for ipv4/ipv6 is not clearly implemented - the loop processes args in order and later ones override earlier ones, which matches 'last one wins', but this should be verified."
+      },
+      {
+        "path": "doc/tor.md",
+        "start_line": 55,
+        "end_line": 55,
+        "content": "The documentation mentions UNIX domain sockets can be used with the prefix 'unix:' but doesn't mention that this works for both -proxy and -onion. The code supports it for both, so the documentation should explicitly state this."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/init.cpp\",\n      \"start_line\": 1595,\n      \"end_line\": 1595,\n      \"content\": \"The logic for handling empty proxy_str (proxy_str.empty() || proxy_str == \\\"0\\\") sets proxy to an invalid/default Proxy object, but then the code proceeds to check net_str and assign this invalid proxy to specific network proxies. This could override a previously set valid proxy with an invalid one when using -proxy=0=ipv4 or similar. The fix should skip the network-specific assignment entirely when proxy_str is empty or \\\"0\\\".\"\n    },\n    {\n      \"path\": \"src/init.cpp\",\n      \"start_line\": 1608,\n      \"end_line\": 1608,\n      \"content\": \"When net_str is empty (no network suffix), the code assigns the proxy to all networks including name_proxy. However, the documentation states that DNS requests use the proxy from -proxy=addr:port or -proxy=addr:port=ipv4/ipv6, not from -proxy=addr:port=tor. The current implementation correctly sets name_proxy when net_str is empty, but the documentation should clarify that -proxy=addr:port (no suffix) sets the name proxy, while -proxy=addr:port=tor does not.\"\n    },\n    {\n      \"path\": \"src/init.cpp\",\n      \"start_line\": 1615,\n      \"end_line\": 1615,\n      \"content\": \"The code accepts both \\\"tor\\\" and \\\"onion\\\" as network suffixes for -proxy. However, the documentation only mentions \\\"tor\\\" as a valid network suffix. The documentation should be updated to mention that \\\"onion\\\" is also accepted as an alias for \\\"tor\\\".\"\n    },\n    {\n      \"path\": \"doc/tor.md\",\n      \"start_line\": 45,\n      \"end_line\": 45,\n      \"content\": \"The documentation states that the proxy for DNS requests is taken from -proxy=addr:port or -proxy=addr:port=ipv4 or -proxy=addr:port=ipv6 (last one if multiple). However, the code in init.cpp sets name_proxy from the generic -proxy (no suffix) and from -proxy=ipv4 and -proxy=ipv6, but the 'last one if multiple' behavior for ipv4/ipv6 is not clearly implemented - the loop processes args in order and later ones override earlier ones, which matches 'last one wins', but this should be verified.\"\n    },\n    {\n      \"path\": \"doc/tor.md\",\n      \"start_line\": 55,\n      \"end_line\": 55,\n      \"content\": \"The documentation mentions UNIX domain sockets can be used with the prefix 'unix:' but doesn't mention that this works for both -proxy and -onion. The code supports it for both, so the documentation should explicitly state this.\"\n    }\n  ]\n}",
+  "stderr": null
+}

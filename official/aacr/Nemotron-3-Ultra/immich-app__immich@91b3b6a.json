@@ -1,0 +1,47 @@
+{
+  "instance_id": "immich-app__immich@91b3b6a",
+  "repo": "immich-app/immich",
+  "base_commit": "10e569cc1c563ece2eb7e2581cef943829a72440",
+  "head_commit": "91b3b6aebd3a02a4ac158b21ce469138df893178",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:22:11.034997+00:00",
+  "duration_seconds": 54.14,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "e2e/src/api/specs/asset.e2e-spec.ts",
+        "start_line": 809,
+        "end_line": 809,
+        "content": "The test uses `getAssetStatistics` with `isTrashed: true` to verify the asset was permanently deleted. However, `getAssetStatistics` returns aggregate counts, not individual asset info. If other trashed assets exist, this assertion could pass incorrectly. Consider using `getAssetInfo` and expecting a 404, or `searchAssets` with `withDeleted: true` and checking the asset is not returned."
+      },
+      {
+        "path": "e2e/src/api/specs/library.e2e-spec.ts",
+        "start_line": 620,
+        "end_line": 620,
+        "content": "The test expects `offlineAsset.isTrashed` to be `true` after the file is moved outside the import path. However, the test name and description say 'should set an asset offline if its file is not in any import path'. Being 'offline' and 'trashed' are different states. Verify if the intended behavior is to trash the asset or mark it as offline. The assertion `expect(offlineAsset.isTrashed).toBe(true)` seems inconsistent with the test name."
+      },
+      {
+        "path": "e2e/src/api/specs/library.e2e-spec.ts",
+        "start_line": 670,
+        "end_line": 670,
+        "content": "Same issue: the test expects `offlineAsset.isTrashed` to be `true` when the file is moved outside the import path. The test name says 'should not set an offline asset to online if its file exists, is not covered by an exclusion pattern, but is outside of all import paths'. The asset should remain offline, but `isTrashed: true` suggests it was trashed. Clarify the expected behavior."
+      },
+      {
+        "path": "e2e/src/api/specs/library.e2e-spec.ts",
+        "start_line": 730,
+        "end_line": 730,
+        "content": "Same issue: the test expects `offlineAsset.isTrashed` to be `true` when the file is moved outside the import path. The test name says 'should not set an offline asset to online if its file exists, is in an import path, but is covered by an exclusion pattern'. The asset should remain offline, but `isTrashed: true` suggests it was trashed. Clarify the expected behavior."
+      },
+      {
+        "path": "server/src/services/asset.service.ts",
+        "start_line": 191,
+        "end_line": 191,
+        "content": "The change `deleteOnDisk: !asset.isOffline` prevents deletion of offline assets when force-deleting from trash. However, the comment in the code below says 'We don't want to delete an offline asset because it is either... missing from disk => don't delete the file since it doesn't exist where we expect'. If the asset is offline because the file is missing, `deleteOnDisk: false` is correct. But if the asset is offline due to exclusion pattern or outside import path, the file may still exist on disk. The current logic treats all offline assets the same. Consider if this is the intended behavior for force-delete."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"e2e/src/api/specs/asset.e2e-spec.ts\",\n      \"start_line\": 809,\n      \"end_line\": 809,\n      \"content\": \"The test uses `getAssetStatistics` with `isTrashed: true` to verify the asset was permanently deleted. However, `getAssetStatistics` returns aggregate counts, not individual asset info. If other trashed assets exist, this assertion could pass incorrectly. Consider using `getAssetInfo` and expecting a 404, or `searchAssets` with `withDeleted: true` and checking the asset is not returned.\"\n    },\n    {\n      \"path\": \"e2e/src/api/specs/library.e2e-spec.ts\",\n      \"start_line\": 620,\n      \"end_line\": 620,\n      \"content\": \"The test expects `offlineAsset.isTrashed` to be `true` after the file is moved outside the import path. However, the test name and description say 'should set an asset offline if its file is not in any import path'. Being 'offline' and 'trashed' are different states. Verify if the intended behavior is to trash the asset or mark it as offline. The assertion `expect(offlineAsset.isTrashed).toBe(true)` seems inconsistent with the test name.\"\n    },\n    {\n      \"path\": \"e2e/src/api/specs/library.e2e-spec.ts\",\n      \"start_line\": 670,\n      \"end_line\": 670,\n      \"content\": \"Same issue: the test expects `offlineAsset.isTrashed` to be `true` when the file is moved outside the import path. The test name says 'should not set an offline asset to online if its file exists, is not covered by an exclusion pattern, but is outside of all import paths'. The asset should remain offline, but `isTrashed: true` suggests it was trashed. Clarify the expected behavior.\"\n    },\n    {\n      \"path\": \"e2e/src/api/specs/library.e2e-spec.ts\",\n      \"start_line\": 730,\n      \"end_line\": 730,\n      \"content\": \"Same issue: the test expects `offlineAsset.isTrashed` to be `true` when the file is moved outside the import path. The test name says 'should not set an offline asset to online if its file exists, is in an import path, but is covered by an exclusion pattern'. The asset should remain offline, but `isTrashed: true` suggests it was trashed. Clarify the expected behavior.\"\n    },\n    {\n      \"path\": \"server/src/services/asset.service.ts\",\n      \"start_line\": 191,\n      \"end_line\": 191,\n      \"content\": \"The change `deleteOnDisk: !asset.isOffline` prevents deletion of offline assets when force-deleting from trash. However, the comment in the code below says 'We don't want to delete an offline asset because it is either... missing from disk => don't delete the file since it doesn't exist where we expect'. If the asset is offline because the file is missing, `deleteOnDisk: false` is correct. But if the asset is offline due to exclusion pattern or outside import path, the file may still exist on disk. The current logic treats all offline assets the same. Consider if this is the intended behavior for force-delete.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,23 @@
+{
+  "instance_id": "libsdl-org__SDL@96dfef3",
+  "repo": "libsdl-org/SDL",
+  "base_commit": "ab34ea5a2684766e510de1daf8ae44c41b6af704",
+  "head_commit": "96dfef35c4b0b89f2f8d9c2ecc4f5e3a25d3e7a0",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:00:15.234913+00:00",
+  "duration_seconds": 9.12,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/gpu/vulkan/SDL_gpu_vulkan.c",
+        "start_line": 10770,
+        "end_line": 10770,
+        "content": "VULKAN_INTERNAL_DefragmentMemory now returns true without submitting the command buffer. The defrag command buffer (with copy operations) is never submitted to the GPU, so the memory copies will never execute. The function should submit the command buffer or the caller should handle submission."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/gpu/vulkan/SDL_gpu_vulkan.c\",\n      \"start_line\": 10770,\n      \"end_line\": 10770,\n      \"content\": \"VULKAN_INTERNAL_DefragmentMemory now returns true without submitting the command buffer. The defrag command buffer (with copy operations) is never submitted to the GPU, so the memory copies will never execute. The function should submit the command buffer or the caller should handle submission.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,29 @@
+{
+  "instance_id": "valkey-io__valkey@ecb3abd",
+  "repo": "valkey-io/valkey",
+  "base_commit": "78bcc0a2cfb33ec940bfb14cb12ea10efa3af93a",
+  "head_commit": "ecb3abd53e891861ce996506689336b6442ec8fb",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:16:40.584379+00:00",
+  "duration_seconds": 16.74,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/acl.c",
+        "start_line": 1000,
+        "end_line": 1010,
+        "content": "The 'goto cleanup' was removed but the 'cleanup:' label remains at line 1007. This dead label should be removed to avoid confusion."
+      },
+      {
+        "path": "src/acl.c",
+        "start_line": 1047,
+        "end_line": 1047,
+        "content": "Line 1047 references 'cleanup:' label that no longer exists after the goto removal. This appears to be a leftover from the refactoring."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/acl.c\",\n      \"start_line\": 1000,\n      \"end_line\": 1010,\n      \"content\": \"The 'goto cleanup' was removed but the 'cleanup:' label remains at line 1007. This dead label should be removed to avoid confusion.\"\n    },\n    {\n      \"path\": \"src/acl.c\",\n      \"start_line\": 1047,\n      \"end_line\": 1047,\n      \"content\": \"Line 1047 references 'cleanup:' label that no longer exists after the goto removal. This appears to be a leftover from the refactoring.\"\n    }\n  ]\n}",
+  "stderr": null
+}

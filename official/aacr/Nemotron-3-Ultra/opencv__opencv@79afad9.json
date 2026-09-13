@@ -1,0 +1,53 @@
+{
+  "instance_id": "opencv__opencv@79afad9",
+  "repo": "opencv/opencv",
+  "base_commit": "868fc5c581228f8f47bf4bc3ee84427acc99226a",
+  "head_commit": "79afad939ecfaa332af0541db473fa94f8f425b6",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:05:11.986557+00:00",
+  "duration_seconds": 35.54,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "modules/java/generator/gen_java.py",
+        "start_line": 68,
+        "end_line": 68,
+        "content": "The 'long long' entry maps jn_type to 'long', but 'long' in Java is 64-bit while 'long long' in C++ is also 64-bit. This is correct. However, note that 'long' in C++ on Windows 64-bit is 32-bit, but 'long long' is 64-bit. The mapping looks correct for JNI (jlong)."
+      },
+      {
+        "path": "modules/java/generator/gen_java.py",
+        "start_line": 93,
+        "end_line": 101,
+        "content": "The 'byte[]' type entry uses 'char*' in the JNI variable declaration (reinterpret_cast<char*>). Since jbyte is signed char, this should be 'jbyte*' or 'signed char*' for correctness. Using 'char*' may cause sign extension issues on platforms where char is unsigned."
+      },
+      {
+        "path": "modules/python/src2/cv2_convert.hpp",
+        "start_line": 185,
+        "end_line": 205,
+        "content": "The enable_if condition `!std::is_same<long long, int64>::value` is incorrect. `int64` is not a standard type; it should be `int64_t` (from <cstdint>). This will likely fail to compile or not work as intended on platforms where long long and int64_t are the same type."
+      },
+      {
+        "path": "modules/videoio/misc/java/src/cpp/videoio_converters.cpp",
+        "start_line": 20,
+        "end_line": 35,
+        "content": "In JavaStreamReader::read, the code creates a jbyteArray of 'size' (long long) but casts to jsize (32-bit int) for NewByteArray and GetByteArrayRegion. This will truncate size on 64-bit systems if size > 2GB. Should add a check for size > INT_MAX and handle appropriately (e.g., loop or error)."
+      },
+      {
+        "path": "modules/videoio/misc/java/src/cpp/videoio_converters.cpp",
+        "start_line": 20,
+        "end_line": 35,
+        "content": "The read method copies data from Java byte[] to native buffer via GetByteArrayRegion after CallLongMethod. However, the Java IStreamReader.read method returns the number of bytes read, but the code ignores this and always copies 'size' bytes. Should use the returned 'res' value as the actual number of bytes to copy."
+      },
+      {
+        "path": "modules/videoio/misc/java/test/VideoCaptureTest.java",
+        "start_line": 95,
+        "end_line": 105,
+        "content": "In the anonymous IStreamReader implementation, read() returns Math.max(f.read(buffer), 0). RandomAccessFile.read returns -1 at EOF, which becomes 0. This is correct for signaling EOF. However, seek() returns f.getFilePointer() after seeking, but the C++ IStreamReader::seek expects the new position. This matches. However, the origin parameter: Java's RandomAccessFile.seek uses absolute positioning (origin=0), but the C++ interface uses standard fseek origins (0=SEEK_SET, 1=SEEK_CUR, 2=SEEK_END). The test only handles origin==0. Should handle other origins or document limitation."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"modules/java/generator/gen_java.py\",\n      \"start_line\": 68,\n      \"end_line\": 68,\n      \"content\": \"The 'long long' entry maps jn_type to 'long', but 'long' in Java is 64-bit while 'long long' in C++ is also 64-bit. This is correct. However, note that 'long' in C++ on Windows 64-bit is 32-bit, but 'long long' is 64-bit. The mapping looks correct for JNI (jlong).\"\n    },\n    {\n      \"path\": \"modules/java/generator/gen_java.py\",\n      \"start_line\": 93,\n      \"end_line\": 101,\n      \"content\": \"The 'byte[]' type entry uses 'char*' in the JNI variable declaration (reinterpret_cast<char*>). Since jbyte is signed char, this should be 'jbyte*' or 'signed char*' for correctness. Using 'char*' may cause sign extension issues on platforms where char is unsigned.\"\n    },\n    {\n      \"path\": \"modules/python/src2/cv2_convert.hpp\",\n      \"start_line\": 185,\n      \"end_line\": 205,\n      \"content\": \"The enable_if condition `!std::is_same<long long, int64>::value` is incorrect. `int64` is not a standard type; it should be `int64_t` (from <cstdint>). This will likely fail to compile or not work as intended on platforms where long long and int64_t are the same type.\"\n    },\n    {\n      \"path\": \"modules/videoio/misc/java/src/cpp/videoio_converters.cpp\",\n      \"start_line\": 20,\n      \"end_line\": 35,\n      \"content\": \"In JavaStreamReader::read, the code creates a jbyteArray of 'size' (long long) but casts to jsize (32-bit int) for NewByteArray and GetByteArrayRegion. This will truncate size on 64-bit systems if size > 2GB. Should add a check for size > INT_MAX and handle appropriately (e.g., loop or error).\"\n    },\n    {\n      \"path\": \"modules/videoio/misc/java/src/cpp/videoio_converters.cpp\",\n      \"start_line\": 20,\n      \"end_line\": 35,\n      \"content\": \"The read method copies data from Java byte[] to native buffer via GetByteArrayRegion after CallLongMethod. However, the Java IStreamReader.read method returns the number of bytes read, but the code ignores this and always copies 'size' bytes. Should use the returned 'res' value as the actual number of bytes to copy.\"\n    },\n    {\n      \"path\": \"modules/videoio/misc/java/test/VideoCaptureTest.java\",\n      \"start_line\": 95,\n      \"end_line\": 105,\n      \"content\": \"In the anonymous IStreamReader implementation, read() returns Math.max(f.read(buffer), 0). RandomAccessFile.read returns -1 at EOF, which becomes 0. This is correct for signaling EOF. However, seek() returns f.getFilePointer() after seeking, but the C++ IStreamReader::seek expects the new position. This matches. However, the origin parameter: Java's RandomAccessFile.seek uses absolute positioning (origin=0), but the C++ interface uses standard fseek origins (0=SEEK_SET, 1=SEEK_CUR, 2=SEEK_END). The test only handles origin==0. Should handle other origins or document limitation.\"\n    }\n  ]\n}",
+  "stderr": null
+}

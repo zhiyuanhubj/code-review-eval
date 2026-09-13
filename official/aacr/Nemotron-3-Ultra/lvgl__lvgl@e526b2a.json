@@ -1,0 +1,71 @@
+{
+  "instance_id": "lvgl__lvgl@e526b2a",
+  "repo": "lvgl/lvgl",
+  "base_commit": "244b3b996e0b331468cf5967c937029535af569c",
+  "head_commit": "e526b2a1faa4672eeb3610b466ecc25b1abb220b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:06:35.220473+00:00",
+  "duration_seconds": 34.65,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/others/xml/parsers/lv_xml_spangroup_parser.c",
+        "start_line": 100,
+        "end_line": 100,
+        "content": "The `free_fmt_event_cb` function is defined but `lv_event_free_user_data_cb` is now available as a common helper. Consider using the common helper instead of a duplicate function for consistency with other parsers (e.g., lv_xml_label_parser.c)."
+      },
+      {
+        "path": "src/others/xml/parsers/lv_xml_obj_parser.c",
+        "start_line": 920,
+        "end_line": 920,
+        "content": "The `dsc_array` allocated for grid column/row descriptors is freed via `lv_event_free_user_data_cb` on `LV_EVENT_DELETE`. However, if the style is applied to multiple objects, the same array pointer would be freed multiple times. Consider if this is the intended ownership model or if the array should be managed differently."
+      },
+      {
+        "path": "src/others/xml/lv_xml_style.c",
+        "start_line": 310,
+        "end_line": 310,
+        "content": "Similar to lv_xml_obj_parser.c, the `dsc_array` allocated here for style grid descriptors is not associated with an object's delete event for cleanup. This will leak memory when the style is destroyed or the component scope ends. The style system doesn't automatically free user-provided arrays."
+      },
+      {
+        "path": "src/others/observer/lv_observer.c",
+        "start_line": 800,
+        "end_line": 800,
+        "content": "In `lv_spangroup_bind_span_text`, the `bind_element_string_t` user_data is allocated with `lv_zalloc` and `observer->auto_free_user_data = 1` is set. However, the observer callback `span_text_observer_cb` doesn't free the `fmt` string if it was duplicated (e.g., via `lv_strdup` in XML parser). The `auto_free_user_data` only frees the struct itself, not the `fmt` pointer inside it. This leaks the format string."
+      },
+      {
+        "path": "src/others/xml/parsers/lv_xml_spangroup_parser.c",
+        "start_line": 95,
+        "end_line": 95,
+        "content": "The `fmt` string is duplicated with `lv_strdup` and passed to `lv_spangroup_bind_span_text`, but the observer's `auto_free_user_data` only frees the `bind_element_string_t` struct, not the `fmt` member. This leaks the duplicated format string. Either the observer callback should free `user_data->fmt` or the XML parser should not duplicate it (but then lifetime management is unclear)."
+      },
+      {
+        "path": "src/widgets/span/lv_span.c",
+        "start_line": 205,
+        "end_line": 205,
+        "content": "In `lv_span_set_text_fmt`, if `span->txt` was previously set via `lv_span_set_text_static` (where `static_flag` is 1), the code does `lv_free(span->txt)` when `span->txt == NULL && span->static_flag`. This condition seems wrong: if `static_flag` is 1, `span->txt` points to user memory and should NOT be freed. The condition should likely be `if(span->txt != NULL && !span->static_flag)` to free previously allocated dynamic text."
+      },
+      {
+        "path": "src/widgets/span/lv_span.c",
+        "start_line": 265,
+        "end_line": 265,
+        "content": "Same issue in `lv_spangroup_set_span_text_fmt`: the condition `if(span->txt == NULL && span->static_flag)` is incorrect for freeing previous dynamic text. It should free the old text if it was dynamically allocated (`!span->static_flag`)."
+      },
+      {
+        "path": "src/core/lv_obj_tree.h",
+        "start_line": 43,
+        "end_line": 43,
+        "content": "The comment says `LV_EVENT_DELETE` is sent, but the actual event code sent during deletion is `LV_EVENT_DELETE` (not `LV_EVENT_DELETED`). The comment was corrected from `LV_EVENT_DELETED` to `LV_EVENT_DELETE`, which is accurate. However, verify that the event sent in `lv_obj_delete` implementation matches this."
+      },
+      {
+        "path": "src/others/xml/parsers/lv_xml_scale_parser.c",
+        "start_line": 71,
+        "end_line": 71,
+        "content": "Changed `lv_xml_to_bool(value)` to `lv_xml_atoi(value)` for rotation. Rotation is an integer angle, not a boolean. This fix is correct."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/others/xml/parsers/lv_xml_spangroup_parser.c\",\n      \"start_line\": 100,\n      \"end_line\": 100,\n      \"content\": \"The `free_fmt_event_cb` function is defined but `lv_event_free_user_data_cb` is now available as a common helper. Consider using the common helper instead of a duplicate function for consistency with other parsers (e.g., lv_xml_label_parser.c).\"\n    },\n    {\n      \"path\": \"src/others/xml/parsers/lv_xml_obj_parser.c\",\n      \"start_line\": 920,\n      \"end_line\": 920,\n      \"content\": \"The `dsc_array` allocated for grid column/row descriptors is freed via `lv_event_free_user_data_cb` on `LV_EVENT_DELETE`. However, if the style is applied to multiple objects, the same array pointer would be freed multiple times. Consider if this is the intended ownership model or if the array should be managed differently.\"\n    },\n    {\n      \"path\": \"src/others/xml/lv_xml_style.c\",\n      \"start_line\": 310,\n      \"end_line\": 310,\n      \"content\": \"Similar to lv_xml_obj_parser.c, the `dsc_array` allocated here for style grid descriptors is not associated with an object's delete event for cleanup. This will leak memory when the style is destroyed or the component scope ends. The style system doesn't automatically free user-provided arrays.\"\n    },\n    {\n      \"path\": \"src/others/observer/lv_observer.c\",\n      \"start_line\": 800,\n      \"end_line\": 800,\n      \"content\": \"In `lv_spangroup_bind_span_text`, the `bind_element_string_t` user_data is allocated with `lv_zalloc` and `observer->auto_free_user_data = 1` is set. However, the observer callback `span_text_observer_cb` doesn't free the `fmt` string if it was duplicated (e.g., via `lv_strdup` in XML parser). The `auto_free_user_data` only frees the struct itself, not the `fmt` pointer inside it. This leaks the format string.\"\n    },\n    {\n      \"path\": \"src/others/xml/parsers/lv_xml_spangroup_parser.c\",\n      \"start_line\": 95,\n      \"end_line\": 95,\n      \"content\": \"The `fmt` string is duplicated with `lv_strdup` and passed to `lv_spangroup_bind_span_text`, but the observer's `auto_free_user_data` only frees the `bind_element_string_t` struct, not the `fmt` member. This leaks the duplicated format string. Either the observer callback should free `user_data->fmt` or the XML parser should not duplicate it (but then lifetime management is unclear).\"\n    },\n    {\n      \"path\": \"src/widgets/span/lv_span.c\",\n      \"start_line\": 205,\n      \"end_line\": 205,\n      \"content\": \"In `lv_span_set_text_fmt`, if `span->txt` was previously set via `lv_span_set_text_static` (where `static_flag` is 1), the code does `lv_free(span->txt)` when `span->txt == NULL && span->static_flag`. This condition seems wrong: if `static_flag` is 1, `span->txt` points to user memory and should NOT be freed. The condition should likely be `if(span->txt != NULL && !span->static_flag)` to free previously allocated dynamic text.\"\n    },\n    {\n      \"path\": \"src/widgets/span/lv_span.c\",\n      \"start_line\": 265,\n      \"end_line\": 265,\n      \"content\": \"Same issue in `lv_spangroup_set_span_text_fmt`: the condition `if(span->txt == NULL && span->static_flag)` is incorrect for freeing previous dynamic text. It should free the old text if it was dynamically allocated (`!span->static_flag`).\"\n    },\n    {\n      \"path\": \"src/core/lv_obj_tree.h\",\n      \"start_line\": 43,\n      \"end_line\": 43,\n      \"content\": \"The comment says `LV_EVENT_DELETE` is sent, but the actual event code sent during deletion is `LV_EVENT_DELETE` (not `LV_EVENT_DELETED`). The comment was corrected from `LV_EVENT_DELETED` to `LV_EVENT_DELETE`, which is accurate. However, verify that the event sent in `lv_obj_delete` implementation matches this.\"\n    },\n    {\n      \"path\": \"src/others/xml/parsers/lv_xml_scale_parser.c\",\n      \"start_line\": 71,\n      \"end_line\": 71,\n      \"content\": \"Changed `lv_xml_to_bool(value)` to `lv_xml_atoi(value)` for rotation. Rotation is an integer angle, not a boolean. This fix is correct.\"\n    }\n  ]\n}",
+  "stderr": null
+}

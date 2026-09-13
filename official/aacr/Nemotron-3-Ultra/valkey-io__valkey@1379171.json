@@ -1,0 +1,41 @@
+{
+  "instance_id": "valkey-io__valkey@1379171",
+  "repo": "valkey-io/valkey",
+  "base_commit": "b5c7743971df5476acbdbbbd3b378496e885e1e4",
+  "head_commit": "1379171021c18b009fa02c42088e82caf0e33203",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:16:50.194695+00:00",
+  "duration_seconds": 29.61,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/valkey-benchmark.c",
+        "start_line": 1472,
+        "end_line": 1487,
+        "content": "There is a stray '#endif' on line 1475 that doesn't match any '#ifdef'. The TLS block ends at line 1474, then there's an extra '#endif' before the RDMA block starts. This will cause a compilation error when USE_RDMA is defined but USE_TLS is not."
+      },
+      {
+        "path": "src/valkey-benchmark.c",
+        "start_line": 1534,
+        "end_line": 1545,
+        "content": "The usage string format specifier count doesn't match arguments. The format string has 4 '%s' placeholders (line 1537) but only 3 arguments are passed (version, tls_usage, rdma_usage on line 1610). This will cause undefined behavior at runtime."
+      },
+      {
+        "path": "src/valkey-cli.c",
+        "start_line": 2826,
+        "end_line": 2834,
+        "content": "There is a stray '#endif' on line 2829 that doesn't match any '#ifdef'. The TLS block ends at line 2828, then there's an extra '#endif' before the RDMA block starts. This will cause a compilation error when USE_RDMA is defined but USE_TLS is not."
+      },
+      {
+        "path": "src/valkey-cli.c",
+        "start_line": 2956,
+        "end_line": 2965,
+        "content": "The usage string format specifier count doesn't match arguments. The format string has 3 '%s' placeholders (line 3018) but only 2 arguments are passed (version, tls_usage on line 3021). The rdma_usage variable is defined but not passed to fprintf."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/valkey-benchmark.c\",\n      \"start_line\": 1472,\n      \"end_line\": 1487,\n      \"content\": \"There is a stray '#endif' on line 1475 that doesn't match any '#ifdef'. The TLS block ends at line 1474, then there's an extra '#endif' before the RDMA block starts. This will cause a compilation error when USE_RDMA is defined but USE_TLS is not.\"\n    },\n    {\n      \"path\": \"src/valkey-benchmark.c\",\n      \"start_line\": 1534,\n      \"end_line\": 1545,\n      \"content\": \"The usage string format specifier count doesn't match arguments. The format string has 4 '%s' placeholders (line 1537) but only 3 arguments are passed (version, tls_usage, rdma_usage on line 1610). This will cause undefined behavior at runtime.\"\n    },\n    {\n      \"path\": \"src/valkey-cli.c\",\n      \"start_line\": 2826,\n      \"end_line\": 2834,\n      \"content\": \"There is a stray '#endif' on line 2829 that doesn't match any '#ifdef'. The TLS block ends at line 2828, then there's an extra '#endif' before the RDMA block starts. This will cause a compilation error when USE_RDMA is defined but USE_TLS is not.\"\n    },\n    {\n      \"path\": \"src/valkey-cli.c\",\n      \"start_line\": 2956,\n      \"end_line\": 2965,\n      \"content\": \"The usage string format specifier count doesn't match arguments. The format string has 3 '%s' placeholders (line 3018) but only 2 arguments are passed (version, tls_usage on line 3021). The rdma_usage variable is defined but not passed to fprintf.\"\n    }\n  ]\n}",
+  "stderr": null
+}

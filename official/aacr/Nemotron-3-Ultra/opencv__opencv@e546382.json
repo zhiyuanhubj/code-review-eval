@@ -1,0 +1,16 @@
+{
+  "instance_id": "opencv__opencv@e546382",
+  "repo": "opencv/opencv",
+  "base_commit": "16a3d37dc159dbcaaf8ee74cf63669f0203f9655",
+  "head_commit": "e546382fc1cbb61a7679c0511303729844a70111",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:04:36.242175+00:00",
+  "duration_seconds": 29.61,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"modules/imgcodecs/src/grfmt_png.cpp\",\n      \"start_line\": 292,\n      \"end_line\": 292,\n      \"content\": \"The log message for non-CgBI chunks says 'this data may be broken' but the PNG spec requires IHDR to be first. Consider changing to 'IHDR chunk must be first per PNG specification' for clarity.\"\n    },\n    {\n      \"path\": \"modules/imgcodecs/src/grfmt_png.cpp\",\n      \"start_line\": 291,\n      \"end_line\": 291,\n      \"content\": \"The CgBI log message says 'shall not be first instead of IHDR' - consider 'CgBI chunk (Apple private) cannot appear before IHDR chunk' for better clarity.\"\n    },\n    {\n      \"path\": \"modules/imgcodecs/test/test_png.cpp\",\n      \"start_line\": 127,\n      \"end_line\": 127,\n      \"content\": \"The test checks buff[8+4+0] through buff[8+4+3] for 'IHDR' but PNG chunk format is: length (4 bytes), chunk type (4 bytes), data, CRC (4 bytes). After 8-byte signature, the first 4 bytes are chunk length, then 4 bytes chunk type. So buff[8] through buff[11] is length, buff[12] through buff[15] is chunk type 'IHDR'. The test indexes are off by 4 - should be buff[12] through buff[15].\"\n    },\n    {\n      \"path\": \"modules/imgcodecs/test/test_png.cpp\",\n      \"start_line\": 138,\n      end_line: 138,\n      \"content\": \"Same indexing issue - modifying buff[8+4+0] through buff[8+4+3] modifies the chunk length field, not the chunk type. Should be buff[12] through buff[15].\"\n    },\n    {\n      \"path\": \"modules/imgcodecs/test/test_png.cpp\",\n      \"start_line\": 145,\n      \"end_line\": 145,\n      \"content\": \"Same indexing issue for CgBI test - should modify buff[12] through buff[15], not buff[8+4+0] through buff[8+4+3].\"\n    }\n  ]\n}",
+  "stderr": null
+}

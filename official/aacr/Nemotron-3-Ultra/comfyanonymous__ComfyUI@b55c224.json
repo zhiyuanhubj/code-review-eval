@@ -1,0 +1,29 @@
+{
+  "instance_id": "comfyanonymous__ComfyUI@b55c224",
+  "repo": "comfyanonymous/ComfyUI",
+  "base_commit": "832e3f5ca3c357e527fdf811502357bd2798425e",
+  "head_commit": "b55c2247654476fbc744e572ba7a834fd9378745",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:02:11.334473+00:00",
+  "duration_seconds": 19.28,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "comfy/clip_model.py",
+        "start_line": 107,
+        "end_line": 112,
+        "content": "The DirectML branch creates a causal_mask without filling with -inf first. This will leave uninitialized memory in the upper triangular part (where triu_(1) sets values to 0), causing incorrect attention masking. Both branches should fill with -inf before triu_(1)."
+      },
+      {
+        "path": "comfy/model_management.py",
+        "start_line": 993,
+        "end_line": 1001,
+        "content": "The is_directml_enabled() function references a global 'directml_enabled' variable that is not defined in this file. This will raise a NameError when called. Need to either define the global variable or import it from where it's set."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"comfy/clip_model.py\",\n      \"start_line\": 107,\n      \"end_line\": 112,\n      \"content\": \"The DirectML branch creates a causal_mask without filling with -inf first. This will leave uninitialized memory in the upper triangular part (where triu_(1) sets values to 0), causing incorrect attention masking. Both branches should fill with -inf before triu_(1).\"\n    },\n    {\n      \"path\": \"comfy/model_management.py\",\n      \"start_line\": 993,\n      \"end_line\": 1001,\n      \"content\": \"The is_directml_enabled() function references a global 'directml_enabled' variable that is not defined in this file. This will raise a NameError when called. Need to either define the global variable or import it from where it's set.\"\n    }\n  ]\n}",
+  "stderr": null
+}

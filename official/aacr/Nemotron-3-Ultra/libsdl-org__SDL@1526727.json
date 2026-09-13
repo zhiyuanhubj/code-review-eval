@@ -1,0 +1,29 @@
+{
+  "instance_id": "libsdl-org__SDL@1526727",
+  "repo": "libsdl-org/SDL",
+  "base_commit": "71303b41bf89c4bb68dbe1bed12fd2ee1dc0dd41",
+  "head_commit": "15267271865f73c996719238425f1604fc2fa205",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:00:13.869694+00:00",
+  "duration_seconds": 23.09,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/joystick/hidapi/SDL_hidapi_8bitdo.c",
+        "start_line": 142,
+        "end_line": 142,
+        "content": "Missing space after '||' operator for consistency with surrounding code style (line 143 has space)."
+      },
+      {
+        "path": "src/joystick/hidapi/SDL_hidapi_8bitdo.c",
+        "start_line": 143,
+        "end_line": 143,
+        "content": "Extra space before '||' operator. Should be 'device->product_id == USB_PRODUCT_8BITDO_SF30_Pro || device->product_id == USB_PRODUCT_8BITDO_Pro_2 ||' for consistency."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/joystick/hidapi/SDL_hidapi_8bitdo.c\",\n      \"start_line\": 142,\n      \"end_line\": 142,\n      \"content\": \"Missing space after '||' operator for consistency with surrounding code style (line 143 has space).\"\n    },\n    {\n      \"path\": \"src/joystick/hidapi/SDL_hidapi_8bitdo.c\",\n      \"start_line\": 143,\n      \"end_line\": 143,\n      \"content\": \"Extra space before '||' operator. Should be 'device->product_id == USB_PRODUCT_8BITDO_SF30_Pro || device->product_id == USB_PRODUCT_8BITDO_Pro_2 ||' for consistency.\"\n    }\n  ]\n}",
+  "stderr": null
+}

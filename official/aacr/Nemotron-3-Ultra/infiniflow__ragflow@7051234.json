@@ -1,0 +1,29 @@
+{
+  "instance_id": "infiniflow__ragflow@7051234",
+  "repo": "infiniflow/ragflow",
+  "base_commit": "b1c874698469ac999d210cd8cde59425781e4da2",
+  "head_commit": "705123406ec7cd5eb1f9be26f6c5c31357aeffc9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:15:09.577500+00:00",
+  "duration_seconds": 22.39,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "api/db/services/document_service.py",
+        "start_line": 335,
+        "end_line": 346,
+        "content": "The method `get_doc_ids_by_doc_names` returns `None` when no documents are found, but the caller in `api_app.py` line 617 iterates over the result with `for doc_id in req.get(\"doc_ids\", []):` and `if doc_id not in doc_ids:`. If `doc_ids` is `None`, this will raise a TypeError. Return an empty list `[]` instead of `None` for consistency and safety."
+      },
+      {
+        "path": "api/apps/api_app.py",
+        "start_line": 617,
+        "end_line": 617,
+        "content": "The variable `doc_ids` may be `None` if `get_doc_ids_by_doc_names` returns `None` (when no documents found by name). This will cause a TypeError when checking `if doc_id not in doc_ids`. Ensure `doc_ids` is initialized as an empty list: `doc_ids = DocumentService.get_doc_ids_by_doc_names(...) or []`."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"api/db/services/document_service.py\",\n      \"start_line\": 335,\n      \"end_line\": 346,\n      \"content\": \"The method `get_doc_ids_by_doc_names` returns `None` when no documents are found, but the caller in `api_app.py` line 617 iterates over the result with `for doc_id in req.get(\\\"doc_ids\\\", []):` and `if doc_id not in doc_ids:`. If `doc_ids` is `None`, this will raise a TypeError. Return an empty list `[]` instead of `None` for consistency and safety.\"\n    },\n    {\n      \"path\": \"api/apps/api_app.py\",\n      \"start_line\": 617,\n      \"end_line\": 617,\n      \"content\": \"The variable `doc_ids` may be `None` if `get_doc_ids_by_doc_names` returns `None` (when no documents found by name). This will cause a TypeError when checking `if doc_id not in doc_ids`. Ensure `doc_ids` is initialized as an empty list: `doc_ids = DocumentService.get_doc_ids_by_doc_names(...) or []`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,29 @@
+{
+  "instance_id": "mrdoob__three.js@7388f60",
+  "repo": "mrdoob/three.js",
+  "base_commit": "1fc010cb7bd1e17d94c1a33ba8dacdf9e34193cb",
+  "head_commit": "7388f600209ce8a98f7211cd0e93a170b6e98d61",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:03:41.420957+00:00",
+  "duration_seconds": 89.97,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/nodes/utils/RemapNode.js",
+        "start_line": 24,
+        "end_line": 24,
+        "content": "The JSDoc parameter name was fixed from duplicate 'inLowNode' to 'inHighNode', but the actual constructor parameter name in the code is still 'inLowNode' (second occurrence). The parameter should be renamed to 'inHighNode' in the constructor signature to match the JSDoc."
+      },
+      {
+        "path": "src/nodes/core/Node.js",
+        "start_line": 128,
+        "end_line": 128,
+        "content": "The @param tag on a setter ('needsUpdate') is invalid JSDoc. Setters use @param for the value parameter implicitly; this tag should be removed or converted to a @property tag if documenting the property."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/nodes/utils/RemapNode.js\",\n      \"start_line\": 24,\n      \"end_line\": 24,\n      \"content\": \"The JSDoc parameter name was fixed from duplicate 'inLowNode' to 'inHighNode', but the actual constructor parameter name in the code is still 'inLowNode' (second occurrence). The parameter should be renamed to 'inHighNode' in the constructor signature to match the JSDoc.\"\n    },\n    {\n      \"path\": \"src/nodes/core/Node.js\",\n      \"start_line\": 128,\n      \"end_line\": 128,\n      \"content\": \"The @param tag on a setter ('needsUpdate') is invalid JSDoc. Setters use @param for the value parameter implicitly; this tag should be removed or converted to a @property tag if documenting the property.\"\n    }\n  ]\n}",
+  "stderr": null
+}

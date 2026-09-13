@@ -1,0 +1,29 @@
+{
+  "instance_id": "microsoft__typescript-go@b970689",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "bc3195e0f2727d11a48ed9fc61f37a90c9b7deb4",
+  "head_commit": "b970689fe86e0b6ef4f5285b18343ddf16b294eb",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T17:59:03.166451+00:00",
+  "duration_seconds": 20.33,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "internal/transformers/commonjsmodule.go",
+        "start_line": 66,
+        "end_line": 67,
+        "content": "Returning nil for KindJSImportDeclaration will remove the node from the output. Is this intentional? For consistency with other transformers, should this visit the declaration instead of dropping it?"
+      },
+      {
+        "path": "internal/transformers/esmodule.go",
+        "start_line": 42,
+        "end_line": 43,
+        "content": "Returning nil for KindJSImportDeclaration will remove the node from the output. Is this intentional? For consistency with other transformers, should this visit the declaration instead of dropping it?"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"internal/transformers/commonjsmodule.go\",\n      \"start_line\": 66,\n      \"end_line\": 67,\n      \"content\": \"Returning nil for KindJSImportDeclaration will remove the node from the output. Is this intentional? For consistency with other transformers, should this visit the declaration instead of dropping it?\"\n    },\n    {\n      \"path\": \"internal/transformers/esmodule.go\",\n      \"start_line\": 42,\n      \"end_line\": 43,\n      \"content\": \"Returning nil for KindJSImportDeclaration will remove the node from the output. Is this intentional? For consistency with other transformers, should this visit the declaration instead of dropping it?\"\n    }\n  ]\n}",
+  "stderr": null
+}

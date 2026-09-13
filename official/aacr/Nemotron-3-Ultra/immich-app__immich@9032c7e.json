@@ -1,0 +1,41 @@
+{
+  "instance_id": "immich-app__immich@9032c7e",
+  "repo": "immich-app/immich",
+  "base_commit": "55f4e93456ab7415082e342af9ad5cabd52562a6",
+  "head_commit": "9032c7e021872a913e28de2e79bd9ab9806e7413",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:23:00.103954+00:00",
+  "duration_seconds": 28.16,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 54,
+        "end_line": 54,
+        "content": "The `ssr` function caches only the root path (`/`). For SPA routes like `/albums`, `/photos`, etc., this will fetch and cache `/` instead of the actual route. Since the app is an SPA, serving the cached `/` (index.html) for all routes is correct behavior, but the cache key should be the actual request URL to avoid redundant network requests for each route. Consider caching `event.request` instead of `url` (which is always `/`)."
+      },
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 79,
+        "end_line": 79,
+        "content": "The `appResources` function checks `APP_RESOURCES.includes(url.pathname)` again, but this is already guaranteed by the fetch event handler. The check is redundant and can be removed."
+      },
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 80,
+        "end_line": 80,
+        "content": "Using `cache.match(url.pathname)` with a string path instead of the full Request/URL may fail to match cached entries that were stored with `cache.put(event.request, ...)` (which uses the full URL as key). Use `cache.match(event.request)` or `cache.match(url)` for consistency."
+      },
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 95,
+        "end_line": 95,
+        "content": "The `cache.put(event.request, response.clone())` caches the response under the full request URL (including query params). However, the cache match at line 80 uses only `url.pathname` (no query params). This inconsistency can cause cache misses. Use `cache.match(event.request)` to match by the full request."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 54,\n      \"end_line\": 54,\n      \"content\": \"The `ssr` function caches only the root path (`/`). For SPA routes like `/albums`, `/photos`, etc., this will fetch and cache `/` instead of the actual route. Since the app is an SPA, serving the cached `/` (index.html) for all routes is correct behavior, but the cache key should be the actual request URL to avoid redundant network requests for each route. Consider caching `event.request` instead of `url` (which is always `/`).\"\n    },\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 79,\n      \"end_line\": 79,\n      \"content\": \"The `appResources` function checks `APP_RESOURCES.includes(url.pathname)` again, but this is already guaranteed by the fetch event handler. The check is redundant and can be removed.\"\n    },\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 80,\n      \"end_line\": 80,\n      \"content\": \"Using `cache.match(url.pathname)` with a string path instead of the full Request/URL may fail to match cached entries that were stored with `cache.put(event.request, ...)` (which uses the full URL as key). Use `cache.match(event.request)` or `cache.match(url)` for consistency.\"\n    },\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 95,\n      \"end_line\": 95,\n      \"content\": \"The `cache.put(event.request, response.clone())` caches the response under the full request URL (including query params). However, the cache match at line 80 uses only `url.pathname` (no query params). This inconsistency can cause cache misses. Use `cache.match(event.request)` to match by the full request.\"\n    }\n  ]\n}",
+  "stderr": null
+}

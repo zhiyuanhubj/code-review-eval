@@ -1,0 +1,16 @@
+{
+  "instance_id": "lvgl__lvgl@a0067e3",
+  "repo": "lvgl/lvgl",
+  "base_commit": "5f41926f0414c02f70547c50329969f7fe6a4b8d",
+  "head_commit": "a0067e3984cc95bb3ed0dce9abb664ee6a01a199",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:06:49.224962+00:00",
+  "duration_seconds": 13.75,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/misc/lv_text.c\",\n      \"start_line\": 652,\n      \"end_line\": 654,\n      \"content\": \"The null check `if(txt == NULL || txt[*i] == '\\0') return result;` returns an uninitialized `result` variable (declared at line 645). This is undefined behavior. Initialize `result = 0` at declaration or before the early return.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,35 @@
+{
+  "instance_id": "dbeaver__dbeaver@8224826",
+  "repo": "dbeaver/dbeaver",
+  "base_commit": "8793ec7a6c71aa503b1dc492ddb4e982a8f3e9d9",
+  "head_commit": "8224826969254a49e68e025cae82d3cf1574de38",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:26:51.382239+00:00",
+  "duration_seconds": 30.12,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksExecutionContext.java",
+        "start_line": 63,
+        "end_line": 63,
+        "content": "The catch block for DBCException silently logs at debug level and continues. This could mask real issues when setting the default catalog. Consider re-throwing the exception or at least logging at warn level so users are aware of failures."
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksExecutionContext.java",
+        "start_line": 84,
+        "end_line": 84,
+        "content": "The SQL query uses CURRENT_CATALOG() which is Databricks-specific. Add a comment explaining this is Databricks SQL syntax so future maintainers understand the vendor-specific dependency."
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksExecutionContext.java",
+        "start_line": 95,
+        "end_line": 95,
+        "content": "Modifying bootstrap settings (bootstrap.setDefaultCatalogName) during refreshDefaults has side effects that persist beyond the current session. This could affect other connections using the same data source configuration. Consider whether this is intended behavior or if it should only update the in-memory activeCatalogName."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksExecutionContext.java\",\n      \"start_line\": 63,\n      \"end_line\": 63,\n      \"content\": \"The catch block for DBCException silently logs at debug level and continues. This could mask real issues when setting the default catalog. Consider re-throwing the exception or at least logging at warn level so users are aware of failures.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksExecutionContext.java\",\n      \"start_line\": 84,\n      \"end_line\": 84,\n      \"content\": \"The SQL query uses CURRENT_CATALOG() which is Databricks-specific. Add a comment explaining this is Databricks SQL syntax so future maintainers understand the vendor-specific dependency.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksExecutionContext.java\",\n      \"start_line\": 95,\n      \"end_line\": 95,\n      \"content\": \"Modifying bootstrap settings (bootstrap.setDefaultCatalogName) during refreshDefaults has side effects that persist beyond the current session. This could affect other connections using the same data source configuration. Consider whether this is intended behavior or if it should only update the in-memory activeCatalogName.\"\n    }\n  ]\n}",
+  "stderr": null
+}

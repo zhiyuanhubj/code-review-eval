@@ -1,0 +1,47 @@
+{
+  "instance_id": "immich-app__immich@5f47591",
+  "repo": "immich-app/immich",
+  "base_commit": "584e5894bfd4fe356e790fa9781ccee4e5224874",
+  "head_commit": "5f4759196534661bd332085514878d0efbb7ce84",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:22:42.817731+00:00",
+  "duration_seconds": 31.64,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/utils/database.ts",
+        "start_line": 20,
+        "end_line": 45,
+        "content": "The `toJson` utility function uses complex conditional types that may not correctly handle all cases. Consider adding unit tests for this function to ensure it properly preserves non-nullable types when converting to JSON, especially for nested objects and arrays."
+      },
+      {
+        "path": "server/src/services/person.service.ts",
+        "start_line": 551,
+        "end_line": 551,
+        "content": "The log statement `person ${person}` will output `[object Object]` since `person` is an object. Should log `person.id` instead for meaningful debugging."
+      },
+      {
+        "path": "server/src/services/person.service.ts",
+        "start_line": 551,
+        "end_line": 551,
+        "content": "The condition `if (!person?.face?.asset)` checks for `person` existence but the error message references `person` as if it were a string. Should be `person?.id` in the error message."
+      },
+      {
+        "path": "server/src/repositories/person.repository.ts",
+        "start_line": 240,
+        "end_line": 280,
+        "content": "The `getFaceForFacialRecognitionJob` query selects `asset_faces.personId` but the return type isn't explicitly typed. Consider adding a return type annotation to ensure the `personId` field is included in the result for callers that need it."
+      },
+      {
+        "path": "server/src/dtos/person.dto.ts",
+        "start_line": 245,
+        "end_line": 260,
+        "content": "The `mapFaces` function manually spreads properties instead of using `mapFacesWithoutPerson`. This duplicates logic and could lead to inconsistencies if fields are added/removed. Consider refactoring to reuse `mapFacesWithoutPerson` or creating a shared base mapping function."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"server/src/utils/database.ts\",\n      \"start_line\": 20,\n      \"end_line\": 45,\n      \"content\": \"The `toJson` utility function uses complex conditional types that may not correctly handle all cases. Consider adding unit tests for this function to ensure it properly preserves non-nullable types when converting to JSON, especially for nested objects and arrays.\"\n    },\n    {\n      \"path\": \"server/src/services/person.service.ts\",\n      \"start_line\": 551,\n      \"end_line\": 551,\n      \"content\": \"The log statement `person ${person}` will output `[object Object]` since `person` is an object. Should log `person.id` instead for meaningful debugging.\"\n    },\n    {\n      \"path\": \"server/src/services/person.service.ts\",\n      \"start_line\": 551,\n      \"end_line\": 551,\n      \"content\": \"The condition `if (!person?.face?.asset)` checks for `person` existence but the error message references `person` as if it were a string. Should be `person?.id` in the error message.\"\n    },\n    {\n      \"path\": \"server/src/repositories/person.repository.ts\",\n      \"start_line\": 240,\n      \"end_line\": 280,\n      \"content\": \"The `getFaceForFacialRecognitionJob` query selects `asset_faces.personId` but the return type isn't explicitly typed. Consider adding a return type annotation to ensure the `personId` field is included in the result for callers that need it.\"\n    },\n    {\n      \"path\": \"server/src/dtos/person.dto.ts\",\n      \"start_line\": 245,\n      \"end_line\": 260,\n      \"content\": \"The `mapFaces` function manually spreads properties instead of using `mapFacesWithoutPerson`. This duplicates logic and could lead to inconsistencies if fields are added/removed. Consider refactoring to reuse `mapFacesWithoutPerson` or creating a shared base mapping function.\"\n    }\n  ]\n}",
+  "stderr": null
+}

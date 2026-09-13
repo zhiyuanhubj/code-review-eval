@@ -1,0 +1,35 @@
+{
+  "instance_id": "gofr-dev__gofr@c1a26ad",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "d0300073f685bb1154f7437f3172799d31bfddbe",
+  "head_commit": "c1a26ade6db7da96622c9bdca7674ef7094c122f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:00:41.366073+00:00",
+  "duration_seconds": 27.43,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "docs/references/configs/page.md",
+        "start_line": 37,
+        "end_line": 42,
+        "content": "The documentation format for LOG_DISABLE_PROBES is inconsistent with other config entries. Other entries use a table format with columns for Config, Description, and Default. This entry uses a list format. Please update to match the table format used elsewhere in the document."
+      },
+      {
+        "path": "pkg/gofr/http/middleware/config.go",
+        "start_line": 29,
+        "end_line": 29,
+        "content": "The config key 'LOG_DISABLE_PROBES' is hardcoded as a string literal. Consider defining it as a constant (e.g., in a config keys file) to avoid typos and enable reuse across the codebase."
+      },
+      {
+        "path": "pkg/gofr/http/middleware/logger.go",
+        "start_line": 97,
+        "end_line": 106,
+        "content": "The probe paths '/.well-known/health' and '/.well-known/alive' are hardcoded. These should be configurable or derived from the framework's health check configuration to avoid coupling the middleware to specific paths."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"docs/references/configs/page.md\",\n      \"start_line\": 37,\n      \"end_line\": 42,\n      \"content\": \"The documentation format for LOG_DISABLE_PROBES is inconsistent with other config entries. Other entries use a table format with columns for Config, Description, and Default. This entry uses a list format. Please update to match the table format used elsewhere in the document.\"\n    },\n    {\n      \"path\": \"pkg/gofr/http/middleware/config.go\",\n      \"start_line\": 29,\n      \"end_line\": 29,\n      \"content\": \"The config key 'LOG_DISABLE_PROBES' is hardcoded as a string literal. Consider defining it as a constant (e.g., in a config keys file) to avoid typos and enable reuse across the codebase.\"\n    },\n    {\n      \"path\": \"pkg/gofr/http/middleware/logger.go\",\n      \"start_line\": 97,\n      \"end_line\": 106,\n      \"content\": \"The probe paths '/.well-known/health' and '/.well-known/alive' are hardcoded. These should be configurable or derived from the framework's health check configuration to avoid coupling the middleware to specific paths.\"\n    }\n  ]\n}",
+  "stderr": null
+}

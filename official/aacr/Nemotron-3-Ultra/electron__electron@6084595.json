@@ -1,0 +1,23 @@
+{
+  "instance_id": "electron__electron@6084595",
+  "repo": "electron/electron",
+  "base_commit": "a42afaa8665b6d1b3a344918c60853184a97060e",
+  "head_commit": "6084595c5608226e961d251bfb5ec138de8022ca",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:09:55.305326+00:00",
+  "duration_seconds": 20.7,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "shell/browser/api/electron_api_session.cc",
+        "start_line": 355,
+        "end_line": 355,
+        "content": "The `delete this` in OnTaskFinished is unsafe because ClearDataTask inherits from CleanedUpAtExit, which manages the object's lifetime. The CleanedUpAtExit mechanism should handle deletion automatically when the isolate shuts down or when the object is cleaned up. Manual `delete this` can lead to double-free or use-after-free if CleanedUpAtExit also tries to delete the object. Remove the `delete this` and let CleanedUpAtExit manage the lifetime."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"shell/browser/api/electron_api_session.cc\",\n      \"start_line\": 355,\n      \"end_line\": 355,\n      \"content\": \"The `delete this` in OnTaskFinished is unsafe because ClearDataTask inherits from CleanedUpAtExit, which manages the object's lifetime. The CleanedUpAtExit mechanism should handle deletion automatically when the isolate shuts down or when the object is cleaned up. Manual `delete this` can lead to double-free or use-after-free if CleanedUpAtExit also tries to delete the object. Remove the `delete this` and let CleanedUpAtExit manage the lifetime.\"\n    }\n  ]\n}",
+  "stderr": null
+}

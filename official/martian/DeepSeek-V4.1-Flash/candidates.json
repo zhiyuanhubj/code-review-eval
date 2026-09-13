@@ -1,0 +1,306 @@
+{
+  "https://github.com/keycloak/keycloak/pull/37429": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/37429",
+    "pr_title": "Add HTML sanitizer for translated message resources",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/37634": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/37634",
+    "pr_title": "Implement access token context encoding framework",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/38446": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/38446",
+    "pr_title": "Implement recovery key support for user storage providers",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/36882": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/36882",
+    "pr_title": "Add rolling-updates feature flag and compatibility framework",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/36880": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/36880",
+    "pr_title": "Add Client resource type and scopes to authorization schema",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/37038": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/37038",
+    "pr_title": "Add Groups resource type and scopes to authorization schema",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/33832": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/33832",
+    "pr_title": "Add AuthzClientCryptoProvider for authorization client cryptographic operations",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/40940": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/40940",
+    "pr_title": "Fix concurrent group access to prevent NullPointerException",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/keycloak-greptile/pull/1": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/ai-code-review-evaluation/keycloak-greptile/pull/1",
+    "pr_title": "Fixing Re-authentication with passkeys",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/getsentry/sentry/pull/93824": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/getsentry/sentry/pull/93824",
+    "pr_title": "Span Buffer Multiprocess Enhancement with Health Monitoring",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/5": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/5",
+    "pr_title": "Replays Self-Serve Bulk Delete System",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/1": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/1",
+    "pr_title": "Enhanced Pagination Performance for High-Volume Audit Logs",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/97529": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/grafana/grafana/pull/97529",
+    "pr_title": "Unified Storage Performance Optimizations",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/getsentry/sentry/pull/80168": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/getsentry/sentry/pull/80168",
+    "pr_title": "feat(workflow_engine): Add in hook for producing occurrences from the stateful detector",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/getsentry/sentry/pull/80528": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/getsentry/sentry/pull/80528",
+    "pr_title": "ref(crons): Reorganize incident creation / issue occurrence logic",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/getsentry/sentry/pull/77754": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/getsentry/sentry/pull/77754",
+    "pr_title": "feat(ecosystem): Implement cross-system issue synchronization",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/getsentry/sentry/pull/95633": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/getsentry/sentry/pull/95633",
+    "pr_title": "feat(uptime): Add ability to use queues to manage parallelism",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/2": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/2",
+    "pr_title": "Optimize spans buffer insertion with eviction during insert",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/3": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/3",
+    "pr_title": "feat(upsampling) - Support upsampled error count with performance optimizations",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/103633": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/grafana/grafana/pull/103633",
+    "pr_title": "AuthZService: improve authz caching",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/getsentry/sentry/pull/67876": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/getsentry/sentry/pull/67876",
+    "pr_title": "GitHub OAuth Security Enhancement",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/32918": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/32918",
+    "pr_title": "Add caching support for IdentityProviderStorageProvider.getForLogin operations",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/94942": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/grafana/grafana/pull/94942",
+    "pr_title": "Advanced SQL Analytics Framework",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/90939": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/grafana/grafana/pull/90939",
+    "pr_title": "Frontend Asset Optimization",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/80329": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/grafana/grafana/pull/80329",
+    "pr_title": "Database Performance Optimizations",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/90045": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/grafana/grafana/pull/90045",
+    "pr_title": "Dual Storage Architecture",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/106778": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/grafana/grafana/pull/106778",
+    "pr_title": "Notification Rule Processing Engine",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/107534": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/grafana/grafana/pull/107534",
+    "pr_title": "Advanced Query Processing Architecture",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/79265": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/grafana/grafana/pull/79265",
+    "pr_title": "Anonymous: Add configurable device limit",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/9": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/9",
+    "pr_title": "FEATURE: Localization fallbacks (server-side)",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/76186": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/grafana/grafana/pull/76186",
+    "pr_title": "Plugins: Chore: Renamed instrumentation middleware to metrics middleware",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/10": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/10",
+    "pr_title": "FEATURE: Can edit category/host relationships for embedding",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/7": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/7",
+    "pr_title": "scale-color $lightness must use $secondary for dark themes",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/8": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/8",
+    "pr_title": "FIX: proper handling of group memberships",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/3": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/3",
+    "pr_title": "Add comprehensive email validation for blocked users",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/5": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/5",
+    "pr_title": "Optimize header layout performance with flexbox mixins",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/6": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/6",
+    "pr_title": "UX: show complete URL path if website domain is same as instance domain",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/4": {
+    "tool": "DeepSeek-V4.1-Flash",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/4",
+    "pr_title": "Enhance embed URL handling and validation system",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  }
+}

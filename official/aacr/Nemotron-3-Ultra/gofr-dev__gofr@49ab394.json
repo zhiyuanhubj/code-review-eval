@@ -1,0 +1,16 @@
+{
+  "instance_id": "gofr-dev__gofr@49ab394",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "ba0316277a22f508ed645951705f53d151552916",
+  "head_commit": "49ab39432cf4892ee84569099b8065dfe45fae92",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:00:50.797831+00:00",
+  "duration_seconds": 35.54,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/client.go\",\n      \"start_line\": 47,\n      \"end_line\": 47,\n      \"content\": \"The retryConnect goroutine is started on initial connection failure but there's no mechanism to stop it when Close() is called. This will leak goroutines. Add a context or sync.WaitGroup to manage the retry goroutine lifecycle.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/client.go\",\n      \"start_line\": 68,\n      \"end_line\": 100,\n      \"content\": \"retryConnect() creates new ConnectionManager, streamManager, and subManager instances but doesn't close the previous ones if they exist. This could leak NATS connections and JetStream contexts. Close the old connManager before assigning a new one.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/client.go\",\n      \"start_line\": 85,\n      end_line: 85,\n      \"content\": \"When JetStream creation fails, the code sleeps and continues but doesn't close the NATS connection (connInterface) that was successfully established. This leaks connections. Call connInterface.Close() before continuing the loop.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/client.go\",\n      \"start_line\": 103,\n      \"end_line\": 120,\n      \"content\": \"checkClient() is not thread-safe. Multiple goroutines calling Publish/Subscribe/etc. concurrently with retryConnect() could race on c.connManager, c.streamManager, c.subManager. Add a sync.RWMutex to protect these fields.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/connection_manager.go\",\n      \"start_line\": 114,\n      \"end_line\": 117,\n      \"content\": \"The isConnected() check in Publish() is racy - the connection could drop between the check and the actual Publish call. This is a TOCTOU bug. Consider removing the check and letting the underlying NATS client return connection errors, or hold a lock during the entire operation.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/client.go\",\n      \"start_line\": 137,\n      \"end_line\": 145,\n      \"content\": \"Subscribe() returns errClientNotConnected immediately after sleeping, but the retryConnect goroutine might have already reconnected by then. The method should retry the subscription instead of failing fast, or at least re-check connection state after the sleep.\"\n    }\n  ]\n}",
+  "stderr": null
+}

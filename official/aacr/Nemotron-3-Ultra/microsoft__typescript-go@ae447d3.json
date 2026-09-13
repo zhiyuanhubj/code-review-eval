@@ -1,0 +1,16 @@
+{
+  "instance_id": "microsoft__typescript-go@ae447d3",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "15def0236938e25ec7822755444f4d58c68045be",
+  "head_commit": "ae447d3b2a6db00072941e1992a09981b6096061",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T17:59:09.851755+00:00",
+  "duration_seconds": 46.85,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"internal/execute/outputs.go\",\n      \"start_line\": 144,\n      \"end_line\": 144,\n      \"content\": \"This change replaces sys.NewLine() with hardcoded \\\"\\\\n\\\". Since the System interface no longer has NewLine(), this is correct, but consider if there are any Windows-specific scenarios where \\\\r\\\\n would be expected in CLI output. The original code used sys.NewLine() which would return platform-appropriate newlines.\"\n    },\n    {\n      \"path\": \"internal/execute/tsc.go\",\n      \"start_line\": 49,\n      \"end_line\": 49,\n      \"content\": \"Same concern: fmt.Fprintln uses \\\\n, but on Windows the original code would have used \\\\r\\\\n via sys.NewLine(). This changes the line ending behavior for CLI output on Windows.\"\n    },\n    {\n      \"path\": \"internal/execute/tsc.go\",\n      \"start_line\": 66,\n      \"end_line\": 66,\n      \"content\": \"format.GetDefaultFormatCodeSettings now receives hardcoded \\\"\\\\n\\\" instead of sys.NewLine(). This affects code formatting output - on Windows, formatted files would now use LF instead of CRLF. Is this intentional?\"\n    },\n    {\n      \"path\": \"internal/execute/tsc.go\",\n      \"start_line\": 71,\n      \"end_line\": 71,\n      \"content\": \"fmt.Fprintln uses \\\\n, replacing sys.NewLine(). Same Windows line ending concern for error messages.\"\n    },\n    {\n      \"path\": \"internal/execute/tsc.go\",\n      \"start_line\": 85,\n      \"end_line\": 85,\n      \"content\": \"fmt.Fprintln uses \\\\n, replacing sys.NewLine(). Same Windows line ending concern.\"\n    },\n    {\n      \"path\": \"internal/execute/tsc.go\",\n      \"start_line\": 377,\n      \"end_line\": 377,\n      \"content\": \"fmt.Fprintln uses \\\\n, replacing sys.NewLine(). Same Windows line ending concern for --listFiles output.\"\n    },\n    {\n      \"path\": \"internal/execute/watch.go\",\n      \"start_line\": 45,\n      \"end_line\": 45,\n      \"content\": \"fmt.Fprintln uses \\\\n, replacing sys.NewLine(). Same Windows line ending concern for watch mode output.\"\n    },\n    {\n      \"path\": \"internal/execute/watch.go\",\n      \"start_line\": 47,\n      end_line: 47,\n      \"content\": \"fmt.Fprintln uses \\\\n, replacing sys.NewLine(). Same Windows line ending concern.\"\n    }\n  ]\n}",
+  "stderr": null
+}

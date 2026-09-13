@@ -1,0 +1,59 @@
+{
+  "instance_id": "google-gemini__gemini-cli@6fd8269",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "4e49ee4c734f53a705df72efda2d076cb0acf44e",
+  "head_commit": "6fd82699700fc19ea30a7b29a059f392ccfbb2cc",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:14:08.248779+00:00",
+  "duration_seconds": 36.84,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/core/src/tools/planning-tool.ts",
+        "start_line": 180,
+        "end_line": 180,
+        "content": "The `updateOutput` parameter is passed to `createPlan` but never used. Either remove it or call it with progress updates during plan generation."
+      },
+      {
+        "path": "packages/core/src/tools/planning-tool.ts",
+        "start_line": 195,
+        "end_line": 195,
+        "content": "The `onMessage` callback is passed to the subagent but the subagent's `onMessage` is only called for text responses and tool execution logs. Consider if the planning tool should surface intermediate progress (e.g., 'Analyzing codebase...', 'Generating plan...') via `updateOutput` for better UX."
+      },
+      {
+        "path": "packages/core/src/tools/planning-tool.ts",
+        "start_line": 197,
+        "end_line": 203,
+        "content": "The tool config creates new instances of ReadFileTool, ReadManyFilesTool, GrepTool, GlobTool, LSTool on every `createPlan` call. These tools may hold state or be expensive to instantiate. Consider reusing tool instances from the runtime context's tool registry instead of creating new ones each time."
+      },
+      {
+        "path": "packages/core/src/config/config.ts",
+        "start_line": 764,
+        "end_line": 770,
+        "content": "The planning tool is registered conditionally based on `usePlanningTool` config, but it's registered manually outside of `discoverAllTools()`. This is fine, but ensure the planning tool's dependencies (ReadFileTool, etc.) are also available in the subagent's tool registry. Currently the subagent creates its own tool instances rather than using the registry."
+      },
+      {
+        "path": "packages/core/src/core/subagent.ts",
+        "start_line": 293,
+        "end_line": 315,
+        "content": "In `SubAgentScope.create`, when validating tools for interactivity, the code builds tools with empty params `{}`. For tools that require parameters, it skips the interactivity check with a warning. This could allow interactive tools (like `delete_file`) to slip through if they have required params. Consider a more robust check, e.g., checking a tool metadata flag `requiresConfirmation` instead of relying on `shouldConfirmExecute({})`."
+      },
+      {
+        "path": "packages/core/src/core/subagent.ts",
+        "start_line": 359,
+        "end_line": 365,
+        "content": "In `runNonInteractive`, the `toolsList` is rebuilt from `this.toolConfig` on every run. Since `this.toolConfig` and `this.toolRegistry` are immutable after construction, consider building `toolsList` once in the constructor and caching it."
+      },
+      {
+        "path": "packages/core/src/core/subagent.ts",
+        "start_line": 425,
+        "end_line": 435,
+        "content": "The `onMessage` callback is called with tool execution logs (`Executing tool: ...`). This mixes user-facing messages with internal debug logs. Consider separating these or adding a log level parameter so callers can filter."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/core/src/tools/planning-tool.ts\",\n      \"start_line\": 180,\n      \"end_line\": 180,\n      \"content\": \"The `updateOutput` parameter is passed to `createPlan` but never used. Either remove it or call it with progress updates during plan generation.\"\n    },\n    {\n      \"path\": \"packages/core/src/tools/planning-tool.ts\",\n      \"start_line\": 195,\n      \"end_line\": 195,\n      \"content\": \"The `onMessage` callback is passed to the subagent but the subagent's `onMessage` is only called for text responses and tool execution logs. Consider if the planning tool should surface intermediate progress (e.g., 'Analyzing codebase...', 'Generating plan...') via `updateOutput` for better UX.\"\n    },\n    {\n      \"path\": \"packages/core/src/tools/planning-tool.ts\",\n      \"start_line\": 197,\n      \"end_line\": 203,\n      \"content\": \"The tool config creates new instances of ReadFileTool, ReadManyFilesTool, GrepTool, GlobTool, LSTool on every `createPlan` call. These tools may hold state or be expensive to instantiate. Consider reusing tool instances from the runtime context's tool registry instead of creating new ones each time.\"\n    },\n    {\n      \"path\": \"packages/core/src/config/config.ts\",\n      \"start_line\": 764,\n      \"end_line\": 770,\n      \"content\": \"The planning tool is registered conditionally based on `usePlanningTool` config, but it's registered manually outside of `discoverAllTools()`. This is fine, but ensure the planning tool's dependencies (ReadFileTool, etc.) are also available in the subagent's tool registry. Currently the subagent creates its own tool instances rather than using the registry.\"\n    },\n    {\n      \"path\": \"packages/core/src/core/subagent.ts\",\n      \"start_line\": 293,\n      \"end_line\": 315,\n      \"content\": \"In `SubAgentScope.create`, when validating tools for interactivity, the code builds tools with empty params `{}`. For tools that require parameters, it skips the interactivity check with a warning. This could allow interactive tools (like `delete_file`) to slip through if they have required params. Consider a more robust check, e.g., checking a tool metadata flag `requiresConfirmation` instead of relying on `shouldConfirmExecute({})`.\"\n    },\n    {\n      \"path\": \"packages/core/src/core/subagent.ts\",\n      \"start_line\": 359,\n      \"end_line\": 365,\n      \"content\": \"In `runNonInteractive`, the `toolsList` is rebuilt from `this.toolConfig` on every run. Since `this.toolConfig` and `this.toolRegistry` are immutable after construction, consider building `toolsList` once in the constructor and caching it.\"\n    },\n    {\n      \"path\": \"packages/core/src/core/subagent.ts\",\n      \"start_line\": 425,\n      \"end_line\": 435,\n      \"content\": \"The `onMessage` callback is called with tool execution logs (`Executing tool: ...`). This mixes user-facing messages with internal debug logs. Consider separating these or adding a log level parameter so callers can filter.\"\n    }\n  ]\n}",
+  "stderr": null
+}

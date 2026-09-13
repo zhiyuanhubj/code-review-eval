@@ -1,0 +1,41 @@
+{
+  "instance_id": "immich-app__immich@966c3f2",
+  "repo": "immich-app/immich",
+  "base_commit": "6ba94ac2f2f78c871f56874a7c2ff61b2ff4a06b",
+  "head_commit": "966c3f22d034c230a14bb21b02627ef6d00eec68",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:22:31.831779+00:00",
+  "duration_seconds": 43.82,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/repositories/album.repository.ts",
+        "start_line": 141,
+        "end_line": 141,
+        "content": "The SQL cast `::date` truncates the timestamp to date only (removing time component). The field is named `lastModifiedAssetTimestamp` and the interface type is `Date`, suggesting a full timestamp is expected. This will cause loss of time precision. Consider using `::timestamptz` or removing the cast entirely to preserve the full timestamp."
+      },
+      {
+        "path": "server/src/repositories/album.repository.ts",
+        "start_line": 135,
+        "end_line": 135,
+        "content": "The `startDate` and `endDate` fields also use `::date` cast which truncates time component. The interface defines them as `Date | null` and they are used in album metadata. If the time component is needed, this should be `::timestamptz` or no cast. If date-only is intentional, the interface should use `Date` but document it represents date-only."
+      },
+      {
+        "path": "server/src/repositories/album.repository.ts",
+        "start_line": 141,
+        "end_line": 141,
+        "content": "The comment 'lastModifiedAssetTimestamp is only used in mobile app, please remove if not need' should be removed from production code. If this field is needed for the mobile app, keep it without the comment. If it's truly unused, remove the field entirely rather than leaving a TODO-like comment."
+      },
+      {
+        "path": "server/src/services/album.service.ts",
+        "start_line": 71,
+        "end_line": 71,
+        "content": "Same comment 'lastModifiedAssetTimestamp is only used in mobile app, please remove if not need' appears in service layer. Remove this comment from production code."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"server/src/repositories/album.repository.ts\",\n      \"start_line\": 141,\n      \"end_line\": 141,\n      \"content\": \"The SQL cast `::date` truncates the timestamp to date only (removing time component). The field is named `lastModifiedAssetTimestamp` and the interface type is `Date`, suggesting a full timestamp is expected. This will cause loss of time precision. Consider using `::timestamptz` or removing the cast entirely to preserve the full timestamp.\"\n    },\n    {\n      \"path\": \"server/src/repositories/album.repository.ts\",\n      \"start_line\": 135,\n      \"end_line\": 135,\n      \"content\": \"The `startDate` and `endDate` fields also use `::date` cast which truncates time component. The interface defines them as `Date | null` and they are used in album metadata. If the time component is needed, this should be `::timestamptz` or no cast. If date-only is intentional, the interface should use `Date` but document it represents date-only.\"\n    },\n    {\n      \"path\": \"server/src/repositories/album.repository.ts\",\n      \"start_line\": 141,\n      \"end_line\": 141,\n      \"content\": \"The comment 'lastModifiedAssetTimestamp is only used in mobile app, please remove if not need' should be removed from production code. If this field is needed for the mobile app, keep it without the comment. If it's truly unused, remove the field entirely rather than leaving a TODO-like comment.\"\n    },\n    {\n      \"path\": \"server/src/services/album.service.ts\",\n      \"start_line\": 71,\n      \"end_line\": 71,\n      \"content\": \"Same comment 'lastModifiedAssetTimestamp is only used in mobile app, please remove if not need' appears in service layer. Remove this comment from production code.\"\n    }\n  ]\n}",
+  "stderr": null
+}

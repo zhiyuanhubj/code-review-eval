@@ -1,0 +1,16 @@
+{
+  "instance_id": "gofr-dev__gofr@2c0c099",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "c2ab1eb3308afa4f29842f0a982751bf65c059d0",
+  "head_commit": "2c0c0997cad66a1ee1e47f95db6a830394157c00",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:01:22.922877+00:00",
+  "duration_seconds": 23.95,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/testutil/port.go\",\n      \"start_line\": 45,\n      \"end_line\": 45,\n      \"content\": \"The NewServerConfigs function always allocates a gRPC port and sets GRPC_PORT env var, but many tests don't use gRPC. This wastes ports and sets unnecessary env vars. Consider making gRPC port allocation optional or lazy.\"\n    },\n    {\n      \"path\": \"examples/using-migrations/main_test.go\",\n      \"start_line\": 13,\n      \"end_line\": 16,\n      \"content\": \"The variable 'host' is assigned from configs.HTTPHost but the code still calls testutil.NewServerConfigs(t) which also allocates a gRPC port unnecessarily. This is a minor inefficiency but consistent with the pattern.\"\n    },\n    {\n      \"path\": \"examples/using-publisher/main_test.go\",\n      \"start_line\": 68,\n      \"end_line\": 70,\n      \"content\": \"In TestExamplePublisherError, the code uses configs.HTTPPort directly in fmt.Sprint instead of using configs.HTTPHost. This is inconsistent with other tests that use HTTPHost. Should use configs.HTTPHost for consistency.\"\n    },\n    {\n      \"path\": \"pkg/gofr/gofr_test.go\",\n      \"start_line\": 800,\n      \"end_line\": 810,\n      \"content\": \"In Test_SwaggerEndpoints, the test manually sets app.httpServer.port = configs.HTTPPort after calling NewServerConfigs. This suggests the app doesn't automatically read HTTP_PORT from env. Verify this is intended behavior and not a bug where the app should read from env automatically.\"\n    },\n    {\n      \"path\": \"pkg/gofr/gofr_test.go\",\n      \"start_line\": 885,\n      end_line: 904,\n      \"content\": \"In setupTestEnvironment, the test manually sets app.httpServer.port = configs.HTTPPort. Same concern as above - the app should ideally read HTTP_PORT from environment automatically rather than requiring manual port assignment in tests.\"\n    },\n    {\n      \"path\": \"examples/http-server/main_test.go\",\n      \"start_line\": 63,\n      \"end_line\": 63,\n      \"content\": \"In TestRedisHandler, the code uses configs.MetricsPort for REDIS_PORT in the mock config: `\\\"REDIS_PORT\\\": strconv.Itoa(configs.MetricsPort)`. This appears to be a bug - it should use a separate Redis port, not the metrics port. The metrics port is for Prometheus metrics, not Redis.\"\n    }\n  ]\n}",
+  "stderr": null
+}

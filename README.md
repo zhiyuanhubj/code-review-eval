@@ -1,19 +1,23 @@
 # Code Review Eval Trajectories
 
-Official-protocol rerun is **in progress**. The tables below the fold are the **old unofficial proxy** (single-shot chat, truncated payloads, decision-vs-`gold_clean` only). Do not cite those numbers as SWR / AACR / SWE-Review / Martian scores.
+Official-protocol rerun is **in progress**. Live trajectories are under [`official/`](official/). Headline tables below the fold are the **old unofficial proxy** (single-shot chat, truncated payloads, decision-vs-`gold_clean` only). Do not cite those numbers as SWR / AACR / SWE-Review / Martian scores.
+
+Snapshot: [`official/STATUS.json`](official/STATUS.json) (2026-09-13 18:26 UTC). Official **judges have not finished**, so there is no new leaderboard yet.
 
 ## Official protocol (running now)
 
-| Bench | Official setting we are now using | Status |
+We now call the upstream harnesses, not the old `run_openai_reviews.py` proxy.
+
+| Bench | Official setting | Progress (this snapshot) |
 |---|---|---|
-| **SWR-Bench** | Upstream `swrbench/generation.py` **base_review** (full `pr_commits[].diff[].patch`, temperature 0.2 / 1.0 if the API rejects 0.2) then `evaluation_struct.py` LLM-as-judge (PR-level + point-level) | Generating: Nemotron, V4.1-Flash, Opus 4.8, GPT-5.6. Glimmer weights downloaded; vLLM coming up. Judge not started yet. |
-| **AACR-Bench** | 200 PRs, `git clone` + checkout `source_commit..target_commit`, emit OCR-schema comments, official `evaluate.py` / `judge.py` finding match | Nemotron reviewing cloned repos. |
-| **Martian offline** | Real GitHub PR file diffs + comments `{path,line,body}`, then official `step3_judge_comments.py` vs golden comments | Generating candidates for Nemotron / V4.1 / Opus / GPT-5.6 (50 PRs). |
-| **SWE-Review-Bench** | Harbor + OpenHands-SDK agentic review on `glm5_500` (500 PRs), decision accuracy. Not SWE-Review-Traj. | Task generation started for Nemotron; `--skip-revision` DA first. |
+| **SWR-Bench** | Upstream `swrbench/generation.py` **base_review** on `swr_datasets_d5c5.jsonl` (full `pr_commits[].diff[].patch`, `max_tokens=8192`, temperature **0.2**). Claude/GPT-5 APIs reject 0.2 and only accept **1.0**; we pass 1.0 for those two and keep the official prompt. Judge is `evaluation_struct.py` (not started). | Nemotron 396/1000, Opus 235/1000, Glimmer 99/1000, GPT-5.6 118/1000, V4.1-Flash 81/1000 |
+| **AACR-Bench** | Official dump is **196 PRs** (`dataset/positive_samples.json`). Clone + checkout `source_commit..target_commit`, emit OCR-schema comments, score later with `evaluation/evaluate.py`. This is an LLM reviewer in OCR schema, not the `@alibaba-group/open-code-review` CLI. | Nemotron 117/196, Glimmer 14/196, V4.1 8/196. Opus/GPT AACR not started yet (rate-limit). |
+| **Martian offline** | Real GitHub PR file diffs; model returns `{path,line,body}`. Official judge is `step3_judge_comments.py` vs golden comments (not started). | Opus 50/50, Nemotron 50/50, V4.1 38/50, GPT 20/50, Glimmer 18/50 |
+| **SWE-Review-Bench** | Harbor + OpenHands-SDK on split **`glm5_500`** (500 PRs). `OPENHANDS_LLM_NATIVE_TOOL_CALLING=true`, `max_iterations=100`. Official default concurrency is 32; we run **n=2**. DA first (`--skip-revision`). **Not** SWE-Review-Traj. | Nemotron: 2 running / 498 pending / 0 completed |
 
-Claude/GPT-5 APIs only accept `temperature=1`; we keep the official SWR prompt and only bump temperature when the provider 400s.
+Glimmer is served as `Muse-Glimmer` (vLLM TP=8). It still prefixes a short `to=self` chain, but on official SWR it then reviews the **actual patch** (unlike the unofficial proxy, which was 100% prompt echo).
 
-New trajectories will land under `official/` in this repo and replace the headline tables once the official judges finish.
+After generations finish we will run the official judges and replace this section with PR-level / finding-match / DA numbers.
 
 ---
 

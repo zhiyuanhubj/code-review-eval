@@ -1,0 +1,29 @@
+{
+  "instance_id": "microsoft__PowerToys@c1cedce",
+  "repo": "microsoft/PowerToys",
+  "base_commit": "e1474c1f3020e2615c438d82b29f48626f456a9f",
+  "head_commit": "c1cedce10cfe7436da12580ea231d5837520ef69",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:21:47.796971+00:00",
+  "duration_seconds": 38.09,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/modules/cmdpal/Microsoft.CmdPal.UI.ViewModels/TopLevelViewModel.cs",
+        "start_line": 72,
+        "end_line": 72,
+        "content": "The else branch now returns null instead of casting to CommandContextItemViewModel. This changes behavior for any IContextItem that isn't IContextItem or CommandContextItemViewModel - previously it would throw InvalidCastException, now it returns null. Is this intentional? If so, consider adding a comment explaining the expected item types."
+      },
+      {
+        "path": "src/modules/cmdpal/Microsoft.CmdPal.UI/Converters/ContextItemTemplateSelector.cs",
+        "start_line": 43,
+        "end_line": 43,
+        "content": "The fallback now returns Default template instead of casting to CommandContextItemViewModel. This changes behavior for unknown item types - previously it would throw InvalidCastException, now it silently uses Default. Is this intentional? If so, consider logging a warning for unexpected types to aid debugging."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/modules/cmdpal/Microsoft.CmdPal.UI.ViewModels/TopLevelViewModel.cs\",\n      \"start_line\": 72,\n      \"end_line\": 72,\n      \"content\": \"The else branch now returns null instead of casting to CommandContextItemViewModel. This changes behavior for any IContextItem that isn't IContextItem or CommandContextItemViewModel - previously it would throw InvalidCastException, now it returns null. Is this intentional? If so, consider adding a comment explaining the expected item types.\"\n    },\n    {\n      \"path\": \"src/modules/cmdpal/Microsoft.CmdPal.UI/Converters/ContextItemTemplateSelector.cs\",\n      \"start_line\": 43,\n      \"end_line\": 43,\n      \"content\": \"The fallback now returns Default template instead of casting to CommandContextItemViewModel. This changes behavior for unknown item types - previously it would throw InvalidCastException, now it silently uses Default. Is this intentional? If so, consider logging a warning for unexpected types to aid debugging.\"\n    }\n  ]\n}",
+  "stderr": null
+}

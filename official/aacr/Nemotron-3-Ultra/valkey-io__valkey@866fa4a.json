@@ -1,0 +1,16 @@
+{
+  "instance_id": "valkey-io__valkey@866fa4a",
+  "repo": "valkey-io/valkey",
+  "base_commit": "23fb9f2b5162752fbf42d892c6ff311a346565b8",
+  "head_commit": "866fa4a4c9635bae6f0a6b59a78954083ff5ff1a",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:16:10.972959+00:00",
+  "duration_seconds": 23.62,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": []\n}",
+  "stderr": null
+}

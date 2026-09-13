@@ -1,0 +1,35 @@
+{
+  "instance_id": "PowerShell__PowerShell@ea07b93",
+  "repo": "PowerShell/PowerShell",
+  "base_commit": "ce76ae1def6d5b00fff0d855ec01575121268ef3",
+  "head_commit": "ea07b93a40f64274505e3a070c1fd91684ff2959",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:00:05.916182+00:00",
+  "duration_seconds": 16.85,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs",
+        "start_line": 2225,
+        "end_line": 2245,
+        "content": "The PATH lookup logic incorrectly skips relative paths. `Path.IsPathFullyQualified(path)` returns false for relative paths like `.` or `bin`, but these are valid PATH entries that should be resolved against the current working directory. The code should resolve each PATH entry to a full path before combining with the command name."
+      },
+      {
+        "path": "src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs",
+        "start_line": 2225,
+        "end_line": 2245,
+        "content": "The manual PATH lookup doesn't handle executable extensions (PATHEXT) on Windows. On Windows, `ssh` should resolve to `ssh.exe`, `ssh.cmd`, etc. The original `CommandDiscovery.LookupCommandInfo` handles this automatically, but the fallback logic does not."
+      },
+      {
+        "path": "src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs",
+        "start_line": 2225,
+        "end_line": 2245,
+        "content": "The manual PATH lookup is case-sensitive on Linux/macOS due to `File.Exists`, but filesystem case sensitivity varies. The original `CommandDiscovery` handles platform-appropriate case sensitivity. Consider using the same lookup mechanism or at least matching the platform behavior."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs\",\n      \"start_line\": 2225,\n      \"end_line\": 2245,\n      \"content\": \"The PATH lookup logic incorrectly skips relative paths. `Path.IsPathFullyQualified(path)` returns false for relative paths like `.` or `bin`, but these are valid PATH entries that should be resolved against the current working directory. The code should resolve each PATH entry to a full path before combining with the command name.\"\n    },\n    {\n      \"path\": \"src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs\",\n      \"start_line\": 2225,\n      \"end_line\": 2245,\n      \"content\": \"The manual PATH lookup doesn't handle executable extensions (PATHEXT) on Windows. On Windows, `ssh` should resolve to `ssh.exe`, `ssh.cmd`, etc. The original `CommandDiscovery.LookupCommandInfo` handles this automatically, but the fallback logic does not.\"\n    },\n    {\n      \"path\": \"src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs\",\n      \"start_line\": 2225,\n      \"end_line\": 2245,\n      \"content\": \"The manual PATH lookup is case-sensitive on Linux/macOS due to `File.Exists`, but filesystem case sensitivity varies. The original `CommandDiscovery` handles platform-appropriate case sensitivity. Consider using the same lookup mechanism or at least matching the platform behavior.\"\n    }\n  ]\n}",
+  "stderr": null
+}

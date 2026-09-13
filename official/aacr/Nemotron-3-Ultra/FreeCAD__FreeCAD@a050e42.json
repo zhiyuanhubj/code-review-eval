@@ -1,0 +1,16 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@a050e42",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "0c65673a6fd2421be8fbe613116077120adea068",
+  "head_commit": "a050e422e23ce3eaee960b75ceff236b34f369b9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T17:57:33.876442+00:00",
+  "duration_seconds": 65.63,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RepoError: git clone failed: Cloning into '/opt/dlami/nvme/zhiyuan-official-aacr/repos/FreeCAD__FreeCAD'...\nfatal: Unable to create '/opt/dlami/nvme/zhiyuan-official-aacr/repos/FreeCAD__FreeCAD/.git/index.lock': File exists.\n\nAnother git process seems to be running in this repository, e.g.\nan editor opened by 'git commit'. Please make sure all processes\nare terminated then try again. If it still f"
+}

@@ -1,0 +1,41 @@
+{
+  "instance_id": "cline__cline@f098af0",
+  "repo": "cline/cline",
+  "base_commit": "b3abbd886e7e693c48b31a0af8046035bf014118",
+  "head_commit": "f098af0f52bf1cdb7eb561c380caef5746b58d40",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:07:33.596958+00:00",
+  "duration_seconds": 20.62,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/core/task/index.ts",
+        "start_line": 1507,
+        "end_line": 1507,
+        "content": "The bufferStuckTimer is started before the try block but only cleared in the finally block. If an exception occurs before the try block (unlikely here), it could leak. Consider moving the setTimeout inside the try block for consistency, though current structure is acceptable."
+      },
+      {
+        "path": "src/core/task/index.ts",
+        "start_line": 1530,
+        "end_line": 1530,
+        "content": "In the catch block, you capture STREAM_TIMEOUT but don't clear bufferStuckTimer. The finally block handles this, but it's worth noting the timer will be cleared there. Consider adding a comment that finally handles cleanup."
+      },
+      {
+        "path": "src/integrations/terminal/TerminalProcess.ts",
+        "start_line": 191,
+        "end_line": 191,
+        "content": "The telemetryService.captureTerminalOutputFailure(TerminalOutputFailureReason.TIMEOUT) is called when shell integration returns no output, but this might be a false positive if the command genuinely produces no output (e.g., 'true' command). Consider checking if the command is expected to produce output before treating empty output as a failure."
+      },
+      {
+        "path": "src/integrations/terminal/TerminalProcess.ts",
+        "start_line": 217,
+        "end_line": 217,
+        "content": "Similar concern: captureTerminalOutputFailure(NO_SHELL_INTEGRATION) is called for all terminals without shell integration, but this is an expected fallback path, not necessarily a 'failure'. Consider renaming the enum value or only capturing this when the clipboard fallback also fails."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/core/task/index.ts\",\n      \"start_line\": 1507,\n      \"end_line\": 1507,\n      \"content\": \"The bufferStuckTimer is started before the try block but only cleared in the finally block. If an exception occurs before the try block (unlikely here), it could leak. Consider moving the setTimeout inside the try block for consistency, though current structure is acceptable.\"\n    },\n    {\n      \"path\": \"src/core/task/index.ts\",\n      \"start_line\": 1530,\n      \"end_line\": 1530,\n      \"content\": \"In the catch block, you capture STREAM_TIMEOUT but don't clear bufferStuckTimer. The finally block handles this, but it's worth noting the timer will be cleared there. Consider adding a comment that finally handles cleanup.\"\n    },\n    {\n      \"path\": \"src/integrations/terminal/TerminalProcess.ts\",\n      \"start_line\": 191,\n      \"end_line\": 191,\n      \"content\": \"The telemetryService.captureTerminalOutputFailure(TerminalOutputFailureReason.TIMEOUT) is called when shell integration returns no output, but this might be a false positive if the command genuinely produces no output (e.g., 'true' command). Consider checking if the command is expected to produce output before treating empty output as a failure.\"\n    },\n    {\n      \"path\": \"src/integrations/terminal/TerminalProcess.ts\",\n      \"start_line\": 217,\n      \"end_line\": 217,\n      \"content\": \"Similar concern: captureTerminalOutputFailure(NO_SHELL_INTEGRATION) is called for all terminals without shell integration, but this is an expected fallback path, not necessarily a 'failure'. Consider renaming the enum value or only capturing this when the clipboard fallback also fails.\"\n    }\n  ]\n}",
+  "stderr": null
+}

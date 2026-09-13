@@ -1,0 +1,23 @@
+{
+  "instance_id": "cline__cline@419534c",
+  "repo": "cline/cline",
+  "base_commit": "a1bf1f95a30ca95581d9811488636aec42dd2f80",
+  "head_commit": "419534ccd4241fc11827741eb0d76ba0c9d21277",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:07:12.833040+00:00",
+  "duration_seconds": 23.41,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/core/task/index.ts",
+        "start_line": 1327,
+        "end_line": 1343,
+        "content": "The non-blocking checkpoint commit introduces a race condition: if the user triggers another checkpoint before the previous commit resolves, `findLastIndex` will find the newer \"checkpoint_created\" message and update it with the older commit's hash. This corrupts the checkpoint history. Consider using a unique identifier per checkpoint (e.g., a temporary ID generated at `say` time) to correlate the commit result with the correct message, or await the commit before sending the next checkpoint."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/core/task/index.ts\",\n      \"start_line\": 1327,\n      \"end_line\": 1343,\n      \"content\": \"The non-blocking checkpoint commit introduces a race condition: if the user triggers another checkpoint before the previous commit resolves, `findLastIndex` will find the newer \\\"checkpoint_created\\\" message and update it with the older commit's hash. This corrupts the checkpoint history. Consider using a unique identifier per checkpoint (e.g., a temporary ID generated at `say` time) to correlate the commit result with the correct message, or await the commit before sending the next checkpoint.\"\n    }\n  ]\n}",
+  "stderr": null
+}

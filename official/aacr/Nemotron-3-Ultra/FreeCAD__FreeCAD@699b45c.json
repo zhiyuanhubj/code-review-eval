@@ -1,0 +1,65 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@699b45c",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "382720b82e4c6c81f7e1cdd3a33272047d7a3642",
+  "head_commit": "699b45c086f53858897aa8c688bbedaf570c644f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T17:58:22.864670+00:00",
+  "duration_seconds": 14.22,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Base/StackWalker.cpp",
+        "start_line": 1470,
+        "end_line": 1470,
+        "content": "The format specifier %ld expects a long, but 'size' and 'result' are DWORD (unsigned long). On 64-bit Windows, long is 4 bytes while DWORD is 4 bytes, so this matches. However, using %lu would be more correct for unsigned values. Consider using %lu or PRIu32 from inttypes.h for portability."
+      },
+      {
+        "path": "src/Base/StackWalker.cpp",
+        "start_line": 1486,
+        "end_line": 1486,
+        "content": "Same issue: fileVersion components are DWORD (unsigned long), but %ld is signed. Should use %lu or PRIu32."
+      },
+      {
+        "path": "src/Base/StackWalker.cpp",
+        "start_line": 1537,
+        "end_line": 1537,
+        "content": "entry.lineNumber is int, but %ld expects long. This works on most platforms but is technically a format mismatch. Use %d for int."
+      },
+      {
+        "path": "src/Base/StackWalker.cpp",
+        "start_line": 1556,
+        "end_line": 1556,
+        "content": "gle is DWORD (unsigned long), but %ld is signed. Use %lu or PRIu32."
+      },
+      {
+        "path": "src/Base/StackWalker.cpp",
+        "start_line": 1573,
+        "end_line": 1573,
+        "content": "symOptions is DWORD (unsigned long), but %ld is signed. Use %lu or PRIu32."
+      },
+      {
+        "path": "src/Base/StackWalker.cpp",
+        "start_line": 1606,
+        "end_line": 1606,
+        "content": "ver.dwMajorVersion etc. are DWORD (unsigned long), but %ld is signed. Use %lu or PRIu32."
+      },
+      {
+        "path": "src/Mod/CAM/libarea/pyarea.cpp",
+        "start_line": 48,
+        "end_line": 48,
+        "content": "The change from %Iu to %zu is correct for size_t on Windows, but note that %zu requires C99. Since this is C++, it's fine, but ensure the compiler supports it (MSVC 2013+ does)."
+      },
+      {
+        "path": "tests/src/Base/Reader.cpp",
+        "start_line": 23,
+        "end_line": 23,
+        "content": "The cast to int is safe here since digits.size() is small, but consider using std::uniform_int_distribution<size_t> to avoid the cast entirely."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Base/StackWalker.cpp\",\n      \"start_line\": 1470,\n      \"end_line\": 1470,\n      \"content\": \"The format specifier %ld expects a long, but 'size' and 'result' are DWORD (unsigned long). On 64-bit Windows, long is 4 bytes while DWORD is 4 bytes, so this matches. However, using %lu would be more correct for unsigned values. Consider using %lu or PRIu32 from inttypes.h for portability.\"\n    },\n    {\n      \"path\": \"src/Base/StackWalker.cpp\",\n      \"start_line\": 1486,\n      \"end_line\": 1486,\n      \"content\": \"Same issue: fileVersion components are DWORD (unsigned long), but %ld is signed. Should use %lu or PRIu32.\"\n    },\n    {\n      \"path\": \"src/Base/StackWalker.cpp\",\n      \"start_line\": 1537,\n      \"end_line\": 1537,\n      \"content\": \"entry.lineNumber is int, but %ld expects long. This works on most platforms but is technically a format mismatch. Use %d for int.\"\n    },\n    {\n      \"path\": \"src/Base/StackWalker.cpp\",\n      \"start_line\": 1556,\n      \"end_line\": 1556,\n      \"content\": \"gle is DWORD (unsigned long), but %ld is signed. Use %lu or PRIu32.\"\n    },\n    {\n      \"path\": \"src/Base/StackWalker.cpp\",\n      \"start_line\": 1573,\n      \"end_line\": 1573,\n      \"content\": \"symOptions is DWORD (unsigned long), but %ld is signed. Use %lu or PRIu32.\"\n    },\n    {\n      \"path\": \"src/Base/StackWalker.cpp\",\n      \"start_line\": 1606,\n      \"end_line\": 1606,\n      \"content\": \"ver.dwMajorVersion etc. are DWORD (unsigned long), but %ld is signed. Use %lu or PRIu32.\"\n    },\n    {\n      \"path\": \"src/Mod/CAM/libarea/pyarea.cpp\",\n      \"start_line\": 48,\n      \"end_line\": 48,\n      \"content\": \"The change from %Iu to %zu is correct for size_t on Windows, but note that %zu requires C99. Since this is C++, it's fine, but ensure the compiler supports it (MSVC 2013+ does).\"\n    },\n    {\n      \"path\": \"tests/src/Base/Reader.cpp\",\n      \"start_line\": 23,\n      \"end_line\": 23,\n      \"content\": \"The cast to int is safe here since digits.size() is small, but consider using std::uniform_int_distribution<size_t> to avoid the cast entirely.\"\n    }\n  ]\n}",
+  "stderr": null
+}

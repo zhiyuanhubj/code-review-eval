@@ -1,0 +1,23 @@
+{
+  "instance_id": "astral-sh__uv@61b521f",
+  "repo": "astral-sh/uv",
+  "base_commit": "041c7a5e63d5559ce5571a30e177c072b1b357b2",
+  "head_commit": "61b521f4e9a1e8bdba760394740814f25cc108c2",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:25:56.177960+00:00",
+  "duration_seconds": 26.75,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "crates/uv/tests/it/pip_install.rs",
+        "start_line": 530,
+        "end_line": 530,
+        "content": "The second mock for `/requirements.txt` without basic_auth will match requests with credentials too (since it has no auth matcher). This could cause the 401 response to be returned even when credentials are provided. Add `.and(basic_auth(username, password).not())` or use `Mock::given(method(\"GET\")).and(path(\"/requirements.txt\")).and(basic_auth(username, password).not())` to ensure it only matches unauthenticated requests."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"crates/uv/tests/it/pip_install.rs\",\n      \"start_line\": 530,\n      \"end_line\": 530,\n      \"content\": \"The second mock for `/requirements.txt` without basic_auth will match requests with credentials too (since it has no auth matcher). This could cause the 401 response to be returned even when credentials are provided. Add `.and(basic_auth(username, password).not())` or use `Mock::given(method(\\\"GET\\\")).and(path(\\\"/requirements.txt\\\")).and(basic_auth(username, password).not())` to ensure it only matches unauthenticated requests.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -16,6 +16,7 @@ TAG="${TAG:-$MODEL}"
 BASE_URL="${OPENAI_API_BASE:?set OPENAI_API_BASE}"
 API_KEY="${OPENAI_API_KEY:-dummy}"
 THREADS="${THREADS:-8}"
+TEMPERATURE="${TEMPERATURE:-0.2}"
 mkdir -p "$OUT/$TAG" /fsx/home/zhiyuan/logs/official-cr
 
 export OPENAI_API_BASE="$BASE_URL"
@@ -28,11 +29,11 @@ fi
 
 cd "$SWR"
 "$PY" -m pip install -q loguru tenacity tqdm openai python-dateutil
-echo "[official-swr $(date -u '+%F %T UTC')] model=$MODEL tag=$TAG threads=$THREADS host=$(hostname)"
+echo "[official-swr $(date -u '+%F %T UTC')] model=$MODEL tag=$TAG threads=$THREADS temperature=$TEMPERATURE host=$(hostname)"
 exec "$PY" swrbench/generation.py \
     --dataset-file "$SWR/data/swr_datasets_d5c5.jsonl" \
     --model "$MODEL" \
     --max-tokens 8192 \
-    --temperature 0.2 \
+    --temperature "$TEMPERATURE" \
     --num-threads "$THREADS" \
     --output-file "$OUT/$TAG/generation.jsonl"

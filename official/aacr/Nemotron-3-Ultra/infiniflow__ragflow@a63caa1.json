@@ -1,0 +1,35 @@
+{
+  "instance_id": "infiniflow__ragflow@a63caa1",
+  "repo": "infiniflow/ragflow",
+  "base_commit": "0a42e5777eb966b26aaf8f2a7d593ae99a4aa87a",
+  "head_commit": "a63caa1087852ada98964678be26b7c4d8363af6",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:14:49.776325+00:00",
+  "duration_seconds": 27.43,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "graphrag/entity_resolution.py",
+        "start_line": 115,
+        "end_line": 115,
+        "content": "The lambda in nursery.start_soon captures the loop variable 'merging_nodes' by reference. All tasks will see the final value of 'merging_nodes' after the loop completes. Fix by binding the current value: `nursery.start_soon(lambda mn=merging_nodes: self._merge_graph_nodes(graph, mn, change))`"
+      },
+      {
+        "path": "graphrag/general/extractor.py",
+        "start_line": 204,
+        "end_line": 205,
+        "content": "The original code attempted to merge 'keywords' but the new code only merges 'source_id'. If 'keywords' should be merged, add: `node0_attrs[\"keywords\"].extend(node1_attrs[\"keywords\"]); node0_attrs[\"keywords\"] = sorted(set(node0_attrs[\"keywords\"]))`. If intentionally removed, add a comment explaining why."
+      },
+      {
+        "path": "graphrag/utils.py",
+        "start_line": 443,
+        "end_line": 443,
+        "content": "The lambda in trio.to_thread.run_sync captures loop variables 'from_node' and 'to_node' by reference. All calls will use the final values after the loop. Fix by binding current values: `await trio.to_thread.run_sync(lambda fn=from_node, tn=to_node: settings.docStoreConn.delete({\"knowledge_graph_kwd\": [\"relation\"], \"from_entity_kwd\": fn, \"to_entity_kwd\": tn}, search.index_name(tenant_id), kb_id))`"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"graphrag/entity_resolution.py\",\n      \"start_line\": 115,\n      \"end_line\": 115,\n      \"content\": \"The lambda in nursery.start_soon captures the loop variable 'merging_nodes' by reference. All tasks will see the final value of 'merging_nodes' after the loop completes. Fix by binding the current value: `nursery.start_soon(lambda mn=merging_nodes: self._merge_graph_nodes(graph, mn, change))`\"\n    },\n    {\n      \"path\": \"graphrag/general/extractor.py\",\n      \"start_line\": 204,\n      \"end_line\": 205,\n      \"content\": \"The original code attempted to merge 'keywords' but the new code only merges 'source_id'. If 'keywords' should be merged, add: `node0_attrs[\\\"keywords\\\"].extend(node1_attrs[\\\"keywords\\\"]); node0_attrs[\\\"keywords\\\"] = sorted(set(node0_attrs[\\\"keywords\\\"]))`. If intentionally removed, add a comment explaining why.\"\n    },\n    {\n      \"path\": \"graphrag/utils.py\",\n      \"start_line\": 443,\n      \"end_line\": 443,\n      \"content\": \"The lambda in trio.to_thread.run_sync captures loop variables 'from_node' and 'to_node' by reference. All calls will use the final values after the loop. Fix by binding current values: `await trio.to_thread.run_sync(lambda fn=from_node, tn=to_node: settings.docStoreConn.delete({\\\"knowledge_graph_kwd\\\": [\\\"relation\\\"], \\\"from_entity_kwd\\\": fn, \\\"to_entity_kwd\\\": tn}, search.index_name(tenant_id), kb_id))`\"\n    }\n  ]\n}",
+  "stderr": null
+}

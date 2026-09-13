@@ -1,0 +1,23 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@39c5968",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "b59cd794274c8c007b2ef16c3a06fecf30c0aef1",
+  "head_commit": "39c5968bdc6c0b20d94d4a629cd43eafee1e56d0",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T17:58:08.311595+00:00",
+  "duration_seconds": 5.24,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/App/Application.cpp",
+        "start_line": 3516,
+        "end_line": 3524,
+        "content": "Memory leak: `buf` allocated with `new char[++sz]` is not freed when `_NSGetExecutablePath(buf, &sz) != 0`. Move `delete[] buf` outside the if block or use a smart pointer/RAII wrapper."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/App/Application.cpp\",\n      \"start_line\": 3516,\n      \"end_line\": 3524,\n      \"content\": \"Memory leak: `buf` allocated with `new char[++sz]` is not freed when `_NSGetExecutablePath(buf, &sz) != 0`. Move `delete[] buf` outside the if block or use a smart pointer/RAII wrapper.\"\n    }\n  ]\n}",
+  "stderr": null
+}

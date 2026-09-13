@@ -1,0 +1,29 @@
+{
+  "instance_id": "comfyanonymous__ComfyUI@0bb6023",
+  "repo": "comfyanonymous/ComfyUI",
+  "base_commit": "6c0377f43e7b6ed58d48ae05cff9bc45b52ef5e0",
+  "head_commit": "0bb60235132cc72daea81427107a40ba1ccb5ddf",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:01:53.490764+00:00",
+  "duration_seconds": 15.38,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "comfy/controlnet.py",
+        "start_line": 825,
+        "end_line": 825,
+        "content": "The f-string formatting is incorrect: `\"adapter.body.{}.{}\".format(i, )` has a trailing comma but only one placeholder. This will raise a ValueError at runtime. Should be `\"adapter.body.{}\".format(i)` or `f\"adapter.body.{i}.\"`."
+      },
+      {
+        "path": "comfy_extras/nodes_clip_sdxl.py",
+        "start_line": 25,
+        "end_line": 35,
+        "content": "The INPUT_TYPES dict has duplicate 'clip' keys (lines 25 and 33 in original). In Python dicts, the last value wins, so the first 'clip' entry is silently ignored. This is likely a copy-paste error from the original lines that had `\"text_g\": ..., \"clip\": ...` and `\"text_l\": ..., \"clip\": ...`. The fix removes the duplicate but the structure looks suspicious - verify this matches the intended node interface."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"comfy/controlnet.py\",\n      \"start_line\": 825,\n      \"end_line\": 825,\n      \"content\": \"The f-string formatting is incorrect: `\\\"adapter.body.{}.{}\\\".format(i, )` has a trailing comma but only one placeholder. This will raise a ValueError at runtime. Should be `\\\"adapter.body.{}\\\".format(i)` or `f\\\"adapter.body.{i}.\\\"`.\"\n    },\n    {\n      \"path\": \"comfy_extras/nodes_clip_sdxl.py\",\n      \"start_line\": 25,\n      \"end_line\": 35,\n      \"content\": \"The INPUT_TYPES dict has duplicate 'clip' keys (lines 25 and 33 in original). In Python dicts, the last value wins, so the first 'clip' entry is silently ignored. This is likely a copy-paste error from the original lines that had `\\\"text_g\\\": ..., \\\"clip\\\": ...` and `\\\"text_l\\\": ..., \\\"clip\\\": ...`. The fix removes the duplicate but the structure looks suspicious - verify this matches the intended node interface.\"\n    }\n  ]\n}",
+  "stderr": null
+}

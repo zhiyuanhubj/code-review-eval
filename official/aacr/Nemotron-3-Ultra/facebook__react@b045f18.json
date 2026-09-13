@@ -1,0 +1,41 @@
+{
+  "instance_id": "facebook__react@b045f18",
+  "repo": "facebook/react",
+  "base_commit": "99563e91736e9de473c4865d5cb6fd9eb1a26bcb",
+  "head_commit": "b045f18e378341876ee69e729fc855cab501c3cd",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:17:48.371586+00:00",
+  "duration_seconds": 58.12,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/react-reconciler/src/ReactFiberBeginWork.js",
+        "start_line": 868,
+        "end_line": 913,
+        "content": "The updateActivityComponent function uses mountWorkInProgressOffscreenFiber and updateWorkInProgressOffscreenFiber which are designed for OffscreenComponent. ActivityComponent should likely have its own fiber creation logic rather than reusing offscreen internals, as the semantics differ (activity vs offscreen). Consider creating dedicated functions like mountWorkInProgressActivityFiber and updateWorkInProgressActivityFiber."
+      },
+      {
+        "path": "packages/react-reconciler/src/ReactFiberCompleteWork.js",
+        "start_line": 960,
+        "end_line": 960,
+        "content": "ActivityComponent falls through to the default case with LazyComponent, SimpleMemoComponent, etc. This means it gets no special completeWork handling. If ActivityComponent needs to manage DOM nodes or side effects (like OffscreenComponent does), it should have its own case with proper completion logic."
+      },
+      {
+        "path": "packages/react-reconciler/src/ReactFiber.js",
+        "start_line": 878,
+        "end_line": 894,
+        "content": "createFiberFromActivity accepts OffscreenProps but ActivityComponent may need different props. The type should be ActivityProps (or similar) rather than reusing OffscreenProps, unless they are intentionally identical."
+      },
+      {
+        "path": "packages/react/src/ReactClient.js",
+        "start_line": 116,
+        "end_line": 116,
+        "content": "The export alias unstable_Activity now points to REACT_ACTIVITY_TYPE, but the previous export was REACT_OFFSCREEN_TYPE as unstable_Activity. This is a breaking change for anyone using unstable_Activity expecting offscreen behavior. Consider keeping both exports or using a different name for the new activity type."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/react-reconciler/src/ReactFiberBeginWork.js\",\n      \"start_line\": 868,\n      \"end_line\": 913,\n      \"content\": \"The updateActivityComponent function uses mountWorkInProgressOffscreenFiber and updateWorkInProgressOffscreenFiber which are designed for OffscreenComponent. ActivityComponent should likely have its own fiber creation logic rather than reusing offscreen internals, as the semantics differ (activity vs offscreen). Consider creating dedicated functions like mountWorkInProgressActivityFiber and updateWorkInProgressActivityFiber.\"\n    },\n    {\n      \"path\": \"packages/react-reconciler/src/ReactFiberCompleteWork.js\",\n      \"start_line\": 960,\n      \"end_line\": 960,\n      \"content\": \"ActivityComponent falls through to the default case with LazyComponent, SimpleMemoComponent, etc. This means it gets no special completeWork handling. If ActivityComponent needs to manage DOM nodes or side effects (like OffscreenComponent does), it should have its own case with proper completion logic.\"\n    },\n    {\n      \"path\": \"packages/react-reconciler/src/ReactFiber.js\",\n      \"start_line\": 878,\n      \"end_line\": 894,\n      \"content\": \"createFiberFromActivity accepts OffscreenProps but ActivityComponent may need different props. The type should be ActivityProps (or similar) rather than reusing OffscreenProps, unless they are intentionally identical.\"\n    },\n    {\n      \"path\": \"packages/react/src/ReactClient.js\",\n      \"start_line\": 116,\n      \"end_line\": 116,\n      \"content\": \"The export alias unstable_Activity now points to REACT_ACTIVITY_TYPE, but the previous export was REACT_OFFSCREEN_TYPE as unstable_Activity. This is a breaking change for anyone using unstable_Activity expecting offscreen behavior. Consider keeping both exports or using a different name for the new activity type.\"\n    }\n  ]\n}",
+  "stderr": null
+}

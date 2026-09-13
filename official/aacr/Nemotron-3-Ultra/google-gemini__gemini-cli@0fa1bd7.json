@@ -1,0 +1,41 @@
+{
+  "instance_id": "google-gemini__gemini-cli@0fa1bd7",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "5a05fb0dd002481343aaab7736a871904bb07c6f",
+  "head_commit": "0fa1bd7ac417366f321ed2554caeaef550321959",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:14:22.327475+00:00",
+  "duration_seconds": 30.91,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/cli/src/utils/commentJson.ts",
+        "start_line": 100,
+        "end_line": 100,
+        "content": "The `restoreEnvVarsRecursive` function only restores env var references when the current value is a string (`typeof value === 'string'`). If the resolved value was a non-string (e.g., number, boolean, object), the original `$VAR` reference will not be restored, potentially leaking the resolved value into the file. Consider removing the string type check or handling non-string resolved values."
+      },
+      {
+        "path": "packages/cli/src/utils/commentJson.ts",
+        "start_line": 125,
+        "end_line": 125,
+        "content": "The `trackEnvVarMappings` function only tracks mappings when both original and resolved values are strings. If an env var resolves to a non-string (e.g., `$PORT` -> `3000` number), it won't be tracked and the resolved value will be written to the file. The regex `^\\$(?:(\\w+)|{([^}]+)})$` also doesn't match env vars with default values like `${VAR:-default}`."
+      },
+      {
+        "path": "packages/cli/src/utils/commentJson.ts",
+        "start_line": 145,
+        "end_line": 145,
+        "content": "The `applyUpdates` function mutates the `current` object directly (`const result = current;`). This could cause unintended side effects if the parsed object is used elsewhere. Consider creating a deep clone first or using a more immutable approach."
+      },
+      {
+        "path": "packages/cli/src/config/settings.ts",
+        "start_line": 418,
+        "end_line": 418,
+        "content": "The `saveSettings` call in `setSetting` passes `envMappings` which could be an empty array if the scope has no mappings. However, the function signature defaults to `[]`, so this is fine. But note that `envMappings` is typed as `ReturnType<typeof trackEnvVarMappings>` which is `EnvVarMapping[]`, while the default is `[]` - this is consistent."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/cli/src/utils/commentJson.ts\",\n      \"start_line\": 100,\n      \"end_line\": 100,\n      \"content\": \"The `restoreEnvVarsRecursive` function only restores env var references when the current value is a string (`typeof value === 'string'`). If the resolved value was a non-string (e.g., number, boolean, object), the original `$VAR` reference will not be restored, potentially leaking the resolved value into the file. Consider removing the string type check or handling non-string resolved values.\"\n    },\n    {\n      \"path\": \"packages/cli/src/utils/commentJson.ts\",\n      \"start_line\": 125,\n      \"end_line\": 125,\n      \"content\": \"The `trackEnvVarMappings` function only tracks mappings when both original and resolved values are strings. If an env var resolves to a non-string (e.g., `$PORT` -> `3000` number), it won't be tracked and the resolved value will be written to the file. The regex `^\\\\$(?:(\\\\w+)|{([^}]+)})$` also doesn't match env vars with default values like `${VAR:-default}`.\"\n    },\n    {\n      \"path\": \"packages/cli/src/utils/commentJson.ts\",\n      \"start_line\": 145,\n      \"end_line\": 145,\n      \"content\": \"The `applyUpdates` function mutates the `current` object directly (`const result = current;`). This could cause unintended side effects if the parsed object is used elsewhere. Consider creating a deep clone first or using a more immutable approach.\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/settings.ts\",\n      \"start_line\": 418,\n      \"end_line\": 418,\n      \"content\": \"The `saveSettings` call in `setSetting` passes `envMappings` which could be an empty array if the scope has no mappings. However, the function signature defaults to `[]`, so this is fine. But note that `envMappings` is typed as `ReturnType<typeof trackEnvVarMappings>` which is `EnvVarMapping[]`, while the default is `[]` - this is consistent.\"\n    }\n  ]\n}",
+  "stderr": null
+}

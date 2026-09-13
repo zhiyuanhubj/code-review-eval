@@ -1,0 +1,41 @@
+{
+  "instance_id": "gofr-dev__gofr@5e284ae",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "de79ab765d0d34d78a42ebdd50a21a6f26841b7f",
+  "head_commit": "5e284aec0447be34c96a252e959067c8bcd9cd4c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:01:38.091048+00:00",
+  "duration_seconds": 23.7,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/gofr/handler.go",
+        "start_line": 63,
+        "end_line": 71,
+        "content": "The logger swap is not concurrency-safe. Multiple concurrent requests will race on `h.container.Logger`, causing trace IDs to leak across requests and potentially panic if one request restores the logger while another is still using it. Use a request-scoped logger passed via context instead of mutating shared container state."
+      },
+      {
+        "path": "pkg/gofr/handler.go",
+        "start_line": 84,
+        "end_line": 84,
+        "content": "Passing `h.container.Logger` to `panicRecoveryHandler` after the defer restores the original logger is racy. If a panic occurs after the defer runs, the handler will use the original logger instead of the context logger. Capture the context logger in a local variable before the goroutine and pass that."
+      },
+      {
+        "path": "pkg/gofr/logging/ctx_logger.go",
+        "start_line": 35,
+        "end_line": 39,
+        "content": "The key `__trace_id__` is an implementation detail that leaks into user log arguments. If a user logs a map with this key, it will be mistakenly treated as trace metadata. Use a private/unexported type as the key (e.g., `type traceIDKey struct{}`) to avoid collisions."
+      },
+      {
+        "path": "pkg/gofr/logging/logger.go",
+        "start_line": 244,
+        "end_line": 265,
+        "content": "`extractTraceIDAndFilterArgs` only extracts the first `__trace_id__` map and ignores subsequent ones. If multiple trace ID maps are present (e.g., from nested loggers), the first wins silently. Document this behavior or consider returning an error if multiple are found."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/handler.go\",\n      \"start_line\": 63,\n      \"end_line\": 71,\n      \"content\": \"The logger swap is not concurrency-safe. Multiple concurrent requests will race on `h.container.Logger`, causing trace IDs to leak across requests and potentially panic if one request restores the logger while another is still using it. Use a request-scoped logger passed via context instead of mutating shared container state.\"\n    },\n    {\n      \"path\": \"pkg/gofr/handler.go\",\n      \"start_line\": 84,\n      \"end_line\": 84,\n      \"content\": \"Passing `h.container.Logger` to `panicRecoveryHandler` after the defer restores the original logger is racy. If a panic occurs after the defer runs, the handler will use the original logger instead of the context logger. Capture the context logger in a local variable before the goroutine and pass that.\"\n    },\n    {\n      \"path\": \"pkg/gofr/logging/ctx_logger.go\",\n      \"start_line\": 35,\n      \"end_line\": 39,\n      \"content\": \"The key `__trace_id__` is an implementation detail that leaks into user log arguments. If a user logs a map with this key, it will be mistakenly treated as trace metadata. Use a private/unexported type as the key (e.g., `type traceIDKey struct{}`) to avoid collisions.\"\n    },\n    {\n      \"path\": \"pkg/gofr/logging/logger.go\",\n      \"start_line\": 244,\n      \"end_line\": 265,\n      \"content\": \"`extractTraceIDAndFilterArgs` only extracts the first `__trace_id__` map and ignores subsequent ones. If multiple trace ID maps are present (e.g., from nested loggers), the first wins silently. Document this behavior or consider returning an error if multiple are found.\"\n    }\n  ]\n}",
+  "stderr": null
+}

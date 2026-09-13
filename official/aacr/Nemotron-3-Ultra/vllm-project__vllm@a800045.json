@@ -1,0 +1,29 @@
+{
+  "instance_id": "vllm-project__vllm@a800045",
+  "repo": "vllm-project/vllm",
+  "base_commit": "5e125e74d1b9739025ccb81106e28ce9b0dd4ea5",
+  "head_commit": "a800045d0e2473ce173865edb83967cd210dec4c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:24:35.921411+00:00",
+  "duration_seconds": 35.52,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "benchmarks/benchmark_throughput.py",
+        "start_line": 335,
+        "end_line": 338,
+        "content": "The dataset_split is hardcoded to 'train' for AIMODataset, but the command-line argument args.hf_split is ignored. This is inconsistent with how other HF datasets handle the split parameter. Either use args.hf_split or document why 'train' is forced."
+      },
+      {
+        "path": "benchmarks/benchmark_throughput.py",
+        "start_line": 478,
+        "end_line": 478,
+        "content": "The assertion requires backend == 'vllm' for AIMODataset, but the example in README.md uses --backend vllm for benchmark_serving.py and doesn't specify backend for benchmark_throughput.py (which defaults to 'vllm'). This is consistent, but consider if 'vllm-chat' should also be supported for chat-formatted datasets."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"benchmarks/benchmark_throughput.py\",\n      \"start_line\": 335,\n      \"end_line\": 338,\n      \"content\": \"The dataset_split is hardcoded to 'train' for AIMODataset, but the command-line argument args.hf_split is ignored. This is inconsistent with how other HF datasets handle the split parameter. Either use args.hf_split or document why 'train' is forced.\"\n    },\n    {\n      \"path\": \"benchmarks/benchmark_throughput.py\",\n      \"start_line\": 478,\n      \"end_line\": 478,\n      \"content\": \"The assertion requires backend == 'vllm' for AIMODataset, but the example in README.md uses --backend vllm for benchmark_serving.py and doesn't specify backend for benchmark_throughput.py (which defaults to 'vllm'). This is consistent, but consider if 'vllm-chat' should also be supported for chat-formatted datasets.\"\n    }\n  ]\n}",
+  "stderr": null
+}

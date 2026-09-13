@@ -1,0 +1,35 @@
+{
+  "instance_id": "gofr-dev__gofr@b9cdcbb",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "7f1760b083ea23ffd95fdf83467bdfa21735df81",
+  "head_commit": "b9cdcbb2b9fc78499d15d51ffbb7c861592b0efe",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:00:58.954200+00:00",
+  "duration_seconds": 17.56,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/gofr/http/responder.go",
+        "start_line": 31,
+        "end_line": 31,
+        "content": "The test expects `metadata` to be omitted when not provided (due to omitempty), but the test case \"gofr response type without metadata\" expects `{\"metadata\":null,...}`. This will fail because omitempty omits nil maps. Either remove omitempty from the struct tag or update the test to expect omitted metadata field."
+      },
+      {
+        "path": "pkg/gofr/handler.go",
+        "start_line": 99,
+        "end_line": 105,
+        "content": "The handler no longer sets `result = resp.Data` after handling custom headers. This means the full Response struct (with Metadata) will be passed to the responder, which now handles it correctly. However, ensure this doesn't break any existing behavior where handlers might rely on the previous unwrapping. The change looks intentional but should be verified."
+      },
+      {
+        "path": "docs/advanced-guide/setting-custom-response-headers/page.md",
+        "start_line": 1,
+        "end_line": 118,
+        "content": "The documentation example shows `Data: map[string]string{\"message\": \"Hello, \" + name + \"!\"}` but the test expects `Data: \"Hello World from new Server\"` (string). Ensure consistency between documentation examples and actual implementation/test expectations."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/http/responder.go\",\n      \"start_line\": 31,\n      \"end_line\": 31,\n      \"content\": \"The test expects `metadata` to be omitted when not provided (due to omitempty), but the test case \\\"gofr response type without metadata\\\" expects `{\\\"metadata\\\":null,...}`. This will fail because omitempty omits nil maps. Either remove omitempty from the struct tag or update the test to expect omitted metadata field.\"\n    },\n    {\n      \"path\": \"pkg/gofr/handler.go\",\n      \"start_line\": 99,\n      \"end_line\": 105,\n      \"content\": \"The handler no longer sets `result = resp.Data` after handling custom headers. This means the full Response struct (with Metadata) will be passed to the responder, which now handles it correctly. However, ensure this doesn't break any existing behavior where handlers might rely on the previous unwrapping. The change looks intentional but should be verified.\"\n    },\n    {\n      \"path\": \"docs/advanced-guide/setting-custom-response-headers/page.md\",\n      \"start_line\": 1,\n      \"end_line\": 118,\n      \"content\": \"The documentation example shows `Data: map[string]string{\\\"message\\\": \\\"Hello, \\\" + name + \\\"!\\\"}` but the test expects `Data: \\\"Hello World from new Server\\\"` (string). Ensure consistency between documentation examples and actual implementation/test expectations.\"\n    }\n  ]\n}",
+  "stderr": null
+}

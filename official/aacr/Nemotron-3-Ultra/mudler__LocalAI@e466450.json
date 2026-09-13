@@ -1,0 +1,47 @@
+{
+  "instance_id": "mudler__LocalAI@e466450",
+  "repo": "mudler/LocalAI",
+  "base_commit": "78533d7230bdb5e352e325c15d0d53f38428b08e",
+  "head_commit": "e466450c007539a2b1e4d2951c6756ff004a2b52",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:18:29.575417+00:00",
+  "duration_seconds": 40.8,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "core/http/endpoints/openai/inference.go",
+        "start_line": 55,
+        "end_line": 58,
+        "content": "Accumulating timing values across multiple predictions (e.g., in a loop) sums the milliseconds, which is incorrect. Timing for prompt processing should typically be the time for the first token (or prompt processing phase), not a sum across chunks. Token generation timing could be total generation time, but summing `predicted_ms` per chunk is wrong if each chunk already reports cumulative time. Need to verify what the backend returns per prediction and adjust aggregation logic (e.g., take max, last, or sum only incremental deltas)."
+      },
+      {
+        "path": "core/http/endpoints/openai/completion.go",
+        "start_line": 173,
+        "end_line": 176,
+        "content": "Same issue: summing `TimingTokenGeneration` and `TimingPromptProcessing` across multiple choices/predictions is likely incorrect. If each prediction returns cumulative timings, this will overcount. Should use the final prediction's timing values or track incrementally."
+      },
+      {
+        "path": "core/http/endpoints/openai/edit.go",
+        "start_line": 69,
+        "end_line": 72,
+        "content": "Same timing accumulation bug as in completion.go and inference.go. Summing timings across iterations is incorrect if backend returns cumulative values."
+      },
+      {
+        "path": "core/cli/run.go",
+        "start_line": 74,
+        "end_line": 74,
+        "content": "The help text for MachineTag says 'TODO: write a help string'. This should be replaced with a proper description before merge."
+      },
+      {
+        "path": "backend/backend.proto",
+        "start_line": 161,
+        "end_line": 162,
+        "content": "New protobuf fields `timing_prompt_processing` and `timing_token_generation` are added as `double` (float64). Ensure all backend implementations (not just llama.cpp) populate these fields correctly, or handle missing values gracefully. Currently only llama.cpp gRPC server sets them."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"core/http/endpoints/openai/inference.go\",\n      \"start_line\": 55,\n      \"end_line\": 58,\n      \"content\": \"Accumulating timing values across multiple predictions (e.g., in a loop) sums the milliseconds, which is incorrect. Timing for prompt processing should typically be the time for the first token (or prompt processing phase), not a sum across chunks. Token generation timing could be total generation time, but summing `predicted_ms` per chunk is wrong if each chunk already reports cumulative time. Need to verify what the backend returns per prediction and adjust aggregation logic (e.g., take max, last, or sum only incremental deltas).\"\n    },\n    {\n      \"path\": \"core/http/endpoints/openai/completion.go\",\n      \"start_line\": 173,\n      \"end_line\": 176,\n      \"content\": \"Same issue: summing `TimingTokenGeneration` and `TimingPromptProcessing` across multiple choices/predictions is likely incorrect. If each prediction returns cumulative timings, this will overcount. Should use the final prediction's timing values or track incrementally.\"\n    },\n    {\n      \"path\": \"core/http/endpoints/openai/edit.go\",\n      \"start_line\": 69,\n      \"end_line\": 72,\n      \"content\": \"Same timing accumulation bug as in completion.go and inference.go. Summing timings across iterations is incorrect if backend returns cumulative values.\"\n    },\n    {\n      \"path\": \"core/cli/run.go\",\n      \"start_line\": 74,\n      \"end_line\": 74,\n      \"content\": \"The help text for MachineTag says 'TODO: write a help string'. This should be replaced with a proper description before merge.\"\n    },\n    {\n      \"path\": \"backend/backend.proto\",\n      \"start_line\": 161,\n      \"end_line\": 162,\n      \"content\": \"New protobuf fields `timing_prompt_processing` and `timing_token_generation` are added as `double` (float64). Ensure all backend implementations (not just llama.cpp) populate these fields correctly, or handle missing values gracefully. Currently only llama.cpp gRPC server sets them.\"\n    }\n  ]\n}",
+  "stderr": null
+}

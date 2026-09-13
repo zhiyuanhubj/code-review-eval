@@ -1,0 +1,16 @@
+{
+  "instance_id": "microsoft__typescript-go@892b4a3",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "a9efe52c52001ea5b49d2ae8d7b0fa32ec8339f3",
+  "head_commit": "892b4a3f6b701352047ceb019fc0683ab1146bb3",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T17:59:28.177511+00:00",
+  "duration_seconds": 24.21,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"internal/fourslash/_scripts/convertFourslash.mts\",\n      \"start_line\": 61,\n      \"end_line\": 61,\n      \"content\": \"The testName derivation (capitalizing first letter) must match the format used in manualTests.txt. Ensure manualTests.txt entries use the same casing convention (e.g., 'GoToDefinition' not 'goToDefinition'). Consider adding a comment documenting this requirement.\"\n    },\n    {\n      \"path\": \"internal/fourslash/_scripts/makeManual.mts\",\n      \"start_line\": 15,\n      \"end_line\": 15,\n      \"content\": \"The script uses the raw testName argument as the filename (testFileName = testName), but convertFourslash generates files named `${test.name}_test.go` where test.name comes from the parsed TypeScript file. These must match exactly. If the user passes 'goToDefinition' but the generated file is 'GoToDefinition_test.go', the rename will fail. Consider deriving the filename from the test name the same way convertFourslash does (capitalize first letter + '_test.go').\"\n    },\n    {\n      \"path\": \"internal/fourslash/_scripts/makeManual.mts\",\n      \"start_line\": 35,\n      end_line: 35,\n      \"content\": \"The manualTests.txt entry is stored as the raw testName argument, but convertFourslash checks against a capitalized version (testName = test.name[0].toUpperCase() + test.name.substring(1)). This mismatch will cause convertFourslash to not recognize the test as manual. The entry added to manualTests.txt should use the same capitalized format.\"\n    }\n  ]\n}",
+  "stderr": null
+}

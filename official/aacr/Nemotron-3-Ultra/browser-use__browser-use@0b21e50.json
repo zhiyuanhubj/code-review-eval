@@ -1,0 +1,47 @@
+{
+  "instance_id": "browser-use__browser-use@0b21e50",
+  "repo": "browser-use/browser-use",
+  "base_commit": "fa461585f1fc2d4a430e68e6c115a12f4936fe73",
+  "head_commit": "0b21e50ca640581ecd46990475c8b223eaa05045",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:09:11.637597+00:00",
+  "duration_seconds": 30.93,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "browser_use/browser/browser.py",
+        "start_line": 202,
+        "end_line": 202,
+        "content": "The variable name `chrome_launch_args` is misleading since it's a list, not a command string. Consider renaming to `chrome_launch_args_list` or just `launch_args` for clarity."
+      },
+      {
+        "path": "browser_use/browser/browser.py",
+        "start_line": 215,
+        "end_line": 226,
+        "content": "The `chrome_sub_process` variable uses snake_case while `self._chrome_subprocess` uses camelCase. For consistency, rename `chrome_sub_process` to `chrome_subprocess` to match the instance variable naming."
+      },
+      {
+        "path": "browser_use/browser/browser.py",
+        "start_line": 259,
+        "end_line": 259,
+        "content": "The `chrome_args` variable is a set (due to `{...}` syntax), but later code calls `.remove()` on it which works for sets. However, the variable name suggests a list. Consider renaming to `chrome_args_set` or converting to list for clarity since order might matter for Chrome args."
+      },
+      {
+        "path": "browser_use/browser/chrome.py",
+        "start_line": 96,
+        "end_line": 96,
+        "content": "The `CHROME_DEBUGGING_ARG` uses old-style `%` formatting with a dict. Consider using an f-string or `.format()` for consistency with modern Python practices, though the current approach works with the `%` operator in the calling code."
+      },
+      {
+        "path": "tests/test_browser.py",
+        "start_line": 157,
+        "end_line": 157,
+        "content": "The test `test_user_provided_browser_launch_on_custom_chrome_remote_debugging_port` is comprehensive but could benefit from a docstring explaining the specific scenario being tested (launching new Chrome instance with custom port when no existing browser is found)."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"browser_use/browser/browser.py\",\n      \"start_line\": 202,\n      \"end_line\": 202,\n      \"content\": \"The variable name `chrome_launch_args` is misleading since it's a list, not a command string. Consider renaming to `chrome_launch_args_list` or just `launch_args` for clarity.\"\n    },\n    {\n      \"path\": \"browser_use/browser/browser.py\",\n      \"start_line\": 215,\n      \"end_line\": 226,\n      \"content\": \"The `chrome_sub_process` variable uses snake_case while `self._chrome_subprocess` uses camelCase. For consistency, rename `chrome_sub_process` to `chrome_subprocess` to match the instance variable naming.\"\n    },\n    {\n      \"path\": \"browser_use/browser/browser.py\",\n      \"start_line\": 259,\n      \"end_line\": 259,\n      \"content\": \"The `chrome_args` variable is a set (due to `{...}` syntax), but later code calls `.remove()` on it which works for sets. However, the variable name suggests a list. Consider renaming to `chrome_args_set` or converting to list for clarity since order might matter for Chrome args.\"\n    },\n    {\n      \"path\": \"browser_use/browser/chrome.py\",\n      \"start_line\": 96,\n      \"end_line\": 96,\n      \"content\": \"The `CHROME_DEBUGGING_ARG` uses old-style `%` formatting with a dict. Consider using an f-string or `.format()` for consistency with modern Python practices, though the current approach works with the `%` operator in the calling code.\"\n    },\n    {\n      \"path\": \"tests/test_browser.py\",\n      \"start_line\": 157,\n      \"end_line\": 157,\n      \"content\": \"The test `test_user_provided_browser_launch_on_custom_chrome_remote_debugging_port` is comprehensive but could benefit from a docstring explaining the specific scenario being tested (launching new Chrome instance with custom port when no existing browser is found).\"\n    }\n  ]\n}",
+  "stderr": null
+}

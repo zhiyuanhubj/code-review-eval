@@ -1,0 +1,29 @@
+{
+  "instance_id": "electron__electron@c486457",
+  "repo": "electron/electron",
+  "base_commit": "9f8a629126a31224f6b1aa90d650cdc61f7568f2",
+  "head_commit": "c4864570586f4c2f019797d3b0a9c4c76e93396b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:10:00.547193+00:00",
+  "duration_seconds": 39.58,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "shell/common/gin_helper/persistent_dictionary.h",
+        "start_line": 44,
+        "end_line": 51,
+        "content": "The ValueOrDefault implementation has a bug: it default-constructs T (T{}) before calling Get, which means if Get fails, the default_value is returned but the default-constructed value may have side effects or be expensive. More critically, if Get succeeds, it returns the value that was read, but if Get fails, it returns default_value - however, the default-constructed T{} is discarded. This is inefficient for non-trivial types. Consider using a pointer or optional approach, or at minimum document that T must be default-constructible and cheap to construct."
+      },
+      {
+        "path": "shell/browser/api/electron_api_web_contents.cc",
+        "start_line": 3041,
+        "end_line": 3045,
+        "content": "The ternary operator for color model is missing parentheses around the condition. Due to operator precedence, `options.ValueOrDefault(\"color\", true) ? printing::mojom::ColorModel::kColor : printing::mojom::ColorModel::kGray` is parsed correctly, but the static_cast<int> applies to the entire ternary expression. However, the formatting makes it look like static_cast only applies to the first branch. Add parentheses for clarity: `static_cast<int>((options.ValueOrDefault(\"color\", true) ? printing::mojom::ColorModel::kColor : printing::mojom::ColorModel::kGray))`."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"shell/common/gin_helper/persistent_dictionary.h\",\n      \"start_line\": 44,\n      \"end_line\": 51,\n      \"content\": \"The ValueOrDefault implementation has a bug: it default-constructs T (T{}) before calling Get, which means if Get fails, the default_value is returned but the default-constructed value may have side effects or be expensive. More critically, if Get succeeds, it returns the value that was read, but if Get fails, it returns default_value - however, the default-constructed T{} is discarded. This is inefficient for non-trivial types. Consider using a pointer or optional approach, or at minimum document that T must be default-constructible and cheap to construct.\"\n    },\n    {\n      \"path\": \"shell/browser/api/electron_api_web_contents.cc\",\n      \"start_line\": 3041,\n      \"end_line\": 3045,\n      \"content\": \"The ternary operator for color model is missing parentheses around the condition. Due to operator precedence, `options.ValueOrDefault(\\\"color\\\", true) ? printing::mojom::ColorModel::kColor : printing::mojom::ColorModel::kGray` is parsed correctly, but the static_cast<int> applies to the entire ternary expression. However, the formatting makes it look like static_cast only applies to the first branch. Add parentheses for clarity: `static_cast<int>((options.ValueOrDefault(\\\"color\\\", true) ? printing::mojom::ColorModel::kColor : printing::mojom::ColorModel::kGray))`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

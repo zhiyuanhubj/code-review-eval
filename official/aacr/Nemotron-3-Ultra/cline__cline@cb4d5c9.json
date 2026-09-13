@@ -1,0 +1,23 @@
+{
+  "instance_id": "cline__cline@cb4d5c9",
+  "repo": "cline/cline",
+  "base_commit": "4d8bdf29458db722a2bce1dfacc50771959b32fa",
+  "head_commit": "cb4d5c90460885942cbbae0298b95f4ee5682086",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:08:40.684526+00:00",
+  "duration_seconds": 18.7,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/api/providers/openai.ts",
+        "start_line": 16,
+        "end_line": 24,
+        "content": "The condition order is problematic. If a DeepSeek endpoint URL contains 'azure.com' (e.g., a custom Azure-deployed DeepSeek endpoint), it would incorrectly use the standard OpenAI client instead of AzureOpenAI. Check for 'azure.com' first, then 'deepseek', to ensure Azure endpoints are handled correctly regardless of the model provider."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/api/providers/openai.ts\",\n      \"start_line\": 16,\n      \"end_line\": 24,\n      \"content\": \"The condition order is problematic. If a DeepSeek endpoint URL contains 'azure.com' (e.g., a custom Azure-deployed DeepSeek endpoint), it would incorrectly use the standard OpenAI client instead of AzureOpenAI. Check for 'azure.com' first, then 'deepseek', to ensure Azure endpoints are handled correctly regardless of the model provider.\"\n    }\n  ]\n}",
+  "stderr": null
+}

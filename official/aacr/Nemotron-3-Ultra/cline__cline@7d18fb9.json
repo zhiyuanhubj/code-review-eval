@@ -1,0 +1,41 @@
+{
+  "instance_id": "cline__cline@7d18fb9",
+  "repo": "cline/cline",
+  "base_commit": "07d20574868b2ebb51c95c30a7a81b3793f0f07e",
+  "head_commit": "7d18fb9df620c61420c6939df22fb6f7af836bb2",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:08:15.684585+00:00",
+  "duration_seconds": 31.51,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/integrations/editor/DiffViewProvider.ts",
+        "start_line": 50,
+        "end_line": 58,
+        "content": "The chardet.detect() return type handling is fragile. It returns `string | { encoding: string; confidence: number } | null`. The current code uses `(detected as any).encoding` which is unsafe. Should properly type-check: `const encoding = typeof detected === 'string' ? detected : detected?.encoding ?? 'utf8'`. Also, iconv-lite doesn't support all encodings chardet might detect (e.g., 'ISO-8859-1' works but 'GB2312' may not). Consider falling back to 'utf8' if iconv.encodingExists(encoding) is false."
+      },
+      {
+        "path": "src/integrations/editor/DiffViewProvider.ts",
+        "start_line": 234,
+        "end_line": 238,
+        "content": "Writing back with the detected encoding could corrupt files if detection was wrong (low confidence). chardet returns confidence scores; should only use detected encoding if confidence is high (e.g., > 0.8). Otherwise, fall back to utf8 or preserve original bytes. Also, iconv.encode() can throw for unsupported encodings — wrap in try/catch and fallback."
+      },
+      {
+        "path": "src/integrations/misc/extract-text.ts",
+        "start_line": 30,
+        "end_line": 45,
+        "content": "Same chardet return type handling issue as DiffViewProvider. Also, the isBinaryFile check now happens *after* encoding detection, but isBinaryFile(fileBuffer) expects a Buffer — this works, but the logic order is odd: we detect encoding on potentially binary files. Should check isBinaryFile first (cheap), then only run chardet on non-binary files. Also, iconv.decode on binary data with wrong encoding produces garbage; the binary check should gate the decode."
+      },
+      {
+        "path": "src/integrations/misc/extract-text.ts",
+        "start_line": 56,
+        "end_line": 62,
+        "content": "IPYNB files are JSON and should be UTF-8 per spec. Running chardet on them is unnecessary and could misdetect. Just use utf8 directly. If a notebook isn't valid UTF-8, it's malformed — better to fail fast than decode incorrectly."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/integrations/editor/DiffViewProvider.ts\",\n      \"start_line\": 50,\n      \"end_line\": 58,\n      \"content\": \"The chardet.detect() return type handling is fragile. It returns `string | { encoding: string; confidence: number } | null`. The current code uses `(detected as any).encoding` which is unsafe. Should properly type-check: `const encoding = typeof detected === 'string' ? detected : detected?.encoding ?? 'utf8'`. Also, iconv-lite doesn't support all encodings chardet might detect (e.g., 'ISO-8859-1' works but 'GB2312' may not). Consider falling back to 'utf8' if iconv.encodingExists(encoding) is false.\"\n    },\n    {\n      \"path\": \"src/integrations/editor/DiffViewProvider.ts\",\n      \"start_line\": 234,\n      \"end_line\": 238,\n      \"content\": \"Writing back with the detected encoding could corrupt files if detection was wrong (low confidence). chardet returns confidence scores; should only use detected encoding if confidence is high (e.g., > 0.8). Otherwise, fall back to utf8 or preserve original bytes. Also, iconv.encode() can throw for unsupported encodings — wrap in try/catch and fallback.\"\n    },\n    {\n      \"path\": \"src/integrations/misc/extract-text.ts\",\n      \"start_line\": 30,\n      \"end_line\": 45,\n      \"content\": \"Same chardet return type handling issue as DiffViewProvider. Also, the isBinaryFile check now happens *after* encoding detection, but isBinaryFile(fileBuffer) expects a Buffer — this works, but the logic order is odd: we detect encoding on potentially binary files. Should check isBinaryFile first (cheap), then only run chardet on non-binary files. Also, iconv.decode on binary data with wrong encoding produces garbage; the binary check should gate the decode.\"\n    },\n    {\n      \"path\": \"src/integrations/misc/extract-text.ts\",\n      \"start_line\": 56,\n      \"end_line\": 62,\n      \"content\": \"IPYNB files are JSON and should be UTF-8 per spec. Running chardet on them is unnecessary and could misdetect. Just use utf8 directly. If a notebook isn't valid UTF-8, it's malformed — better to fail fast than decode incorrectly.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,23 @@
+{
+  "instance_id": "google-gemini__gemini-cli@e7ed0a4",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "7ffe8038efaa5bf263a2a933819bcd4badd37dc2",
+  "head_commit": "e7ed0a410ae510cda8b53ea20f3d758bd90a0f00",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:13:18.484835+00:00",
+  "duration_seconds": 19.34,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/core/src/utils/fileUtils.ts",
+        "start_line": 39,
+        "end_line": 39,
+        "content": "The change from `path.normalize` to `path.resolve` in `isWithinRoot` is a behavior change. `path.resolve` resolves relative paths against the current working directory, while `path.normalize` only normalizes the path string. If callers pass relative paths (which they shouldn't based on the validation in tools, but it's a utility function), this could produce different results. Consider keeping `path.normalize` or documenting that absolute paths are required."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/core/src/utils/fileUtils.ts\",\n      \"start_line\": 39,\n      \"end_line\": 39,\n      \"content\": \"The change from `path.normalize` to `path.resolve` in `isWithinRoot` is a behavior change. `path.resolve` resolves relative paths against the current working directory, while `path.normalize` only normalizes the path string. If callers pass relative paths (which they shouldn't based on the validation in tools, but it's a utility function), this could produce different results. Consider keeping `path.normalize` or documenting that absolute paths are required.\"\n    }\n  ]\n}",
+  "stderr": null
+}

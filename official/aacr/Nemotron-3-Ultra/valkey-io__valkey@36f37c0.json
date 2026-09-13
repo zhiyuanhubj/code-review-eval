@@ -1,0 +1,23 @@
+{
+  "instance_id": "valkey-io__valkey@36f37c0",
+  "repo": "valkey-io/valkey",
+  "base_commit": "ea2e48a807e1d4a1a5a684a2a699eda1934a0c6f",
+  "head_commit": "36f37c0bafa72c091a9a3725b9a026a056130892",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:16:23.788783+00:00",
+  "duration_seconds": 12.73,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/networking.c",
+        "start_line": 2774,
+        "end_line": 2781,
+        "content": "The ternary operator in the snprintf call has a format string mismatch. When `server.hide_user_data_from_log` is true, the format string expects one `%zu` argument, but the false branch's format string expects four arguments. Since the ternary is evaluated at runtime, the compiler cannot verify the correct number of arguments for each branch. This will likely cause undefined behavior or a crash when the false branch is taken because the arguments for the true branch's format string are passed instead. Split into an if/else block to ensure correct format strings and arguments for each case."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/networking.c\",\n      \"start_line\": 2774,\n      \"end_line\": 2781,\n      \"content\": \"The ternary operator in the snprintf call has a format string mismatch. When `server.hide_user_data_from_log` is true, the format string expects one `%zu` argument, but the false branch's format string expects four arguments. Since the ternary is evaluated at runtime, the compiler cannot verify the correct number of arguments for each branch. This will likely cause undefined behavior or a crash when the false branch is taken because the arguments for the true branch's format string are passed instead. Split into an if/else block to ensure correct format strings and arguments for each case.\"\n    }\n  ]\n}",
+  "stderr": null
+}

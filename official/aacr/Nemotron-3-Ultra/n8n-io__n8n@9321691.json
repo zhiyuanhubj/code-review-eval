@@ -1,0 +1,35 @@
+{
+  "instance_id": "n8n-io__n8n@9321691",
+  "repo": "n8n-io/n8n",
+  "base_commit": "aae55fe7ac77594444c3405161555a517902c68b",
+  "head_commit": "93216919462181f52d6994f8f20a9a478716545f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:20:20.296341+00:00",
+  "duration_seconds": 24.41,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/core/src/errors/error-reporter.ts",
+        "start_line": 73,
+        "end_line": 90,
+        "content": "The setTimeout callback captures `this` correctly, but if the ErrorReporter instance is garbage collected before the timeout fires, the warning won't be logged. Consider storing the timeout ID and clearing it in a cleanup method, or using a WeakRef pattern if the instance lifecycle is uncertain. However, since this is a singleton service, this is likely fine."
+      },
+      {
+        "path": "packages/@n8n/config/src/decorators.ts",
+        "start_line": 58,
+        "end_line": 65,
+        "content": "The Date parsing logic uses `Date.parse()` which accepts many formats, but the Dockerfile generates ISO 8601 UTC format (`%Y-%m-%dT%H:%M:%SZ`). Consider validating the format strictly (e.g., regex for ISO 8601) to avoid ambiguity, or document the expected format."
+      },
+      {
+        "path": "docker/images/n8n/Dockerfile",
+        "start_line": 10,
+        "end_line": 10,
+        "content": "The `N8N_RELEASE_DATE` build arg is not validated for presence. If the workflow fails to pass it, the label and env var will be empty strings. Consider adding a check similar to `N8N_VERSION` to fail the build if missing."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/core/src/errors/error-reporter.ts\",\n      \"start_line\": 73,\n      \"end_line\": 90,\n      \"content\": \"The setTimeout callback captures `this` correctly, but if the ErrorReporter instance is garbage collected before the timeout fires, the warning won't be logged. Consider storing the timeout ID and clearing it in a cleanup method, or using a WeakRef pattern if the instance lifecycle is uncertain. However, since this is a singleton service, this is likely fine.\"\n    },\n    {\n      \"path\": \"packages/@n8n/config/src/decorators.ts\",\n      \"start_line\": 58,\n      \"end_line\": 65,\n      \"content\": \"The Date parsing logic uses `Date.parse()` which accepts many formats, but the Dockerfile generates ISO 8601 UTC format (`%Y-%m-%dT%H:%M:%SZ`). Consider validating the format strictly (e.g., regex for ISO 8601) to avoid ambiguity, or document the expected format.\"\n    },\n    {\n      \"path\": \"docker/images/n8n/Dockerfile\",\n      \"start_line\": 10,\n      \"end_line\": 10,\n      \"content\": \"The `N8N_RELEASE_DATE` build arg is not validated for presence. If the workflow fails to pass it, the label and env var will be empty strings. Consider adding a check similar to `N8N_VERSION` to fail the build if missing.\"\n    }\n  ]\n}",
+  "stderr": null
+}

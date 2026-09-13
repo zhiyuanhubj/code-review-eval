@@ -1,0 +1,47 @@
+{
+  "instance_id": "google-gemini__gemini-cli@77ea28a",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "de968877895a8ae5f0edb83a43b37fa190cc8ec9",
+  "head_commit": "77ea28a234023019ddda3f4a5f7a81b3514d3eb8",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:13:00.446690+00:00",
+  "duration_seconds": 40.2,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/cli/src/ui/commands/promptCommands.ts",
+        "start_line": 100,
+        "end_line": 100,
+        "content": "The `serverName` variable used in the action closure is captured from the outer loop. Since the action is async and executed later, it will always reference the last `serverName` from the loop iteration. Use a local const inside the loop to capture the correct value: `const currentServerName = serverName;` and reference that inside the action."
+      },
+      {
+        "path": "packages/cli/src/ui/commands/promptCommands.ts",
+        "start_line": 160,
+        "end_line": 160,
+        "content": "Same closure issue: `prompt` variable in the completion callback is captured from the loop. It will reference the last prompt. Capture it with `const currentPrompt = prompt;` inside the loop."
+      },
+      {
+        "path": "packages/cli/src/ui/commands/promptCommands.ts",
+        "start_line": 115,
+        "end_line": 125,
+        "content": "The argument parsing regex `/--([^=]+)=(?:\"((?:\\\\.|[^\"\\\\])*)\"|([^ ]*))/g` does not handle escaped quotes inside quoted values correctly (e.g., `--arg=\"value with \\\"escaped\\\" quotes\"`). Consider using a more robust parsing approach or documenting the limitation."
+      },
+      {
+        "path": "packages/core/src/tools/mcp-client.ts",
+        "start_line": 487,
+        "end_line": 487,
+        "content": "The `discoverTools` function previously threw an error if no enabled tools were found (`if (discoveredTools.length === 0) { throw Error('No enabled tools found'); }`). This check was removed. Is this intentional? It changes the behavior of `connectAndDiscover` which may have relied on this to detect misconfigured servers."
+      },
+      {
+        "path": "packages/core/src/tools/mcp-client.ts",
+        "start_line": 437,
+        "end_line": 437,
+        "content": "In `connectAndDiscover`, `discoverPrompts` is called before `discoverTools`. If `discoverPrompts` throws (e.g., due to an unexpected error not caught by the 'Method not found' check), `discoverTools` won't run. Since prompt discovery is best-effort, consider wrapping it in a try/catch or running it after tools to avoid blocking tool discovery."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/cli/src/ui/commands/promptCommands.ts\",\n      \"start_line\": 100,\n      \"end_line\": 100,\n      \"content\": \"The `serverName` variable used in the action closure is captured from the outer loop. Since the action is async and executed later, it will always reference the last `serverName` from the loop iteration. Use a local const inside the loop to capture the correct value: `const currentServerName = serverName;` and reference that inside the action.\"\n    },\n    {\n      \"path\": \"packages/cli/src/ui/commands/promptCommands.ts\",\n      \"start_line\": 160,\n      \"end_line\": 160,\n      \"content\": \"Same closure issue: `prompt` variable in the completion callback is captured from the loop. It will reference the last prompt. Capture it with `const currentPrompt = prompt;` inside the loop.\"\n    },\n    {\n      \"path\": \"packages/cli/src/ui/commands/promptCommands.ts\",\n      \"start_line\": 115,\n      \"end_line\": 125,\n      \"content\": \"The argument parsing regex `/--([^=]+)=(?:\\\"((?:\\\\\\\\.|[^\\\"\\\\\\\\])*)\\\"|([^ ]*))/g` does not handle escaped quotes inside quoted values correctly (e.g., `--arg=\\\"value with \\\\\\\"escaped\\\\\\\" quotes\\\"`). Consider using a more robust parsing approach or documenting the limitation.\"\n    },\n    {\n      \"path\": \"packages/core/src/tools/mcp-client.ts\",\n      \"start_line\": 487,\n      \"end_line\": 487,\n      \"content\": \"The `discoverTools` function previously threw an error if no enabled tools were found (`if (discoveredTools.length === 0) { throw Error('No enabled tools found'); }`). This check was removed. Is this intentional? It changes the behavior of `connectAndDiscover` which may have relied on this to detect misconfigured servers.\"\n    },\n    {\n      \"path\": \"packages/core/src/tools/mcp-client.ts\",\n      \"start_line\": 437,\n      \"end_line\": 437,\n      \"content\": \"In `connectAndDiscover`, `discoverPrompts` is called before `discoverTools`. If `discoverPrompts` throws (e.g., due to an unexpected error not caught by the 'Method not found' check), `discoverTools` won't run. Since prompt discovery is best-effort, consider wrapping it in a try/catch or running it after tools to avoid blocking tool discovery.\"\n    }\n  ]\n}",
+  "stderr": null
+}

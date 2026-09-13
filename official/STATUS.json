@@ -1,0 +1,36 @@
+{
+  "snapshot_utc": "2026-09-13 18:26 UTC",
+  "note": "Live official-protocol generation snapshot. Judges (SWR evaluation_struct, AACR evaluate.py, Martian step3, SWE-Review compute_da) have not finished.",
+  "swrbench_generation_n_over_1000": {
+    "Nemotron-3-Ultra": 396,
+    "DeepSeek-V4.1-Flash": 81,
+    "claude-opus-4-8": 235,
+    "gpt-5.6": 118,
+    "Muse-Glimmer": 99
+  },
+  "aacr_result_files_over_196": {
+    "Nemotron-3-Ultra": 117,
+    "Muse-Glimmer": 14,
+    "DeepSeek-V4.1-Flash": 8
+  },
+  "martian_prs_over_50": {
+    "Nemotron-3-Ultra": 50,
+    "DeepSeek-V4.1-Flash": 38,
+    "claude-opus-4-8": 50,
+    "gpt-5.6": 20,
+    "Muse-Glimmer": 18
+  },
+  "swe_review": {
+    "split": "glm5_500",
+    "harness": "Harbor + OpenHands-SDK, OPENHANDS_LLM_NATIVE_TOOL_CALLING=true, max_iterations=100, concurrency=2 (official default n=32 is resource-limited here), skip-revision DA first",
+    "n_completed_trials": 0,
+    "n_running_trials": 2,
+    "n_pending_trials": 498
+  },
+  "protocol": {
+    "SWR-Bench": "swrbench/generation.py base_review, dataset swr_datasets_d5c5.jsonl, max_tokens=8192, temperature=0.2 (Claude/GPT-5 APIs require 1.0)",
+    "AACR-Bench": "positive_samples.json (196 PRs in the official dump), git checkout base..head, OCR-schema comments, later evaluation/evaluate.py",
+    "Martian": "real PR diffs + path/line/body comments, later official step3_judge_comments.py vs golden comments",
+    "SWE-Review-Bench": "not SWE-Review-Traj; Harbor agentic review on glm5_500"
+  }
+}

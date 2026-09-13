@@ -1,0 +1,16 @@
+{
+  "instance_id": "wavetermdev__waveterm@4b7637f",
+  "repo": "wavetermdev/waveterm",
+  "base_commit": "ce9775c00c36ba290c7a6f5134c0ff7759def6eb",
+  "head_commit": "4b7637fb17fb0f937d67f12a63f3f370a3343117",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:19:34.324084+00:00",
+  "duration_seconds": 34.68,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"pkg/remote/fileshare/fsutil/fsutil.go\",\n      \"start_line\": 38,\n      \"end_line\": 38,\n      \"content\": \"GetParentPathString now returns empty string instead of '/' for root paths. This changes behavior for callers - verify all call sites handle empty string correctly (e.g., path joining logic).\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/fsutil/fsutil.go\",\n      \"start_line\": 114,\n      \"end_line\": 114,\n      \"content\": \"PrefixCopyInternal returns (true, nil) for successful directory copy but (false, err) for errors. However, the error return uses 'return false, err' while success uses 'return true, nil'. This is correct but inconsistent with the file copy case below which returns 'return false, copyFunc(...)'. Consider making the success case explicit: 'return true, tree.Walk(...)'.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/fsutil/fsutil.go\",\n      \"start_line\": 122,\n      \"end_line\": 122,\n      \"content\": \"For file copy, returns 'return false, copyFunc(...)'. This correctly returns false (not a directory) and the error. However, if copyFunc succeeds, it returns (false, nil). This is correct but the pattern differs from directory case. Consider consistency.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/pathtree/pathtree.go\",\n      \"start_line\": 35,\n      \"end_line\": 78,\n      \"content\": \"Added debug logging to pathtree operations (NewTree, Add). These log.Printf calls will produce significant noise in production. Consider removing or making them conditional on a debug flag.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/s3fs/s3fs.go\",\n      \"start_line\": 753,\n      end_line: 753,\n      \"content\": \"listFilesPrefix moved to end of file but now appears after Delete. This is fine functionally but check if any other files reference this unexported function - it should only be used within s3fs.go.\"\n    },\n    {\n      \"path\": \"frontend/app/view/preview/directorypreview.tsx\",\n      \"start_line\": 304,\n      \"end_line\": 314,\n      \"content\": \"The isDir parameter is now used to append '/' to srcuri for directories. However, formatRemoteUri may already handle this. Verify that formatRemoteUri doesn't already add trailing slashes for directories to avoid double slashes.\"\n    }\n  ]\n}",
+  "stderr": null
+}

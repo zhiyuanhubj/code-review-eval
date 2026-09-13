@@ -1,0 +1,29 @@
+{
+  "instance_id": "appwrite__appwrite@710b8bd",
+  "repo": "appwrite/appwrite",
+  "base_commit": "d205ac457960f73d781547540cde1732f69076ac",
+  "head_commit": "710b8bda565c411ecb23e8b670d0ba7f45d2b3f3",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:15:46.722326+00:00",
+  "duration_seconds": 37.13,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Appwrite/Vcs/Comment.php",
+        "start_line": 87,
+        "end_line": 87,
+        "content": "The fallback for _APP_DOMAIN should be an empty string ('') instead of null to match the pattern used elsewhere in this PR. Change `System::getEnv('_APP_CONSOLE_DOMAIN', System::getEnv('_APP_DOMAIN'))` to `System::getEnv('_APP_CONSOLE_DOMAIN', System::getEnv('_APP_DOMAIN', ''))`."
+      },
+      {
+        "path": "src/Appwrite/Vcs/Comment.php",
+        "start_line": 201,
+        "end_line": 201,
+        "content": "The fallback for _APP_DOMAIN should be an empty string ('') instead of null to match the pattern used elsewhere in this PR. Change `System::getEnv('_APP_CONSOLE_DOMAIN', System::getEnv('_APP_DOMAIN'))` to `System::getEnv('_APP_CONSOLE_DOMAIN', System::getEnv('_APP_DOMAIN', ''))`."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Appwrite/Vcs/Comment.php\",\n      \"start_line\": 87,\n      \"end_line\": 87,\n      \"content\": \"The fallback for _APP_DOMAIN should be an empty string ('') instead of null to match the pattern used elsewhere in this PR. Change `System::getEnv('_APP_CONSOLE_DOMAIN', System::getEnv('_APP_DOMAIN'))` to `System::getEnv('_APP_CONSOLE_DOMAIN', System::getEnv('_APP_DOMAIN', ''))`.\"\n    },\n    {\n      \"path\": \"src/Appwrite/Vcs/Comment.php\",\n      \"start_line\": 201,\n      \"end_line\": 201,\n      \"content\": \"The fallback for _APP_DOMAIN should be an empty string ('') instead of null to match the pattern used elsewhere in this PR. Change `System::getEnv('_APP_CONSOLE_DOMAIN', System::getEnv('_APP_DOMAIN'))` to `System::getEnv('_APP_CONSOLE_DOMAIN', System::getEnv('_APP_DOMAIN', ''))`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

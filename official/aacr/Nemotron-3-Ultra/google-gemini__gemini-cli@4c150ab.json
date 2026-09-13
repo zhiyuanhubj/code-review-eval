@@ -1,0 +1,16 @@
+{
+  "instance_id": "google-gemini__gemini-cli@4c150ab",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "53f8617b249c9f0443f5082a293a30504a118030",
+  "head_commit": "4c150ab4befb2a727b493d732d8d3d01f388e492",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:13:31.257530+00:00",
+  "duration_seconds": 30.79,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/cli/src/config/config.ts\",\n      \"start_line\": 369,\n      \"end_line\": 369,\n      \"content\": \"The condition `argv.yolo || false` is redundant; `argv.yolo` is already a boolean. Simplify to `argv.yolo ? ApprovalMode.YOLO : ApprovalMode.DEFAULT`.\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/config.ts\",\n      \"start_line\": 370,\n      \"end_line\": 370,\n      \"content\": \"The condition `!!argv.promptInteractive || (process.stdin.isTTY && question.length === 0)` treats an empty prompt with a TTY as interactive. This seems correct for REPL mode, but consider adding a comment explaining that `question.length === 0` implies the user wants to start an interactive session.\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/config.ts\",\n      \"start_line\": 373,\n      end_line: 381,\n      \"content\": \"The logic excludes ShellTool, EditTool, and WriteFileTool in non-interactive, non-YOLO mode. This is a behavior change from the previous implementation which only did this when `config.getApprovalMode() !== ApprovalMode.YOLO`. The new logic also respects `argv.yolo` directly. Ensure this aligns with the intended security model: non-interactive + non-YOLO should be read-only.\"\n    },\n    {\n      \"path\": \"packages/cli/src/gemini.tsx\",\n      \"start_line\": 304,\n      \"end_line\": 310,\n      \"content\": \"The call to `validateNonInteractiveAuth` now passes only auth-related settings. The previous `loadNonInteractiveConfig` also handled tool exclusion for non-YOLO non-interactive runs. That logic has moved to `loadCliConfig` via `extraExcludes`. This refactoring looks correct, but verify that `validateNonInteractiveAuth` doesn't need the full config object for anything else.\"\n    }\n  ]\n}",
+  "stderr": null
+}

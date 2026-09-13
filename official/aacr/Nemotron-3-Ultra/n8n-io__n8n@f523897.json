@@ -1,0 +1,77 @@
+{
+  "instance_id": "n8n-io__n8n@f523897",
+  "repo": "n8n-io/n8n",
+  "base_commit": "ef550104cdceb8113381c24fabb63d7e0f6fa6a4",
+  "head_commit": "f523897785e1a45484b31c9bb16e66e060553601",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:21:16.824010+00:00",
+  "duration_seconds": 56.09,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/@n8n/api-types/src/schemas/user.schema.ts",
+        "start_line": 25,
+        "end_line": 25,
+        "content": "userMemberSchema is missing isPending field which is present in userAdminSchema and used in tests. The test 'user with undefined fields' expects isPending to be optional but it's not defined in userMemberSchema."
+      },
+      {
+        "path": "packages/@n8n/api-types/src/schemas/user.schema.ts",
+        "start_line": 25,
+        "end_line": 25,
+        "content": "userMemberSchema is missing projects field which is used in the test data for 'valid user' and 'invalid email' test cases. The schema should include projects: z.array(z.string()).optional() to match test expectations."
+      },
+      {
+        "path": "packages/@n8n/api-types/src/schemas/user.schema.ts",
+        "start_line": 25,
+        "end_line": 25,
+        "content": "userMemberSchema is missing lastActive field which is used in test data. The schema should include lastActive: z.string().datetime().nullable().optional() to match test expectations."
+      },
+      {
+        "path": "packages/cli/src/controllers/users.controller.ts",
+        "start_line": 96,
+        "end_line": 104,
+        "content": "The removeSupplementaryFields method parses user objects with userAdminSchema/userMemberSchema but the input publicUsers are Partial<PublicUser> which may not contain all required fields (like id). This could cause runtime validation errors. Consider using safeParse or ensuring all required fields are present before parsing."
+      },
+      {
+        "path": "packages/cli/test/integration/users.api.test.ts",
+        "start_line": 785,
+        "end_line": 785,
+        "content": "Test expects 'mfaEnabled' field for own user but userMemberSchema doesn't include mfaEnabled. The test will fail because mfaEnabled is not in userMemberSchema. Either add mfaEnabled to userMemberSchema or update test expectations."
+      },
+      {
+        "path": "packages/cli/test/integration/users.api.test.ts",
+        "start_line": 786,
+        "end_line": 786,
+        "content": "Test expects 'settings' field for own user but userMemberSchema doesn't include settings. Same issue as mfaEnabled - either add to schema or update test."
+      },
+      {
+        "path": "packages/cli/test/integration/users.api.test.ts",
+        "start_line": 787,
+        "end_line": 787,
+        "content": "Test expects 'personalizationAnswers' field for own user but userMemberSchema doesn't include it. Same issue as above."
+      },
+      {
+        "path": "packages/cli/test/integration/users.api.test.ts",
+        "start_line": 789,
+        "end_line": 789,
+        "content": "Test expects 'lastActiveAt' field for own user but userMemberSchema has 'lastActive' (different field name). Either rename in schema or update test to check for 'lastActive'."
+      },
+      {
+        "path": "packages/cli/test/integration/users.api.test.ts",
+        "start_line": 790,
+        "end_line": 790,
+        "content": "Test expects 'isOwner' field for own user but userMemberSchema doesn't include isOwner. Same issue as mfaEnabled."
+      },
+      {
+        "path": "packages/cli/test/integration/users.api.test.ts",
+        "start_line": 791,
+        "end_line": 791,
+        "content": "Test expects 'signInType' field for own user but userMemberSchema doesn't include signInType. Same issue as mfaEnabled."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/@n8n/api-types/src/schemas/user.schema.ts\",\n      \"start_line\": 25,\n      \"end_line\": 25,\n      \"content\": \"userMemberSchema is missing isPending field which is present in userAdminSchema and used in tests. The test 'user with undefined fields' expects isPending to be optional but it's not defined in userMemberSchema.\"\n    },\n    {\n      \"path\": \"packages/@n8n/api-types/src/schemas/user.schema.ts\",\n      \"start_line\": 25,\n      \"end_line\": 25,\n      \"content\": \"userMemberSchema is missing projects field which is used in the test data for 'valid user' and 'invalid email' test cases. The schema should include projects: z.array(z.string()).optional() to match test expectations.\"\n    },\n    {\n      \"path\": \"packages/@n8n/api-types/src/schemas/user.schema.ts\",\n      \"start_line\": 25,\n      \"end_line\": 25,\n      \"content\": \"userMemberSchema is missing lastActive field which is used in test data. The schema should include lastActive: z.string().datetime().nullable().optional() to match test expectations.\"\n    },\n    {\n      \"path\": \"packages/cli/src/controllers/users.controller.ts\",\n      \"start_line\": 96,\n      \"end_line\": 104,\n      \"content\": \"The removeSupplementaryFields method parses user objects with userAdminSchema/userMemberSchema but the input publicUsers are Partial<PublicUser> which may not contain all required fields (like id). This could cause runtime validation errors. Consider using safeParse or ensuring all required fields are present before parsing.\"\n    },\n    {\n      \"path\": \"packages/cli/test/integration/users.api.test.ts\",\n      \"start_line\": 785,\n      \"end_line\": 785,\n      \"content\": \"Test expects 'mfaEnabled' field for own user but userMemberSchema doesn't include mfaEnabled. The test will fail because mfaEnabled is not in userMemberSchema. Either add mfaEnabled to userMemberSchema or update test expectations.\"\n    },\n    {\n      \"path\": \"packages/cli/test/integration/users.api.test.ts\",\n      \"start_line\": 786,\n      \"end_line\": 786,\n      \"content\": \"Test expects 'settings' field for own user but userMemberSchema doesn't include settings. Same issue as mfaEnabled - either add to schema or update test.\"\n    },\n    {\n      \"path\": \"packages/cli/test/integration/users.api.test.ts\",\n      \"start_line\": 787,\n      \"end_line\": 787,\n      \"content\": \"Test expects 'personalizationAnswers' field for own user but userMemberSchema doesn't include it. Same issue as above.\"\n    },\n    {\n      \"path\": \"packages/cli/test/integration/users.api.test.ts\",\n      \"start_line\": 789,\n      \"end_line\": 789,\n      \"content\": \"Test expects 'lastActiveAt' field for own user but userMemberSchema has 'lastActive' (different field name). Either rename in schema or update test to check for 'lastActive'.\"\n    },\n    {\n      \"path\": \"packages/cli/test/integration/users.api.test.ts\",\n      \"start_line\": 790,\n      \"end_line\": 790,\n      \"content\": \"Test expects 'isOwner' field for own user but userMemberSchema doesn't include isOwner. Same issue as mfaEnabled.\"\n    },\n    {\n      \"path\": \"packages/cli/test/integration/users.api.test.ts\",\n      \"start_line\": 791,\n      \"end_line\": 791,\n      \"content\": \"Test expects 'signInType' field for own user but userMemberSchema doesn't include signInType. Same issue as mfaEnabled.\"\n    }\n  ]\n}",
+  "stderr": null
+}

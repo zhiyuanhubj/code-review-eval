@@ -1,0 +1,16 @@
+{
+  "instance_id": "microsoft__typescript-go@1a84d8d",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "da4e121142cd3f891785b573a194b9caaaa01d55",
+  "head_commit": "1a84d8d5705df98fd1e1f81d9d3115a7a203509d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T17:59:11.830108+00:00",
+  "duration_seconds": 1.91,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RepoError: git checkout 1a84d8d5705df98fd1e1f81d9d3115a7a203509d failed: fatal: Unable to create '/opt/dlami/nvme/zhiyuan-official-aacr/repos/microsoft__typescript-go/.git/index.lock': File exists.\n\nAnother git process seems to be running in this repository, e.g.\nan editor opened by 'git commit'. Please make sure all processes\nare terminated then try again. If it still fails, a git process\nmay hav"
+}

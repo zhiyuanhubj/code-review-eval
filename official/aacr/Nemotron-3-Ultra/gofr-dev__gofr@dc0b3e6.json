@@ -1,0 +1,16 @@
+{
+  "instance_id": "gofr-dev__gofr@dc0b3e6",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "44e3eeb2786ad4d333dc1f528fb104236693d060",
+  "head_commit": "dc0b3e630423b72cb9b2f273fdc18a5c11d12984",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:01:14.368698+00:00",
+  "duration_seconds": 23.55,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/datasource/mongo/mongo.go\",\n      \"start_line\": 130,\n      \"end_line\": 130,\n      \"content\": \"The error message for empty URI in getDBHost returns 'incorrect URI for mongo' but url.Parse on empty string returns a valid URL with empty scheme/host. The test expects this error, but the actual error from url.Parse would be different. Need to handle empty URI explicitly before parsing.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/mongo/mongo.go\",\n      \"start_line\": 135,\n      \"end_line\": 135,\n      \"content\": \"The malformed URI test case 'mongodb:/username:password@hostname:27017/database?authSource=admin' (single slash) will be parsed by url.Parse as scheme='mongodb', path='/username:password@hostname:27017/database?authSource=admin', host=''. This returns empty hostname and triggers errParseHost, not errIncorrectURI. The test expects errParseHost which is correct, but the error message in test says 'failed to parse host from MongoDB URI' which matches errParseHost. However, the scheme check passes because scheme is 'mongodb'. This is fine but worth noting the behavior.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/mongo/mongo.go\",\n      \"start_line\": 100,\n      \"end_line\": 100,\n      \"content\": \"In Connect(), when config.URI is provided, the log says 'connecting to MongoDB at %v to database %v' with c.config.Host and c.config.Database. But c.config.Host might be empty when URI is provided. Should log the parsed host instead for consistency.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/mongo/mongo.go\",\n      \"start_line\": 115,\n      end_line: 115,\n      \"content\": \"The error log 'could not connect to mongoDB at %v due to err: %v' uses host variable which is good. But the success log right after uses host variable too. However, the final log 'connected to MongoDB at %v to database %v' uses host and c.Database. This is consistent now.\"\n    }\n  ]\n}",
+  "stderr": null
+}

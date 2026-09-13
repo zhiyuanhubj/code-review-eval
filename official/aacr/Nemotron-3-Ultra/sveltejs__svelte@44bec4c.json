@@ -1,0 +1,35 @@
+{
+  "instance_id": "sveltejs__svelte@44bec4c",
+  "repo": "sveltejs/svelte",
+  "base_commit": "2af7ba21563f1b7f011ffa9f0c08e4acb473eef3",
+  "head_commit": "44bec4c8b172a47ff300f754463555bbb694bb05",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:12:03.031808+00:00",
+  "duration_seconds": 21.82,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/svelte/src/compiler/phases/2-analyze/index.js",
+        "start_line": 438,
+        "end_line": 438,
+        "content": "The condition `options.runes !== false` treats `undefined` as truthy (enabling maybe_runes). This is correct for the default case, but consider adding a comment clarifying that `options.runes` can be `true`, `false`, or `undefined`, and only explicit `false` disables the fallback."
+      },
+      {
+        "path": "packages/svelte/src/compiler/phases/2-analyze/index.js",
+        "start_line": 447,
+        "end_line": 458,
+        "content": "The check for `export let` declarations only handles `ExportNamedDeclaration` with a `VariableDeclaration` (kind `let`) or specifiers referencing a `let` in the instance scope. It misses `export let x;` when written as `export { x };` where `x` is declared with `let` in the same script (covered), but also misses `export let x = 1;` if the declaration is not a `VariableDeclaration` (unlikely). More importantly, it does not handle `export let x;` declared in the module context (`<script context=\"module\">`). Since `module.scope` is checked for `$$props`/`$$restProps`, should `module.scope` also be checked for `export let`?"
+      },
+      {
+        "path": "packages/svelte/src/compiler/phases/2-analyze/index.js",
+        "start_line": 447,
+        "end_line": 458,
+        "content": "The specifier check uses `instance.scope.get(specifier.local.name)?.declaration_kind === 'let'`. This assumes the binding is in the instance scope. However, if a variable is declared in the module script and re-exported in the instance script (e.g., `import { x } from './module.js'; export { x };`), the binding would be in the module scope, not instance scope. This is an edge case, but the logic might incorrectly treat it as not having `export let`."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/svelte/src/compiler/phases/2-analyze/index.js\",\n      \"start_line\": 438,\n      \"end_line\": 438,\n      \"content\": \"The condition `options.runes !== false` treats `undefined` as truthy (enabling maybe_runes). This is correct for the default case, but consider adding a comment clarifying that `options.runes` can be `true`, `false`, or `undefined`, and only explicit `false` disables the fallback.\"\n    },\n    {\n      \"path\": \"packages/svelte/src/compiler/phases/2-analyze/index.js\",\n      \"start_line\": 447,\n      \"end_line\": 458,\n      \"content\": \"The check for `export let` declarations only handles `ExportNamedDeclaration` with a `VariableDeclaration` (kind `let`) or specifiers referencing a `let` in the instance scope. It misses `export let x;` when written as `export { x };` where `x` is declared with `let` in the same script (covered), but also misses `export let x = 1;` if the declaration is not a `VariableDeclaration` (unlikely). More importantly, it does not handle `export let x;` declared in the module context (`<script context=\\\"module\\\">`). Since `module.scope` is checked for `$$props`/`$$restProps`, should `module.scope` also be checked for `export let`?\"\n    },\n    {\n      \"path\": \"packages/svelte/src/compiler/phases/2-analyze/index.js\",\n      \"start_line\": 447,\n      \"end_line\": 458,\n      \"content\": \"The specifier check uses `instance.scope.get(specifier.local.name)?.declaration_kind === 'let'`. This assumes the binding is in the instance scope. However, if a variable is declared in the module script and re-exported in the instance script (e.g., `import { x } from './module.js'; export { x };`), the binding would be in the module scope, not instance scope. This is an edge case, but the logic might incorrectly treat it as not having `export let`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

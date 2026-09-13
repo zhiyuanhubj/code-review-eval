@@ -1,0 +1,16 @@
+{
+  "instance_id": "infiniflow__ragflow@f189316",
+  "repo": "infiniflow/ragflow",
+  "base_commit": "8362ab405c35d260dd2328dc207aefcf30778f66",
+  "head_commit": "f189316eae1c199a5891f7a8bc47d53bb1b5c818",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:14:47.150004+00:00",
+  "duration_seconds": 38.77,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"graphrag/utils.py\",\n      \"start_line\": 578,\n      \"end_line\": 578,\n      \"content\": \"The assertion `assert d[\\\"knowledge_graph_kwd\\\"] == \\\"entity\\\"` appears incorrect. The first loop processes entities (knowledge_graph_kwd == \\\"entity\\\"), but the second loop processes relations (knowledge_graph_kwd == \\\"relation\\\"). This assertion should likely be `\\\"relation\\\"` to match the second loop's purpose, or the loop logic needs review.\"\n    },\n    {\n      \"path\": \"rag/utils/infinity_conn.py\",\n      \"start_line\": 69,\n      \"end_line\": 85,\n      \"content\": \"The `field_keyword` function is called with `table_instance` in `equivalent_condition_to_str`, but the function signature only accepts `field_name`. This will cause a TypeError at runtime. Either update the function signature to accept `table_instance` (even if unused) or remove the argument from the call site.\"\n    },\n    {\n      \"path\": \"rag/utils/infinity_conn.py\",\n      \"start_line\": 572,\n      \"end_line\": 572,\n      `content`: \"The condition `ty.lower().find(\\\"cha\\\")` checks if 'cha' is a substring of the type name (e.g., 'varchar', 'char'). This is fragile and may match unintended types. Consider using explicit type checks like `ty.lower() in (\\\"varchar\\\", \\\"char\\\", \\\"text\\\")` or checking for a 'string' type category.\"\n    },\n    {\n      \"path\": \"rag/utils/infinity_conn.py\",\n      \"start_line\": 572,\n      \"end_line\": 572,\n      \"content\": \"The variable `de` is reassigned inside the `if` block (`if not de: de = \\\"\\\"`), but this reassignment is not used afterward. The `newValue[v] = de` uses the potentially updated `de`, but the logic seems incomplete. Clarify the intent: is this setting a default value for the column when removing?\"\n    }\n  ]\n}",
+  "stderr": null
+}

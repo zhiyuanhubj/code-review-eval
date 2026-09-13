@@ -1,0 +1,29 @@
+{
+  "instance_id": "sveltejs__svelte@4bf1f91",
+  "repo": "sveltejs/svelte",
+  "base_commit": "e4987d2a9f36b33f3934725723f9c4cc998ef278",
+  "head_commit": "4bf1f915d3374721f8a1655b1a151c1c423b1a3c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:11:49.134514+00:00",
+  "duration_seconds": 28.89,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/svelte/src/internal/client/dom/blocks/if.js",
+        "start_line": 33,
+        "end_line": 33,
+        "content": "The condition `root_index > 0` for EFFECT_TRANSPARENT seems incorrect. For the first `{#if}` block, root_index is 0, so flags=0 (correct). For the first `{:else if}`, root_index becomes 1, so flags=EFFECT_TRANSPARENT. But the first `{:else if}` should still have local transitions (not transparent) since it's the first branch after the initial if. The transparent flag should only apply to subsequent `{:else if}` branches (root_index > 1)."
+      },
+      {
+        "path": "packages/svelte/src/internal/client/dom/blocks/if.js",
+        "start_line": 95,
+        "end_line": 95,
+        "content": "When calling the alternate branch function, you pass `[root_index + 1, hydrate_index]`. However, if the current block is an `{:else if}` (root_index > 0), the next `{:else if}` should have root_index + 1. But the initial `{#if}` has root_index=0, so its `{:else if}` gets root_index=1. This seems correct for tracking depth, but verify that the hydration logic correctly handles the index progression for nested else-if chains."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/svelte/src/internal/client/dom/blocks/if.js\",\n      \"start_line\": 33,\n      \"end_line\": 33,\n      \"content\": \"The condition `root_index > 0` for EFFECT_TRANSPARENT seems incorrect. For the first `{#if}` block, root_index is 0, so flags=0 (correct). For the first `{:else if}`, root_index becomes 1, so flags=EFFECT_TRANSPARENT. But the first `{:else if}` should still have local transitions (not transparent) since it's the first branch after the initial if. The transparent flag should only apply to subsequent `{:else if}` branches (root_index > 1).\"\n    },\n    {\n      \"path\": \"packages/svelte/src/internal/client/dom/blocks/if.js\",\n      \"start_line\": 95,\n      \"end_line\": 95,\n      \"content\": \"When calling the alternate branch function, you pass `[root_index + 1, hydrate_index]`. However, if the current block is an `{:else if}` (root_index > 0), the next `{:else if}` should have root_index + 1. But the initial `{#if}` has root_index=0, so its `{:else if}` gets root_index=1. This seems correct for tracking depth, but verify that the hydration logic correctly handles the index progression for nested else-if chains.\"\n    }\n  ]\n}",
+  "stderr": null
+}

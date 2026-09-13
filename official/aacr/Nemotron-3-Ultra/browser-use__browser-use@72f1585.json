@@ -1,0 +1,29 @@
+{
+  "instance_id": "browser-use__browser-use@72f1585",
+  "repo": "browser-use/browser-use",
+  "base_commit": "e85a547378b236c9788802d28e816f10940a7e53",
+  "head_commit": "72f1585f9add5b72e829eaee3b5bff684e0b08d3",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:09:34.596192+00:00",
+  "duration_seconds": 22.94,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "browser_use/llm/google/chat.py",
+        "start_line": 207,
+        "end_line": 209,
+        "content": "The thinking_budget is hardcoded to -1 instead of using self.thinking_budget. This ignores the user's configured thinking_budget value (default 0). Should use self.thinking_budget to respect the parameter."
+      },
+      {
+        "path": "browser_use/llm/google/chat.py",
+        "start_line": 260,
+        "end_line": 260,
+        "content": "The retry logic was completely removed. The previous implementation had a manual retry loop with exponential backoff for retryable errors (rate limits, server errors, connection issues). The comment says 'Let Google client handle retries internally' but the Google GenAI client may not handle all these cases automatically. This could cause failures that would previously have been retried."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"browser_use/llm/google/chat.py\",\n      \"start_line\": 207,\n      \"end_line\": 209,\n      \"content\": \"The thinking_budget is hardcoded to -1 instead of using self.thinking_budget. This ignores the user's configured thinking_budget value (default 0). Should use self.thinking_budget to respect the parameter.\"\n    },\n    {\n      \"path\": \"browser_use/llm/google/chat.py\",\n      \"start_line\": 260,\n      \"end_line\": 260,\n      \"content\": \"The retry logic was completely removed. The previous implementation had a manual retry loop with exponential backoff for retryable errors (rate limits, server errors, connection issues). The comment says 'Let Google client handle retries internally' but the Google GenAI client may not handle all these cases automatically. This could cause failures that would previously have been retried.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,16 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@eb761fd",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "17e56f6570a97aa9803b502b23cf27dc8be1da70",
+  "head_commit": "eb761fd69cf1fb9c674e385bb1d419814526ba5a",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T17:56:28.254167+00:00",
+  "duration_seconds": 0.01,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RepoError: git clone failed: fatal: could not create work tree dir '/opt/dlami/nvme/zhiyuan-official-aacr/repos/FreeCAD__FreeCAD': File exists"
+}

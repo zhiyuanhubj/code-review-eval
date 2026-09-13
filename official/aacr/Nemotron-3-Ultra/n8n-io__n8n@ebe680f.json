@@ -1,0 +1,16 @@
+{
+  "instance_id": "n8n-io__n8n@ebe680f",
+  "repo": "n8n-io/n8n",
+  "base_commit": "291a39c87eb2bc228816d02c55a1f6857822006f",
+  "head_commit": "ebe680fbcacd9210aa219ab01d98012ac1d6faae",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:19:55.882497+00:00",
+  "duration_seconds": 21.46,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RepoError: git checkout ebe680fbcacd9210aa219ab01d98012ac1d6faae failed: fatal: Unable to create '/opt/dlami/nvme/zhiyuan-official-aacr/repos/n8n-io__n8n/.git/index.lock': File exists.\n\nAnother git process seems to be running in this repository, e.g.\nan editor opened by 'git commit'. Please make sure all processes\nare terminated then try again. If it still fails, a git process\nmay have crashed in "
+}

@@ -1,0 +1,16 @@
+{
+  "instance_id": "bitcoin__bitcoin@4ba2e48",
+  "repo": "bitcoin/bitcoin",
+  "base_commit": "ae024137bda9fe189f4e7ccf26dbaffd44cbbeb6",
+  "head_commit": "4ba2e480ffa0b77113953bee4ff5c9349e277e7e",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:18:56.608968+00:00",
+  "duration_seconds": 27.72,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/validation.cpp\",\n      \"start_line\": 3771,\n      \"end_line\": 3771,\n      \"content\": \"The condition `!CBlockIndexWorkComparator()(candidate, pindex->pprev)` is equivalent to `candidate->nChainWork >= pindex->pprev->nChainWork`. Consider using the explicit comparison for readability, as the comparator's operator() returns true if lhs has less work than rhs.\"\n    },\n    {\n      \"path\": \"src/validation.cpp\",\n      \"start_line\": 3785,\n      \"end_line\": 3795,\n      \"content\": \"The loop `while (best_header_it != best_header_blocks_by_work.end())` iterates over all candidates with work >= m_best_header->nChainWork. Since the multimap is sorted by work ascending, and we only need the valid candidate with the most work, we could optimize by iterating in reverse (from highest work) and breaking on the first valid candidate. However, the current approach is correct and the performance impact is likely negligible given the expected small size of this set.\"\n    },\n    {\n      \"path\": \"src/validation.cpp\",\n      \"start_line\": 3816,\n      \"end_line\": 3816,\n      \"content\": \"The call to `ActiveChainstate().InvalidChainFound(pindex)` is added here when a block fails validation. Ensure this is safe to call while holding cs_main (it is, as InvalidChainFound asserts lock held). This correctly updates the chainstate's invalid block tracking.\"\n    },\n    {\n      \"path\": \"src/validation.cpp\",\n      \"start_line\": 5281,\n      \"end_line\": 5281,\n      \"content\": \"The new assertion `assert(!(m_best_header->nStatus & BLOCK_FAILED_MASK));` is a good sanity check ensuring the best header is never marked as failed. This aligns with the logic in InvalidateBlock that updates m_best_header when it becomes invalid.\"\n    },\n    {\n      \"path\": \"src/validation.cpp\",\n      \"start_line\": 5410,\n      end_line: 5410,\n      \"content\": \"The new assertion `assert((pindex->nStatus & BLOCK_FAILED_MASK) || pindex->nChainWork <= m_best_header->nChainWork);` correctly enforces that no valid block has more work than m_best_header. This is a valuable invariant check.\"\n    }\n  ]\n}",
+  "stderr": null
+}

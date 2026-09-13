@@ -1,0 +1,71 @@
+{
+  "instance_id": "laravel__framework@180c25f",
+  "repo": "laravel/framework",
+  "base_commit": "2e5054a19ba55b335bf8df43a8ae7e032244f671",
+  "head_commit": "180c25ff94ae2dff26d2ca5f8bf779af1e8fc8c2",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:16:20.399107+00:00",
+  "duration_seconds": 40.62,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "tests/Validation/ValidationEmailRuleTest.php",
+        "start_line": 128,
+        "end_line": 128,
+        "content": "The email 'user@[IPv6:::1]' is listed as passing both RFC compliant and strict modes, but ':::' is not a valid IPv6 address format. This should likely fail strict validation."
+      },
+      {
+        "path": "tests/Validation/ValidationEmailRuleTest.php",
+        "start_line": 129,
+        "end_line": 129,
+        "content": "The email 'user@[IPv6:::]' is listed under emails that fail both RFC compliant and strict modes, but the comment says 'invalid shorthand IPv6'. This is correct, but note that ':::' is not valid IPv6 syntax (should be '::' or similar)."
+      },
+      {
+        "path": "tests/Validation/ValidationEmailRuleTest.php",
+        "start_line": 228,
+        "end_line": 228,
+        "content": "The email 'user@[IPv6:::1]' appears again in the 'pass both native and RFC compliant' list. As noted above, ':::' is not valid IPv6 syntax and should likely fail validation."
+      },
+      {
+        "path": "tests/Validation/ValidationEmailRuleTest.php",
+        "start_line": 229,
+        "end_line": 229,
+        "content": "The email 'a@[IPv6:2001:db8::1]' appears in the 'pass both native and RFC compliant' list. This is a valid IPv6 literal format and should pass."
+      },
+      {
+        "path": "tests/Validation/ValidationEmailRuleTest.php",
+        "start_line": 285,
+        "end_line": 285,
+        "content": "The email 'user@[IPv6:::1]' appears in the 'pass native but fail strict' list. This is inconsistent with line 128 where it's listed as passing strict. Need to verify actual behavior and fix test expectations."
+      },
+      {
+        "path": "tests/Validation/ValidationEmailRuleTest.php",
+        "start_line": 286,
+        "end_line": 286,
+        "content": "The email 'a@[IPv6:2001:db8::1]' appears in the 'pass native but fail strict' list, but at line 229 it's listed as passing both native and RFC compliant (non-strict). This is expected since strict mode may reject IPv6 literals, but the test categorization should be clear."
+      },
+      {
+        "path": "tests/Validation/ValidationEmailRuleTest.php",
+        "start_line": 287,
+        "end_line": 287,
+        "content": "The email 'user@[IPv6:2001:db8:1ff::a0b:dbd0]' appears in the 'pass native but fail strict' list. This is a valid IPv6 literal and the behavior should be verified against the actual implementation."
+      },
+      {
+        "path": "tests/Validation/ValidationEmailRuleTest.php",
+        "start_line": 295,
+        "end_line": 295,
+        "content": "The email 'user@[127.0.0.1(comment)]' in the 'fail both' list contains a comment in the domain literal which is not valid syntax. This is correctly expected to fail."
+      },
+      {
+        "path": "tests/Validation/ValidationEmailRuleTest.php",
+        "start_line": 296,
+        "end_line": 296,
+        "content": "The email 'some((double))comment@example.com' in the 'fail both' list has nested comments which are not valid per RFC. This is correctly expected to fail."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"tests/Validation/ValidationEmailRuleTest.php\",\n      \"start_line\": 128,\n      \"end_line\": 128,\n      \"content\": \"The email 'user@[IPv6:::1]' is listed as passing both RFC compliant and strict modes, but ':::' is not a valid IPv6 address format. This should likely fail strict validation.\"\n    },\n    {\n      \"path\": \"tests/Validation/ValidationEmailRuleTest.php\",\n      \"start_line\": 129,\n      \"end_line\": 129,\n      \"content\": \"The email 'user@[IPv6:::]' is listed under emails that fail both RFC compliant and strict modes, but the comment says 'invalid shorthand IPv6'. This is correct, but note that ':::' is not valid IPv6 syntax (should be '::' or similar).\"\n    },\n    {\n      \"path\": \"tests/Validation/ValidationEmailRuleTest.php\",\n      \"start_line\": 228,\n      \"end_line\": 228,\n      \"content\": \"The email 'user@[IPv6:::1]' appears again in the 'pass both native and RFC compliant' list. As noted above, ':::' is not valid IPv6 syntax and should likely fail validation.\"\n    },\n    {\n      \"path\": \"tests/Validation/ValidationEmailRuleTest.php\",\n      \"start_line\": 229,\n      \"end_line\": 229,\n      \"content\": \"The email 'a@[IPv6:2001:db8::1]' appears in the 'pass both native and RFC compliant' list. This is a valid IPv6 literal format and should pass.\"\n    },\n    {\n      \"path\": \"tests/Validation/ValidationEmailRuleTest.php\",\n      \"start_line\": 285,\n      \"end_line\": 285,\n      \"content\": \"The email 'user@[IPv6:::1]' appears in the 'pass native but fail strict' list. This is inconsistent with line 128 where it's listed as passing strict. Need to verify actual behavior and fix test expectations.\"\n    },\n    {\n      \"path\": \"tests/Validation/ValidationEmailRuleTest.php\",\n      \"start_line\": 286,\n      \"end_line\": 286,\n      \"content\": \"The email 'a@[IPv6:2001:db8::1]' appears in the 'pass native but fail strict' list, but at line 229 it's listed as passing both native and RFC compliant (non-strict). This is expected since strict mode may reject IPv6 literals, but the test categorization should be clear.\"\n    },\n    {\n      \"path\": \"tests/Validation/ValidationEmailRuleTest.php\",\n      \"start_line\": 287,\n      \"end_line\": 287,\n      \"content\": \"The email 'user@[IPv6:2001:db8:1ff::a0b:dbd0]' appears in the 'pass native but fail strict' list. This is a valid IPv6 literal and the behavior should be verified against the actual implementation.\"\n    },\n    {\n      \"path\": \"tests/Validation/ValidationEmailRuleTest.php\",\n      \"start_line\": 295,\n      \"end_line\": 295,\n      \"content\": \"The email 'user@[127.0.0.1(comment)]' in the 'fail both' list contains a comment in the domain literal which is not valid syntax. This is correctly expected to fail.\"\n    },\n    {\n      \"path\": \"tests/Validation/ValidationEmailRuleTest.php\",\n      \"start_line\": 296,\n      \"end_line\": 296,\n      \"content\": \"The email 'some((double))comment@example.com' in the 'fail both' list has nested comments which are not valid per RFC. This is correctly expected to fail.\"\n    }\n  ]\n}",
+  "stderr": null
+}

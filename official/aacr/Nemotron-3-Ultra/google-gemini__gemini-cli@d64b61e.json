@@ -1,0 +1,41 @@
+{
+  "instance_id": "google-gemini__gemini-cli@d64b61e",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "6e4236bf7681b2a2cba5630a8dd0a0d5a200a0df",
+  "head_commit": "d64b61ef89f01ecdc0e095a995d47522245a0065",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:12:59.001683+00:00",
+  "duration_seconds": 20.21,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/cli/src/config/extensions/extensionEnablement.ts",
+        "start_line": 167,
+        "end_line": 167,
+        "content": "The `disable` method passes `!${scopePath}` to `enable`, but `Override.fromInput` expects a path without the '!' prefix (it checks `inputRule.startsWith('!')` to determine `isDisable`). This will cause the path to be incorrectly parsed with a leading '!' character in `baseRule`."
+      },
+      {
+        "path": "packages/cli/src/config/extensions/extensionEnablement.ts",
+        "start_line": 167,
+        "end_line": 167,
+        "content": "The `disable` method calls `enable` with `includeSubdirs` parameter, but disable operations should likely have their own `includeSubdirs` logic. Currently, disabling a workspace would use the same `includeSubdirs` value as enabling, which may not be the intended behavior."
+      },
+      {
+        "path": "packages/cli/src/commands/extensions/disable.ts",
+        "start_line": 24,
+        "end_line": 24,
+        "content": "The success message uses `args.scope` directly, but when `args.scope` is undefined (defaulting to User scope), this will print 'undefined' in the message. Should use the resolved scope value instead."
+      },
+      {
+        "path": "packages/cli/src/commands/extensions/enable.ts",
+        "start_line": 24,
+        "end_line": 24,
+        "content": "Same issue: success message uses `args.scope` directly which will be 'undefined' when not provided. Should display the resolved scope (User) instead."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/cli/src/config/extensions/extensionEnablement.ts\",\n      \"start_line\": 167,\n      \"end_line\": 167,\n      \"content\": \"The `disable` method passes `!${scopePath}` to `enable`, but `Override.fromInput` expects a path without the '!' prefix (it checks `inputRule.startsWith('!')` to determine `isDisable`). This will cause the path to be incorrectly parsed with a leading '!' character in `baseRule`.\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/extensions/extensionEnablement.ts\",\n      \"start_line\": 167,\n      \"end_line\": 167,\n      \"content\": \"The `disable` method calls `enable` with `includeSubdirs` parameter, but disable operations should likely have their own `includeSubdirs` logic. Currently, disabling a workspace would use the same `includeSubdirs` value as enabling, which may not be the intended behavior.\"\n    },\n    {\n      \"path\": \"packages/cli/src/commands/extensions/disable.ts\",\n      \"start_line\": 24,\n      \"end_line\": 24,\n      \"content\": \"The success message uses `args.scope` directly, but when `args.scope` is undefined (defaulting to User scope), this will print 'undefined' in the message. Should use the resolved scope value instead.\"\n    },\n    {\n      \"path\": \"packages/cli/src/commands/extensions/enable.ts\",\n      \"start_line\": 24,\n      \"end_line\": 24,\n      \"content\": \"Same issue: success message uses `args.scope` directly which will be 'undefined' when not provided. Should display the resolved scope (User) instead.\"\n    }\n  ]\n}",
+  "stderr": null
+}

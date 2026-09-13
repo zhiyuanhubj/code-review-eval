@@ -1,0 +1,41 @@
+{
+  "instance_id": "browser-use__browser-use@aab7b3b",
+  "repo": "browser-use/browser-use",
+  "base_commit": "515b94225aa86c40dc2c20034055ab8bcc88c6ae",
+  "head_commit": "aab7b3bb54e2b15ee3b32ad7de74c91fc8b22f52",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:09:20.923257+00:00",
+  "duration_seconds": 39.37,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "browser_use/browser/browser.py",
+        "start_line": 283,
+        "end_line": 283,
+        "content": "Hardcoding `channel='chrome'` forces Chrome/Chromium and breaks Firefox and WebKit support. The `browser_class` variable (resolved from `self.config.browser_class`) should determine the channel. For Chromium, you likely want `channel='chrome'` or `channel='chromium'`; for Firefox/WebKit, channel should not be set (or set appropriately). Consider conditional logic based on `self.config.browser_class`."
+      },
+      {
+        "path": "browser_use/browser/context.py",
+        "start_line": 418,
+        "end_line": 418,
+        "content": "The `no_viewport` logic appears inverted. When `headless=True`, you set `no_viewport=False` (meaning viewport IS enforced), but the comment and typical Playwright behavior suggest headless mode should use a fixed viewport. However, the previous code used `no_viewport=True` unconditionally. Clarify the intent: if you want a fixed viewport in headless, keep `no_viewport=False` and set `viewport`; if you want the browser's natural size, use `no_viewport=True`. Current code sets viewport size but also `no_viewport=False` which is correct for fixed viewport, but the condition is only for headless. Non-headless gets no viewport args (defaults to `no_viewport=True`?). This may cause inconsistent behavior."
+      },
+      {
+        "path": "browser_use/browser/context.py",
+        "start_line": 154,
+        "end_line": 154,
+        "content": "Changing `user_agent` default from a Chrome UA string to `None` alters behavior: Playwright/Patchright will use its default UA (which may reveal automation). If the intent is to avoid detection, consider keeping a realistic default or documenting that users must set it. At minimum, update documentation to reflect this breaking change."
+      },
+      {
+        "path": "browser_use/agent/service.py",
+        "start_line": 261,
+        "end_line": 261,
+        "content": "This line mutates `self.browser.config.new_context_config.disable_security` based on `self.browser.config.disable_security`. If `self.browser` is shared (injected), this mutates the shared config, affecting other agents/contexts. Consider copying the config or setting `disable_security` on the context config directly without mutating the browser's config."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"browser_use/browser/browser.py\",\n      \"start_line\": 283,\n      \"end_line\": 283,\n      \"content\": \"Hardcoding `channel='chrome'` forces Chrome/Chromium and breaks Firefox and WebKit support. The `browser_class` variable (resolved from `self.config.browser_class`) should determine the channel. For Chromium, you likely want `channel='chrome'` or `channel='chromium'`; for Firefox/WebKit, channel should not be set (or set appropriately). Consider conditional logic based on `self.config.browser_class`.\"\n    },\n    {\n      \"path\": \"browser_use/browser/context.py\",\n      \"start_line\": 418,\n      \"end_line\": 418,\n      \"content\": \"The `no_viewport` logic appears inverted. When `headless=True`, you set `no_viewport=False` (meaning viewport IS enforced), but the comment and typical Playwright behavior suggest headless mode should use a fixed viewport. However, the previous code used `no_viewport=True` unconditionally. Clarify the intent: if you want a fixed viewport in headless, keep `no_viewport=False` and set `viewport`; if you want the browser's natural size, use `no_viewport=True`. Current code sets viewport size but also `no_viewport=False` which is correct for fixed viewport, but the condition is only for headless. Non-headless gets no viewport args (defaults to `no_viewport=True`?). This may cause inconsistent behavior.\"\n    },\n    {\n      \"path\": \"browser_use/browser/context.py\",\n      \"start_line\": 154,\n      \"end_line\": 154,\n      \"content\": \"Changing `user_agent` default from a Chrome UA string to `None` alters behavior: Playwright/Patchright will use its default UA (which may reveal automation). If the intent is to avoid detection, consider keeping a realistic default or documenting that users must set it. At minimum, update documentation to reflect this breaking change.\"\n    },\n    {\n      \"path\": \"browser_use/agent/service.py\",\n      \"start_line\": 261,\n      \"end_line\": 261,\n      \"content\": \"This line mutates `self.browser.config.new_context_config.disable_security` based on `self.browser.config.disable_security`. If `self.browser` is shared (injected), this mutates the shared config, affecting other agents/contexts. Consider copying the config or setting `disable_security` on the context config directly without mutating the browser's config.\"\n    }\n  ]\n}",
+  "stderr": null
+}

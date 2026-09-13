@@ -1,0 +1,23 @@
+{
+  "instance_id": "vllm-project__vllm@6217b0c",
+  "repo": "vllm-project/vllm",
+  "base_commit": "f4962a6d55a340ebb569d377c842deff7611d8f7",
+  "head_commit": "6217b0c46176fa51196d862e02e1b3722eefa4de",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:25:02.640221+00:00",
+  "duration_seconds": 26.59,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "vllm/distributed/kv_transfer/kv_connector/v1/multi_connector.py",
+        "start_line": 96,
+        "end_line": 96,
+        "content": "Consider raising an ExceptionGroup (Python 3.11+) or a custom exception wrapping all exceptions instead of only raising the first one, to avoid losing error context when multiple connectors fail during shutdown."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"vllm/distributed/kv_transfer/kv_connector/v1/multi_connector.py\",\n      \"start_line\": 96,\n      \"end_line\": 96,\n      \"content\": \"Consider raising an ExceptionGroup (Python 3.11+) or a custom exception wrapping all exceptions instead of only raising the first one, to avoid losing error context when multiple connectors fail during shutdown.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,23 @@
+{
+  "instance_id": "mrdoob__three.js@b55b9e9",
+  "repo": "mrdoob/three.js",
+  "base_commit": "de413e2112ff1ae80599f145b101354a1476976c",
+  "head_commit": "b55b9e97f6d0f5829e4d8fc364949e72b0d9e98c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:02:37.962014+00:00",
+  "duration_seconds": 44.35,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/renderers/webgpu/nodes/WGSLNodeBuilder.js",
+        "start_line": 2135,
+        "end_line": 2138,
+        "content": "The instanceIndex calculation for the z dimension is incorrect. It uses `workgroupSizeX * numWorkgroups.x` for both y and z strides, but the z stride should be `(workgroupSizeX * numWorkgroups.x) * (workgroupSizeY * numWorkgroups.y)`. The current code computes `globalId.z * (workgroupSizeX * numWorkgroups.x) * (workgroupSizeX * numWorkgroups.x)` which is wrong when workgroupSizeY != workgroupSizeX or numWorkgroups.y != numWorkgroups.x."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/renderers/webgpu/nodes/WGSLNodeBuilder.js\",\n      \"start_line\": 2135,\n      \"end_line\": 2138,\n      \"content\": \"The instanceIndex calculation for the z dimension is incorrect. It uses `workgroupSizeX * numWorkgroups.x` for both y and z strides, but the z stride should be `(workgroupSizeX * numWorkgroups.x) * (workgroupSizeY * numWorkgroups.y)`. The current code computes `globalId.z * (workgroupSizeX * numWorkgroups.x) * (workgroupSizeX * numWorkgroups.x)` which is wrong when workgroupSizeY != workgroupSizeX or numWorkgroups.y != numWorkgroups.x.\"\n    }\n  ]\n}",
+  "stderr": null
+}

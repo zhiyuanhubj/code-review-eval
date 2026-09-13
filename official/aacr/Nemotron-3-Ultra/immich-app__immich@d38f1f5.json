@@ -1,0 +1,53 @@
+{
+  "instance_id": "immich-app__immich@d38f1f5",
+  "repo": "immich-app/immich",
+  "base_commit": "c664d99a348999d16cda45a8dd57db436b8f9fba",
+  "head_commit": "d38f1f55f42d600d05058e70d6ccee9679623591",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:23:33.700387+00:00",
+  "duration_seconds": 33.34,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 55,
+        "end_line": 55,
+        "content": "The `useCache` constant is hardcoded to `true` with no way to disable it. Consider making this configurable via an environment variable or build-time flag for debugging and testing purposes."
+      },
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 76,
+        "end_line": 76,
+        "content": "The `catch` block catches all errors and returns `Response.error()`, which results in a generic network error. This could mask actual issues like CORS failures or server errors. Consider logging the error or returning a more informative response for debugging."
+      },
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 88,
+        "end_line": 88,
+        "content": "Using `event.origin` as the base for `new URL(urlstring, event.origin)` assumes the message originates from the same origin. Since BroadcastChannel is same-origin, this is safe, but using `self.location.origin` would be more explicit and avoid potential confusion."
+      },
+      {
+        "path": "web/src/lib/utils/sw-messaging.ts",
+        "start_line": 1,
+        "end_line": 8,
+        "content": "The BroadcastChannel is created at module level, which means it's created immediately when the module loads. This could cause issues during SSR or in environments where BroadcastChannel isn't available. Consider lazy initialization or a guard for non-browser environments."
+      },
+      {
+        "path": "web/src/lib/components/asset-viewer/photo-viewer.svelte",
+        "start_line": 168,
+        "end_line": 172,
+        "content": "The cleanup function calls `cancelImageUrl(imageLoaderUrl)` but `imageLoaderUrl` is not defined in the provided diff context. Ensure this variable is properly scoped and accessible in the cleanup function."
+      },
+      {
+        "path": "web/src/lib/components/assets/thumbnail/image-thumbnail.svelte",
+        "start_line": 61,
+        "end_line": 68,
+        "content": "The `mount` action returns a `destroy` function that calls `cancelImageUrl(url)`, but `url` is not defined in the provided diff context. Ensure `url` is properly scoped and accessible in the destroy function."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 55,\n      \"end_line\": 55,\n      \"content\": \"The `useCache` constant is hardcoded to `true` with no way to disable it. Consider making this configurable via an environment variable or build-time flag for debugging and testing purposes.\"\n    },\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 76,\n      \"end_line\": 76,\n      \"content\": \"The `catch` block catches all errors and returns `Response.error()`, which results in a generic network error. This could mask actual issues like CORS failures or server errors. Consider logging the error or returning a more informative response for debugging.\"\n    },\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 88,\n      \"end_line\": 88,\n      \"content\": \"Using `event.origin` as the base for `new URL(urlstring, event.origin)` assumes the message originates from the same origin. Since BroadcastChannel is same-origin, this is safe, but using `self.location.origin` would be more explicit and avoid potential confusion.\"\n    },\n    {\n      \"path\": \"web/src/lib/utils/sw-messaging.ts\",\n      \"start_line\": 1,\n      \"end_line\": 8,\n      \"content\": \"The BroadcastChannel is created at module level, which means it's created immediately when the module loads. This could cause issues during SSR or in environments where BroadcastChannel isn't available. Consider lazy initialization or a guard for non-browser environments.\"\n    },\n    {\n      \"path\": \"web/src/lib/components/asset-viewer/photo-viewer.svelte\",\n      \"start_line\": 168,\n      \"end_line\": 172,\n      \"content\": \"The cleanup function calls `cancelImageUrl(imageLoaderUrl)` but `imageLoaderUrl` is not defined in the provided diff context. Ensure this variable is properly scoped and accessible in the cleanup function.\"\n    },\n    {\n      \"path\": \"web/src/lib/components/assets/thumbnail/image-thumbnail.svelte\",\n      \"start_line\": 61,\n      \"end_line\": 68,\n      \"content\": \"The `mount` action returns a `destroy` function that calls `cancelImageUrl(url)`, but `url` is not defined in the provided diff context. Ensure `url` is properly scoped and accessible in the destroy function.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,35 @@
+{
+  "instance_id": "immich-app__immich@b7a1255",
+  "repo": "immich-app/immich",
+  "base_commit": "b845184c80295603e3a02dfad84ff2755d417aff",
+  "head_commit": "b7a12558bc8e69c9c96b9a5b12f61f94689ea0e3",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:24:00.374489+00:00",
+  "duration_seconds": 47.2,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/services/notification.service.ts",
+        "start_line": 94,
+        "end_line": 110,
+        "content": "The logic for merging recipients from a previous job has been removed. Previously, if a new album update event arrived while a previous notification job was still pending (within the 5-minute delay), it would merge the recipient lists so all users get a single batched email. Now each recipient gets a separate job with no merging, potentially sending multiple emails for the same album update batch. Is this intentional? If so, consider adding a comment explaining the behavior change."
+      },
+      {
+        "path": "server/src/services/notification.service.spec.ts",
+        "start_line": 569,
+        "end_line": 590,
+        "content": "The test 'should add new recipients for new images if job is already queued' has been changed to only pass a single recipientID ('2') and expects removeJob to be called with '1/2'. However, the test no longer verifies the merging behavior that the test name describes. The previous test passed recipientIds: ['1', '2', '3'] and expected the merged result ['1', '2', '3', '4']. The current test doesn't assert any merging occurs. Either update the test name/description to match the new behavior, or add assertions that verify the intended behavior (e.g., that duplicate jobs for the same recipient are deduplicated)."
+      },
+      {
+        "path": "server/src/repositories/job.repository.ts",
+        "start_line": 227,
+        "end_line": 240,
+        "content": "The removeJob method signature changed from (jobId: string, name: JobName) to (name: JobName, jobID: string) and the return type changed from Promise<IEntityJob | undefined> to Promise<void>. The comment says 'deprecated' and 'todo: remove this when asset notifications no longer need it', but the method is still being called from notification.service.ts (line 97). Either remove the deprecation comment since it's actively used, or update the comment to clarify it's only deprecated for future use cases."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"server/src/services/notification.service.ts\",\n      \"start_line\": 94,\n      \"end_line\": 110,\n      \"content\": \"The logic for merging recipients from a previous job has been removed. Previously, if a new album update event arrived while a previous notification job was still pending (within the 5-minute delay), it would merge the recipient lists so all users get a single batched email. Now each recipient gets a separate job with no merging, potentially sending multiple emails for the same album update batch. Is this intentional? If so, consider adding a comment explaining the behavior change.\"\n    },\n    {\n      \"path\": \"server/src/services/notification.service.spec.ts\",\n      \"start_line\": 569,\n      \"end_line\": 590,\n      \"content\": \"The test 'should add new recipients for new images if job is already queued' has been changed to only pass a single recipientID ('2') and expects removeJob to be called with '1/2'. However, the test no longer verifies the merging behavior that the test name describes. The previous test passed recipientIds: ['1', '2', '3'] and expected the merged result ['1', '2', '3', '4']. The current test doesn't assert any merging occurs. Either update the test name/description to match the new behavior, or add assertions that verify the intended behavior (e.g., that duplicate jobs for the same recipient are deduplicated).\"\n    },\n    {\n      \"path\": \"server/src/repositories/job.repository.ts\",\n      \"start_line\": 227,\n      \"end_line\": 240,\n      \"content\": \"The removeJob method signature changed from (jobId: string, name: JobName) to (name: JobName, jobID: string) and the return type changed from Promise<IEntityJob | undefined> to Promise<void>. The comment says 'deprecated' and 'todo: remove this when asset notifications no longer need it', but the method is still being called from notification.service.ts (line 97). Either remove the deprecation comment since it's actively used, or update the comment to clarify it's only deprecated for future use cases.\"\n    }\n  ]\n}",
+  "stderr": null
+}

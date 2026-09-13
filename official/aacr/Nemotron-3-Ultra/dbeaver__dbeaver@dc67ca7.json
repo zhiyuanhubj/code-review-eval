@@ -1,0 +1,23 @@
+{
+  "instance_id": "dbeaver__dbeaver@dc67ca7",
+  "repo": "dbeaver/dbeaver",
+  "base_commit": "469e4265a58af95a6d5f4069515e029fc2891374",
+  "head_commit": "dc67ca7cf486ceaf45559318cdcbca193847188d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:26:21.099532+00:00",
+  "duration_seconds": 24.63,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANATable.java",
+        "start_line": 155,
+        "end_line": 155,
+        "content": "The null check for dbResult in fetchObject() is after the call to JDBCUtils.safeGetInt(dbResult, \"PART_ID\"). If dbResult is null, this will throw a NullPointerException before the null check. Move the null check before accessing dbResult."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANATable.java\",\n      \"start_line\": 155,\n      \"end_line\": 155,\n      \"content\": \"The null check for dbResult in fetchObject() is after the call to JDBCUtils.safeGetInt(dbResult, \\\"PART_ID\\\"). If dbResult is null, this will throw a NullPointerException before the null check. Move the null check before accessing dbResult.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,41 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@82fef4a",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "ab225f5672cbe45404299437d1613c308b68900b",
+  "head_commit": "82fef4a22503dd3affdd39e7120b6f71e9423f86",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T17:57:43.855789+00:00",
+  "duration_seconds": 75.6,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Base/Parameter.cpp",
+        "start_line": 1863,
+        "end_line": 1873,
+        "content": "The NoOpEntityResolver class is defined inside a function scope (LoadDocument). While valid C++, this is unusual and reduces readability. Consider moving it to namespace scope or making it a static local class if it's only used here."
+      },
+      {
+        "path": "src/Base/Parameter.cpp",
+        "start_line": 1882,
+        "end_line": 1882,
+        "content": "entityBlocker is a unique_ptr but only its raw pointer is passed to parser->setEntityResolver(). Since Xerces does not take ownership of the EntityResolver, this is safe, but the unique_ptr will destroy the resolver when it goes out of scope at the end of the function. The parser is used synchronously within this function, so the resolver's lifetime is sufficient. However, consider using a raw pointer or stack allocation for clarity since ownership isn't transferred."
+      },
+      {
+        "path": "src/Base/Parameter.cpp",
+        "start_line": 1883,
+        "end_line": 1883,
+        "content": "errReporter is managed by unique_ptr but only its raw pointer is passed to setErrorHandler(). Similar to entityBlocker, Xerces doesn't take ownership, and the lifetime is sufficient since parsing is synchronous. Consider stack allocation or raw pointer for clarity."
+      },
+      {
+        "path": "src/Base/PreCompiled.h",
+        "start_line": 108,
+        "end_line": 108,
+        "content": "SAXParseException.hpp is included twice (lines 106 and 109). Remove the duplicate include."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Base/Parameter.cpp\",\n      \"start_line\": 1863,\n      \"end_line\": 1873,\n      \"content\": \"The NoOpEntityResolver class is defined inside a function scope (LoadDocument). While valid C++, this is unusual and reduces readability. Consider moving it to namespace scope or making it a static local class if it's only used here.\"\n    },\n    {\n      \"path\": \"src/Base/Parameter.cpp\",\n      \"start_line\": 1882,\n      \"end_line\": 1882,\n      \"content\": \"entityBlocker is a unique_ptr but only its raw pointer is passed to parser->setEntityResolver(). Since Xerces does not take ownership of the EntityResolver, this is safe, but the unique_ptr will destroy the resolver when it goes out of scope at the end of the function. The parser is used synchronously within this function, so the resolver's lifetime is sufficient. However, consider using a raw pointer or stack allocation for clarity since ownership isn't transferred.\"\n    },\n    {\n      \"path\": \"src/Base/Parameter.cpp\",\n      \"start_line\": 1883,\n      \"end_line\": 1883,\n      \"content\": \"errReporter is managed by unique_ptr but only its raw pointer is passed to setErrorHandler(). Similar to entityBlocker, Xerces doesn't take ownership, and the lifetime is sufficient since parsing is synchronous. Consider stack allocation or raw pointer for clarity.\"\n    },\n    {\n      \"path\": \"src/Base/PreCompiled.h\",\n      \"start_line\": 108,\n      \"end_line\": 108,\n      \"content\": \"SAXParseException.hpp is included twice (lines 106 and 109). Remove the duplicate include.\"\n    }\n  ]\n}",
+  "stderr": null
+}

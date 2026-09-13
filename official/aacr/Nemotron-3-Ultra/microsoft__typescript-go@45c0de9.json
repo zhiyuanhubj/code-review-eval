@@ -1,0 +1,23 @@
+{
+  "instance_id": "microsoft__typescript-go@45c0de9",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "af2ba7365ad3e2f572ddb95a439b0220eccc06b1",
+  "head_commit": "45c0de96a08812aff07974b859bc2327e7fe25ed",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T17:59:26.837577+00:00",
+  "duration_seconds": 15.0,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "internal/ls/diagnostics.go",
+        "start_line": 45,
+        "end_line": 45,
+        "content": "The `toLSPDiagnostic` function is called with `nil` converters, but the function signature expects a `*Converters` pointer. If `toLSPDiagnostic` dereferences `converters` without a nil check, this will cause a panic. Verify that `toLSPDiagnostic` handles nil converters safely, or pass a valid converters instance."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"internal/ls/diagnostics.go\",\n      \"start_line\": 45,\n      \"end_line\": 45,\n      \"content\": \"The `toLSPDiagnostic` function is called with `nil` converters, but the function signature expects a `*Converters` pointer. If `toLSPDiagnostic` dereferences `converters` without a nil check, this will cause a panic. Verify that `toLSPDiagnostic` handles nil converters safely, or pass a valid converters instance.\"\n    }\n  ]\n}",
+  "stderr": null
+}

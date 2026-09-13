@@ -1,0 +1,197 @@
+{
+  "https://github.com/keycloak/keycloak/pull/37429": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/37429",
+    "pr_title": "Add HTML sanitizer for translated message resources",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/37634": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/37634",
+    "pr_title": "Implement access token context encoding framework",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/38446": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/38446",
+    "pr_title": "Implement recovery key support for user storage providers",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/36882": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/36882",
+    "pr_title": "Add rolling-updates feature flag and compatibility framework",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/36880": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/36880",
+    "pr_title": "Add Client resource type and scopes to authorization schema",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/37038": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/37038",
+    "pr_title": "Add Groups resource type and scopes to authorization schema",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/33832": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/33832",
+    "pr_title": "Add AuthzClientCryptoProvider for authorization client cryptographic operations",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/40940": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/40940",
+    "pr_title": "Fix concurrent group access to prevent NullPointerException",
+    "review_comments": [
+      {
+        "path": "tests/base/src/test/java/org/keycloak/tests/admin/group/GroupTest.java",
+        "line": 157,
+        "body": "The reader thread is never joined before this assertion. It may not have started yet, or it may still be inside `groups(...)` and append an exception after the assertion has passed, making the regression test nondeterministic and capable of false positives. Keep a reference to the thread, set `deletedAll`, join it, and only then assert that no exceptions were caught."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"tests/base/src/test/java/org/keycloak/tests/admin/group/GroupTest.java\",\"line\":157,\"body\":\"The reader thread is never joined before this assertion. It may not have started yet, or it may still be inside `groups(...)` and append an exception after the assertion has passed, making the regression test nondeterministic and capable of false positives. Keep a reference to the thread, set `deletedAll`, join it, and only then assert that no exceptions were caught.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/keycloak-greptile/pull/1": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/keycloak-greptile/pull/1",
+    "pr_title": "Fixing Re-authentication with passkeys",
+    "review_comments": [
+      {
+        "path": "services/src/main/java/org/keycloak/authentication/authenticators/browser/UsernamePasswordForm.java",
+        "line": 162,
+        "body": "This predicate disables conditional passkeys whenever no user is selected. The normal combined username/password login starts with `context.getUser() == null`, and the previous implementation specifically initialized WebAuthn in that case. As a result, passkey-first login and retaining passkeys after an ordinary login error will regress. The passkey-enabled check should support both initial authentication and re-authentication rather than require a non-null user."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"services/src/main/java/org/keycloak/authentication/authenticators/browser/UsernamePasswordForm.java\",\"line\":162,\"body\":\"This predicate disables conditional passkeys whenever no user is selected. The normal combined username/password login starts with `context.getUser() == null`, and the previous implementation specifically initialized WebAuthn in that case. As a result, passkey-first login and retaining passkeys after an ordinary login error will regress. The passkey-enabled check should support both initial authentication and re-authentication rather than require a non-null user.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/getsentry/sentry/pull/93824": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/getsentry/sentry/pull/93824",
+    "pr_title": "Span Buffer Multiprocess Enhancement with Health Monitoring",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/5": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/5",
+    "pr_title": "Replays Self-Serve Bulk Delete System",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/1": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/1",
+    "pr_title": "Enhanced Pagination Performance for High-Volume Audit Logs",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/97529": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/grafana/grafana/pull/97529",
+    "pr_title": "Unified Storage Performance Optimizations",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/getsentry/sentry/pull/80168": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/getsentry/sentry/pull/80168",
+    "pr_title": "feat(workflow_engine): Add in hook for producing occurrences from the stateful detector",
+    "review_comments": [
+      {
+        "path": "src/sentry/incidents/grouptype.py",
+        "line": 11,
+        "body": "`StatefulDetectorHandler` is abstract, requiring implementations of `get_dedupe_value`, `get_group_key_values`, and `build_occurrence_and_event_data`. Leaving this subclass empty makes `MetricAlertDetectorHandler` abstract, so accessing `detector.detector_handler` for metric alerts will fail with `TypeError: Can't instantiate abstract class` instead of returning the previous no-op handler."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"src/sentry/incidents/grouptype.py\",\"line\":11,\"body\":\"`StatefulDetectorHandler` is abstract, requiring implementations of `get_dedupe_value`, `get_group_key_values`, and `build_occurrence_and_event_data`. Leaving this subclass empty makes `MetricAlertDetectorHandler` abstract, so accessing `detector.detector_handler` for metric alerts will fail with `TypeError: Can't instantiate abstract class` instead of returning the previous no-op handler.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/getsentry/sentry/pull/80528": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/getsentry/sentry/pull/80528",
+    "pr_title": "ref(crons): Reorganize incident creation / issue occurrence logic",
+    "review_comments": [],
+    "raw_output": "{\"comments\":[]}",
+    "latency_s": null
+  },
+  "https://github.com/getsentry/sentry/pull/77754": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/getsentry/sentry/pull/77754",
+    "pr_title": "feat(ecosystem): Implement cross-system issue synchronization",
+    "review_comments": [
+      {
+        "path": "src/sentry/integrations/services/assignment_source.py",
+        "line": 18,
+        "body": "`timezone.now()` is evaluated once when this module is imported, so every `AssignmentSource` that omits `queued` receives the same stale timestamp. Use `field(default_factory=timezone.now)` so the timestamp is generated for each instance."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"src/sentry/integrations/services/assignment_source.py\",\"line\":18,\"body\":\"`timezone.now()` is evaluated once when this module is imported, so every `AssignmentSource` that omits `queued` receives the same stale timestamp. Use `field(default_factory=timezone.now)` so the timestamp is generated for each instance.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/getsentry/sentry/pull/95633": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/getsentry/sentry/pull/95633",
+    "pr_title": "feat(uptime): Add ability to use queues to manage parallelism",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/2": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/2",
+    "pr_title": "Optimize spans buffer insertion with eviction during insert",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/3": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/3",
+    "pr_title": "feat(upsampling) - Support upsampled error count with performance optimizations",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/103633": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/grafana/grafana/pull/103633",
+    "pr_title": "AuthZService: improve authz caching",
+    "review_comments": [
+      {
+        "path": "pkg/services/authz/rbac/cache.go",
+        "line": 30,
+        "body": "This key construction is ambiguous because `name` and `parent` can contain underscores. For example, `(name=\"a_b\", parent=\"c\")` and `(name=\"a\", parent=\"b_c\")` produce the same key, so a denial cached for one resource can incorrectly deny the other. Use a collision-free encoding such as length-prefixed fields or a hash of a structured value."
+      },
+      {
+        "path": "pkg/services/authz/rbac/service.go",
+        "line": 116,
+        "body": "The denial cache key omits `IdentityType`, unlike the permission-cache lookup which handles anonymous, render-service, user, and service-account identities separately. Two identity types with the same raw `UserUID` would share denial entries, allowing one subject's denial to incorrectly deny another. Include the identity type (and preferably the canonical identifier) in the key."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"pkg/services/authz/rbac/cache.go\",\"line\":30,\"body\":\"This key construction is ambiguous because `name` and `parent` can contain underscores. For example, `(name=\\\"a_b\\\", parent=\\\"c\\\")` and `(name=\\\"a\\\", parent=\\\"b_c\\\")` produce the same key, so a denial cached for one resource can incorrectly deny the other. Use a collision-free encoding such as length-prefixed fields or a hash of a structured value.\"},{\"path\":\"pkg/services/authz/rbac/service.go\",\"line\":116,\"body\":\"The denial cache key omits `IdentityType`, unlike the permission-cache lookup which handles anonymous, render-service, user, and service-account identities separately. Two identity types with the same raw `UserUID` would share denial entries, allowing one subject's denial to incorrectly deny another. Include the identity type (and preferably the canonical identifier) in the key.\"}]}",
+    "latency_s": null
+  }
+}

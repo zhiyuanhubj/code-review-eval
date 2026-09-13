@@ -1,0 +1,59 @@
+{
+  "instance_id": "CherryHQ__cherry-studio@83a2594",
+  "repo": "CherryHQ/cherry-studio",
+  "base_commit": "f258f5b2cb4a4cf9012e106837aba409b383e367",
+  "head_commit": "83a25941859179b635105c9b4fd79d5542e3701e",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:03:44.274463+00:00",
+  "duration_seconds": 40.03,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/renderer/src/pages/agents/index.ts",
+        "start_line": 17,
+        "end_line": 50,
+        "content": "The `useSystemAgents` hook violates React hooks rules by conditionally calling hooks (`useLocalSystemAgents`/`useRemoteSystemAgents`) based on runtime state. Hooks must be called unconditionally at the top level. Refactor to use a single hook with internal logic branching, or move the conditional logic inside a single hook implementation."
+      },
+      {
+        "path": "src/renderer/src/pages/agents/index.ts",
+        "start_line": 52,
+        "end_line": 85,
+        "content": "The `useRemoteSystemAgents` hook reads `store.getState().settings.defaultaides` directly instead of using a selector, which won't trigger re-renders when the setting changes. Use `useSelector` to subscribe to store changes. Also, the `resourcesPath` dependency in `useEffect` is derived from `defaultaides` but not included in the dependency array correctly (it's a const, not a prop/state)."
+      },
+      {
+        "path": "src/renderer/src/pages/agents/index.ts",
+        "start_line": 52,
+        "end_line": 85,
+        "content": "The `await new Promise(resolve => setTimeout(resolve, 500))` artificial delay in `loadAgents` is a code smell. Remove unless there's a documented UX reason (e.g., skeleton loading). If kept, add a comment explaining why."
+      },
+      {
+        "path": "src/renderer/src/store/settings.ts",
+        "start_line": 206,
+        "end_line": 208,
+        "content": "The initial value `'settings.defaultaides'` for `defaultaides` appears to be a translation key, not a valid URL or local path. This will cause `useRemoteSystemAgents` to treat it as a local path (since it doesn't start with 'http'), but the string is not a valid filesystem path. Initialize to `null` or a valid default URL."
+      },
+      {
+        "path": "src/renderer/src/store/settings.ts",
+        "start_line": 456,
+        "end_line": 458,
+        "content": "Typo in reducer name: `setefaultAides` should be `setDefaultAides` (capital 'D') for consistency with other setters like `setDefaultObsidianVault`."
+      },
+      {
+        "path": "src/renderer/src/pages/settings/DataSettings/DefaultaidesSettings.tsx",
+        "start_line": 14,
+        "end_line": 16,
+        "content": "The selector `state.settings.defaultaides` uses lowercase 'a' but the state property is `defaultaides` (all lowercase). This matches, but the action `setefaultAides` has a typo (missing 'D'). Fix the action name to `setDefaultAides` and update the import/usage here."
+      },
+      {
+        "path": "src/renderer/src/i18n/locales/zh-cn.json",
+        "start_line": 967,
+        "end_line": 972,
+        "content": "The zh-CN locale adds keys under `settings.data.default_aides` (snake_case), but other locales (en-US, ja-JP, ru-RU, zh-TW) add `settings.defaultaides` (camelCase) at the root of `settings`. This inconsistency will cause missing translations. Standardize on one structure (likely nested under `data` to match zh-CN and other data settings like `nutstore`, `joplin`)."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/renderer/src/pages/agents/index.ts\",\n      \"start_line\": 17,\n      \"end_line\": 50,\n      \"content\": \"The `useSystemAgents` hook violates React hooks rules by conditionally calling hooks (`useLocalSystemAgents`/`useRemoteSystemAgents`) based on runtime state. Hooks must be called unconditionally at the top level. Refactor to use a single hook with internal logic branching, or move the conditional logic inside a single hook implementation.\"\n    },\n    {\n      \"path\": \"src/renderer/src/pages/agents/index.ts\",\n      \"start_line\": 52,\n      \"end_line\": 85,\n      \"content\": \"The `useRemoteSystemAgents` hook reads `store.getState().settings.defaultaides` directly instead of using a selector, which won't trigger re-renders when the setting changes. Use `useSelector` to subscribe to store changes. Also, the `resourcesPath` dependency in `useEffect` is derived from `defaultaides` but not included in the dependency array correctly (it's a const, not a prop/state).\"\n    },\n    {\n      \"path\": \"src/renderer/src/pages/agents/index.ts\",\n      \"start_line\": 52,\n      \"end_line\": 85,\n      \"content\": \"The `await new Promise(resolve => setTimeout(resolve, 500))` artificial delay in `loadAgents` is a code smell. Remove unless there's a documented UX reason (e.g., skeleton loading). If kept, add a comment explaining why.\"\n    },\n    {\n      \"path\": \"src/renderer/src/store/settings.ts\",\n      \"start_line\": 206,\n      \"end_line\": 208,\n      \"content\": \"The initial value `'settings.defaultaides'` for `defaultaides` appears to be a translation key, not a valid URL or local path. This will cause `useRemoteSystemAgents` to treat it as a local path (since it doesn't start with 'http'), but the string is not a valid filesystem path. Initialize to `null` or a valid default URL.\"\n    },\n    {\n      \"path\": \"src/renderer/src/store/settings.ts\",\n      \"start_line\": 456,\n      \"end_line\": 458,\n      \"content\": \"Typo in reducer name: `setefaultAides` should be `setDefaultAides` (capital 'D') for consistency with other setters like `setDefaultObsidianVault`.\"\n    },\n    {\n      \"path\": \"src/renderer/src/pages/settings/DataSettings/DefaultaidesSettings.tsx\",\n      \"start_line\": 14,\n      \"end_line\": 16,\n      \"content\": \"The selector `state.settings.defaultaides` uses lowercase 'a' but the state property is `defaultaides` (all lowercase). This matches, but the action `setefaultAides` has a typo (missing 'D'). Fix the action name to `setDefaultAides` and update the import/usage here.\"\n    },\n    {\n      \"path\": \"src/renderer/src/i18n/locales/zh-cn.json\",\n      \"start_line\": 967,\n      \"end_line\": 972,\n      \"content\": \"The zh-CN locale adds keys under `settings.data.default_aides` (snake_case), but other locales (en-US, ja-JP, ru-RU, zh-TW) add `settings.defaultaides` (camelCase) at the root of `settings`. This inconsistency will cause missing translations. Standardize on one structure (likely nested under `data` to match zh-CN and other data settings like `nutstore`, `joplin`).\"\n    }\n  ]\n}",
+  "stderr": null
+}

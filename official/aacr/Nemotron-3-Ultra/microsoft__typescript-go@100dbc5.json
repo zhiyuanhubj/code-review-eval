@@ -1,0 +1,41 @@
+{
+  "instance_id": "microsoft__typescript-go@100dbc5",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "3a3ff237cf7ad91bcdb604271f6135762aed9365",
+  "head_commit": "100dbc5127e723c4108efc02a179d9aec5fce32a",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T17:59:50.108387+00:00",
+  "duration_seconds": 22.68,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "internal/execute/outputs.go",
+        "start_line": 265,
+        "end_line": 265,
+        "content": "The variable `terminalWidth` is declared but never assigned a value (always 0), making the condition `terminalWidth >= 80` always false. This appears to be incomplete porting from TypeScript where `sys.getWidthOfTerminal?.()` would be called. Either implement terminal width detection or remove the dead code branch."
+      },
+      {
+        "path": "internal/execute/outputs.go",
+        "start_line": 266,
+        "end_line": 330,
+        "content": "Large block of commented-out TypeScript code (`// !!!`) remains in the `terminalWidth >= 80` branch. Since the condition is never true (see previous comment), this dead code should be removed to avoid confusion."
+      },
+      {
+        "path": "internal/execute/outputs.go",
+        "start_line": 342,
+        "end_line": 342,
+        "content": "The `default` case in the switch statement handles `CommandLineOptionTypeEnum` and `CommandLineOptionTypeMap` but lacks an explicit case for them. Consider adding explicit cases for clarity and to avoid accidentally handling future option types incorrectly."
+      },
+      {
+        "path": "internal/execute/outputs.go",
+        "start_line": 355,
+        "end_line": 355,
+        "content": "The `inverted` OrderedMap uses `any` as key type, but the values from `enumMap` are `number | string`. Using a constrained type (e.g., `comparable` or `string | number`) would improve type safety."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"internal/execute/outputs.go\",\n      \"start_line\": 265,\n      \"end_line\": 265,\n      \"content\": \"The variable `terminalWidth` is declared but never assigned a value (always 0), making the condition `terminalWidth >= 80` always false. This appears to be incomplete porting from TypeScript where `sys.getWidthOfTerminal?.()` would be called. Either implement terminal width detection or remove the dead code branch.\"\n    },\n    {\n      \"path\": \"internal/execute/outputs.go\",\n      \"start_line\": 266,\n      \"end_line\": 330,\n      \"content\": \"Large block of commented-out TypeScript code (`// !!!`) remains in the `terminalWidth >= 80` branch. Since the condition is never true (see previous comment), this dead code should be removed to avoid confusion.\"\n    },\n    {\n      \"path\": \"internal/execute/outputs.go\",\n      \"start_line\": 342,\n      \"end_line\": 342,\n      \"content\": \"The `default` case in the switch statement handles `CommandLineOptionTypeEnum` and `CommandLineOptionTypeMap` but lacks an explicit case for them. Consider adding explicit cases for clarity and to avoid accidentally handling future option types incorrectly.\"\n    },\n    {\n      \"path\": \"internal/execute/outputs.go\",\n      \"start_line\": 355,\n      \"end_line\": 355,\n      \"content\": \"The `inverted` OrderedMap uses `any` as key type, but the values from `enumMap` are `number | string`. Using a constrained type (e.g., `comparable` or `string | number`) would improve type safety.\"\n    }\n  ]\n}",
+  "stderr": null
+}

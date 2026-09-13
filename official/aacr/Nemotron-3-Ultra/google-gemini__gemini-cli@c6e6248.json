@@ -1,0 +1,35 @@
+{
+  "instance_id": "google-gemini__gemini-cli@c6e6248",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "809b933d8150c29154062e4d596cd916258022fc",
+  "head_commit": "c6e624883852318b71baa2a060c933bb5de591ef",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:13:51.317197+00:00",
+  "duration_seconds": 32.74,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "integration-tests/test-helper.ts",
+        "start_line": 306,
+        "end_line": 357,
+        "content": "The `runCommand` method rejects on non-zero exit codes, but the test in `extensions-install.test.ts` wraps `rig.runCommand(['extensions', 'uninstall', 'test-extension'])` in a try/catch that ignores the error. This suggests the uninstall command may fail (e.g., if the extension isn't installed yet), which would cause the test to fail. Consider making `runCommand` return the result regardless of exit code (like the existing `run` method appears to do), or handle the expected failure case explicitly in the test."
+      },
+      {
+        "path": "integration-tests/extensions-install.test.ts",
+        "start_line": 25,
+        "end_line": 27,
+        "content": "The try/catch block silently ignores errors from the uninstall command. If `runCommand` rejects on non-zero exit codes (as implemented in test-helper.ts), this catch block will catch the rejection but the test will continue. However, if the uninstall fails for an unexpected reason, it could leave state that affects the subsequent install. Consider checking if the extension exists before uninstalling, or using a method that doesn't throw on failure."
+      },
+      {
+        "path": "integration-tests/extensions-install.test.ts",
+        "start_line": 51,
+        "end_line": 52,
+        "content": "The test calls `rig.cleanup()` and then manually removes `rig.testDir!` with `rmSync`. If `rig.cleanup()` already removes the test directory, this is redundant and could throw if the directory is already gone. Check what `cleanup()` does and remove the duplicate cleanup."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"integration-tests/test-helper.ts\",\n      \"start_line\": 306,\n      \"end_line\": 357,\n      \"content\": \"The `runCommand` method rejects on non-zero exit codes, but the test in `extensions-install.test.ts` wraps `rig.runCommand(['extensions', 'uninstall', 'test-extension'])` in a try/catch that ignores the error. This suggests the uninstall command may fail (e.g., if the extension isn't installed yet), which would cause the test to fail. Consider making `runCommand` return the result regardless of exit code (like the existing `run` method appears to do), or handle the expected failure case explicitly in the test.\"\n    },\n    {\n      \"path\": \"integration-tests/extensions-install.test.ts\",\n      \"start_line\": 25,\n      \"end_line\": 27,\n      \"content\": \"The try/catch block silently ignores errors from the uninstall command. If `runCommand` rejects on non-zero exit codes (as implemented in test-helper.ts), this catch block will catch the rejection but the test will continue. However, if the uninstall fails for an unexpected reason, it could leave state that affects the subsequent install. Consider checking if the extension exists before uninstalling, or using a method that doesn't throw on failure.\"\n    },\n    {\n      \"path\": \"integration-tests/extensions-install.test.ts\",\n      \"start_line\": 51,\n      \"end_line\": 52,\n      \"content\": \"The test calls `rig.cleanup()` and then manually removes `rig.testDir!` with `rmSync`. If `rig.cleanup()` already removes the test directory, this is redundant and could throw if the directory is already gone. Check what `cleanup()` does and remove the duplicate cleanup.\"\n    }\n  ]\n}",
+  "stderr": null
+}

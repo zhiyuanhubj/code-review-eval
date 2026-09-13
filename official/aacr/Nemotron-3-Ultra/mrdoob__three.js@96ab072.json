@@ -1,0 +1,53 @@
+{
+  "instance_id": "mrdoob__three.js@96ab072",
+  "repo": "mrdoob/three.js",
+  "base_commit": "bf4e6fcb64a1d6bdbaf975528595ac6873051641",
+  "head_commit": "96ab0720fc65368e32ee3f2389cb192f96d8adff",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:03:03.917670+00:00",
+  "duration_seconds": 24.17,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/geometries/ExtrudeGeometry.js",
+        "start_line": 164,
+        "end_line": 164,
+        "content": "The THRESHOLD value of 0.0002 is a magic number. Consider making it a named constant with a comment explaining its purpose (e.g., minimum distance between points to avoid triangulation issues)."
+      },
+      {
+        "path": "src/geometries/ExtrudeGeometry.js",
+        "start_line": 165,
+        "end_line": 165,
+        "content": "THRESHOLD_SQ is only used once. Consider inlining `THRESHOLD * THRESHOLD` in the comparison or removing the intermediate variable."
+      },
+      {
+        "path": "src/geometries/ExtrudeGeometry.js",
+        "start_line": 167,
+        "end_line": 167,
+        "content": "The loop condition `i <= points.length` combined with `currentIndex = i % points.length` and the `break` when `currentIndex == 0` is confusing. Consider rewriting as a while loop or adding a comment explaining the circular iteration logic."
+      },
+      {
+        "path": "src/geometries/ExtrudeGeometry.js",
+        "start_line": 176,
+        "end_line": 176,
+        "content": "Modifying the array while iterating with a for loop and manual index adjustment (`i--`) is error-prone. Consider using a while loop or building a new filtered array for clarity and safety."
+      },
+      {
+        "path": "src/geometries/ExtrudeGeometry.js",
+        "start_line": 182,
+        "end_line": 182,
+        "content": "The `cleanPoints` function mutates the input arrays in-place. Add a comment indicating this side effect, or consider returning a new array instead."
+      },
+      {
+        "path": "src/geometries/ExtrudeGeometry.js",
+        "start_line": 386,
+        "end_line": 386,
+        "content": "The triangulation now uses `contractedContourVertices` and `expandedHoleVertices` (bevel offset positions at t=0) instead of the original `vertices` and `holes`. This changes the topology of the front/back faces. Is this intentional? The original code triangulated the base shape; now it triangulates the beveled contour. This could affect face winding or create degenerate triangles if bevelOffset is large relative to shape size."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/geometries/ExtrudeGeometry.js\",\n      \"start_line\": 164,\n      \"end_line\": 164,\n      \"content\": \"The THRESHOLD value of 0.0002 is a magic number. Consider making it a named constant with a comment explaining its purpose (e.g., minimum distance between points to avoid triangulation issues).\"\n    },\n    {\n      \"path\": \"src/geometries/ExtrudeGeometry.js\",\n      \"start_line\": 165,\n      \"end_line\": 165,\n      \"content\": \"THRESHOLD_SQ is only used once. Consider inlining `THRESHOLD * THRESHOLD` in the comparison or removing the intermediate variable.\"\n    },\n    {\n      \"path\": \"src/geometries/ExtrudeGeometry.js\",\n      \"start_line\": 167,\n      \"end_line\": 167,\n      \"content\": \"The loop condition `i <= points.length` combined with `currentIndex = i % points.length` and the `break` when `currentIndex == 0` is confusing. Consider rewriting as a while loop or adding a comment explaining the circular iteration logic.\"\n    },\n    {\n      \"path\": \"src/geometries/ExtrudeGeometry.js\",\n      \"start_line\": 176,\n      \"end_line\": 176,\n      \"content\": \"Modifying the array while iterating with a for loop and manual index adjustment (`i--`) is error-prone. Consider using a while loop or building a new filtered array for clarity and safety.\"\n    },\n    {\n      \"path\": \"src/geometries/ExtrudeGeometry.js\",\n      \"start_line\": 182,\n      \"end_line\": 182,\n      \"content\": \"The `cleanPoints` function mutates the input arrays in-place. Add a comment indicating this side effect, or consider returning a new array instead.\"\n    },\n    {\n      \"path\": \"src/geometries/ExtrudeGeometry.js\",\n      \"start_line\": 386,\n      \"end_line\": 386,\n      \"content\": \"The triangulation now uses `contractedContourVertices` and `expandedHoleVertices` (bevel offset positions at t=0) instead of the original `vertices` and `holes`. This changes the topology of the front/back faces. Is this intentional? The original code triangulated the base shape; now it triangulates the beveled contour. This could affect face winding or create degenerate triangles if bevelOffset is large relative to shape size.\"\n    }\n  ]\n}",
+  "stderr": null
+}

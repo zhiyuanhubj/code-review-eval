@@ -1,0 +1,29 @@
+{
+  "instance_id": "infiniflow__ragflow@2d06022",
+  "repo": "infiniflow/ragflow",
+  "base_commit": "469460483665000f522b6c9a6583bb34f17a954b",
+  "head_commit": "2d06022b78536bd22a0fd83f38804f39aa34cce8",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:15:09.559554+00:00",
+  "duration_seconds": 19.74,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "agent/component/rewrite.py",
+        "start_line": 45,
+        "end_line": 45,
+        "content": "The prompt says 'If the user's latest question is completely,' which appears to be an incomplete sentence (likely missing 'unrelated' or 'incomplete'). This will confuse the LLM. Please fix the wording."
+      },
+      {
+        "path": "web/src/components/api-service/embed-modal/index.tsx",
+        "start_line": 55,
+        "end_line": 55,
+        "content": "The locale select allows empty string as a value (via placeholder), but generateIframeSrc only appends locale if truthy. This is fine, but consider adding a default option like 'Auto' that maps to empty string for clarity."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"agent/component/rewrite.py\",\n      \"start_line\": 45,\n      \"end_line\": 45,\n      \"content\": \"The prompt says 'If the user's latest question is completely,' which appears to be an incomplete sentence (likely missing 'unrelated' or 'incomplete'). This will confuse the LLM. Please fix the wording.\"\n    },\n    {\n      \"path\": \"web/src/components/api-service/embed-modal/index.tsx\",\n      \"start_line\": 55,\n      \"end_line\": 55,\n      \"content\": \"The locale select allows empty string as a value (via placeholder), but generateIframeSrc only appends locale if truthy. This is fine, but consider adding a default option like 'Auto' that maps to empty string for clarity.\"\n    }\n  ]\n}",
+  "stderr": null
+}

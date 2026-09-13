@@ -1,0 +1,16 @@
+{
+  "instance_id": "comfyanonymous__ComfyUI@4dcd698",
+  "repo": "comfyanonymous/ComfyUI",
+  "base_commit": "c7b25784b141a298d8ee5f0d830a29da6e8a3d54",
+  "head_commit": "4dcd698e489da69294ee01de0350a9a02e3e4b41",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:01:51.136042+00:00",
+  "duration_seconds": 24.26,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"comfy_extras/nodes_train.py\",\n      \"start_line\": 600,\n      \"end_line\": 600,\n      \"content\": \"Typo in lora_dtype default value: 'bf32' should be 'bf16' to match the allowed options ['bf16', 'fp32']\"\n    },\n    {\n      \"path\": \"comfy_extras/nodes_train.py\",\n      \"start_line\": 585,\n      \"end_line\": 585,\n      \"content\": \"The existing_steps extraction from filename is fragile. It assumes format 'trained_lora_10_steps_...' but the SaveLoRA node saves with format 'trained_lora_10_steps_20250225_203716_lora.safetensors'. The split logic will fail if prefix differs or format changes.\"\n    },\n    {\n      \"path\": \"comfy_extras/nodes_train.py\",\n      \"start_line\": 655,\n      \"end_line\": 655,\n      \"content\": \"Potential bug: mp.add_weight_wrapper(key, BiasDiff(diff)) is called twice for bias - once with diff_module and once with new BiasDiff(bias). The second call overwrites the first and diff_module is added to all_weight_adapters but not used as wrapper.\"\n    },\n    {\n      \"path\": \"comfy_extras/nodes_train.py\",\n      \"start_line\": 680,\n      \"end_line\": 680,\n      \"content\": \"The patch/unpatch functions modify module.forward in-place. If an exception occurs during training, the finally block calls unpatch, but if unpatch itself fails, modules could remain patched. Consider using context manager or try/finally per module.\"\n    },\n    {\n      \"path\": \"comfy/weight_adapter/lora.py\",\n      \"start_line\": 50,\n      end_line: 50,\n      \"content\": \"LoraDiff.__init__ assumes mat1 shape is (out_dim, rank) and mat2 shape is (rank, in_dim). This should be validated or documented as a requirement for the weights tuple.\"\n    },\n    {\n      \"path\": \"comfy/weight_adapter/base.py\",\n      \"start_line\": 55,\n      \"end_line\": 55,\n      \"content\": \"WeightAdapterTrainBase.move_to calls self.to(device) but doesn't handle the case where the module has submodules on different devices. Consider using standard .to(device) which handles this recursively.\"\n    }\n  ]\n}",
+  "stderr": null
+}
