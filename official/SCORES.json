@@ -1,15 +1,65 @@
 {
-  "snapshot_utc": "2026-09-14 17:15 UTC",
+  "snapshot_utc": "2026-09-14 18:01 UTC",
   "judge": "gpt-5.6",
   "swrbench": {
     "n": 1000,
     "note": "Muse-Glimmer judged 990/1000 (10 overlong skipped). Metric is official evaluation_struct overall F1.",
     "models": {
-      "DeepSeek-V4.1-Flash": {"n": 1000, "precision": 0.5469, "recall": 0.852, "f1": 0.6661, "accuracy": 0.573, "tp": 426, "fp": 353, "fn": 74, "tn": 147},
-      "gpt-5.6": {"n": 1000, "precision": 0.5514, "recall": 0.804, "f1": 0.6542, "accuracy": 0.575, "tp": 402, "fp": 327, "fn": 98, "tn": 173},
-      "claude-opus-4-8": {"n": 1000, "precision": 0.5695, "recall": 0.582, "f1": 0.5757, "accuracy": 0.571, "tp": 291, "fp": 220, "fn": 209, "tn": 280},
-      "Muse-Glimmer": {"n": 990, "precision": 0.5549, "recall": 0.5292, "f1": 0.5417, "accuracy": 0.5505, "tp": 263, "fp": 211, "fn": 234, "tn": 282},
-      "Nemotron-3-Ultra": {"n": 1000, "precision": 0.6178, "recall": 0.32, "f1": 0.4216, "accuracy": 0.561, "tp": 160, "fp": 99, "fn": 340, "tn": 401}
+      "DeepSeek-V4.1-Flash": {
+        "n": 1000,
+        "precision": 0.5469,
+        "recall": 0.852,
+        "f1": 0.6661,
+        "accuracy": 0.573,
+        "tp": 426,
+        "fp": 353,
+        "fn": 74,
+        "tn": 147
+      },
+      "gpt-5.6": {
+        "n": 1000,
+        "precision": 0.5514,
+        "recall": 0.804,
+        "f1": 0.6542,
+        "accuracy": 0.575,
+        "tp": 402,
+        "fp": 327,
+        "fn": 98,
+        "tn": 173
+      },
+      "claude-opus-4-8": {
+        "n": 1000,
+        "precision": 0.5695,
+        "recall": 0.582,
+        "f1": 0.5757,
+        "accuracy": 0.571,
+        "tp": 291,
+        "fp": 220,
+        "fn": 209,
+        "tn": 280
+      },
+      "Muse-Glimmer": {
+        "n": 990,
+        "precision": 0.5549,
+        "recall": 0.5292,
+        "f1": 0.5417,
+        "accuracy": 0.5505,
+        "tp": 263,
+        "fp": 211,
+        "fn": 234,
+        "tn": 282
+      },
+      "Nemotron-3-Ultra": {
+        "n": 1000,
+        "precision": 0.6178,
+        "recall": 0.32,
+        "f1": 0.4216,
+        "accuracy": 0.561,
+        "tp": 160,
+        "fp": 99,
+        "fn": 340,
+        "tn": 401
+      }
     }
   },
   "aacr": {
@@ -17,22 +67,84 @@
     "gt_notes": 1506,
     "metric": "official evaluation/evaluate.py --reviewer ocr",
     "models": {
-      "DeepSeek-V4.1-Flash": {"semantic_f1": 0.105, "line_f1": 0.292, "generated_notes": 679, "matched_semantic": 115, "matched_line": 320},
-      "Nemotron-3-Ultra": {"semantic_f1": 0.06, "line_f1": 0.184, "generated_notes": 458, "matched_semantic": 58, "matched_line": 181},
-      "claude-opus-4-8": {"semantic_f1": 0.066, "line_f1": 0.129, "generated_notes": 221, "matched_semantic": 57, "matched_line": 112},
-      "Muse-Glimmer": {"semantic_f1": 0.046, "line_f1": 0.096, "generated_notes": 124, "matched_semantic": 37, "matched_line": 79},
-      "gpt-5.6": {"semantic_f1": 0.041, "line_f1": 0.077, "generated_notes": 94, "matched_semantic": 33, "matched_line": 62}
+      "DeepSeek-V4.1-Flash": {
+        "semantic_f1": 0.105,
+        "line_f1": 0.292,
+        "generated_notes": 679,
+        "matched_semantic": 115,
+        "matched_line": 320
+      },
+      "Nemotron-3-Ultra": {
+        "semantic_f1": 0.06,
+        "line_f1": 0.184,
+        "generated_notes": 458,
+        "matched_semantic": 58,
+        "matched_line": 181
+      },
+      "claude-opus-4-8": {
+        "semantic_f1": 0.066,
+        "line_f1": 0.129,
+        "generated_notes": 221,
+        "matched_semantic": 57,
+        "matched_line": 112
+      },
+      "Muse-Glimmer": {
+        "semantic_f1": 0.046,
+        "line_f1": 0.096,
+        "generated_notes": 124,
+        "matched_semantic": 37,
+        "matched_line": 79
+      },
+      "gpt-5.6": {
+        "semantic_f1": 0.041,
+        "line_f1": 0.077,
+        "generated_notes": 94,
+        "matched_semantic": 33,
+        "matched_line": 62
+      }
     }
   },
   "martian": {
     "n_prs": 50,
     "metric": "official step3_judge_comments.py vs golden comments, judge gpt-5.6 temperature=1.0, --no-dedup",
     "models": {
-      "claude-opus-4-8": {"precision": 0.322, "recall": 0.457, "f1": 0.378, "reviews": 50, "status": "valid"},
-      "Nemotron-3-Ultra": {"precision": 0.169, "recall": 0.312, "f1": 0.219, "reviews": 50, "status": "valid"},
-      "gpt-5.6": {"precision": 0.667, "recall": 0.127, "f1": 0.214, "reviews": 50, "status": "valid"},
-      "DeepSeek-V4.1-Flash": {"precision": 0.0, "recall": 0.0, "f1": 0.0, "reviews": 50, "status": "invalid_empty_generation"},
-      "Muse-Glimmer": {"precision": 0.0, "recall": 0.0, "f1": 0.0, "reviews": 50, "status": "invalid_at_judge_time_retrying_empty_prs"}
+      "claude-opus-4-8": {
+        "precision": 0.322,
+        "recall": 0.457,
+        "f1": 0.378,
+        "reviews": 50,
+        "status": "valid"
+      },
+      "Nemotron-3-Ultra": {
+        "precision": 0.169,
+        "recall": 0.312,
+        "f1": 0.219,
+        "reviews": 50,
+        "status": "valid"
+      },
+      "gpt-5.6": {
+        "precision": 0.667,
+        "recall": 0.127,
+        "f1": 0.214,
+        "reviews": 50,
+        "status": "valid"
+      },
+      "DeepSeek-V4.1-Flash": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "reviews": 50,
+        "status": "invalid_empty_generation"
+      },
+      "Muse-Glimmer": {
+        "precision": 0.38,
+        "recall": 0.439,
+        "f1": 0.408,
+        "reviews": 50,
+        "prs_with_comments": 45,
+        "n_comments": 196,
+        "status": "valid"
+      }
     }
   },
   "swe_review": {
@@ -40,11 +152,54 @@
     "n": 500,
     "metric": "official compute_da.py Decision Accuracy on produced reviews",
     "models": {
-      "claude-opus-4-8": {"DA": 74.9, "DA_total_50": 66.3, "CR": 65.4, "produced": 327, "TP": 216, "FP": 65, "TN": 29, "FN": 17},
-      "Nemotron-3-Ultra": {"DA": 70.9, "DA_total_50": 53.3, "CR": 15.8, "produced": 79, "TP": 55, "FP": 21, "TN": 1, "FN": 2},
-      "gpt-5.6": {"DA": 52.0, "DA_total_50": 50.5, "CR": 25.0, "produced": 125, "TP": 39, "FP": 11, "TN": 26, "FN": 49},
-      "DeepSeek-V4.1-Flash": {"DA": 0, "DA_total_50": 50.0, "CR": 0.0, "produced": 0, "status": "500_env_failures_not_rerun"},
-      "Muse-Glimmer": {"DA": 0, "DA_total_50": 50.0, "CR": 0.0, "produced": 0, "status": "first_run_500_failures_rerun_in_progress"}
+      "claude-opus-4-8": {
+        "DA": 74.9,
+        "DA_total_50": 66.3,
+        "CR": 65.4,
+        "produced": 327,
+        "TP": 216,
+        "FP": 65,
+        "TN": 29,
+        "FN": 17
+      },
+      "Nemotron-3-Ultra": {
+        "DA": 70.9,
+        "DA_total_50": 53.3,
+        "CR": 15.8,
+        "produced": 79,
+        "TP": 55,
+        "FP": 21,
+        "TN": 1,
+        "FN": 2
+      },
+      "gpt-5.6": {
+        "DA": 52.0,
+        "DA_total_50": 50.5,
+        "CR": 25.0,
+        "produced": 125,
+        "TP": 39,
+        "FP": 11,
+        "TN": 26,
+        "FN": 49
+      },
+      "DeepSeek-V4.1-Flash": {
+        "DA": 0,
+        "DA_total_50": 50.0,
+        "CR": 0.0,
+        "produced": 0,
+        "status": "500_env_failures_not_rerun"
+      },
+      "Muse-Glimmer": {
+        "DA": 88.7,
+        "DA_total_50": 54.1,
+        "CR": 10.6,
+        "produced": 53,
+        "TP": 46,
+        "FP": 4,
+        "TN": 1,
+        "FN": 2,
+        "status": "valid_low_cr"
+      }
     }
   }
 }

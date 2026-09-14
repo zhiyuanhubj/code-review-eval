@@ -1,15 +1,15 @@
 {
-  "DA": 0,
-  "DA_total_50": 50.0,
-  "CR": 0.0,
-  "FAR": 0,
-  "FRR": 0,
+  "DA": 88.7,
+  "DA_total_50": 54.1,
+  "CR": 10.6,
+  "FAR": 80.0,
+  "FRR": 4.2,
   "total": 500,
-  "correct": 0,
-  "model_fail": 500,
-  "produced": 0,
-  "TP": 0,
-  "FP": 0,
-  "TN": 0,
-  "FN": 0
+  "correct": 47,
+  "model_fail": 447,
+  "produced": 53,
+  "TP": 46,
+  "FP": 4,
+  "TN": 1,
+  "FN": 2
 }

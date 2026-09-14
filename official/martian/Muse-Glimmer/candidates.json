@@ -47,7 +47,7 @@
     "pr_url": "https://github.com/keycloak/keycloak/pull/38446",
     "pr_title": "Implement recovery key support for user storage providers",
     "review_comments": [],
-    "raw_output": "",
+    "raw_output": "You are a code reviewer. Review this pull request diff.\nPut the JSON in the final answer, not in hidden thinking.\nReturn ONLY JSON:\n{\"comments\":[{\"path\":\"file\",\"line\":1,\"body\":\"issue description\"}]}\nIf there are no real issues, return {\"comments\":[]}.\n\nTitle: Implement recovery key support for user storage providers\nURL: ...\n\nWe need review diff. Identify issues.\n\nLet's scan files.\n\nCredentialHelper.java: added import RecoveryAuthnCodesCredentialModel, JsonSerialization, IOException, List. Added createRecoveryCodesCredential method. It creates credential JSON via JsonSerialization.writeValueAsString(generatedCodes). Then creates UserCredentialModel(\"\", credentialModel.getType(), recoveryCodesJson). Then boolean userStorageCreated = user.credentialManager().updateCredential(recoveryCodesCredential); if userStorageCreated logger debug else recoveryCodeCredentialProvider.createCredential(realm, user, credentialModel);\n\nPotential issue: updateCredential returns boolean indicating if credential was created in user storage? Actually updateCredential returns true if updated in user storage? Need check semantics. Might be inverted? Also they pass empty id \"\" to UserCredentialModel. Might be okay.\n\nBut they create UserCredentialModel with empty id and type and credentialData = json. Then they call updateCredential. If userStorageCreated true, they log created in user storage. Else they call provider.createCredential. Wait createCredential expects credentialModel, not the UserCredentialModel with json. Might be mismatch.\n\nAlso they don't set credential data for the credentialModel passed to createCredential? The credentialModel is passed as is. Might be okay.\n\nPotential issue: they serialize generatedCodes list to JSON, but RecoveryAuthnCodesCredentialModel expects credential data in specific format? Might be okay.\n\nAlso they import List but not used? Used.\n\nFormatting change in getConfigurableAuthenticatorFactory: indentation changed from 4 spaces to 8? Actually original had 4 spaces? Diff shows spaces changed. Might be formatting issue but not functional.\n\nRecoveryAuthnCodesUtils.java: added getCredential method. Uses user.credentialManager().getFederatedCredentialsStream().filter... findFirst().or(() -> user.credentialManager().getStoredCredentialsByTypeStream...). Good.\n\nPotential issue: getFederatedCredentialsStream returns CredentialModel? Might be okay.\n\nServices RecoveryAuthnCodesFormAuthenticator.java: changed to use RecoveryAuthnCodesUtils.getCredential. Good.\n\nRecoveryAuthnCodesAction.java: removed recoveryCodeCredentialProvider creation, now uses static createRecoveryCodesCredential. Good.\n\nRecoveryAuthnCodeInputLoginBean.java: uses RecoveryAuthnCodesUtils.getCredential(user).get() without checking presence. Could NPE if not present. Previously they called findFirst().get() which also could NPE. Might be okay but risky.\n\nBackwardsCompatibilityUserStorage.java: added support for RecoveryAuthnCodesCredentialModel. In supportsCredentialType added check. In updateCredential: for OTP they set newOTP.setId(KeycloakModelUtils.generateId()); then set type, createdDate, etc. For recovery codes they create CredentialModel recoveryCodesModel = new CredentialModel(); setId, setType, setCredentialData(input.getChallengeResponse()); setCreatedDate. Then users.get(...).recoveryCodes = recoveryCodesModel; return true;\n\nIssue: updateCredential for recovery codes uses input.getChallengeResponse() as credentialData. But in createRecoveryCodesCredential they serialize generatedCodes to JSON and pass as credentialData via UserCredentialModel. The updateCredential expects challengeResponse to be the JSON? Might be mismatch. In createRecoveryCodesCredential they call user.credentialManager().updateCredential(recoveryCodesCredential) where recoveryCodesCredential has credentialData = json. So updateCredential receives CredentialInput with challengeResponse = json. So they store json as credentialData. Good.\n\nBut in getCredentials they deserialize credentialData via JsonSerialization.readValue(myUser.recoveryCodes.getCredentialData(), List.class). Then they create RecoveryAuthnCodesCredentialModel.createFromValues(...). Wait createFromValues expects List<String> codes? Might be okay.\n\nBut getCredentials returns Stream<CredentialModel>. They create model via RecoveryAuthnCodesCredentialModel.createFromValues which returns RecoveryAuthnCodesCredentialModel which extends CredentialModel? Probably yes.\n\nPotential issue: getCredentials should return CredentialModel instances representing stored credentials. They deserialize and create model, but they lose id? Might be okay.\n\nAlso in isValid for recovery codes: they deserialize storedRecoveryKeys.getCredentialData() to List, then check if any match input.getChallengeResponse(). That's correct.\n\nPotential issue: In updateCredential for OTP they set newOTP.setId... but they also set value? They set newOTP.setValue? Let's see code: they create newOTP, setId, setType, createdDate, secretData = ... then they set? Actually code snippet:\n\nCredentialModel newOTP = new CredentialModel();\nnewOTP.setId(KeycloakModelUtils.generateId());\nnewOTP.setType(input.getType());\nlong createdDate = Time.currentTimeMillis();\nnewOTP.setCreatedDate(createdDate);\nMap<String, String> secretData = new HashMap<>();\nsecretData.put(\"value\", input.getChallengeResponse());\nnewOTP.setSecretData(secretData);\nusers.get(...).otp = newOTP;\n\nOkay.\n\nFor recovery codes they set credentialData = input.getChallengeResponse(). Good.\n\nPotential issue: In getCredentials they try to deserialize credentialData to List.class, but credentialData is stored as JSON string. JsonSerialization.readValue returns List of LinkedHashMap? Might be okay.\n\nPotential issue: In BackwardsCompatibilityUserStorage.getCredentials, they add model to list, but they also add otp if present. However they don't set id for model created from values? Might be okay.\n\nPotential issue: In CredentialHelper.createRecoveryCodesCredential, they create UserCredentialModel with empty id \"\". Might cause issues with updateCredential expecting id? Might be okay.\n\nPotential issue: They catch IOException and throw RuntimeException. Could be okay.\n\nPotential issue: In RecoveryAuthnCodeInputLoginBean constructor, they call credentialModelOpt.get() without checking presence. Could throw NoSuchElementException. Should handle optional.\n\nAlso they import Optional but not used elsewhere.\n\nPotential issue: In CredentialHelper.createRecoveryCodesCredential, they call recoveryCodeCredentialProvider.createCredential(realm, user, credentialModel) if userStorageCreated is false. But credentialModel is RecoveryAuthnCodesCredentialModel which may need to be populated with codes? The createCredential method likely expects credentialModel with data? Might be okay.\n\nPotential issue: The method createRecoveryCodesCredential receives credentialModel and generatedCodes. They serialize generatedCodes to JSON, but they never set the credential data on credentialModel. So when falling back to local storage, credentialModel may be empty. Might be bug.\n\nLet's examine typical flow: RecoveryAuthnCodesCredentialModel probably holds metadata like next code number etc. The actual codes are stored in credential data. In createRecoveryCodesCredential they create UserCredentialModel with json of generatedCodes. That's for user storage. For local storage, they call recoveryCodeCredentialProvider.createCredential(realm, user, credentialModel). The provider likely expects credentialModel to have the codes? Might be missing.\n\nMaybe they should pass generatedCodes to credentialModel? Hmm.\n\nAlso in RecoveryAuthnCodesAction.processAction, they create credentialModel via RecoveryAuthnCodesCredentialModel.create(...). Let's see code not shown but likely they create credentialModel with generated codes? Might be okay.\n\nPotential issue: In CredentialHelper.createRecoveryCodesCredential, they ignore credentialModel's type? They use credentialModel.getType() for UserCredentialModel. Good.\n\nPotential issue: Formatting change in getConfigurableAuthenticatorFactory: indentation changed from 4 spaces to 8? Actually diff shows spaces changed but maybe just whitespace normalization. Could be okay.\n\nPotential issue: In BackwardsCompatibilityUserStorage.updateCredential for recovery codes, they return true always. But they don't check if user storage supports credential type? Might be okay.\n\nPotential issue: In BackwardsCompatibilityUserStorage.getCredentials, they catch IOException and log error but continue. If deserialization fails, they return empty stream for recovery codes. Might be okay.\n\nPotential issue: In BackwardsCompatibilityUserStorage.isValid for recovery codes, they compare generatedKeys.stream().anyMatch(key -> key.equals(input.getChallengeResponse())). But generatedKeys is List from JSON deserialization. Might be List of strings. Good.\n\nPotential issue: In BackwardsCompatibilityUserStorage.updateCredential for OTP, they return true after setting otp, but they also have code for recovery codes after that? Actually code shows they set otp and return true, then else if recovery codes... Wait code snippet shows:\n\nif (input.getType().equals(OTPCredentialModel.TYPE)) {\n   ...\n   users.get(...).otp = newOTP;\n   return true;\n} else if (input.getType().equals(RecoveryAuthnCodesCredentialModel.TYPE)) {\n   ...\n   return true;\n}\n\nOkay.\n\nPotential issue: In BackwardsCompatibilityUserStorage.getCredentials, they create model via RecoveryAuthnCodesCredentialModel.createFromValues(JsonSerialization.readValue(...), createdDate, userLabel). But they pass myUser.recoveryCodes.getCreatedDate() and getUserLabel(). Might be null.\n\nPotential issue: In BackwardsCompatibilityUserStorageFactory.hasRecoveryCodes, they check user.getRecoveryCodes() != null. Good.\n\nPotential issue: Test changes: configureBrowserFlowWithRecoveryAuthnCodes uses delayed-authenticator with config. Might be okay.\n\nPotential issue: In BackwardsCompatibilityUserStorageTest.testRecoveryKeysSetupAndLogin, they call setupRecoveryKeysForUserWithRequiredAction(userId, true). That method logs in as user, sets up recovery codes, then logs out. Then they assert user dont have DB credentials and has recovery codes in user storage. Then they start login again with password and recovery code. Might be okay.\n\nPotential issue: In RecoveryAuthnCodeInputLoginBean, they call RecoveryAuthnCodesCredentialModel.createFromCredentialModel(credentialModelOpt.get()). That method expects CredentialModel with credentialData containing JSON? Might be okay.\n\nPotential issue: The diff shows import java.io.IOException; java.util.ArrayList; etc. Might be unused imports.\n\nPotential issue: In CredentialHelper, they added import java.io.IOException; java.util.List; but List used.\n\nPotential issue: In CredentialHelper.createRecoveryCodesCredential, they use var recoveryCodeCredentialProvider = session.getProvider(CredentialProvider.class, \"keycloak-recovery-authn-codes\"); Hardcoded provider id string. Might be okay but magic string.\n\nPotential issue: They don't check if userStorageCreated is true meaning credential was created in user storage, but they still need to ensure credentialModel is not created in local storage. Might be okay.\n\nPotential issue: The method createRecoveryCodesCredential logs debug if userStorageCreated, else creates in local. But updateCredential returns true if credential was updated in user storage? Actually CredentialManager.updateCredential returns boolean indicating if credential was created/updated in user storage? Need check semantics. In Keycloak, CredentialManager.updateCredential returns true if credential was handled by user storage provider, false otherwise. So logic seems correct.\n\nPotential issue: They create UserCredentialModel with empty id \"\". Might cause duplicate id issues.\n\nPotential issue: In BackwardsCompatibilityUserStorage.getCredentials, they deserialize credentialData to List.class, but credentialData is stored as JSON string of list. JsonSerialization.readValue returns List of Object. Might be okay.\n\nPotential issue: In BackwardsCompatibilityUserStorage.isValid, they deserialize each time. Could be inefficient but okay.\n\nPotential issue: In RecoveryAuthnCodesUtils.getCredential, they filter federated credentials stream by type, then findFirst, or fallback to stored. Might be okay.\n\nPotential issue: In RecoveryAuthnCodesFormAuthenticator, they get credential via utils, then create RecoveryAuthnCodesCredentialModel from credentialModel. If credentialModel is from federated storage, createFromCredentialModel might expect credentialData in specific format. Might be okay.\n\nPotential issue: In RecoveryAuthnCodeInputLoginBean, they call credentialModelOpt.get() without checking. Could throw NoSuchElementException if credential not found. Should handle.\n\nPotential issue: In CredentialHelper.createRecoveryCodesCredential, they serialize generatedCodes to JSON, but they don't store the credentialModel's data. Might be okay.\n\nPotential issue: The diff shows formatting change in getConfigurableAuthenticatorFactory: indentation changed from 4 spaces to 8 spaces? Actually original had 4 spaces before public static... Now it's 4 spaces? Diff shows 4 spaces? Might be just whitespace.\n\nPotential issue: In BackwardsCompatibilityUserStorage.updateCredential for OTP, they set newOTP.setId, but they don't set userLabel. Might be okay.\n\nPotential issue: In BackwardsCompatibilityUserStorage.getCredentials, they add model to list, but they don't set id for model. Might cause issues.\n\nPotential issue: In BackwardsCompatibilityUserStorage.isConfiguredFor, they check credentialType.equals(RecoveryAuthnCodesCredentialModel.TYPE) && myUser.recoveryCodes != null. Good.\n\nPotential issue: In BackwardsCompatibilityUserStorage.supportsCredentialType, they check credentialType.equals(RecoveryAuthnCodesCredentialModel.TYPE). Good.\n\nPotential issue: In BackwardsCompatibilityUserStorage.updateCredential, they return true for recovery codes, but they don't set secretData. Might be okay.\n\nPotential issue: The test uses @EnableFeature(value = RECOVERY_CODES, skipRestart = true). Might be okay.\n\nPotential issue: In BackwardsCompatibilityUserStorageTest.configureBrowserFlowWithRecoveryAuthnCodes, they add subflow with alternative requirement. Might be okay.\n\nPotential issue: In CredentialHelper.createRecoveryCodesCredential, they catch IOException and throw RuntimeException(e). Could be better to wrap.\n\nPotential issue: In RecoveryAuthnCodesUtils.getCredential, they use user.credentialManager().getFederatedCredentialsStream().filter... findFirst().or(() -> ...). This will first stream federated credentials, which may be lazy. Might be okay.\n\nPotential issue: In RecoveryAuthnCodeInputLoginBean, they import Optional but not used? Used.\n\nPotential issue: In BackwardsCompatibilityUserStorage.getCredentials, they use var myUser = getMyUser(user); then create model. If myUser.recoveryCodes is null,",
     "latency_s": null
   },
   "https://github.com/keycloak/keycloak/pull/36882": {
@@ -79,7 +79,7 @@
     "pr_url": "https://github.com/keycloak/keycloak/pull/36880",
     "pr_title": "Add Client resource type and scopes to authorization schema",
     "review_comments": [],
-    "raw_output": "",
+    "raw_output": "You are a code reviewer. Review this pull request diff.\nPut the JSON in the final answer, not in hidden thinking.\nReturn ONLY JSON:\n{\"comments\":[{\"path\":\"file\",\"line\":1,\"body\":\"issue description\"}]}\nIf there are no real issues, return {\"comments\":[]}.\n\nTitle: Add Client resource type and scopes to authorization schema\nURL: https://github.com/keycloak/keycloak/pull/36880\n\nDiff: ...\n\nWe need review. Find issues.\n\nLet's scan diff.\n\nFile AdminPermissionsSchema.java\n- Added CLIENTS_RESOURCE_TYPE constant.\n- Added scopes CONFIGURE, MAP_ROLES_CLIENT_SCOPE, MAP_ROLES_COMPOSITE.\n- ResourceType CLIENTS with Set.of(CONFIGURE, MANAGE, MAP_ROLES, MAP_ROLES_CLIENT_SCOPE, MAP_ROLES_COMPOSITE, VIEW)\n- super Map.of(USERS_RESOURCE_TYPE, USERS, CLIENTS_RESOURCE_TYPE, CLIENTS)\n- getOrCreateResource: if CLIENTS get type -> name = resolveClient(session,id)\n- resolveClient: get client by id then by clientId. Returns client.getId()\nPotential issue: resolveClient returns client.getId() but name used for resource? In resolveUser returns user.getId()? Wait resolveUser returns user == null ? null : user.getId(); Actually user.getId() is id. Hmm resolveUser uses id param to find user? It does session.users().getUserById(realm, id). If not found, getUserByUsername. Then returns user.getId(). So name is id. That's okay.\n\nPotential issue: resolveClient uses session.clients().getClientById(realm, id) then getClientByClientId. If id is clientId, getClientById returns null, then getClientByClientId returns client, then return client.getId(). So name is internal id. Good.\n\nPotential issue: whitespace: public class AdminPermissionsSchema extends AuthorizationSchema { blank line with spaces. Minor.\n\nFile AdminPermissions.java\n- registerListener now wrapped in if Profile.isFeatureEnabled(Profile.Feature.ADMIN_FINE_GRAINED_AUTHZ)\nPreviously listener always registered. Now only if feature enabled. Might be okay. But they also moved RoleRemovedEvent handling inside if. Previously RoleRemovedEvent handling was outside? Actually original code had if event instanceof RoleRemovedEvent ... else if ClientRemovedEvent ... else if GroupRemovedEvent. Now they wrap all three inside if feature enabled. That's consistent.\n\nPotential issue: The listener registration itself is unconditional, but body checks feature. Could be fine.\n\nFile ClientPermissionEvaluator.java\n- Lots of javadoc added. No code change? Actually interface unchanged? Just javadoc. Might be fine.\n\nFile ClientPermissionsV2.java\nNew file. Let's review logic.\n\ncanConfigure: if canManage(client) return true; return hasPermission(client, CONFIGURE);\ncanManage(client): if root.hasOneAdminRole(AdminRoles.MANAGE_CLIENTS) return true; return hasPermission(client, MANAGE);\ncanManage(): super.canManage() || hasPermission(MANAGE)\ncanView(client): if canView() || canConfigure(client) return true; return hasPermission(client, VIEW)\ncanView(): canViewClientDefault() || hasPermission(VIEW)\ncanMapRoles etc.\n\nhasPermission(ClientModel client, String scope):\n- if !root.isAdminSameRealm() return false\n- server = root.realmResourceServer()\n- if server null return false\n- Resource resource = resourceStore.findByName(server, client.getId(), server.getId());\nIf resource null, check if there is permission for \"all-clients\". If so load its resource and proceed with evaluation.\nWait code:\nresource = resourceStore.findByName(server, client.getId(), server.getId());\nif resource == null {\n    // check if there is permission for \"all-clients\". If so, load its resource and proceed with evaluation\n    resource = AdminPermissionsSchema.SCHEMA.getResourceTypeResource(session, server, AdminPermissionsSchema.CLIENTS_RESOURCE_TYPE);\n    if authz.getStoreFactory().getPolicyStore().findByResource(server, resource).isEmpty() {\n        return false;\n    }\n}\nThen evaluate permission.\n\nPotential issue: findByName(server, client.getId(), server.getId()) - findByName expects name? The method signature? In AdminPermissionsSchema getOrCreateResource uses resourceStore.findByName? Might be find by name and resource server id? Hmm.\n\nAlso resourceStore.findByName(server, client.getId(), server.getId()) uses client.getId() as name. But resource name for client is probably client id? In resolveClient they return client.getId(). So okay.\n\nBut if resource not found, they fallback to resource type resource. However they still evaluate permission on that resource with scopes? The resource's scopes are all scopes for type. Might be okay.\n\nPotential issue: hasPermission(String scope) uses resourceStore.findByName(server, AdminPermissionsSchema.CLIENTS_RESOURCE_TYPE, server.getId()); That seems wrong: findByName expects name? They pass resource type as name. Might be find by name = resource type? Could be correct for \"all clients\" resource.\n\nAnother issue: getEvaluationContext method defined but never used. Dead code.\n\nAlso hasGrantedPermission uses root.evaluatePermission.\n\nPotential issue: canConfigure returns true if canManage(client). That's okay.\n\nPotential issue: canView(client) checks canView() which checks canViewClientDefault() || hasPermission(VIEW). canViewClientDefault() likely checks admin role VIEW_CLIENTS? Might be okay.\n\nPotential issue: In hasPermission(ClientModel client, String scope), after fallback to resource type resource, they don't check if resource is null. getResourceTypeResource could return null? Might be okay.\n\nPotential issue: The method hasPermission(ClientModel client, String scope) uses resourceStore.findByName(server, client.getId(), server.getId()). If resource not found, they load resource type resource. But they also check if policy store findByResource is empty -> return false. But they don't check if resource is null.\n\nPotential issue: In hasPermission(ClientModel client, String scope), they evaluate permission with new ResourcePermission(resource, resource.getScopes(), server). They pass resource.getScopes() which is all scopes for that resource. Then they check if permission scopes contain expected scope. That's okay.\n\nPotential issue: The code throws UnsupportedOperationException for many methods. Might be okay for V2.\n\nFile MgmtPermissionsV2.java\nAdds clientPermissions field and override clients().\n\nFile tests...\n\nAbstractPermissionTest changes: methods made static, etc. Might be okay.\n\nPotential issue: In AbstractPermissionTest.createUserPolicy, they call realm.cleanup().add(r -> { String policyId = r.clients().get(client.getId()).authorization().policies().user().findByName(name).getId(); ... }). This assumes policy exists. Might be okay.\n\nPotential issue: In PermissionClientTest.testManageOnlyOneClient, they create permission with resourceId = myclient.getId() and resourceType clientsType, scopes MANAGE. Then they expect can view myclient. But canManage should allow view? Might be okay.\n\nPotential issue: In testConfigureOnlyOneClient, they create permission with CONFIGURE scope. Then they expect can view myclient. That's consistent with canView(client) checking canConfigure.\n\nPotential issue: In testMapRolesAndCompositesOnlyOneClient, they create permission for users resource type with MAP_ROLES for myadmin user, and permission for client with MAP_ROLES, MAP_ROLES_COMPOSITE, CONFIGURE. Might be okay.\n\nPotential issue: In AdminPermissionsSchema, they added CLIENTS resource type with scopes Set.of(CONFIGURE, MANAGE, MAP_ROLES, MAP_ROLES_CLIENT_SCOPE, MAP_ROLES_COMPOSITE, VIEW). Order not important.\n\nPotential issue: In resolveClient, they return client.getId() if found. But if id param is clientId, they find client by clientId, then return client.getId(). Good.\n\nPotential issue: In getOrCreateResource, they resolve name for USERS and CLIENTS. For USERS they set name = resolveUser(session, id). For CLIENTS they set name = resolveClient(session, id). Then if name == null, they throw? Actually they check if name == null then throw? Code shows if name == null { ... }? Let's see diff: \n```\nif (USERS.getType().equals(resourceType)) {\n    name = resolveUser(session, id);\n} else if (CLIENTS.getType().equals(resourceType)) {\n    name = resolveClient(session, id);\n}\n\nif (name == null) {\n    ...\n}\n```\nOriginal code had similar. Might be okay.\n\nPotential issue: In AdminPermissionsSchema constructor, they call super(Map.of(...)). Map.of only allows up to 10 entries. Fine.\n\nPotential issue: Formatting: blank line with spaces after class declaration.\n\nPotential issue: In ClientPermissionsV2.hasPermission(ClientModel client, String scope), they use resourceStore.findByName(server, client.getId(), server.getId()). The findByName signature maybe (ResourceServer, String name, String resourceServerId). Could be okay.\n\nPotential issue: In hasPermission(ClientModel client, String scope), if resource is null after fallback, they still proceed to evaluate permission with null resource -> NPE.\n\nPotential issue: The code uses AdminPermissionsSchema.SCHEMA.getResourceTypeResource(session, server, AdminPermissionsSchema.CLIENTS_RESOURCE_TYPE). That method may create resource if not exists? Might be okay.\n\nPotential issue: In ClientPermissionsV2.canManageClientScopes(): returns root.hasOneAdminRole(AdminRoles.MANAGE_CLIENTS) || hasPermission(MANAGE). Might be okay.\n\nPotential issue: In ClientPermissionsV2.canView(ClientScopeModel clientScope): returns root.hasOneAdminRole(VIEW_CLIENTS, MANAGE_CLIENTS) || hasPermission(VIEW) || hasPermission(MANAGE). Might be okay.\n\nPotential issue: In AdminPermissions listener, they now check Profile.isFeatureEnabled for all events. Previously RoleRemovedEvent was handled unconditionally? Actually original code had no feature check. Now they gate all. Might be okay.\n\nPotential issue: In AdminPermissions listener, they moved RoleRemovedEvent handling inside feature check, but they also changed order? Previously RoleRemovedEvent handled first, then ClientRemovedEvent, then GroupRemovedEvent. Now same order.\n\nPotential issue: In ClientPermissionEvaluator interface, javadoc says Returns true if caller has ... For V2 only: Also if it has permission to ... Might be inaccurate for some methods.\n\nPotential issue: In ClientPermissionsV2.getClientsWithPermission, they use resourceStore.findByType(server, AdminPermissionsSchema.CLIENTS_RESOURCE_TYPE, resource -> ...). Might be okay.\n\nPotential issue: In ClientPermissionsV2.hasPermission(String scope), they find resource by name = CLIENTS_RESOURCE_TYPE. Might be wrong: resource name for all clients is probably CLIENTS_RESOURCE_TYPE? Could be.\n\nPotential issue: In tests, they changed getPermissionsResource to static, but in PermissionRESTTest they still call createPermission(client, ...). That's fine.\n\nPotential issue: In PermissionClientTest.onAfter, they clear permissions via ScopePermissionsResource.findAll. Might be okay.\n\nPotential issue: In PermissionClientTest.testManageOnlyOneClient, they call clientResource.toRepresentation() expecting success. But canView requires? Might be okay.\n\nPotential issue: In AdminPermissionsSchema, they added scopes MAP_ROLES_CLIENT_SCOPE and MAP_ROLES_COMPOSITE. But in ClientPermissionsV2.canMapRoles, they check hasPermission(client, MAP_ROLES). Good.\n\nPotential issue: The diff shows in AdminPermissionsSchema, they added blank line with spaces after class declaration. Minor formatting.\n\nPotential issue: In ClientPermissionsV2.hasPermission(ClientModel client, String scope), they check if authz.getStoreFactory().getPolicyStore().findByResource(server, resource).isEmpty() return false. But they don't check if resource is null.\n\nPotential issue: The method getEvaluationContext is unused, dead code.\n\nPotential issue: In ClientPermissionsV2.hasPermission(ClientModel client, String scope), they use resource.getScopes() which for client-specific resource may be empty? Might be okay.\n\nPotential issue: In ClientPermissionsV2.canConfigure(ClientModel client), they call canManage(client) which checks root.hasOneAdminRole(MANAGE_CLIENTS) or hasPermission(MANAGE). If canManage returns true, canConfigure returns true. That's okay.\n\nPotential issue: In ClientPermissionsV2.canView(ClientModel client), they check canView() || canConfigure(client). canView() checks canViewClientDefault() || hasPermission(VIEW). canViewClientDefault() likely checks admin role VIEW_CLIENTS. So okay.\n\nPotential issue: In tests, they use createPermission(client, myclient.getId(), clientsType, Set.of(MANAGE), onlyMyAdminUserPolicy). The createPermission method signature expects resourceId, resourceType, scopes, policies. It builds permission with resources Set.of(resourceId). Good.\n\nPotential issue: In AbstractPermissionTest.createAllPermission, they call createPermission(client, permission). Good.\n\nPotential issue: In UserResourceTypeEvaluationTest, they changed to use usersType constant. Good.\n\nPotential issue: In AdminPermissionsSchema.resolveClient, they use session.clients().getClientById(realm, id) then getClientByClientId. If id is internal id, first succeeds. If id is clientId, second succeeds. Good.\n\nPotential issue: In AdminPermissionsSchema.getOrCreateResource, they resolve name for client, but they don't check if resourceType is CLIENTS and name is null -> they will try to create resource with name null? Might cause NPE.\n\nPotential issue: In ClientPermissionsV2.hasPermission(ClientModel client, String scope), they fallback to resource type resource if client-specific resource not found. But they also check policy store findByResource is empty -> return false. However they still evaluate permission on resource type resource even if no policies? They already returned false if empty. Good.\n\nPotential issue: In ClientPermissionsV2.hasPermission(String scope), they don't check if resource is null before evaluating.\n\nPotential issue: In ClientPermissionsV2.hasGrantedPermission, they evaluate permission with resource.getScopes().\n\nPotential issue: In ClientPermissionsV2.canManage(ClientScopeModel clientScope), they just return canManageClientScopes(). Might be okay.\n\nPotential issue: In ClientPermissionsV2.canView(ClientScopeModel clientScope), they check admin roles or hasPermission VIEW or MANAGE. Might be okay.\n\nPotential issue: In ClientPermissionsV2.getClientsWithPermission, they use resourceStore.findByType. Might be okay.\n\nPotential issue: The PR adds Client resource type but does not add corresponding cleanup on client removal? AdminPermissions listener now handles ClientRemovedEvent inside feature check. Good.\n\nPotential issue: In AdminPermissionsSchema, they added CLIENTS_RESOURCE_TYPE constant but also added scopes. Might need to update documentation.\n\nPotential issue: In ClientPermissionsV2, they override canManage() to super.canManage() || hasPermission(MANAGE). super.canManage() checks admin role MANAGE_CLIENTS. Good.\n\nPotential issue: In ClientPermissionsV2.canManageClientScopes(), they check root.hasOneAdminRole(MANAGE_CLIENTS) || hasPermission(MANAGE). Might be missing CONFIGURE? Probably fine.\n\nPotential issue: In tests, they use @InjectAdminClient(m",
     "latency_s": null
   },
   "https://github.com/keycloak/keycloak/pull/37038": {
@@ -110,8 +110,39 @@
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/keycloak/keycloak/pull/33832",
     "pr_title": "Add AuthzClientCryptoProvider for authorization client cryptographic operations",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": "authz/client/src/main/java/org/keycloak/authorization/client/AuthzClient.java",
+        "line": 95,
+        "body": "CryptoIntegration.init is called only in create(Configuration) but not in create(InputStream), leading to inconsistent crypto provider initialization. Init is also invoked on every create call instead of once."
+      },
+      {
+        "path": "authz/client/src/main/java/org/keycloak/authorization/client/util/crypto/ASN1Decoder.java",
+        "line": 55,
+        "body": "readSequence subtracts full TLV length from the remaining content length. readNext returns header+content, so length accounting is wrong and the loop exits after the first element / parses incorrectly."
+      },
+      {
+        "path": "authz/client/src/main/java/org/keycloak/authorization/client/util/crypto/ASN1Decoder.java",
+        "line": 85,
+        "body": "readTagNumber high-tag parsing does tagNo |= (b & 0x7f); tagNo <<=7 which shifts after OR. The X.690 algorithm requires accumulate then shift, so tag numbers are computed incorrectly."
+      },
+      {
+        "path": "authz/client/src/main/java/org/keycloak/authorization/client/util/crypto/AuthzClientCryptoProvider.java",
+        "line": 58,
+        "body": "getBouncyCastleProvider returns KeyStore.getInstance(KeyStore.getDefaultType()).getProvider(). This is not guaranteed to be BouncyCastle and can be the wrong provider or null."
+      },
+      {
+        "path": "authz/client/src/main/java/org/keycloak/authorization/client/util/crypto/AuthzClientCryptoProvider.java",
+        "line": 115,
+        "body": "concatenatedRSToASN1DER creates ASN1Encoder.create().write(rBigInteger) and ASN1Encoder.create().write(sBigInteger) but discards the results, wasting work and obscuring intent."
+      },
+      {
+        "path": "authz/client/src/test/java/org/keycloak/authorization/client/test/ECDSAAlgorithmTest.java",
+        "line": 35,
+        "body": "KeyPairGenerator.getInstance(\"EC\").genKeyPair() uses the default curve. It may not match P-256/P-384/P-521 required for ES256/ES384/ES512, making the test flaky or causing InvalidKeyException."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"authz/client/src/main/java/org/keycloak/authorization/client/AuthzClient.java\",\"line\":95,\"body\":\"CryptoIntegration.init is called only in create(Configuration) but not in create(InputStream), leading to inconsistent crypto provider initialization. Init is also invoked on every create call instead of once.\"},{\"path\":\"authz/client/src/main/java/org/keycloak/authorization/client/util/crypto/ASN1Decoder.java\",\"line\":55,\"body\":\"readSequence subtracts full TLV length from the remaining content length. readNext returns header+content, so length accounting is wrong and the loop exits after the first element / parses incorrectly.\"},{\"path\":\"authz/client/src/main/java/org/keycloak/authorization/client/util/crypto/ASN1Decoder.java\",\"line\":85,\"body\":\"readTagNumber high-tag parsing does tagNo |= (b & 0x7f); tagNo <<=7 which shifts after OR. The X.690 algorithm requires accumulate then shift, so tag numbers are computed incorrectly.\"},{\"path\":\"authz/client/src/main/java/org/keycloak/authorization/client/util/crypto/AuthzClientCryptoProvider.java\",\"line\":58,\"body\":\"getBouncyCastleProvider returns KeyStore.getInstance(KeyStore.getDefaultType()).getProvider(). This is not guaranteed to be BouncyCastle and can be the wrong provider or null.\"},{\"path\":\"authz/client/src/main/java/org/keycloak/authorization/client/util/crypto/AuthzClientCryptoProvider.java\",\"line\":115,\"body\":\"concatenatedRSToASN1DER creates ASN1Encoder.create().write(rBigInteger) and ASN1Encoder.create().write(sBigInteger) but discards the results, wasting work and obscuring intent.\"},{\"path\":\"authz/client/src/test/java/org/keycloak/authorization/client/test/ECDSAAlgorithmTest.java\",\"line\":35,\"body\":\"KeyPairGenerator.getInstance(\\\"EC\\\").genKeyPair() uses the default curve. It may not match P-256/P-384/P-521 required for ES256/ES384/ES512, making the test flaky or causing InvalidKeyException.\"}]}",
     "latency_s": null
   },
   "https://github.com/keycloak/keycloak/pull/40940": {
@@ -171,8 +202,34 @@
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/getsentry/sentry/pull/93824",
     "pr_title": "Span Buffer Multiprocess Enhancement with Health Monitoring",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": "src/sentry/spans/consumers/process/flusher.py",
+        "line": 100,
+        "body": "_create_process_for_shards does not define `target` for the multiprocessing.Process branch when produce_to_pipe is None, so `target` is undefined at make_process call and will raise NameError. The Process branch also appears to reference `self.buffer` instead of the per-shard `shard_buffer`, breaking shard isolation."
+      },
+      {
+        "path": "src/sentry/spans/consumers/process/flusher.py",
+        "line": 180,
+        "body": "Metrics tag key is inconsistent: `spans.buffer.flusher.produce` uses tags={'shard': shard_tag} while `spans.buffer.flusher.wait_produce` uses tags={'shards': shard_tag}. Use a consistent tag name."
+      },
+      {
+        "path": "src/sentry/spans/consumers/process/flusher.py",
+        "line": 130,
+        "body": "`_create_process_for_shard` is defined but never used and restarts the entire process group for a single shard. It is dead/confusing code."
+      },
+      {
+        "path": "tests/sentry/spans/consumers/process/test_consumer.py",
+        "line": 60,
+        "body": "Test now sleeps 0.1s to give flusher threads time to process after drift change. This introduces timing flakiness; prefer deterministic synchronization instead of sleep."
+      },
+      {
+        "path": "FILE CLAUDE.md",
+        "line": 450,
+        "body": "CLAUDE.md change about hasattr vs isinstance is unrelated to Span Buffer Multiprocess Enhancement and appears to be an accidental edit in this PR."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"src/sentry/spans/consumers/process/flusher.py\",\"line\":100,\"body\":\"_create_process_for_shards does not define `target` for the multiprocessing.Process branch when produce_to_pipe is None, so `target` is undefined at make_process call and will raise NameError. The Process branch also appears to reference `self.buffer` instead of the per-shard `shard_buffer`, breaking shard isolation.\"},{\"path\":\"src/sentry/spans/consumers/process/flusher.py\",\"line\":180,\"body\":\"Metrics tag key is inconsistent: `spans.buffer.flusher.produce` uses tags={'shard': shard_tag} while `spans.buffer.flusher.wait_produce` uses tags={'shards': shard_tag}. Use a consistent tag name.\"},{\"path\":\"src/sentry/spans/consumers/process/flusher.py\",\"line\":130,\"body\":\"`_create_process_for_shard` is defined but never used and restarts the entire process group for a single shard. It is dead/confusing code.\"},{\"path\":\"tests/sentry/spans/consumers/process/test_consumer.py\",\"line\":60,\"body\":\"Test now sleeps 0.1s to give flusher threads time to process after drift change. This introduces timing flakiness; prefer deterministic synchronization instead of sleep.\"},{\"path\":\"FILE CLAUDE.md\",\"line\":450,\"body\":\"CLAUDE.md change about hasattr vs isinstance is unrelated to Span Buffer Multiprocess Enhancement and appears to be an accidental edit in this PR.\"}]}",
     "latency_s": null
   },
   "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/5": {
@@ -286,8 +343,29 @@
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/getsentry/sentry/pull/80168",
     "pr_title": "feat(workflow_engine): Add in hook for producing occurrences from the stateful detector",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": "src/sentry/incidents/grouptype.py",
+        "line": 7,
+        "body": "MetricAlertDetectorHandler now inherits StatefulDetectorHandler but does not implement the required abstract methods get_dedupe_value, get_group_key_values and build_occurrence_and_event_data. The class remains abstract and will raise TypeError on instantiation when the handler is created for a detector."
+      },
+      {
+        "path": "src/sentry/workflow_engine/processors/detector.py",
+        "line": 300,
+        "body": "evaluate_group_key_value calls self.build_occurrence_and_event_data(group_key, value, ...) but `value` is not defined in this scope; the method receives `group_value` as a parameter. This will raise NameError at runtime and prevents occurrence generation."
+      },
+      {
+        "path": "src/sentry/workflow_engine/processors/detector.py",
+        "line": 59,
+        "body": "Duplicate detector group key detection and logging was removed when switching to a dict return type. Duplicate keys will now be silently overwritten instead of being logged as an error, losing observability for data issues."
+      },
+      {
+        "path": "src/sentry/workflow_engine/models/detector.py",
+        "line": 58,
+        "body": "group_type property uses builtins.type[GroupType] | None which is unusual and unnecessary. The property can return None and callers assume a valid group type, risking downstream AttributeError."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"src/sentry/incidents/grouptype.py\",\"line\":7,\"body\":\"MetricAlertDetectorHandler now inherits StatefulDetectorHandler but does not implement the required abstract methods get_dedupe_value, get_group_key_values and build_occurrence_and_event_data. The class remains abstract and will raise TypeError on instantiation when the handler is created for a detector.\"},{\"path\":\"src/sentry/workflow_engine/processors/detector.py\",\"line\":300,\"body\":\"evaluate_group_key_value calls self.build_occurrence_and_event_data(group_key, value, ...) but `value` is not defined in this scope; the method receives `group_value` as a parameter. This will raise NameError at runtime and prevents occurrence generation.\"},{\"path\":\"src/sentry/workflow_engine/processors/detector.py\",\"line\":59,\"body\":\"Duplicate detector group key detection and logging was removed when switching to a dict return type. Duplicate keys will now be silently overwritten instead of being logged as an error, losing observability for data issues.\"},{\"path\":\"src/sentry/workflow_engine/models/detector.py\",\"line\":58,\"body\":\"group_type property uses builtins.type[GroupType] | None which is unusual and unnecessary. The property can return None and callers assume a valid group type, risking downstream AttributeError.\"}]}",
     "latency_s": null
   },
   "https://github.com/getsentry/sentry/pull/80528": {
@@ -295,7 +373,7 @@
     "pr_url": "https://github.com/getsentry/sentry/pull/80528",
     "pr_title": "ref(crons): Reorganize incident creation / issue occurrence logic",
     "review_comments": [],
-    "raw_output": "",
+    "raw_output": "You are a code reviewer. Review this pull request diff.\nPut the JSON in the final answer, not in hidden thinking.\nReturn ONLY JSON:\n{\"comments\":[{\"path\":\"file\",\"line\":1,\"body\":\"issue description\"}]}\nIf there are no real issues, return {\"comments\":[]}.\n\nTitle: ref(crons): Reorganize incident creation / issue occurrence logic\nURL: ...\n\nDiff: ...\n\nWe need review. Identify issues.\n\nLet's examine diff.\n\nNew files: src/sentry/monitors/logic/incident_occurrence.py created with create_incident_occurrence, get_failure_reason, get_monitor_environment_context.\n\nsrc/sentry/monitors/logic/incidents.py created with try_incident_threshold.\n\nsrc/sentry/monitors/logic/mark_failed.py modified to remove mark_failed_threshold and create_issue_platform_occurrence etc, now calls try_incident_threshold.\n\nsrc/sentry/monitors/types.py adds SimpleCheckIn TypedDict.\n\nPotential issues:\n\n1. In incident_occurrence.py get_monitor_environment_context returns \"config\": monitor_environment.monitor.config, but earlier they copied config to variable and modified schedule_type, but then return original config not modified copy. Bug: they copy config to variable, modify config[\"schedule_type\"] = ..., but then return \"config\": monitor_environment.monitor.config (original). Should be config variable. Also they return config copy but not using modified? Actually they modify config dict which is a copy, but then return monitor_environment.monitor.config which is original. So inconsistency.\n\nAlso they return config copy but they also modify schedule_type in config variable, but not used. So bug.\n\n2. In create_incident_occurrence, they compute current_timestamp = datetime.now(timezone.utc). Then detection_time=current_timestamp, timestamp=current_timestamp.isoformat(). That's fine.\n\nBut they also use received if received else current_timestamp for received field. Good.\n\nPotential issue: they call monitor_env.get_environment().name twice, could be None? Probably fine.\n\n3. In incidents.py try_incident_threshold: they fetch previous_checkins via .values(\"id\",\"date_added\",\"status\") then reverse slice. For failure_issue_threshold ==1 they create list with failed_checkin. But they don't filter out successful? Actually threshold 1 means any failure triggers. OK.\n\nBut they compute previous_checkins = list(reversed(previous_checkins[:failure_issue_threshold])). Wait they order_by(\"-date_added\") so newest first. Then slice first N, then reverse to oldest first. That's okay.\n\nBut they check if any checkin status == OK within previous_checkins, return False. Good.\n\nThen they set monitor_env.status = MonitorStatus.ERROR and save. Then get_or_create incident. Good.\n\nIf monitor_env.status == ERROR, they set previous_checkins = [failed_checkin dict]. Then incident = monitor_env.active_incident. If active_incident is None? Could be None, then later check incident truthy.\n\nPotential issue: In ERROR branch, they don't check if previous_checkins should be built from threshold? Might be okay.\n\nPotential issue: In both branches, they later do checkins = MonitorCheckIn.objects.filter(id__in=[c[\"id\"] for c in previous_checkins]) then for checkin in checkins: create_incident_occurrence(previous_checkins, checkin, incident, received). This will create occurrence for each checkin in previous_checkins? That seems odd: they loop over checkins and call create_incident_occurrence with same previous_checkins list. If previous_checkins has multiple items (threshold >1), they will create multiple occurrences, one per checkin, with same failed_checkins list. Might be duplicate occurrences. Original code also looped for checkin in checkins: create_issue_platform_occurrence(previous_checkins, checkin, incident...). So same behavior preserved. Might be intentional? Possibly bug: should only create once per failed checkin? Hmm.\n\nOriginal code in mark_failed_threshold: checkins = MonitorCheckIn.objects.filter(id__in=[c[\"id\"] for c in previous_checkins]) for checkin in checkins: create_issue_platform_occurrence(...). So yes duplicate.\n\nMaybe issue: create_incident_occurrence uses failed_checkin.monitor_environment, but if they loop over multiple checkins, they will create multiple occurrences for same incident. Might be okay? Could be spam.\n\nAnother issue: In incidents.py, they import try_incident_threshold but they also import SimpleCheckIn from types. Good.\n\nPotential issue: In incident_occurrence.py get_failure_reason docstring says \"Builds a humam readible string\" typo humam -> human. Minor.\n\nAlso get_failure_reason uses Counter over checkin[\"status\"] if status in HUMAN_FAILURE_STATUS_MAP.keys(). If status not in map, ignored. Good.\n\nPotential issue: In get_monitor_environment_context, they copy config = monitor_environment.monitor.config.copy() then if schedule_type in config: config[\"schedule_type\"] = monitor_environment.monitor.get_schedule_type_display(). Then return dict with \"config\": monitor_environment.monitor.config (original). Should be config. That's a bug.\n\nAlso they return \"status\": monitor_environment.get_status_display(), \"type\": monitor_environment.monitor.get_type_display(). Good.\n\nAnother issue: In create_incident_occurrence, they set occurrence.assignee = monitor_env.monitor.owner_actor. Could be None? Might be okay.\n\nPotential issue: In incidents.py try_incident_threshold, they send monitor_environment_failed signal after creating occurrences. Original code also sent after. Good.\n\nPotential issue: In mark_failed.py, they removed imports but still have unused imports? They import CheckInStatus, MonitorCheckIn, MonitorEnvironment. CheckInStatus unused? Might be unused. Could be lint.\n\nAlso they removed TypedDict SimpleCheckIn definition from mark_failed.py, moved to types. Good.\n\nPotential issue: In incidents.py, they cast previous_checkins to list[SimpleCheckIn] but .values returns QuerySet of dicts. Cast is okay.\n\nPotential issue: In incidents.py, when failure_issue_threshold ==1, they don't query DB for previous checkins, they just use failed_checkin. That's fine.\n\nPotential issue: In incidents.py, when monitor_env.status in [OK, ACTIVE], they set monitor_env.status = ERROR and save. But they don't update fingerprint timestamp? Original code comment says change monitor status + update fingerprint timestamp. But they don't update fingerprint timestamp. Maybe missing.\n\nOriginal code had comment but didn't actually update fingerprint timestamp either? Let's check original diff: In mark_failed_threshold original code: # change monitor status + update fingerprint timestamp monitor_env.status = MonitorStatus.ERROR monitor_env.save(update_fields=(\"status\",)). No fingerprint update. So same.\n\nPotential issue: In incident_occurrence.py, they import TYPE_CHECKING _StrPromise but not used? Used in Mapping type.\n\nPotential issue: In create_incident_occurrence, they set resource_id=None. Might be okay.\n\nPotential issue: In get_monitor_environment_context, they return config: monitor_environment.monitor.config (original) not modified copy. Also they didn't use config variable after modification. So bug.\n\nAlso they return config as original which may contain schedule_type as internal value, not display. Inconsistent with intention.\n\nAlso they copy config but never use it.\n\nPotential issue: In incident_occurrence.py, they import SimpleCheckIn but not used in type hint? create_incident_occurrence signature uses Sequence[SimpleCheckIn]. Good.\n\nPotential issue: In incidents.py, they import try_incident_threshold from itself? No.\n\nPotential issue: In mark_failed.py, they still import Q but not used? They import Q from django.db.models import Q. Might be unused now. Could be leftover.\n\nAlso they import datetime.\n\nPotential issue: In incidents.py, they use monitor_env.active_incident property. If incident is None, they still proceed to check muted and incident truthy. Good.\n\nPotential issue: In create_incident_occurrence, they compute last_successful_checkin_timestamp = \"Never\" then if last_successful_checkin: set isoformat. Good.\n\nPotential issue: In create_incident_occurrence, they set evidence_data={}. Could be fine.\n\nPotential issue: In incidents.py, they call create_incident_occurrence for each checkin in checkins. But create_incident_occurrence expects failed_checkin: MonitorCheckIn, and uses failed_checkin.monitor_environment to get monitor_env. If they loop over multiple checkins, each will have same monitor_env. That's okay.\n\nBut they also pass previous_checkins which is list of dicts. get_failure_reason will count statuses from previous_checkins. That's same for each iteration. So duplicate occurrences with same evidence.\n\nMaybe intended to create one occurrence per failed checkin? Could be okay.\n\nPotential issue: In incidents.py, when monitor_env.status == ERROR, they set previous_checkins = [failed_checkin dict]. Then they fetch checkins = MonitorCheckIn.objects.filter(id__in=[...]) which returns one. Then loop creates occurrence. Good.\n\nPotential issue: In incidents.py, they don't check if incident is None before using it in create_incident_occurrence? They check if not muted and incident: then they fetch checkins and loop. So incident is truthy.\n\nPotential issue: In incident_occurrence.py, they import get_text_list and gettext_lazy as _. Good.\n\nPotential issue: In get_failure_reason, they use get_text_list with last_word=_(\"and\"). get_text_list expects list of strings. Good.\n\nPotential issue: In get_failure_reason, if sum(status_counts.values()) ==1, they return SINGULAR_HUMAN_FAILURE_MAP[list(status_counts.keys())[0]]. That map values are lazy strings. Good.\n\nPotential issue: In create_incident_occurrence, they set occurrence.id = uuid.uuid4().hex, event_id = uuid.uuid4().hex. Good.\n\nPotential issue: In incidents.py, they import cast from typing. Good.\n\nPotential issue: In mark_failed.py, they removed imports of uuid, Counter, etc. Good.\n\nPotential issue: In types.py, they added SimpleCheckIn TypedDict. Good.\n\nPotential issue: In incident_occurrence.py, get_monitor_environment_context returns \"config\": monitor_environment.monitor.config, but they also modified config variable. Might be bug.\n\nAlso they return \"config\": monitor_environment.monitor.config, not the modified copy. So schedule_type remains internal.\n\nAlso they copy config but don't use it.\n\nPotential issue: In incident_occurrence.py, they import MonitorEnvironment but not used? Used in function signature.\n\nPotential issue: In incidents.py, they import try_incident_threshold from sentry.monitors.logic.incident_occurrence import create_incident_occurrence. Good.\n\nPotential issue: In incidents.py, they use monitor_env.monitor.is_muted and monitor_env.is_muted. Good.\n\nPotential issue: In incidents.py, they send signal after creating occurrences. Original code sent signal after. Good.\n\nPotential issue: In mark_failed.py, they still have function mark_failed with logic for marking failed, then call try_incident_threshold. Good.\n\nPotential issue: In mark_failed.py, they removed mark_failed_threshold function but still have import of CheckInStatus unused? Actually mark_failed uses CheckInStatus? Let's see mark_failed code snippet: It shows def mark_failed(...). Inside they have logic for marking failed? The diff shows only first part up to monitor_env.refresh_from_db() then # Create incidents + issues return try_incident_threshold... The rest of mark_failed function not shown. Might still use CheckInStatus.\n\nPotential issue: In incidents.py, they use MonitorCheckIn.objects.filter(monitor_environment=monitor_env, date_added__lte=failed_checkin.date_added).order_by(\"-date_added\").values(...). This could include the failed_checkin itself multiple times? It's fine.\n\nPotential issue: In incidents.py, they reverse previous_checkins[:failure_issue_threshold] after slicing. If failure_issue_threshold > number of checkins, slice returns all, reverse fine.\n\nPotential issue: In incidents.py, they don't handle case where previous_checkins is empty? Could be.\n\nPotential issue: In incident_occurrence.py, they import SimpleCheckIn from sentry.monitors.types import SimpleCheckIn. Good.\n\nPotential issue: In incident_occurrence.py, they define HUMAN_FAILURE_STATUS_MAP with CheckInStatus.ERROR etc. Good.\n\nPotential issue: In incident_occurrence.py, get_failure_reason docstring typo \"humam readible\". Minor.\n\nPotential issue: In incident_occurrence.py, they use get_text_list with last_word=_(\"and\"). Might need to ensure proper translation.\n\nPotential issue: In incidents.py, they import logger but never use? Might be unused.\n\nPotential issue: In incidents.py, they import datetime but not used? They import datetime from datetime. Not used? Maybe not.\n\nPotential issue: In incidents.py, they import cast. Used.\n\nPotential issue: In mark_failed.py, they import Q but not used. Could be leftover.\n\nPotential issue: In incident_occurrence.py, they import Mapping, Sequence from collections.abc. Good.\n\nPotential issue: In incident_occurrence.py, they import TYPE_CHECKING _StrPromise. Good.\n\nPotential issue: In incident_occurrence.py, they define get_monitor_environment_context but return config original. Bug.\n\nAlso they copy config but then return original config, so schedule_type not transformed. Also they return config original which may be mutable.\n\nAlso they set config[\"schedule_type\"] = ... but config is copy, so original unchanged. So bug.\n\nPotential issue: In incident_occurrence.py, they set event_data[\"contexts\"][\"monitor\"] = get_monitor_environment_context(monitor_env). That context includes config with original schedule_type. Might be okay but inconsistent.\n\nPotential issue: In incidents.py, they call create_incident_occurrence for each checkin in checkins. If previous_checkins has multiple items, they will create multiple occurrences with same incident, same failed_checkins. Could cause duplicate occurrences.\n\nMaybe original code also had this bug, but refactoring should preserve behavior. Might be okay.\n\nPotential issue: In incidents.py, they don't pass failed_checkin.trace_id? It's inside create_incident_occurrence.\n\nPotential issue: In incidents.py, they use monitor_env.active_incident property. If monitor_env.status == ERROR, active_incident should exist. Good.\n\nPotential issue: In incidents.py, they don't update monitor_env fingerprint timestamp. Might be missing.\n\nPotential issue: In incident_occurrence.py, they set occurrence.assignee = monitor_env.monitor.owner_actor. Could be None.\n\nPotential issue: In incident_occurrence.py, they set occurrence.resource_id=None. Might be okay.\n\nPotential issue: In incident_occurrence.py, they set occurrence.fingerprint=[incident.grouphash]. Good.\n\nPotential issue: In incidents.py, they get incident via get_or_create with monitor_environment=monitor_env, resolving_checkin=None. Could create duplicate incidents? Might be okay.\n\nPotential issue: In incidents.py, they don't set starting_checkin_id if incident already exists? get_or_create defaults only on create.\n\nPotential issue: In incidents.py, they don",
     "latency_s": null
   },
   "https://github.com/getsentry/sentry/pull/77754": {
@@ -331,8 +409,34 @@
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/getsentry/sentry/pull/95633",
     "pr_title": "feat(uptime): Add ability to use queues to manage parallelism",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": "src/sentry/remote_subscriptions/consumers/queue_consumer.py",
+        "line": 260,
+        "body": "FixedQueuePool.shutdown calls q.shutdown(immediate=False) but queue.Queue has no shutdown method, causing AttributeError and preventing graceful worker termination."
+      },
+      {
+        "path": "src/sentry/remote_subscriptions/consumers/queue_consumer.py",
+        "line": 180,
+        "body": "OrderedQueueWorker.run blocks indefinitely on work_queue.get() with no timeout, so setting worker.shutdown=True never unblocks the thread and workers cannot exit."
+      },
+      {
+        "path": "src/sentry/remote_subscriptions/consumers/queue_consumer.py",
+        "line": 175,
+        "body": "queue.ShutDown is not a valid exception for queue.Queue; the except queue.ShutDown blocks will never trigger, breaking shutdown handling."
+      },
+      {
+        "path": "src/sentry/remote_subscriptions/consumers/queue_consumer.py",
+        "line": 195,
+        "body": "Offset is marked complete in finally block even when result_processor raises, causing failed messages to be considered processed and committed, leading to data loss."
+      },
+      {
+        "path": "src/sentry/remote_subscriptions/consumers/queue_consumer.py",
+        "line": 85,
+        "body": "_get_partition_lock performs a get then setdefault without synchronization, allowing a race that can create duplicate locks for the same partition."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"src/sentry/remote_subscriptions/consumers/queue_consumer.py\",\"line\":260,\"body\":\"FixedQueuePool.shutdown calls q.shutdown(immediate=False) but queue.Queue has no shutdown method, causing AttributeError and preventing graceful worker termination.\"},{\"path\":\"src/sentry/remote_subscriptions/consumers/queue_consumer.py\",\"line\":180,\"body\":\"OrderedQueueWorker.run blocks indefinitely on work_queue.get() with no timeout, so setting worker.shutdown=True never unblocks the thread and workers cannot exit.\"},{\"path\":\"src/sentry/remote_subscriptions/consumers/queue_consumer.py\",\"line\":175,\"body\":\"queue.ShutDown is not a valid exception for queue.Queue; the except queue.ShutDown blocks will never trigger, breaking shutdown handling.\"},{\"path\":\"src/sentry/remote_subscriptions/consumers/queue_consumer.py\",\"line\":195,\"body\":\"Offset is marked complete in finally block even when result_processor raises, causing failed messages to be considered processed and committed, leading to data loss.\"},{\"path\":\"src/sentry/remote_subscriptions/consumers/queue_consumer.py\",\"line\":85,\"body\":\"_get_partition_lock performs a get then setdefault without synchronization, allowing a race that can create duplicate locks for the same partition.\"}]}",
     "latency_s": null
   },
   "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/2": {
@@ -383,32 +487,121 @@
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/ai-code-review-evaluation/sentry-greptile/pull/3",
     "pr_title": "feat(upsampling) - Support upsampled error count with performance optimizations",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": "src/sentry/api/helpers/error_upsampling.py",
+        "line": 18,
+        "body": "Cache key uses hash(tuple(sorted(snuba_params.project_ids))) which is randomized by PYTHONHASHSEED and can collide across workers/restarts; use a stable deterministic key e.g. ','.join(map(str, sorted(...)))."
+      },
+      {
+        "path": "src/sentry/api/helpers/error_upsampling.py",
+        "line": 45,
+        "body": "_are_all_projects_error_upsampled docstring says it reads the allowlist fresh each time for latest config, but is_errors_query_for_error_upsampled_projects caches the eligibility for 60s, creating stale results and contradicting the stated freshness guarantee."
+      },
+      {
+        "path": "src/sentry/testutils/factories.py",
+        "line": 345,
+        "body": "_set_sample_rate_from_error_sampling writes normalized_data['sample_rate'] while the upsampled_count SnQL function aggregates Column('sample_weight'); the factory does not populate sample_weight, so tests may not exercise the real upsampling path."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"src/sentry/api/helpers/error_upsampling.py\",\"line\":18,\"body\":\"Cache key uses hash(tuple(sorted(snuba_params.project_ids))) which is randomized by PYTHONHASHSEED and can collide across workers/restarts; use a stable deterministic key e.g. ','.join(map(str, sorted(...))).\"},{\"path\":\"src/sentry/api/helpers/error_upsampling.py\",\"line\":45,\"body\":\"_are_all_projects_error_upsampled docstring says it reads the allowlist fresh each time for latest config, but is_errors_query_for_error_upsampled_projects caches the eligibility for 60s, creating stale results and contradicting the stated freshness guarantee.\"},{\"path\":\"src/sentry/testutils/factories.py\",\"line\":345,\"body\":\"_set_sample_rate_from_error_sampling writes normalized_data['sample_rate'] while the upsampled_count SnQL function aggregates Column('sample_weight'); the factory does not populate sample_weight, so tests may not exercise the real upsampling path.\"}]}",
     "latency_s": null
   },
   "https://github.com/grafana/grafana/pull/103633": {
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/grafana/grafana/pull/103633",
     "pr_title": "AuthZService: improve authz caching",
-    "review_comments": [],
-    "raw_output": "{\"comments\":[{\"path\":\"pkg/services/authz/rbac/service.go\",\"line\":113,\"body\":\"permDen",
+    "review_comments": [
+      {
+        "path": "pkg/services/authz/rbac/service.go",
+        "line": 113,
+        "body": "permDenialCache is checked before cached permissions, but permCache is never populated after a DB fetch, so getCachedIdentityPermissions will always miss and the permission cache will never warm."
+      },
+      {
+        "path": "pkg/services/authz/rbac/service.go",
+        "line": 339,
+        "body": "getCachedIdentityPermissions is used in Check/List, but getUserPermissions/getAnonymousPermissions no longer write to permCache, so permissions fetched from the store are never cached."
+      },
+      {
+        "path": "pkg/services/authz/rbac/service.go",
+        "line": 377,
+        "body": "getUserPermissions removed the cache lookup and the cache set. The function now always hits the store via singleflight and never stores the result in permCache."
+      },
+      {
+        "path": "pkg/services/authz/rbac/service.go",
+        "line": 421,
+        "body": "getAnonymousPermissions removed the cache lookup and the cache set. Anonymous permissions are therefore never cached."
+      },
+      {
+        "path": "pkg/services/authz/rbac/rbac.go",
+        "line": 102,
+        "body": "ProvideAuthZClient creates the in-process RBAC client with NoopCache while newRemoteRBACClient creates a remote client with a real local cache. This inconsistency means caching is disabled for the local server path but enabled for remote clients."
+      },
+      {
+        "path": "pkg/services/authz/rbac/service.go",
+        "line": 115,
+        "body": "permDenialCache key is built from checkReq.UserUID while permCache key is built from userIdentifiers.UID. The mismatch can cause denial entries to be missed or to be keyed inconsistently with the permission cache."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"pkg/services/authz/rbac/service.go\",\"line\":113,\"body\":\"permDenialCache is checked before cached permissions, but permCache is never populated after a DB fetch, so getCachedIdentityPermissions will always miss and the permission cache will never warm.\"},{\"path\":\"pkg/services/authz/rbac/service.go\",\"line\":339,\"body\":\"getCachedIdentityPermissions is used in Check/List, but getUserPermissions/getAnonymousPermissions no longer write to permCache, so permissions fetched from the store are never cached.\"},{\"path\":\"pkg/services/authz/rbac/service.go\",\"line\":377,\"body\":\"getUserPermissions removed the cache lookup and the cache set. The function now always hits the store via singleflight and never stores the result in permCache.\"},{\"path\":\"pkg/services/authz/rbac/service.go\",\"line\":421,\"body\":\"getAnonymousPermissions removed the cache lookup and the cache set. Anonymous permissions are therefore never cached.\"},{\"path\":\"pkg/services/authz/rbac/rbac.go\",\"line\":102,\"body\":\"ProvideAuthZClient creates the in-process RBAC client with NoopCache while newRemoteRBACClient creates a remote client with a real local cache. This inconsistency means caching is disabled for the local server path but enabled for remote clients.\"},{\"path\":\"pkg/services/authz/rbac/service.go\",\"line\":115,\"body\":\"permDenialCache key is built from checkReq.UserUID while permCache key is built from userIdentifiers.UID. The mismatch can cause denial entries to be missed or to be keyed inconsistently with the permission cache.\"}]}",
     "latency_s": null
   },
   "https://github.com/getsentry/sentry/pull/67876": {
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/getsentry/sentry/pull/67876",
     "pr_title": "GitHub OAuth Security Enhancement",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": "src/sentry/integrations/github/integration.py",
+        "line": 376,
+        "body": "OAuth authorize redirect URL is built via f-string without URL-encoding redirect_uri and state, which can break the flow and allow injection. Use urllib.parse.urlencode for query parameters."
+      },
+      {
+        "path": "src/sentry/integrations/github/integration.py",
+        "line": 470,
+        "body": "installation_id is taken from request.GET with fallback to pipeline state, allowing an attacker to override the installation_id after OAuth. Prefer pipeline state only and do not allow GET override."
+      },
+      {
+        "path": "src/sentry/integrations/github/integration.py",
+        "line": 485,
+        "body": "Accessing integration.metadata['sender']['login'] without checking existence can raise KeyError if metadata is missing or malformed. Guard the access."
+      },
+      {
+        "path": "src/sentry/integrations/github/integration.py",
+        "line": 410,
+        "body": "OAuth callback does not check for error parameter from GitHub and does not verify HTTP status of token exchange before parsing body, leading to potential unhandled exceptions and silent failures."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"src/sentry/integrations/github/integration.py\",\"line\":376,\"body\":\"OAuth authorize redirect URL is built via f-string without URL-encoding redirect_uri and state, which can break the flow and allow injection. Use urllib.parse.urlencode for query parameters.\"},{\"path\":\"src/sentry/integrations/github/integration.py\",\"line\":470,\"body\":\"installation_id is taken from request.GET with fallback to pipeline state, allowing an attacker to override the installation_id after OAuth. Prefer pipeline state only and do not allow GET override.\"},{\"path\":\"src/sentry/integrations/github/integration.py\",\"line\":485,\"body\":\"Accessing integration.metadata['sender']['login'] without checking existence can raise KeyError if metadata is missing or malformed. Guard the access.\"},{\"path\":\"src/sentry/integrations/github/integration.py\",\"line\":410,\"body\":\"OAuth callback does not check for error parameter from GitHub and does not verify HTTP status of token exchange before parsing body, leading to potential unhandled exceptions and silent failures.\"}]}",
     "latency_s": null
   },
   "https://github.com/keycloak/keycloak/pull/32918": {
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/keycloak/keycloak/pull/32918",
     "pr_title": "Add caching support for IdentityProviderStorageProvider.getForLogin operations",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": "model/infinispan/src/main/java/org/keycloak/models/cache/infinispan/idp/InfinispanIdentityProviderStorageProvider.java",
+        "line": 213,
+        "body": "getForLogin returns delegate results mapped via createOrganizationAwareIdentityProviderModel on cache miss, but the cached path returns raw models fetched via session.identityProviders().getById(id) without the organization-aware wrapping. This creates inconsistent results between cached and uncached executions."
+      },
+      {
+        "path": "model/infinispan/src/main/java/org/keycloak/models/cache/infinispan/idp/InfinispanIdentityProviderStorageProvider.java",
+        "line": 395,
+        "body": "registerIDPLoginInvalidationOnUpdate only skips invalidation when organizationId is unchanged and the login predicate is preserved. It does not check changes to OrganizationModel.BROKER_PUBLIC config which is now part of getLoginPredicate, so a config change that toggles login eligibility will not invalidate the login caches."
+      },
+      {
+        "path": "model/infinispan/src/main/java/org/keycloak/models/cache/infinispan/idp/InfinispanIdentityProviderStorageProvider.java",
+        "line": 225,
+        "body": "When a new IdentityProviderListQuery is created for an uncached mode, cache.addRevisioned(query, startupRevision) is used. The revision should be based on the current counter, as done later in the else branch, otherwise revision tracking can become inconsistent."
+      },
+      {
+        "path": "server-spi/src/main/java/org/keycloak/models/IdentityProviderStorageProvider.java",
+        "line": 254,
+        "body": "getLoginPredicate now adds a check for idp.getOrganizationId() == null || Boolean.parseBoolean(idp.getConfig().get(OrganizationModel.BROKER_PUBLIC)). This changes the predicate semantics for all callers and couples login eligibility to organization linking / BROKER_PUBLIC, which may have unintended side effects beyond caching invalidation."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"model/infinispan/src/main/java/org/keycloak/models/cache/infinispan/idp/InfinispanIdentityProviderStorageProvider.java\",\"line\":213,\"body\":\"getForLogin returns delegate results mapped via createOrganizationAwareIdentityProviderModel on cache miss, but the cached path returns raw models fetched via session.identityProviders().getById(id) without the organization-aware wrapping. This creates inconsistent results between cached and uncached executions.\"},{\"path\":\"model/infinispan/src/main/java/org/keycloak/models/cache/infinispan/idp/InfinispanIdentityProviderStorageProvider.java\",\"line\":395,\"body\":\"registerIDPLoginInvalidationOnUpdate only skips invalidation when organizationId is unchanged and the login predicate is preserved. It does not check changes to OrganizationModel.BROKER_PUBLIC config which is now part of getLoginPredicate, so a config change that toggles login eligibility will not invalidate the login caches.\"},{\"path\":\"model/infinispan/src/main/java/org/keycloak/models/cache/infinispan/idp/InfinispanIdentityProviderStorageProvider.java\",\"line\":225,\"body\":\"When a new IdentityProviderListQuery is created for an uncached mode, cache.addRevisioned(query, startupRevision) is used. The revision should be based on the current counter, as done later in the else branch, otherwise revision tracking can become inconsistent.\"},{\"path\":\"server-spi/src/main/java/org/keycloak/models/IdentityProviderStorageProvider.java\",\"line\":254,\"body\":\"getLoginPredicate now adds a check for idp.getOrganizationId() == null || Boolean.parseBoolean(idp.getConfig().get(OrganizationModel.BROKER_PUBLIC)). This changes the predicate semantics for all callers and couples login eligibility to organization linking / BROKER_PUBLIC, which may have unintended side effects beyond caching invalidation.\"}]}",
     "latency_s": null
   },
   "https://github.com/grafana/grafana/pull/94942": {
@@ -521,8 +714,29 @@
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/grafana/grafana/pull/106778",
     "pr_title": "Notification Rule Processing Engine",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": "public/app/features/alerting/unified/hooks/useAbilities.ts",
+        "line": 240,
+        "body": "MaybeSupported is now AlwaysSupported, removing the isRulerAvailable guard. This can expose actions when the ruler is not available/loading, potentially allowing UI actions that should be disabled."
+      },
+      {
+        "path": "public/app/features/alerting/unified/hooks/useAbilities.ts",
+        "line": 220,
+        "body": "isRulerAvailable is destructured from useIsRuleEditable but never used in the memo, while it remains in the dependency array. This is a stale dependency and the availability check was unintentionally dropped."
+      },
+      {
+        "path": "public/app/features/alerting/unified/rule-list/components/RuleActionsButtons.V2.tsx",
+        "line": 52,
+        "body": "useRulerRuleAbility is called with `rule` which can be undefined when the component is rendered with only `promRule` (e.g., GrafanaRuleListItem). This may cause useAllRulerRuleAbilities to run with undefined rule and break useIsRuleEditable."
+      },
+      {
+        "path": "public/app/features/alerting/unified/components/rule-viewer/AlertRuleMenu.tsx",
+        "line": 65,
+        "body": "prometheusRuleType.grafana.rule(promRule) is evaluated without guarding promRule for undefined, which can throw when promRule is missing. Also the OR combination of ruler and grafana abilities may grant permission if either source reports allowed, which may be unintended for mixed sources."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"public/app/features/alerting/unified/hooks/useAbilities.ts\",\"line\":240,\"body\":\"MaybeSupported is now AlwaysSupported, removing the isRulerAvailable guard. This can expose actions when the ruler is not available/loading, potentially allowing UI actions that should be disabled.\"},{\"path\":\"public/app/features/alerting/unified/hooks/useAbilities.ts\",\"line\":220,\"body\":\"isRulerAvailable is destructured from useIsRuleEditable but never used in the memo, while it remains in the dependency array. This is a stale dependency and the availability check was unintentionally dropped.\"},{\"path\":\"public/app/features/alerting/unified/rule-list/components/RuleActionsButtons.V2.tsx\",\"line\":52,\"body\":\"useRulerRuleAbility is called with `rule` which can be undefined when the component is rendered with only `promRule` (e.g., GrafanaRuleListItem). This may cause useAllRulerRuleAbilities to run with undefined rule and break useIsRuleEditable.\"},{\"path\":\"public/app/features/alerting/unified/components/rule-viewer/AlertRuleMenu.tsx\",\"line\":65,\"body\":\"prometheusRuleType.grafana.rule(promRule) is evaluated without guarding promRule for undefined, which can throw when promRule is missing. Also the OR combination of ruler and grafana abilities may grant permission if either source reports allowed, which may be unintended for mixed sources.\"}]}",
     "latency_s": null
   },
   "https://github.com/grafana/grafana/pull/107534": {
@@ -616,16 +830,73 @@
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/grafana/grafana/pull/76186",
     "pr_title": "Plugins: Chore: Renamed instrumentation middleware to metrics middleware",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": "pkg/plugins/log/fake.go",
+        "line": 46,
+        "body": "TestLogger.FromContext returns a brand new TestLogger, discarding the receiver's state and ignoring the context. Calls to m.logger.FromContext(ctx).Info will log to a fresh instance, so captured logs are lost in tests."
+      },
+      {
+        "path": "pkg/services/pluginsintegration/clientmiddleware/logger_middleware.go",
+        "line": 36,
+        "body": "logRequest no longer adds pluginId, endpoint, uname, dsName, dsUID and traceID to logParams. The middleware now relies on contextual attributes being automatically emitted by the logger; if the underlying logger does not surface context attributes, those fields disappear from logs."
+      },
+      {
+        "path": "pkg/services/pluginsintegration/clientmiddleware/contextual_logger_middleware.go",
+        "line": 24,
+        "body": "instrumentContext adds plugin and request attributes but does not include traceID, which was previously added explicitly in LoggerMiddleware. Trace information may be missing from contextual logs."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"pkg/plugins/log/fake.go\",\"line\":46,\"body\":\"TestLogger.FromContext returns a brand new TestLogger, discarding the receiver's state and ignoring the context. Calls to m.logger.FromContext(ctx).Info will log to a fresh instance, so captured logs are lost in tests.\"},{\"path\":\"pkg/services/pluginsintegration/clientmiddleware/logger_middleware.go\",\"line\":36,\"body\":\"logRequest no longer adds pluginId, endpoint, uname, dsName, dsUID and traceID to logParams. The middleware now relies on contextual attributes being automatically emitted by the logger; if the underlying logger does not surface context attributes, those fields disappear from logs.\"},{\"path\":\"pkg/services/pluginsintegration/clientmiddleware/contextual_logger_middleware.go\",\"line\":24,\"body\":\"instrumentContext adds plugin and request attributes but does not include traceID, which was previously added explicitly in LoggerMiddleware. Trace information may be missing from contextual logs.\"}]}",
     "latency_s": null
   },
   "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/10": {
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/10",
     "pr_title": "FEATURE: Can edit category/host relationships for embedding",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": "spec/fabricators/category_fabricator.rb",
+        "line": 1,
+        "body": "Fabricator file is swapped: this file now defines :embeddable_host instead of :category, breaking all tests that rely on the category fabricator."
+      },
+      {
+        "path": "spec/fabricators/embeddable_host_fabricator.rb",
+        "line": 1,
+        "body": "Fabricator file is swapped: this file now contains category fabricators instead of :embeddable_host, so Fabricate(:embeddable_host) will fail."
+      },
+      {
+        "path": "db/migrate/20150818190757_create_embeddable_hosts.rb",
+        "line": 3,
+        "body": "create_table :embeddable_hosts, force: true is destructive and will drop existing data on re-run."
+      },
+      {
+        "path": "db/migrate/20150818190757_create_embeddable_hosts.rb",
+        "line": 12,
+        "body": "Query for category_id assumes a row exists; [0]['id'] will raise NoMethodError if embed_category setting is missing."
+      },
+      {
+        "path": "db/migrate/20150818190757_create_embeddable_hosts.rb",
+        "line": 22,
+        "body": "Raw SQL interpolation \"VALUES ('#{h}', ... )\" is vulnerable to SQL injection and will break on hosts containing quotes."
+      },
+      {
+        "path": "app/models/embeddable_host.rb",
+        "line": 7,
+        "body": "before_validation uses self.host.sub! without nil guard; host nil will raise NoMethodError."
+      },
+      {
+        "path": "app/assets/javascripts/admin/components/embeddable-host.js.es6",
+        "line": 33,
+        "body": "host.save(props) passes props to Ember Data save which does not accept arguments; changes will not be persisted."
+      },
+      {
+        "path": "app/assets/javascripts/discourse/adapters/rest.js.es6",
+        "line": 22,
+        "body": "type.replace('_','-') only replaces the first underscore, breaking basePath detection for types with multiple underscores."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"spec/fabricators/category_fabricator.rb\",\"line\":1,\"body\":\"Fabricator file is swapped: this file now defines :embeddable_host instead of :category, breaking all tests that rely on the category fabricator.\"},{\"path\":\"spec/fabricators/embeddable_host_fabricator.rb\",\"line\":1,\"body\":\"Fabricator file is swapped: this file now contains category fabricators instead of :embeddable_host, so Fabricate(:embeddable_host) will fail.\"},{\"path\":\"db/migrate/20150818190757_create_embeddable_hosts.rb\",\"line\":3,\"body\":\"create_table :embeddable_hosts, force: true is destructive and will drop existing data on re-run.\"},{\"path\":\"db/migrate/20150818190757_create_embeddable_hosts.rb\",\"line\":12,\"body\":\"Query for category_id assumes a row exists; [0]['id'] will raise NoMethodError if embed_category setting is missing.\"},{\"path\":\"db/migrate/20150818190757_create_embeddable_hosts.rb\",\"line\":22,\"body\":\"Raw SQL interpolation \\\"VALUES ('#{h}', ... )\\\" is vulnerable to SQL injection and will break on hosts containing quotes.\"},{\"path\":\"app/models/embeddable_host.rb\",\"line\":7,\"body\":\"before_validation uses self.host.sub! without nil guard; host nil will raise NoMethodError.\"},{\"path\":\"app/assets/javascripts/admin/components/embeddable-host.js.es6\",\"line\":33,\"body\":\"host.save(props) passes props to Ember Data save which does not accept arguments; changes will not be persisted.\"},{\"path\":\"app/assets/javascripts/discourse/adapters/rest.js.es6\",\"line\":22,\"body\":\"type.replace('_','-') only replaces the first underscore, breaking basePath detection for types with multiple underscores.\"}]}",
     "latency_s": null
   },
   "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/7": {
@@ -633,7 +904,7 @@
     "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/7",
     "pr_title": "scale-color $lightness must use $secondary for dark themes",
     "review_comments": [],
-    "raw_output": "",
+    "raw_output": "You are a code reviewer. Review this pull request diff.\nPut the JSON in the final answer, not in hidden thinking.\nReturn ONLY JSON:\n{\"comments\":[{\"path\":\"file\",\"line\":1,\"body\":\"issue description\"}]}\nIf there are no real issues, return {\"comments\":[]}.\n\nTitle: scale-color $lightness must use $secondary for dark themes\nURL: ...\n\nWe need review diff. The diff shows many replacements of scale-color($primary, ...) with dark-light-choose(scale-color($primary,...), scale-color($secondary,...)). The title says scale-color $lightness must use $secondary for dark themes.\n\nWe need find issues. Possibly inconsistent lightness values? Let's scan.\n\nIn admin_base.scss line 503: color: dark-light-choose(scale-color($primary, $lightness: 40%), scale-color($secondary, $lightness: 60%));\nOriginal was scale-color($primary, $lightness: 40%). For dark theme, they use secondary with lightness 60%. Might be okay.\n\nCheck header.scss line 192: .fa { color: dark-light-choose(scale-color($primary, $lightness: 50%), scale-color($secondary, $lightness: 50%)); } .icon { color: dark-light-choose(scale-color($primary, $lightness: 30%), scale-color($secondary, $lightness: 70%)); }\n\nHmm icon uses 30% for primary, 70% for secondary. That seems inverted? For dark theme, secondary is likely light background? Might be okay.\n\nPotential issue: In mobile/modal.scss line 99: color: dark-light-choose(scale-color($primary, $lightness: 30%), scale-color($secondary, $lightness: 70%));\nOriginal was scale-color($primary, $lightness: 70%). Wait diff shows:\n-  color: scale-color($primary, $lightness: 70%);\n+  color: dark-light-choose(scale-color($primary, $lightness: 30%), scale-color($secondary, $lightness: 70%));\nThat's a change of lightness from 70% to 30% for primary! That's suspicious. The primary lightness changed. Should be same lightness? The title says scale-color $lightness must use $secondary for dark themes. Maybe they should keep same lightness value for both primary and secondary? Let's check pattern.\n\nMost replacements keep same lightness for both: scale-color($primary, $lightness: 50%) -> dark-light-choose(scale-color($primary, $lightness: 50%), scale-color($secondary, $lightness: 50%))\n\nSome have different: e.g., admin_base.scss line 503: primary 40% -> secondary 60%. That's different. Hmm.\n\nLet's check pattern: For light theme, primary is dark? Actually primary is text color. scale-color($primary, $lightness: 50%) makes it lighter. For dark theme, secondary is background? Hmm.\n\nMaybe the rule is: for dark themes, you want to scale secondary with opposite lightness? Because secondary is light in dark theme? Not sure.\n\nLet's search for inconsistencies.\n\nIn desktop/topic-post.scss line 288: a { font-weight: bold; color: dark-light-choose(scale-color($primary, $lightness: 30%), scale-color($secondary, $lightness: 70%)); } Original was scale-color($primary, $lightness: 30%). So primary 30% -> secondary 70%. That's inverted lightness.\n\nIn mobile/topic-post.scss line 179: h3 { margin-bottom:4px; margin-top:0; color: dark-light-choose(scale-color($primary, $lightness: 50%), scale-color($secondary, $lightness: 50%)); } Original was scale-color($primary, $lightness: 20%). Wait original was 20%? Let's check diff: \n-    color: scale-color($primary, $lightness: 20%);\n+    color: dark-light-choose(scale-color($primary, $lightness: 50%), scale-color($secondary, $lightness: 50%));\nYes primary lightness changed from 20% to 50%! That's a bug.\n\nAlso mobile/topic-post.scss line 182: h4 color changed from 50% to 50% same? Actually original 50% -> 50% ok.\n\nLine 244: .number, i { color: dark-light-choose(scale-color($primary, $lightness: 20%), scale-color($secondary, $lightness: 80%)); } Original was 20% -> 20% to 20% ok but secondary 80% vs primary 20% inverted.\n\nLine 267: .domain { color: dark-light-choose(scale-color($primary, $lightness: 75%), scale-color($secondary, $lightness: 25%)); } Original was 75% -> ok but secondary 25% inverted.\n\nMobile/modal.scss custom-message-length: original 70% -> new primary 30% secondary 70%. That's inverted lightness.\n\nAlso desktop/topic-post.scss line 318: h3 color: dark-light-choose(scale-color($primary, $lightness: 20%), scale-color($secondary, $lightness: 80%)); Original was 20% -> ok but secondary 80% inverted.\n\nLine 339: span.domain color: dark-light-choose(scale-color($primary, $lightness: 50%), scale-color($secondary, $lightness: 50%)); Original 50% ok.\n\nLine 379: .number,i color: dark-light-choose(scale-color($primary, $lightness: 20%), scale-color($secondary, $lightness: 80%)); Original 20% -> secondary 80% inverted.\n\nLine 413: .btn color: dark-light-choose(scale-color($primary, $lightness: 60%), scale-color($secondary, $lightness: 40%)); Original 60% -> secondary 40% inverted.\n\nLine 893 button background-color: dark-light-choose(scale-color($primary, $lightness: 70%), scale-color($secondary, $lightness: 30%)); Original 70% -> secondary 30% inverted.\n\nLine 893 border: 1px solid dark-light-choose(scale-color($primary, $lightness: 60%), scale-color($secondary, $lightness: 40%)); Original 60% -> secondary 40% inverted.\n\nSeems pattern: For some cases they invert lightness for secondary. Maybe intentional? The title says scale-color $lightness must use $secondary for dark themes. Could be they want same lightness value for both primary and secondary, not inverted.\n\nLet's examine a few where lightness differs: admin_base.scss line 503: primary 40% secondary 60%. That's different. Maybe they want to keep visual contrast? Hmm.\n\nCheck header.scss icon: primary 30% secondary 70%. That's inverted.\n\nMaybe the rule is: dark-light-choose(first for light theme, second for dark theme). For dark theme, you want lighter color, so you increase lightness for secondary? If secondary is dark background? Hmm.\n\nActually in Discourse, $primary is text color (dark on light, light on dark). $secondary is background color (light on light, dark on dark). scale-color($primary, $lightness: 50%) makes primary lighter. For dark theme, primary is already light, making it lighter may be too light. So they switch to secondary which is dark background, and scale it to get a lighter color? Might need different lightness.\n\nThe PR title: scale-color $lightness must use $secondary for dark themes. Could mean when using dark-light-choose, the second argument should use $secondary with same lightness as primary? Or maybe they should use $secondary with same lightness value, not inverted.\n\nLet's search for consistent pattern. Most replacements keep same lightness: 50% -> 50%, 75% -> 25%? Wait 75% -> 25% is inverted.\n\nLet's list examples:\n\nadmin_base.scss:\nline 382: primary 50% -> secondary 50% same\nline 503: primary 40% -> secondary 60% different\nline 521: primary 80% -> secondary 20% inverted\nline 574: primary 75% -> secondary 25% inverted\nline 597: primary 75% -> secondary 25% inverted\nline 723: primary 50% -> secondary 50% same\nline 1291: primary 75% -> secondary 25% inverted\nline 1328: primary 75% -> secondary 25% inverted\n\nSo mixed.\n\ntopic-list.scss:\n45: 50% -> 50% same\n45 button i: 50% -> 50% same\ntd 50% ->50% same\n66 topic-excerpt 50% ->50% same\n243 top-date-string 60% ->40% inverted? 60 vs 40\n298 education 50% ->50% same\n\ndiscourse.scss:\ncoldmap-high 70% ->30% inverted\ncoldmap-med 60% ->40% inverted\ncoldmap-low 50% ->50% same\n\nheader.scss:\n150 topics-count 50% ->50% same\n192 .fa 50% ->50% same\n192 .icon 30% ->70% inverted\n298 badge-notification 50% ->50% same\n329 topic-statuses 50% ->50% same\n\nlogin.scss:\n36 p 50% ->50% same\n51 button 35% ->65% inverted\n\nnotification-options.scss:\nfa.muted 40% ->60% inverted\n\nsearch.scss:\n28 color 40% ->60% inverted\ndate 40% ->60% inverted\nsearch-highlight 25% ->75% inverted\n\nshare_link.scss:\n59 date 50% ->50% same\n\ntopic-post.scss:\n12 a 30% ->70% inverted\nfa 40% ->60% inverted\nnew_user 50% ->50% same\ntitle 30% ->70% inverted\nquote-controls 70% ->30% inverted\nvia-email 70% ->30% inverted\n\nuser-badges.scss:\n59 count 50% ->50% same\n94 grant-count 40% ->60% inverted\n\nuser.scss:\n116 username 30% ->70% inverted\nname 30% ->70% inverted\ntitle 50% ->50% same\n\nbadges.css.scss:\n236 background-color 70% ->30% inverted\n282 color 40% ->60% inverted\n\nbuttons.css.scss:\n57 hover color 70% ->30% inverted\n\ncompose.scss:\n337 i 50% ->50% same\n\ndesktop/header.scss:\n50 blurb 45% ->55% inverted? 45 vs55\nsearch-highlight 25% ->75% inverted\n\ndesktop/login.scss:\n14 a 35% ->65% inverted\n45 label 50% ->50% same\n\ndesktop/modal.scss:\n47 hint 70% ->30% inverted\n64 close 35% ->65% inverted\n91 custom-message-length 70% ->30% inverted\n114 a 50% ->50% same\n114 a:hover 40% ->60% inverted\n128 color 60% ->40% inverted\n\nqueued-posts.scss:\n11 span 50% ->50% same\n\ndesktop/topic-list.scss:\n36 fa-thumb-tack 50% ->50% same\n36 unpinned 50% ->50% same\n36 fa-bookmark 50% ->50% same\n51 button i 50% ->50% same\n132 post-actions 50% ->50% same\n141 a 50% ->50% same\n220 i 50% ->50% same\n220 a.last-posted-at 50% ->50% same\n\ndesktop/topic-post.scss:\n31 topic-statuses 50% ->50% same\n78 highlight-action 60% ->40% inverted\n110 badge-posts 60% ->40% inverted\n123 button.create 20% ->80% inverted\n275 post-date 60% ->40% inverted\n288 a 30% ->70% inverted? Wait original 30%? Actually diff shows color: dark-light-choose(scale-color($primary, $lightness: 70%), scale-color($secondary, $lightness: 30%)); Original was scale-color($primary, $lightness: 30%). So primary changed from 30% to 70%! That's a bug.\n\nLet's verify: diff line:\n-      color: scale-color($primary, $lightness: 30%);\n+      color: dark-light-choose(scale-color($primary, $lightness: 70%), scale-color($secondary, $lightness: 30%));\nYes primary lightness changed to 70%! That's wrong.\n\nAlso line 318 h3 color: scale-color($primary, $lightness: 20%) -> dark-light-choose(scale-color($primary, $lightness: 20%), scale-color($secondary, $lightness: 80%)) secondary inverted.\n\nLine 339 domain 50% ->50% same\n\nLine 379 number 20% ->80% inverted\n\nLine 413 btn 60% ->40% inverted\n\nLine 893 button background 70% ->30% inverted\n\nLine 893 border 60% ->40% inverted\n\nLine 938 a 50% ->50% same\n\nLine 955 username.new-user 70% ->30% inverted\n\ntopic.scss:\n58 private-message-glyph 75% ->25% inverted\n58 reply-new 50% ->50% same\n\nupload.scss:\n17 description 50% ->50% same\n\nuser.scss:\n56 instructions 50% ->50% same\n170 color 50% ->50% same\n511 fa 50% ->50% same\n511 name 30% ->50%? Wait original 30% -> new primary 50%? Let's check diff:\n-        color: scale-color($primary, $lightness: 30%);\n+        color: dark-light-choose(scale-color($primary, $lightness: 50%), scale-color($secondary, $lightness: 50%));\nYes primary changed from 30% to 50%! Bug.\n\ntitle 50% ->50% same\n\n600 p 50% ->50% same\n\nembed.css.scss:\n86 a.new-user 70% ->30% inverted\n\nmobile/compose.scss:\n33 draft-status 75% ->25% inverted\n48 color 50% ->50% same\n165 background 75% ->25% inverted\n165 wmd-input background 75% ->25% inverted\n\nmobile/login.scss:\n14 a 35% ->65% inverted\n42 label 50% ->50% same\n\nmobile/modal.scss:\n99 custom-message-length 70% ->30%? Wait diff shows:\n-  color: scale-color($primary, $lightness: 70%);\n+  color: dark-light-choose(scale-color($primary, $lightness: 30%), scale-color($secondary, $lightness: 70%));\nPrimary changed from 70% to 30%! Bug.\n\nmobile/topic-list.scss:\n72 color 50% ->50% same\n92 num fa 50% ->50% same\n143 last-posted-at 50% ->50% same\n206 figure 10% ->90% inverted\n\nmobile/topic-post.scss:\n46 button 50% ->50% same\n148 reply-to-tab 50% ->50% same\n179 h3 color: scale-color($primary, $lightness: 20%) -> dark-light-choose(scale-color($primary, $lightness: 50%), scale-color($secondary, $lightness: 50%)) primary changed 20->50 bug\n182 h4 50% ->50% same\n244 number 20% ->80% inverted\n267 domain 75% ->25% inverted\n439 show-topic-admin 50% ->50% same\n495 username.new-user 70% ->30% inverted\n\nmobile/topic.scss:\n31 private-message-glyph 75% ->25% inverted\n\nmobile/upload.scss:\n7 description 50% ->50% same\n\nmobile/user.scss:\n112 instructions 50% ->50% same\n486 fa 50% ->50% same\n486 name 30% ->50%? Wait diff:\n-        color: scale-color($primary, $lightness: 30%);\n+        color: dark-light-choose(scale-color($primary, $lightness: 50%), scale-color($secondary, $lightness: 50%));\nPrimary changed 30->50 bug\ntitle 50% ->50% same\n577 p 50% ->50% same\n\nSo there are multiple bugs where primary lightness value changed unintentionally, and also some where secondary lightness is inverted.\n\nThe PR title says scale-color $lightness must use $secondary for dark themes. Possibly the intention is to keep same lightness value for both primary and secondary. The inversion might be intentional to maintain contrast? Hmm.\n\nLet's think about Discourse theming. dark-light-choose($light, $dark). First arg used for light theme, second for dark theme. For a color that is derived from $primary, on light theme primary is dark, scaling lightness up makes it lighter. On dark theme primary is light, scaling lightness up makes it lighter still (maybe too light). So they want to use $secondary instead for dark theme. $secondary is background color. Scaling $secondary with same lightness as original primary scaling might give appropriate contrast.\n\nIf primary is light on dark theme, scaling it up makes it even lighter (bad). So using secondary (which is dark) and scaling it up makes it lighter, good.\n\nThus lightness value should stay same for both. Because you want same visual lightness adjustment relative to base color.\n\nSo inversion is wrong. The cases where secondary lightness is different from primary lightness are suspicious.\n\nAlso cases where primary lightness changed are definitely bugs.\n\nLet's identify specific bugs to report.\n\nWe need return JSON with comments array with path, line, body.\n\nWe need file path and line number. Line numbers from diff? The diff shows line numbers? The diff shows @@ -382,7 +382,7 @@ etc. So line numbers are relative to file. The line number in diff is the line number in file? The @@ shows start line. Might be approximate. We can give line number as per diff context. Might be okay to give approximate line.\n\nBetter to give path and line number of the changed line. Could use the line number from diff header. For first file app/assets/stylesheets/common/admin/admin_base.scss line 385? The @@ -382,7 +382,7 @@ means line 382 is start. The changed line is 385? Actually 382 + 3? Hmm.\n\nSimpler: Provide path and line number as shown in diff? Might be okay to give line number of the change as per file. Could approximate.\n\nMaybe we can just give path and line 1? The schema expects line number. Might be okay to give approximate.\n\nBetter to pick a few clear bugs.\n\nPotential issues:\n\n1. mobile/modal.scss custom-message-length primary lightness changed from 70% to 30% (line ~99). That's a bug.\n\n2. desktop/topic-post.scss .post-date? Actually line 288 a color primary changed from 30% to 70%.\n\n3. mobile/topic-post.scss h3 color primary changed from 20% to 50%.\n\n4. mobile/user.scss group-member-info .name primary changed from 30% to 50%.\n\n5. desktop/user.scss group-member-info .n",
     "latency_s": null
   },
   "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/8": {
@@ -742,8 +1013,24 @@
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/6",
     "pr_title": "UX: show complete URL path if website domain is same as instance domain",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": "app/serializers/user_serializer.rb",
+        "line": 137,
+        "body": "URI is parsed multiple times and the path extraction is not rescued. URI(website.to_s).path can raise URI::InvalidURIError for malformed URLs, leading to 500 errors. Parse once with a single rescue."
+      },
+      {
+        "path": "app/serializers/user_serializer.rb",
+        "line": 144,
+        "body": "Domain matching uses ends_with?('.' << website_host) and split('.') comparisons without normalising case or handling public suffixes. This can give false positives for similar hostnames and misses edge cases like www vs non-www or multi-level TLDs."
+      },
+      {
+        "path": "app/serializers/user_serializer.rb",
+        "line": 150,
+        "body": "include_website_name returns true whenever website.present?, even if website_name is nil because the URL could not be parsed. This will serialize website_name: null instead of omitting the attribute."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"app/serializers/user_serializer.rb\",\"line\":137,\"body\":\"URI is parsed multiple times and the path extraction is not rescued. URI(website.to_s).path can raise URI::InvalidURIError for malformed URLs, leading to 500 errors. Parse once with a single rescue.\"},{\"path\":\"app/serializers/user_serializer.rb\",\"line\":144,\"body\":\"Domain matching uses ends_with?('.' << website_host) and split('.') comparisons without normalising case or handling public suffixes. This can give false positives for similar hostnames and misses edge cases like www vs non-www or multi-level TLDs.\"},{\"path\":\"app/serializers/user_serializer.rb\",\"line\":150,\"body\":\"include_website_name returns true whenever website.present?, even if website_name is nil because the URL could not be parsed. This will serialize website_name: null instead of omitting the attribute.\"}]}",
     "latency_s": null
   },
   "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/4": {
@@ -808,8 +1095,34 @@
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/2",
     "pr_title": "FEATURE: per-topic unsubscribe option in emails",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": "app/assets/javascripts/discourse/controllers/topic-unsubscribe.js.es6",
+        "line": 5,
+        "body": "Typo in property name stopNotificiationsText – should be stopNotificationsText. The misspelling is repeated in the template and makes the API confusing and error-prone."
+      },
+      {
+        "path": "app/controllers/topics_controller.rb",
+        "line": 108,
+        "body": "TopicUser.find_by may return nil for a user with no TopicUser record, causing NoMethodError on tu.notification_level. Guard for nil or create the record before mutating."
+      },
+      {
+        "path": "app/controllers/topics_controller.rb",
+        "line": 99,
+        "body": "Unsubscribe performs a state-changing mutation via GET. This is a CSRF risk and violates HTTP semantics; use POST/PUT with CSRF protection."
+      },
+      {
+        "path": "config/routes.rb",
+        "line": 440,
+        "body": "Summary routes lost the post_number constraint and the moderator-liked route was moved. Changing constraints can alter route matching order and cause unintended collisions with the new unsubscribe routes."
+      },
+      {
+        "path": "app/models/topic.rb",
+        "line": 719,
+        "body": "unsubscribe_url returns a relative path \"#{url}/unsubscribe\". Email clients need an absolute URL; a relative link will break outside the site context."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"app/assets/javascripts/discourse/controllers/topic-unsubscribe.js.es6\",\"line\":5,\"body\":\"Typo in property name stopNotificiationsText – should be stopNotificationsText. The misspelling is repeated in the template and makes the API confusing and error-prone.\"},{\"path\":\"app/controllers/topics_controller.rb\",\"line\":108,\"body\":\"TopicUser.find_by may return nil for a user with no TopicUser record, causing NoMethodError on tu.notification_level. Guard for nil or create the record before mutating.\"},{\"path\":\"app/controllers/topics_controller.rb\",\"line\":99,\"body\":\"Unsubscribe performs a state-changing mutation via GET. This is a CSRF risk and violates HTTP semantics; use POST/PUT with CSRF protection.\"},{\"path\":\"config/routes.rb\",\"line\":440,\"body\":\"Summary routes lost the post_number constraint and the moderator-liked route was moved. Changing constraints can alter route matching order and cause unintended collisions with the new unsubscribe routes.\"},{\"path\":\"app/models/topic.rb\",\"line\":719,\"body\":\"unsubscribe_url returns a relative path \\\"#{url}/unsubscribe\\\". Email clients need an absolute URL; a relative link will break outside the site context.\"}]}",
     "latency_s": null
   },
   "https://github.com/calcom/cal.com/pull/22532": {
@@ -893,16 +1206,73 @@
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/calcom/cal.com/pull/22345",
     "pr_title": "feat: convert InsightsBookingService to use Prisma.sql raw queries",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": "packages/lib/server/service/insightsBooking.ts",
+        "line": 33,
+        "body": "Constructor accepts InsightsBookingServicePublicOptions which is a loose superset of the discriminated union InsightsBookingServiceOptions. This loses compile-time guarantees for scope-specific required fields e.g. teamId for scope 'team'."
+      },
+      {
+        "path": "packages/lib/server/service/insightsBooking.ts",
+        "line": 38,
+        "body": "Private field `options` is typed as InsightsBookingServiceOptions | null but the constructor assigns InsightsBookingServicePublicOptions. This is a type mismatch and will cause TS errors for callers using the discriminated union."
+      },
+      {
+        "path": "packages/lib/server/service/insightsBooking.ts",
+        "line": 65,
+        "body": "`findMany` method was removed and replaced by `getBaseConditions`. This is a breaking API change for any existing consumers of InsightsBookingService.findMany."
+      },
+      {
+        "path": "packages/lib/server/service/__tests__/insightsBooking.integration-test.ts",
+        "line": 207,
+        "body": "Tests now compare Prisma.Sql objects with toEqual. Prisma.sql equality is structural and brittle; small formatting/value differences can cause false negatives. Consider asserting the generated SQL string/values instead."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"packages/lib/server/service/insightsBooking.ts\",\"line\":33,\"body\":\"Constructor accepts InsightsBookingServicePublicOptions which is a loose superset of the discriminated union InsightsBookingServiceOptions. This loses compile-time guarantees for scope-specific required fields e.g. teamId for scope 'team'.\"},{\"path\":\"packages/lib/server/service/insightsBooking.ts\",\"line\":38,\"body\":\"Private field `options` is typed as InsightsBookingServiceOptions | null but the constructor assigns InsightsBookingServicePublicOptions. This is a type mismatch and will cause TS errors for callers using the discriminated union.\"},{\"path\":\"packages/lib/server/service/insightsBooking.ts\",\"line\":65,\"body\":\"`findMany` method was removed and replaced by `getBaseConditions`. This is a breaking API change for any existing consumers of InsightsBookingService.findMany.\"},{\"path\":\"packages/lib/server/service/__tests__/insightsBooking.integration-test.ts\",\"line\":207,\"body\":\"Tests now compare Prisma.Sql objects with toEqual. Prisma.sql equality is structural and brittle; small formatting/value differences can cause false negatives. Consider asserting the generated SQL string/values instead.\"}]}",
     "latency_s": null
   },
   "https://github.com/calcom/cal.com/pull/11059": {
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/calcom/cal.com/pull/11059",
     "pr_title": "OAuth credential sync and app integration enhancements",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": ".env.example",
+        "line": 245,
+        "body": "Encryption key generation instruction is incorrect: `openssl rand -base64 24` produces ~18 decoded bytes, not the 32 bytes required for AES-256. Use `openssl rand -base64 32` or `openssl rand -hex 32`."
+      },
+      {
+        "path": "apps/web/pages/api/webhook/app-credential.ts",
+        "line": 30,
+        "body": "Zod parse and symmetricDecrypt/JSON.parse are unguarded; invalid payload or decryption will throw unhandled errors. Also no request method validation and no try/catch around parsing."
+      },
+      {
+        "path": "apps/web/pages/api/webhook/app-credential.ts",
+        "line": 55,
+        "body": "Credential lookup/creation uses appMetadata.slug as appId and appMetadata.type without verifying schema compatibility; Prisma credential.appId may expect a different identifier and decrypted keys are not validated."
+      },
+      {
+        "path": "packages/app-store/_utils/oauth/parseRefreshTokenResponse.ts",
+        "line": 10,
+        "body": "Zod schema with dynamic keys is invalid and the function returns a Zod SafeParseResult instead of parsed data. Callers store the ParseResult in DB and refresh_token is overwritten with literal string 'refresh_token' when missing."
+      },
+      {
+        "path": "packages/app-store/_utils/oauth/refreshOAuthTokens.ts",
+        "line": 10,
+        "body": "When credential sharing is enabled the function returns a raw Fetch Response without parsing JSON or checking status, while callers expect parsed token data, causing undefined access_token and type mismatches."
+      },
+      {
+        "path": "packages/app-store/googlecalendar/lib/CalendarService.ts",
+        "line": 90,
+        "body": "parseRefreshTokenResponse returns a SafeParseResult but the result is assigned directly to credential.key, and token extraction assumes res?.data exists even when sync endpoint returns a Fetch Response."
+      },
+      {
+        "path": "packages/app-store/zoho-bigin/api/add.ts",
+        "line": 17,
+        "body": "Redirect URI is hardcoded to `/api/integrations/zoho-bigin/callback` instead of using appConfig.slug, breaking consistency if slug changes."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\".env.example\",\"line\":245,\"body\":\"Encryption key generation instruction is incorrect: `openssl rand -base64 24` produces ~18 decoded bytes, not the 32 bytes required for AES-256. Use `openssl rand -base64 32` or `openssl rand -hex 32`.\"},{\"path\":\"apps/web/pages/api/webhook/app-credential.ts\",\"line\":30,\"body\":\"Zod parse and symmetricDecrypt/JSON.parse are unguarded; invalid payload or decryption will throw unhandled errors. Also no request method validation and no try/catch around parsing.\"},{\"path\":\"apps/web/pages/api/webhook/app-credential.ts\",\"line\":55,\"body\":\"Credential lookup/creation uses appMetadata.slug as appId and appMetadata.type without verifying schema compatibility; Prisma credential.appId may expect a different identifier and decrypted keys are not validated.\"},{\"path\":\"packages/app-store/_utils/oauth/parseRefreshTokenResponse.ts\",\"line\":10,\"body\":\"Zod schema with dynamic keys is invalid and the function returns a Zod SafeParseResult instead of parsed data. Callers store the ParseResult in DB and refresh_token is overwritten with literal string 'refresh_token' when missing.\"},{\"path\":\"packages/app-store/_utils/oauth/refreshOAuthTokens.ts\",\"line\":10,\"body\":\"When credential sharing is enabled the function returns a raw Fetch Response without parsing JSON or checking status, while callers expect parsed token data, causing undefined access_token and type mismatches.\"},{\"path\":\"packages/app-store/googlecalendar/lib/CalendarService.ts\",\"line\":90,\"body\":\"parseRefreshTokenResponse returns a SafeParseResult but the result is assigned directly to credential.key, and token extraction assumes res?.data exists even when sync endpoint returns a Fetch Response.\"},{\"path\":\"packages/app-store/zoho-bigin/api/add.ts\",\"line\":17,\"body\":\"Redirect URI is hardcoded to `/api/integrations/zoho-bigin/callback` instead of using appConfig.slug, breaking consistency if slug changes.\"}]}",
     "latency_s": null
   },
   "https://github.com/calcom/cal.com/pull/7232": {
@@ -943,8 +1313,34 @@
     "tool": "Muse-Glimmer",
     "pr_url": "https://github.com/calcom/cal.com/pull/14740",
     "pr_title": "Add guest management functionality to existing bookings",
-    "review_comments": [],
-    "raw_output": "",
+    "review_comments": [
+      {
+        "path": "packages/trpc/server/routers/viewer/bookings/addGuests.handler.ts",
+        "line": 48,
+        "body": "Permission check for team admin/owner uses && instead of ||, requiring user to be both admin AND owner. Should be OR to allow either role."
+      },
+      {
+        "path": "packages/trpc/server/routers/viewer/bookings/addGuests.handler.ts",
+        "line": 68,
+        "body": "Blacklisted email check is case-sensitive. Emails are lowercased for blacklist but guest email is compared as-is, allowing bypass via case variation."
+      },
+      {
+        "path": "packages/trpc/server/routers/viewer/bookings/addGuests.handler.ts",
+        "line": 71,
+        "body": "Duplicate attendee check uses strict equality, which is case-sensitive. Email comparison should be case-insensitive."
+      },
+      {
+        "path": "apps/web/components/dialog/AddGuestsDialog.tsx",
+        "line": 28,
+        "body": "Validation schema is applied to multiEmailValue which initially contains empty string ''. Empty strings fail email validation, causing false invalid state. Filter out empty strings before validation and reset isInvalidEmail on change."
+      },
+      {
+        "path": "packages/emails/email-manager.ts",
+        "line": 540,
+        "body": "sendAddGuestsEmails uses newGuests.includes(attendee.email) with case-sensitive comparison and unfiltered input. Should use the filtered uniqueGuests set with case-insensitive comparison to avoid sending wrong email type."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"packages/trpc/server/routers/viewer/bookings/addGuests.handler.ts\",\"line\":48,\"body\":\"Permission check for team admin/owner uses && instead of ||, requiring user to be both admin AND owner. Should be OR to allow either role.\"},{\"path\":\"packages/trpc/server/routers/viewer/bookings/addGuests.handler.ts\",\"line\":68,\"body\":\"Blacklisted email check is case-sensitive. Emails are lowercased for blacklist but guest email is compared as-is, allowing bypass via case variation.\"},{\"path\":\"packages/trpc/server/routers/viewer/bookings/addGuests.handler.ts\",\"line\":71,\"body\":\"Duplicate attendee check uses strict equality, which is case-sensitive. Email comparison should be case-insensitive.\"},{\"path\":\"apps/web/components/dialog/AddGuestsDialog.tsx\",\"line\":28,\"body\":\"Validation schema is applied to multiEmailValue which initially contains empty string ''. Empty strings fail email validation, causing false invalid state. Filter out empty strings before validation and reset isInvalidEmail on change.\"},{\"path\":\"packages/emails/email-manager.ts\",\"line\":540,\"body\":\"sendAddGuestsEmails uses newGuests.includes(attendee.email) with case-sensitive comparison and unfiltered input. Should use the filtered uniqueGuests set with case-insensitive comparison to avoid sending wrong email type.\"}]}",
     "latency_s": null
   },
   "https://github.com/calcom/cal.com/pull/10600": {
@@ -952,7 +1348,7 @@
     "pr_url": "https://github.com/calcom/cal.com/pull/10600",
     "pr_title": "feat: 2fa backup codes",
     "review_comments": [],
-    "raw_output": "",
+    "raw_output": "{\"comments\":[]}",
     "latency_s": null
   },
   "https://github.com/calcom/cal.com/pull/10967": {

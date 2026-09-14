@@ -8,7 +8,7 @@ Official-protocol rerun of **SWR-Bench**, **AACR-Bench**, **Martian offline**, a
 - Muse-Glimmer
 - Nemotron-3-Ultra
 
-This repo only contains the **official harness** rerun. Headline numbers: [`official/SCORES.json`](official/SCORES.json) (snapshot **2026-09-14 17:15 UTC**).
+This repo only contains the **official harness** rerun. Headline numbers: [`official/SCORES.json`](official/SCORES.json) (snapshot **2026-09-14 18:01 UTC**).
 
 Judge for SWR / AACR / Martian: **gpt-5.6**. SWE-Review DA is the official `compute_da.py` (no extra LLM judge).
 
@@ -20,10 +20,11 @@ Judge for SWR / AACR / Martian: **gpt-5.6**. SWE-Review DA is the official `comp
 |---|---|---|---|---|---|
 | **SWR** overall F1 (n=1000; Glimmer 990) | **0.666** | 0.654 | 0.576 | 0.542 | 0.422 |
 | **AACR** semantic / line F1 (n=196) | **0.105 / 0.292** | 0.041 / 0.077 | 0.066 / 0.129 | 0.046 / 0.096 | 0.060 / 0.184 |
-| **Martian** F1 (50 PRs) | 0 * | 21.4% | **37.8%** | 0 * | 21.9% |
-| **SWE-Review** DA (`glm5_500`) | 0 * | 52.0% | **74.9%** | 0 * | 70.9% |
+| **Martian** F1 (50 PRs) | 0 * | 21.4% | 37.8% | **40.8%** | 21.9% |
+| **SWE-Review** DA (`glm5_500`) | 0 * | 52.0% | **74.9%** | 88.7% † | 70.9% |
 
-\* V4.1 Martian/SWE-Review and Glimmer Martian/SWE-Review are **not usable as model quality scores** yet (empty or failed generations). See below.
+\* DeepSeek-V4.1-Flash Martian / SWE-Review are **not usable** (empty generation / 500 env failures; not rerun).
+† Glimmer SWE-Review DA is on **53 produced** reviews (CR 10.6%). Opus DA is on 327 (CR 65.4%). Same caveat as Nemotron (DA 70.9% on 79 produced, CR 15.8%).
 
 ---
 
@@ -62,9 +63,9 @@ Upstream: real GitHub PR file diffs, model comments `{path, line, body}`, then `
 - We fetch PR files (`gh api …/pulls/{n}/files`) and give the model the diff, not a title-only prompt.
 - Judge is gpt-5.6 at **temperature 1.0**. Temperature 0.0 is rejected by that API (HTTP 400), which previously zeroed every F1.
 - `--no-dedup`, 50 PRs × 5 tools = 250 judge calls.
-- **Valid scores:** Opus 37.8 F1, Nemotron 21.9, gpt-5.6 21.4 (high precision, low recall).
+- **Valid scores:** Glimmer **40.8** F1 (45/50 PRs produced comments), Opus 37.8, Nemotron 21.9, gpt-5.6 21.4 (high precision, low recall).
 - **DeepSeek-V4.1-Flash F1=0:** first generation wrote no comments (thinking ate the budget). Not rerun.
-- **Muse-Glimmer F1=0 at judge time:** many answers were prompt-echo / hidden-channel CoT, and the first parser only accepted a single `json.loads` slice, so comments were dropped. We now use the AACR-style decoder (`to=user` split, raw_decode, truncated arrays). Reparse recovered 4 PRs; empty PRs are being regenerated. **Do not cite Glimmer Martian F1 until that rejudge finishes.**
+- Glimmer first-pass answers were often prompt-echo / hidden-channel CoT, and the original parser only accepted a single `json.loads` slice. We now use the AACR-style decoder (`to=user` split, raw_decode, truncated arrays), retry empty PRs, then rejudge **only** `Muse-Glimmer`.
 
 Files: [`official/martian/<model>/candidates.json`](official/martian/) and [`official/martian/judge_input/results/gpt-5.6/evaluations.json`](official/martian/judge_input/results/gpt-5.6/evaluations.json).
 
@@ -78,10 +79,10 @@ This is **SWE-Review-Bench**, not SWE-Review-Traj.
   - **DA** = correct approve/request_changes among trials that produced a parseable `review_report`
   - **CR** = produced / 500
   - **DA(total,50)** treats model failures as 0.5
-- Opus: DA **74.9%**, CR 65.4% (327 produced). Nemotron: DA 70.9% but CR only 15.8% (79 produced, many docker failures). gpt-5.6: DA 52.0%, CR 25.0% (125 produced).
-- V4.1 and Glimmer first Harbor runs produced **0** reports (agent/env failures). V4.1 is not being rerun. Glimmer is rerunning; that DA is still 0 in `SCORES.json`.
+- Opus: DA **74.9%**, CR 65.4% (327 produced). Nemotron: DA 70.9% but CR only 15.8% (79 produced, many docker failures). gpt-5.6: DA 52.0%, CR 25.0% (125 produced). Glimmer rerun: DA **88.7%** on 53 produced reviews (CR 10.6%).
+- V4.1 first Harbor run produced **0** reports (agent/env failures) and is not being rerun.
 
-Uploaded here: `da_metrics.json` plus `produced_reviews.jsonl` for the three models that actually wrote reports. Full Harbor docker trees are not in git.
+Uploaded here: `da_metrics.json` plus `produced_reviews.jsonl` for models that wrote reports. Full Harbor docker trees are not in git.
 
 ---
 
@@ -109,21 +110,21 @@ Uploaded here: `da_metrics.json` plus `produced_reviews.jsonl` for the three mod
 
 | Model | P | R | F1 | Status |
 |---|---:|---:|---:|---|
-| Claude Opus 4.8 | 32.2% | 45.7% | **37.8%** | valid |
+| Muse-Glimmer | 38.0% | 43.9% | **40.8%** | valid (45/50 PRs had comments) |
+| Claude Opus 4.8 | 32.2% | 45.7% | 37.8% | valid |
 | Nemotron-3-Ultra | 16.9% | 31.2% | 21.9% | valid |
 | gpt-5.6 | 66.7% | 12.7% | 21.4% | valid |
 | DeepSeek-V4.1-Flash | 0 | 0 | 0 | empty generation; not rerun |
-| Muse-Glimmer | 0 | 0 | 0 | judged empty; parser + empty-PR retry in progress |
 
 ## SWE-Review detail (`glm5_500`)
 
 | Model | DA | DA(total,50) | CR | produced / 500 | TP / FP / TN / FN |
 |---|---:|---:|---:|---:|---|
+| Muse-Glimmer | 88.7% | 54.1% | 10.6% | 53 | 46 / 4 / 1 / 2 |
 | Claude Opus 4.8 | **74.9%** | 66.3% | 65.4% | 327 | 216 / 65 / 29 / 17 |
 | Nemotron-3-Ultra | 70.9% | 53.3% | 15.8% | 79 | 55 / 21 / 1 / 2 |
 | gpt-5.6 | 52.0% | 50.5% | 25.0% | 125 | 39 / 11 / 26 / 49 |
 | DeepSeek-V4.1-Flash | 0 | 50.0% | 0 | 0 | — |
-| Muse-Glimmer | 0 | 50.0% | 0 | 0 | rerun in progress |
 
 ---
 
@@ -147,8 +148,8 @@ Each SWR `generation.jsonl` row is one official `base_review` call (`instance_id
 
 ## Limitations
 
-1. Martian Glimmer / V4.1 and SWE-Review Glimmer / V4.1 are **not** comparable to the other three until generations actually produce comments / `review_report`s.
-2. Nemotron SWE-Review DA is computed on only 79 produced reviews; CR is 15.8%.
+1. DeepSeek-V4.1-Flash Martian and SWE-Review are **not** comparable (empty generation / 500 env failures; not rerun).
+2. Glimmer and Nemotron SWE-Review DA are computed on 53 and 79 produced reviews (CR 10.6% / 15.8%). Opus CR is 65.4%.
 3. AACR F1 is low for every model; that is the official finding-match task (semantic / line F1 against human notes), not a binary approve/reject score.
 4. Claude/GPT temperature is 1.0 because those APIs reject 0.2.
 5. We never put dataset dumps or Harbor sandbox trees in this repo.
