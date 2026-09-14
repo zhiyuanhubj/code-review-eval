@@ -1,0 +1,16 @@
+{
+  "instance_id": "lvgl__lvgl@4a57db3",
+  "repo": "lvgl/lvgl",
+  "base_commit": "d2ed41dda1618049a037df2639b9d28578847195",
+  "head_commit": "4a57db33476f1caf3e85726a6b1e189c68c1f36b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:44.542038+00:00",
+  "duration_seconds": 10.71,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

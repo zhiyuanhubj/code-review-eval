@@ -1,0 +1,80 @@
+{
+  "instance_id": "opencv__opencv@79afad9",
+  "repo": "opencv/opencv",
+  "base_commit": "868fc5c581228f8f47bf4bc3ee84427acc99226a",
+  "head_commit": "79afad939ecfaa332af0541db473fa94f8f425b6",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:32:43.855592+00:00",
+  "duration_seconds": 12.38,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "modules/videoio/misc/java/src/cpp/videoio_converters.cpp",
+        "start_line": 16,
+        "end_line": 27,
+        "content": "The `read` implementation allocates a new `jbyteArray` of size `size` and then unconditionally copies `size` bytes back into `buffer` via `GetByteArrayRegion`. If the Java `read` implementation returns fewer bytes than requested (e.g. at EOF), the remaining bytes in `jBuffer` are uninitialized and will be copied into `buffer`, corrupting the caller's data. The copy should be limited to the actual number of bytes returned (`res`), and `res` should be validated to be within `[0, size]` before casting to `jsize`.",
+        "side": "right"
+      },
+      {
+        "path": "modules/videoio/misc/java/src/cpp/videoio_converters.cpp",
+        "start_line": 29,
+        "end_line": 34,
+        "content": "`seek` returns `0` when `m_seek` is null, which is indistinguishable from a successful seek to offset 0. More importantly, `CallLongMethod` may return `-1` and set a pending JNI exception if the Java method throws; the pending exception is never cleared, which can cause subsequent JNI calls to fail. Consider checking `env->ExceptionCheck()` and clearing the exception.",
+        "side": "right"
+      },
+      {
+        "path": "modules/videoio/misc/java/src/cpp/videoio_converters.cpp",
+        "start_line": 37,
+        "end_line": 54,
+        "content": "`vector_VideoCaptureAPIs_to_List` caches `juArrayList` and `jInteger` in `static` local variables. JNI class references obtained via `FindClass` are local references and must not be cached across JNI calls; they become invalid once the native method returns. Use `NewGlobalRef` (and delete them appropriately) or re-resolve the classes on each call. The same applies to the `static` `jmethodID`s if the class reference is not held globally.",
+        "side": "right"
+      },
+      {
+        "path": "modules/videoio/misc/java/src/cpp/videoio_converters.cpp",
+        "start_line": 1,
+        "end_line": 54,
+        "content": "The `JavaStreamReader` constructor does not check whether `GetMethodID` returned null. If the Java class does not implement the expected `read([BJ)J` / `seek(JI)J` signatures, `m_read`/`m_seek` will be null and the pending `NoSuchMethodError` exception is left set, which can break subsequent JNI calls. Consider clearing the exception and/or reporting the failure.",
+        "side": "right"
+      },
+      {
+        "path": "modules/videoio/misc/java/src/cpp/videoio_converters.hpp",
+        "start_line": 10,
+        "end_line": 21,
+        "content": "`JavaStreamReader` stores a raw `JNIEnv*` and a global `jobject`. The `JNIEnv*` is only valid on the thread that created the object; if `IStreamReader` methods are invoked from a different thread (e.g. a decoder thread), using the stored `env` is undefined behavior. Consider attaching to the current thread via `JavaVM` or documenting/enforcing the single-thread constraint.",
+        "side": "right"
+      },
+      {
+        "path": "modules/videoio/misc/java/test/VideoCaptureTest.java",
+        "start_line": 108,
+        "end_line": 122,
+        "content": "The `seek` override only handles `origin == 0` (SEEK_SET) and silently ignores SEEK_CUR/SEEK_END, returning the current file pointer. This makes the test pass only for the specific access pattern used by the backend and does not correctly implement the `IStreamReader.seek` contract. At minimum, handle `origin == 1` (SEEK_CUR) and `origin == 2` (SEEK_END) or throw for unsupported origins.",
+        "side": "right"
+      },
+      {
+        "path": "modules/videoio/misc/java/test/VideoCaptureTest.java",
+        "start_line": 96,
+        "end_line": 106,
+        "content": "`f.read(buffer)` may return fewer bytes than `buffer.length`; returning that value is correct, but the test does not verify that the returned count is propagated correctly. More importantly, the `RandomAccessFile f` is never closed, leaking a file descriptor. Consider closing it in a `finally`/`tearDown`.",
+        "side": "right"
+      },
+      {
+        "path": "modules/python/src2/hdr_parser.py",
+        "start_line": 193,
+        "end_line": 194,
+        "content": "The new branch combines multi-word primitive types only when `prev_w` is one of `signed/unsigned/short/long` and `w` is one of `char/short/int/long`. This handles `long long`, `unsigned long long`, etc., but note that `prev_w` is the previous word in the token list, so for `unsigned long long` the second `long` will have `prev_w == 'long'` and `w == 'long'`, which works. However, `signed char`/`unsigned char` will now be parsed as a single type, which may not be desired if the rest of the pipeline expects `char`. Verify that downstream type handling (e.g. `type_dict`) has entries for `signed char`/`unsigned char` or that they are normalized.",
+        "side": "right"
+      },
+      {
+        "path": "modules/java/generator/gen_java.py",
+        "start_line": 522,
+        "end_line": 530,
+        "content": "Changing `type_dict.setdefault(\"Ptr_\"+name, {}).update(...)` to only set the entry when `(\"Ptr_\"+name) not in type_dict` changes behavior: previously, re-registering a class would update/overwrite the `Ptr_` entry (e.g. when the same class name appears in different modules or is re-parsed). Now the first registration wins and later ones are silently ignored. If the intent is to allow `gen_dict.json` overrides (as done for `Ptr_IStreamReader`), this is fine, but it also means legitimate re-registrations with updated `fullNameCPP`/`j_import` will be dropped. Confirm this is intended.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"modules/videoio/misc/java/src/cpp/videoio_converters.cpp\",\n      \"start_line\": 16,\n      \"end_line\": 27,\n      \"content\": \"The `read` implementation allocates a new `jbyteArray` of size `size` and then unconditionally copies `size` bytes back into `buffer` via `GetByteArrayRegion`. If the Java `read` implementation returns fewer bytes than requested (e.g. at EOF), the remaining bytes in `jBuffer` are uninitialized and will be copied into `buffer`, corrupting the caller's data. The copy should be limited to the actual number of bytes returned (`res`), and `res` should be validated to be within `[0, size]` before casting to `jsize`.\"\n    },\n    {\n      \"path\": \"modules/videoio/misc/java/src/cpp/videoio_converters.cpp\",\n      \"start_line\": 29,\n      \"end_line\": 34,\n      \"content\": \"`seek` returns `0` when `m_seek` is null, which is indistinguishable from a successful seek to offset 0. More importantly, `CallLongMethod` may return `-1` and set a pending JNI exception if the Java method throws; the pending exception is never cleared, which can cause subsequent JNI calls to fail. Consider checking `env->ExceptionCheck()` and clearing the exception.\"\n    },\n    {\n      \"path\": \"modules/videoio/misc/java/src/cpp/videoio_converters.cpp\",\n      \"start_line\": 37,\n      \"end_line\": 54,\n      \"content\": \"`vector_VideoCaptureAPIs_to_List` caches `juArrayList` and `jInteger` in `static` local variables. JNI class references obtained via `FindClass` are local references and must not be cached across JNI calls; they become invalid once the native method returns. Use `NewGlobalRef` (and delete them appropriately) or re-resolve the classes on each call. The same applies to the `static` `jmethodID`s if the class reference is not held globally.\"\n    },\n    {\n      \"path\": \"modules/videoio/misc/java/src/cpp/videoio_converters.cpp\",\n      \"start_line\": 1,\n      \"end_line\": 54,\n      \"content\": \"The `JavaStreamReader` constructor does not check whether `GetMethodID` returned null. If the Java class does not implement the expected `read([BJ)J` / `seek(JI)J` signatures, `m_read`/`m_seek` will be null and the pending `NoSuchMethodError` exception is left set, which can break subsequent JNI calls. Consider clearing the exception and/or reporting the failure.\"\n    },\n    {\n      \"path\": \"modules/videoio/misc/java/src/cpp/videoio_converters.hpp\",\n      \"start_line\": 10,\n      \"end_line\": 21,\n      \"content\": \"`JavaStreamReader` stores a raw `JNIEnv*` and a global `jobject`. The `JNIEnv*` is only valid on the thread that created the object; if `IStreamReader` methods are invoked from a different thread (e.g. a decoder thread), using the stored `env` is undefined behavior. Consider attaching to the current thread via `JavaVM` or documenting/enforcing the single-thread constraint.\"\n    },\n    {\n      \"path\": \"modules/videoio/misc/java/test/VideoCaptureTest.java\",\n      \"start_line\": 108,\n      \"end_line\": 122,\n      \"content\": \"The `seek` override only handles `origin == 0` (SEEK_SET) and silently ignores SEEK_CUR/SEEK_END, returning the current file pointer. This makes the test pass only for the specific access pattern used by the backend and does not correctly implement the `IStreamReader.seek` contract. At minimum, handle `origin == 1` (SEEK_CUR) and `origin == 2` (SEEK_END) or throw for unsupported origins.\"\n    },\n    {\n      \"path\": \"modules/videoio/misc/java/test/VideoCaptureTest.java\",\n      \"start_line\": 96,\n      \"end_line\": 106,\n      \"content\": \"`f.read(buffer)` may return fewer bytes than `buffer.length`; returning that value is correct, but the test does not verify that the returned count is propagated correctly. More importantly, the `RandomAccessFile f` is never closed, leaking a file descriptor. Consider closing it in a `finally`/`tearDown`.\"\n    },\n    {\n      \"path\": \"modules/python/src2/hdr_parser.py\",\n      \"start_line\": 193,\n      \"end_line\": 194,\n      \"content\": \"The new branch combines multi-word primitive types only when `prev_w` is one of `signed/unsigned/short/long` and `w` is one of `char/short/int/long`. This handles `long long`, `unsigned long long`, etc., but note that `prev_w` is the previous word in the token list, so for `unsigned long long` the second `long` will have `prev_w == 'long'` and `w == 'long'`, which works. However, `signed char`/`unsigned char` will now be parsed as a single type, which may not be desired if the rest of the pipeline expects `char`. Verify that downstream type handling (e.g. `type_dict`) has entries for `signed char`/`unsigned char` or that they are normalized.\"\n    },\n    {\n      \"path\": \"modules/java/generator/gen_java.py\",\n      \"start_line\": 522,\n      \"end_line\": 530,\n      \"content\": \"Changing `type_dict.setdefault(\\\"Ptr_\\\"+name, {}).update(...)` to only set the entry when `(\\\"Ptr_\\\"+name) not in type_dict` changes behavior: previously, re-registering a class would update/overwrite the `Ptr_` entry (e.g. when the same class name appears in different modules or is re-parsed). Now the first registration wins and later ones are silently ignored. If the intent is to allow `gen_dict.json` overrides (as done for `Ptr_IStreamReader`), this is fine, but it also means legitimate re-registrations with updated `fullNameCPP`/`j_import` will be dropped. Confirm this is intended.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,45 @@
+{
+  "instance_id": "comfyanonymous__ComfyUI@0bb6023",
+  "repo": "comfyanonymous/ComfyUI",
+  "base_commit": "6c0377f43e7b6ed58d48ae05cff9bc45b52ef5e0",
+  "head_commit": "0bb60235132cc72daea81427107a40ba1ccb5ddf",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:32:00.180394+00:00",
+  "duration_seconds": 5.15,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "comfy/controlnet.py",
+        "start_line": 824,
+        "end_line": 824,
+        "content": "The original code `\"adapter.body.{}.\".format(i, j)` was a bug (extra unused argument), but the fix `\"adapter.body.{}.\".format(i, )` is equivalent to `\"adapter.body.{}.\".format(i)`. The trailing comma is harmless but unnecessary. More importantly, verify this is the intended key: the loop variable `j` is now unused in this line, which is correct if the original intent was to map `adapter.body.{i}.` to `body.{i*2}.`. However, note that the previous line already maps `adapter.body.{i}.resnets.{j}.` to `body.{i*2+j}.`, so this line handles the non-resnet body keys. This looks correct.",
+        "side": "right"
+      },
+      {
+        "path": "comfy_extras/nodes_clip_sdxl.py",
+        "start_line": 25,
+        "end_line": 33,
+        "content": "Moving `clip` to the top of the required inputs changes the node's input ordering, which will break existing workflows that rely on positional input order (e.g., API-format prompts or serialized workflows). This is a backward-incompatible change. Consider keeping `clip` at its original position or providing a migration path.",
+        "side": "right"
+      },
+      {
+        "path": "ruff.toml",
+        "start_line": 5,
+        "end_line": 10,
+        "content": "Enabling the entire `F` rule set (Pyflakes) is broader than the previous `F401`/`F841` selection and includes `F821` (undefined-name), which the previous comment explicitly noted had 7 remaining errors. This will likely cause CI/lint failures. Either fix the remaining `F821` errors in this PR or keep `F821` disabled until they are addressed.",
+        "side": "right"
+      },
+      {
+        "path": "notebooks/comfyui_colab.ipynb",
+        "start_line": 287,
+        "end_line": 290,
+        "content": "The second cell still uses `time.sleep(0.5)` but the `import time` was removed from this cell. If this cell is executed independently (which is common in Colab notebooks), it will raise `NameError: name 'time' is not defined`. Either re-add `import time` here or ensure the earlier cell that imports it is always run first.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"comfy/controlnet.py\",\n      \"start_line\": 824,\n      \"end_line\": 824,\n      \"content\": \"The original code `\\\"adapter.body.{}.\\\".format(i, j)` was a bug (extra unused argument), but the fix `\\\"adapter.body.{}.\\\".format(i, )` is equivalent to `\\\"adapter.body.{}.\\\".format(i)`. The trailing comma is harmless but unnecessary. More importantly, verify this is the intended key: the loop variable `j` is now unused in this line, which is correct if the original intent was to map `adapter.body.{i}.` to `body.{i*2}.`. However, note that the previous line already maps `adapter.body.{i}.resnets.{j}.` to `body.{i*2+j}.`, so this line handles the non-resnet body keys. This looks correct.\"\n    },\n    {\n      \"path\": \"comfy_extras/nodes_clip_sdxl.py\",\n      \"start_line\": 25,\n      \"end_line\": 33,\n      \"content\": \"Moving `clip` to the top of the required inputs changes the node's input ordering, which will break existing workflows that rely on positional input order (e.g., API-format prompts or serialized workflows). This is a backward-incompatible change. Consider keeping `clip` at its original position or providing a migration path.\"\n    },\n    {\n      \"path\": \"ruff.toml\",\n      \"start_line\": 5,\n      \"end_line\": 10,\n      \"content\": \"Enabling the entire `F` rule set (Pyflakes) is broader than the previous `F401`/`F841` selection and includes `F821` (undefined-name), which the previous comment explicitly noted had 7 remaining errors. This will likely cause CI/lint failures. Either fix the remaining `F821` errors in this PR or keep `F821` disabled until they are addressed.\"\n    },\n    {\n      \"path\": \"notebooks/comfyui_colab.ipynb\",\n      \"start_line\": 287,\n      \"end_line\": 290,\n      \"content\": \"The second cell still uses `time.sleep(0.5)` but the `import time` was removed from this cell. If this cell is executed independently (which is common in Colab notebooks), it will raise `NameError: name 'time' is not defined`. Either re-add `import time` here or ensure the earlier cell that imports it is always run first.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,24 @@
+{
+  "instance_id": "timescale__timescaledb@5ab9b12",
+  "repo": "timescale/timescaledb",
+  "base_commit": "9382a90adac7a889c1df0d821a12ba1d29c8dcba",
+  "head_commit": "5ab9b1295e6bdce4834005e3738074b3a844eeb4",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:58.998153+00:00",
+  "duration_seconds": 3.18,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "tsl/src/compression/recompress.c",
+        "start_line": 171,
+        "end_line": 173,
+        "content": "This elog is placed unconditionally at the start of `recompress_chunk_segmentwise_impl`, but the message \"using non-segmentby index for recompression\" is only accurate when there are no segmentby columns. When segmentby columns exist, this log will be misleading. Consider moving the log into the branch that actually handles the no-segmentby case, or reword it to reflect the actual code path.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\"comments\": [{\"path\": \"tsl/src/compression/recompress.c\", \"start_line\": 171, \"end_line\": 173, \"content\": \"This elog is placed unconditionally at the start of `recompress_chunk_segmentwise_impl`, but the message \\\"using non-segmentby index for recompression\\\" is only accurate when there are no segmentby columns. When segmentby columns exist, this log will be misleading. Consider moving the log into the branch that actually handles the no-segmentby case, or reword it to reflect the actual code path.\"}]}",
+  "stderr": null
+}

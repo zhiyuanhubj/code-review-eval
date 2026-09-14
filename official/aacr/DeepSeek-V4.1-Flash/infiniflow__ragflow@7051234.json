@@ -1,0 +1,38 @@
+{
+  "instance_id": "infiniflow__ragflow@7051234",
+  "repo": "infiniflow/ragflow",
+  "base_commit": "b1c874698469ac999d210cd8cde59425781e4da2",
+  "head_commit": "705123406ec7cd5eb1f9be26f6c5c31357aeffc9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:34:45.161662+00:00",
+  "duration_seconds": 2.95,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "api/db/services/document_service.py",
+        "start_line": 331,
+        "end_line": 340,
+        "content": "`get_doc_ids_by_doc_names` returns `None` when no documents match, but the caller in `api_app.py` immediately does `doc_ids.append(...)`, which will raise `AttributeError: 'NoneType' object has no attribute 'append'`. Return an empty list instead of `None`.",
+        "side": "right"
+      },
+      {
+        "path": "api/apps/api_app.py",
+        "start_line": 618,
+        "end_line": 618,
+        "content": "`DocumentService.get_doc_ids_by_doc_names` can return `None` when no names match, causing `doc_ids.append(...)` to fail. Ensure the service returns `[]` or guard with `or []` here.",
+        "side": "right"
+      },
+      {
+        "path": "api/db/services/document_service.py",
+        "start_line": 333,
+        "end_line": 335,
+        "content": "The query filters only by `name`, not by `tenant_id`/`kb_id`. Since document names are not globally unique, this can return document IDs belonging to other tenants/knowledge bases, allowing deletion of unrelated documents. Filter by the current tenant/kb as well.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"api/db/services/document_service.py\",\n      \"start_line\": 331,\n      \"end_line\": 340,\n      \"content\": \"`get_doc_ids_by_doc_names` returns `None` when no documents match, but the caller in `api_app.py` immediately does `doc_ids.append(...)`, which will raise `AttributeError: 'NoneType' object has no attribute 'append'`. Return an empty list instead of `None`.\"\n    },\n    {\n      \"path\": \"api/apps/api_app.py\",\n      \"start_line\": 618,\n      \"end_line\": 618,\n      \"content\": \"`DocumentService.get_doc_ids_by_doc_names` can return `None` when no names match, causing `doc_ids.append(...)` to fail. Ensure the service returns `[]` or guard with `or []` here.\"\n    },\n    {\n      \"path\": \"api/db/services/document_service.py\",\n      \"start_line\": 333,\n      \"end_line\": 335,\n      \"content\": \"The query filters only by `name`, not by `tenant_id`/`kb_id`. Since document names are not globally unique, this can return document IDs belonging to other tenants/knowledge bases, allowing deletion of unrelated documents. Filter by the current tenant/kb as well.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,16 @@
+{
+  "instance_id": "n8n-io__n8n@77ece2e",
+  "repo": "n8n-io/n8n",
+  "base_commit": "3eb1c1c783a45a150fa7229d8f2590d3786f58ad",
+  "head_commit": "77ece2e572096e6ad267e7f9363ebbf9f8ba46e8",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:28:20.261287+00:00",
+  "duration_seconds": 47.59,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\"comments\":[]}",
+  "stderr": null
+}

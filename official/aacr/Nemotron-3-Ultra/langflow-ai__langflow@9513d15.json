@@ -1,0 +1,29 @@
+{
+  "instance_id": "langflow-ai__langflow@9513d15",
+  "repo": "langflow-ai/langflow",
+  "base_commit": "d035e41e631f0da97bdc0e93e7afdae78d5e94da",
+  "head_commit": "9513d152197e5336fbc00eb6b891f1ffb25ad62d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:56:05.590791+00:00",
+  "duration_seconds": 19.6,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/backend/base/langflow/graph/vertex/base.py",
+        "start_line": 621,
+        "end_line": 660,
+        "content": "The `_log_transaction_async` method now awaits all previous tasks sequentially before creating a new one, which serializes logging and could become a bottleneck. The original fire-and-forget approach with `add_done_callback` was non-blocking. Consider keeping the non-blocking pattern but adding proper cleanup on vertex destruction (e.g., in `__del__` or an explicit `close` method) to avoid leaked tasks. If serialization is intentional for ordering guarantees, add a comment explaining why."
+      },
+      {
+        "path": "src/backend/base/langflow/graph/vertex/base.py",
+        "start_line": 650,
+        "end_line": 658,
+        "content": "The `except asyncio.CancelledError` block cancels tasks in `self.log_transaction_tasks`, but this set was already cleared at line 633 (`self.log_transaction_tasks.clear()`). The loop will iterate over an empty set. Move the cancellation logic before clearing the set, or capture the tasks list before clearing."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/backend/base/langflow/graph/vertex/base.py\",\n      \"start_line\": 621,\n      \"end_line\": 660,\n      \"content\": \"The `_log_transaction_async` method now awaits all previous tasks sequentially before creating a new one, which serializes logging and could become a bottleneck. The original fire-and-forget approach with `add_done_callback` was non-blocking. Consider keeping the non-blocking pattern but adding proper cleanup on vertex destruction (e.g., in `__del__` or an explicit `close` method) to avoid leaked tasks. If serialization is intentional for ordering guarantees, add a comment explaining why.\"\n    },\n    {\n      \"path\": \"src/backend/base/langflow/graph/vertex/base.py\",\n      \"start_line\": 650,\n      \"end_line\": 658,\n      \"content\": \"The `except asyncio.CancelledError` block cancels tasks in `self.log_transaction_tasks`, but this set was already cleared at line 633 (`self.log_transaction_tasks.clear()`). The loop will iterate over an empty set. Move the cancellation logic before clearing the set, or capture the tasks list before clearing.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,29 @@
+{
+  "instance_id": "bitcoin__bitcoin@724546e",
+  "repo": "bitcoin/bitcoin",
+  "base_commit": "d1b583181dcc31613cd586d63329cb4c4a586972",
+  "head_commit": "724546e28a5778e1c3f5100406ed7237f76aab55",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:31.461036+00:00",
+  "duration_seconds": 16.34,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/bitcoin-cli.cpp",
+        "start_line": 585,
+        "end_line": 585,
+        "content": "Dangling reference: `strprintf(...)` returns a temporary `std::string`, and binding it to `std::string_view services` leaves `services` pointing to freed memory once the temporary is destroyed at the end of this statement. The subsequent use of `services` in the next `strprintf` reads freed memory (UB). Use `const std::string services{...}` instead of `std::string_view`."
+      },
+      {
+        "path": "src/bitcoin-cli.cpp",
+        "start_line": 668,
+        "end_line": 670,
+        "content": "The header already shows services when details are requested (via the `- services %s` suffix), and this block adds a 'Local services' line when details are NOT requested. This looks intentional, but note the naming/formatting inconsistency: `FormatServices` is used for the header while `ServicesList` is a separate near-duplicate helper. Consider reusing a single formatting helper to avoid divergence between the two representations."
+      }
+    ]
+  },
+  "raw_output": "Looking at the diff, I see a reference to `FormatServices` which is used but not defined in the diff. Let me analyze the actual issues.\n\nThe key issue is a lifetime bug with `std::string_view services`.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/bitcoin-cli.cpp\",\n      \"start_line\": 585,\n      \"end_line\": 585,\n      \"content\": \"Dangling reference: `strprintf(...)` returns a temporary `std::string`, and binding it to `std::string_view services` leaves `services` pointing to freed memory once the temporary is destroyed at the end of this statement. The subsequent use of `services` in the next `strprintf` reads freed memory (UB). Use `const std::string services{...}` instead of `std::string_view`.\"\n    },\n    {\n      \"path\": \"src/bitcoin-cli.cpp\",\n      \"start_line\": 668,\n      \"end_line\": 670,\n      \"content\": \"The header already shows services when details are requested (via the `- services %s` suffix), and this block adds a 'Local services' line when details are NOT requested. This looks intentional, but note the naming/formatting inconsistency: `FormatServices` is used for the header while `ServicesList` is a separate near-duplicate helper. Consider reusing a single formatting helper to avoid divergence between the two representations.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

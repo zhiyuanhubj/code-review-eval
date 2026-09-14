@@ -1,0 +1,16 @@
+{
+  "instance_id": "keycloak__keycloak@79dbba9",
+  "repo": "keycloak/keycloak",
+  "base_commit": "602df06191823bfc01828a00c491af41e39da751",
+  "head_commit": "79dbba9b179015cfd599ebac63112e34c9d724af",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:28.986856+00:00",
+  "duration_seconds": 0.92,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RepoError: commit 79dbba9b179015cfd599ebac63112e34c9d724af unavailable after fetch: fatal: remote error: upload-pack: not our ref 79dbba9b179015cfd599ebac63112e34c9d724af"
+}

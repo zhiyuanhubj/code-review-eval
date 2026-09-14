@@ -1,0 +1,29 @@
+{
+  "instance_id": "mpv-player__mpv@0b0330f",
+  "repo": "mpv-player/mpv",
+  "base_commit": "5ba7ee513751dd005379a06fb627303e6fe1b3dd",
+  "head_commit": "0b0330fa9d5d70c78f36e1010a3b826fa7046387",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:49:43.421934+00:00",
+  "duration_seconds": 22.18,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "misc/language.c",
+        "start_line": 347,
+        "end_line": 350,
+        "content": "The logic `if (*hi || *f)` resets `lang_length` and continues the loop when either hearing_impaired OR forced is detected. This means if a filename has both tags (e.g., 'foo.en.forced.hi.srt'), only the first one encountered will be processed, and the second will be ignored because the loop continues with `lang_length = 0`. The tags should be processed independently without skipping the rest of the filename parsing."
+      },
+      {
+        "path": "misc/language.c",
+        "start_line": 337,
+        "end_line": 350,
+        "content": "The variable `checked_tag` is now used for both 'hi/sdh/cc' and 'forced' suffixes, but the name suggests it only checks one tag. Consider renaming to `checked_suffix` or similar for clarity. Also, the logic only allows one suffix to be checked per delimiter position due to `checked_tag = true` - if a filename has multiple suffixes separated by delimiters (e.g., 'foo.en.forced.hi.srt'), only the first will be recognized."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"misc/language.c\",\n      \"start_line\": 347,\n      \"end_line\": 350,\n      \"content\": \"The logic `if (*hi || *f)` resets `lang_length` and continues the loop when either hearing_impaired OR forced is detected. This means if a filename has both tags (e.g., 'foo.en.forced.hi.srt'), only the first one encountered will be processed, and the second will be ignored because the loop continues with `lang_length = 0`. The tags should be processed independently without skipping the rest of the filename parsing.\"\n    },\n    {\n      \"path\": \"misc/language.c\",\n      \"start_line\": 337,\n      \"end_line\": 350,\n      \"content\": \"The variable `checked_tag` is now used for both 'hi/sdh/cc' and 'forced' suffixes, but the name suggests it only checks one tag. Consider renaming to `checked_suffix` or similar for clarity. Also, the logic only allows one suffix to be checked per delimiter position due to `checked_tag = true` - if a filename has multiple suffixes separated by delimiters (e.g., 'foo.en.forced.hi.srt'), only the first will be recognized.\"\n    }\n  ]\n}",
+  "stderr": null
+}

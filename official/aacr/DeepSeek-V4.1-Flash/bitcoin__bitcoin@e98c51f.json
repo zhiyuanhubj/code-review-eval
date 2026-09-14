@@ -1,0 +1,24 @@
+{
+  "instance_id": "bitcoin__bitcoin@e98c51f",
+  "repo": "bitcoin/bitcoin",
+  "base_commit": "663a9cabf811e2fc53102bc6da00d09fc99d1d81",
+  "head_commit": "e98c51fcce9ae3f441a416cab32a5c85756c6c64",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:35:21.095905+00:00",
+  "duration_seconds": 2.66,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/init.cpp",
+        "start_line": 1207,
+        "end_line": 1207,
+        "content": "The `-bind` option is added to the list of options that allow a `=suffix`, but `-bind` does not support a network suffix. This will cause `-bind=127.0.0.1:8333=foo` to be accepted by `CheckHostPortOptions` (since it strips the suffix before validation), but the suffix is not handled anywhere else, leading to unexpected behavior. Remove `-bind` from this list or implement proper suffix handling for it.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/init.cpp\",\n      \"start_line\": 1207,\n      \"end_line\": 1207,\n      \"content\": \"The `-bind` option is added to the list of options that allow a `=suffix`, but `-bind` does not support a network suffix. This will cause `-bind=127.0.0.1:8333=foo` to be accepted by `CheckHostPortOptions` (since it strips the suffix before validation), but the suffix is not handled anywhere else, leading to unexpected behavior. Remove `-bind` from this list or implement proper suffix handling for it.\"\n    }\n  ]\n}",
+  "stderr": null
+}

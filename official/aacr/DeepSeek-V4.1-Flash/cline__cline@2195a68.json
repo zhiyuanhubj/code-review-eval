@@ -1,0 +1,31 @@
+{
+  "instance_id": "cline__cline@2195a68",
+  "repo": "cline/cline",
+  "base_commit": "398bc87a64800e021966868243be2f09be72e73c",
+  "head_commit": "2195a689b787a963bdacc35d348f4590c30a2692",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:33:14.913034+00:00",
+  "duration_seconds": 3.19,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/core/controller/index.ts",
+        "start_line": 461,
+        "end_line": 461,
+        "content": "This change removes the nonce reset after validation. Since `_authNonce` is now a constant generated once at service construction, the same nonce is reused for every auth request for the lifetime of the extension. This weakens the CSRF/state protection: a previously observed `state` value remains valid indefinitely and can be replayed. Consider rotating the nonce per auth request (and resetting it after successful validation) rather than making it a fixed readonly value.",
+        "side": "right"
+      },
+      {
+        "path": "src/extension.ts",
+        "start_line": 310,
+        "end_line": 320,
+        "content": "The state mismatch is now only a warning that the user can dismiss by choosing \"Store\". Combined with the nonce no longer being reset/rotated, this effectively removes the state validation guarantee. An attacker who can trigger the auth callback URI with an arbitrary token and a mismatched state can get the user to store an attacker-controlled token. At minimum, keep the hard failure for mismatched state, or clearly scope the bypass to the intended external-signin flow (e.g. only when no auth request is in progress).",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/core/controller/index.ts\",\n      \"start_line\": 461,\n      \"end_line\": 461,\n      \"content\": \"This change removes the nonce reset after validation. Since `_authNonce` is now a constant generated once at service construction, the same nonce is reused for every auth request for the lifetime of the extension. This weakens the CSRF/state protection: a previously observed `state` value remains valid indefinitely and can be replayed. Consider rotating the nonce per auth request (and resetting it after successful validation) rather than making it a fixed readonly value.\"\n    },\n    {\n      \"path\": \"src/extension.ts\",\n      \"start_line\": 310,\n      \"end_line\": 320,\n      \"content\": \"The state mismatch is now only a warning that the user can dismiss by choosing \\\"Store\\\". Combined with the nonce no longer being reset/rotated, this effectively removes the state validation guarantee. An attacker who can trigger the auth callback URI with an arbitrary token and a mismatched state can get the user to store an attacker-controlled token. At minimum, keep the hard failure for mismatched state, or clearly scope the bypass to the intended external-signin flow (e.g. only when no auth request is in progress).\"\n    }\n  ]\n}",
+  "stderr": null
+}

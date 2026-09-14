@@ -1,0 +1,45 @@
+{
+  "instance_id": "browser-use__browser-use@0b21e50",
+  "repo": "browser-use/browser-use",
+  "base_commit": "fa461585f1fc2d4a430e68e6c115a12f4936fe73",
+  "head_commit": "0b21e50ca640581ecd46990475c8b223eaa05045",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:33:28.137419+00:00",
+  "duration_seconds": 6.69,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "browser_use/browser/browser.py",
+        "start_line": 218,
+        "end_line": 234,
+        "content": "The launch command was changed from `create_subprocess_shell` with a list to `create_subprocess_exec`. Previously the list was passed as a single argument to the shell (which is a bug, but the shell would still parse it). Now with `create_subprocess_exec`, the first positional argument is `self.config.browser_binary_path`, which may be `None` when the user has not provided a custom binary path. In that case `create_subprocess_exec(None, ...)` will raise a `TypeError`. The previous code path relied on `CHROME_ARGS` containing the binary? Actually no — the old code also passed `self.config.browser_binary_path` as the first element of the list. But the old code used `create_subprocess_shell` with `shell=False`, which is itself broken. Either way, this branch is only reached when `browser_binary_path` is set (the `_setup_user_provided_browser` path), so please confirm. If `browser_binary_path` can be `None` here, this will crash.",
+        "side": "right"
+      },
+      {
+        "path": "browser_use/browser/browser.py",
+        "start_line": 108,
+        "end_line": 108,
+        "content": "`chrome_remote_debugging_port` defaults to `CHROME_DEBUG_PORT` (9222). However, the docstring says it is used 'when browser_binary_path is supplied'. Since the default is non-None, the `--remote-debugging-port` arg is now always injected via `CHROME_DEBUGGING_ARG`, which is fine, but the field being `int | None` with a non-None default means users cannot easily disable it. Consider whether `None` should be allowed to skip the arg entirely, or document that it must be an int.",
+        "side": "right"
+      },
+      {
+        "path": "browser_use/browser/browser.py",
+        "start_line": 288,
+        "end_line": 291,
+        "content": "If `self.config.chrome_remote_debugging_port` is `None`, `s.connect_ex(('localhost', None))` will raise a `TypeError`. Also, `chrome_args.remove(f'--remote-debugging-port={self.config.chrome_remote_debugging_port}')` would try to remove `'--remote-debugging-port=None'` which won't be present (since `CHROME_DEBUGGING_ARG % {...}` would produce `'--remote-debugging-port=None'` — actually it would, so remove would succeed but the arg is invalid). Guard against `None` here.",
+        "side": "right"
+      },
+      {
+        "path": "browser_use/browser/browser.py",
+        "start_line": 218,
+        "end_line": 220,
+        "content": "The set literal `{...}` is used to deduplicate args, but sets are unordered. The comment acknowledges this ('usually preserves the order, but not guaranteed'). For Chrome CLI args, order can matter (e.g., `--user-data-dir` before other flags). Consider using `dict.fromkeys(...)` to preserve insertion order while deduplicating.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"browser_use/browser/browser.py\",\n      \"start_line\": 218,\n      \"end_line\": 234,\n      \"content\": \"The launch command was changed from `create_subprocess_shell` with a list to `create_subprocess_exec`. Previously the list was passed as a single argument to the shell (which is a bug, but the shell would still parse it). Now with `create_subprocess_exec`, the first positional argument is `self.config.browser_binary_path`, which may be `None` when the user has not provided a custom binary path. In that case `create_subprocess_exec(None, ...)` will raise a `TypeError`. The previous code path relied on `CHROME_ARGS` containing the binary? Actually no — the old code also passed `self.config.browser_binary_path` as the first element of the list. But the old code used `create_subprocess_shell` with `shell=False`, which is itself broken. Either way, this branch is only reached when `browser_binary_path` is set (the `_setup_user_provided_browser` path), so please confirm. If `browser_binary_path` can be `None` here, this will crash.\"\n    },\n    {\n      \"path\": \"browser_use/browser/browser.py\",\n      \"start_line\": 108,\n      \"end_line\": 108,\n      \"content\": \"`chrome_remote_debugging_port` defaults to `CHROME_DEBUG_PORT` (9222). However, the docstring says it is used 'when browser_binary_path is supplied'. Since the default is non-None, the `--remote-debugging-port` arg is now always injected via `CHROME_DEBUGGING_ARG`, which is fine, but the field being `int | None` with a non-None default means users cannot easily disable it. Consider whether `None` should be allowed to skip the arg entirely, or document that it must be an int.\"\n    },\n    {\n      \"path\": \"browser_use/browser/browser.py\",\n      \"start_line\": 288,\n      \"end_line\": 291,\n      \"content\": \"If `self.config.chrome_remote_debugging_port` is `None`, `s.connect_ex(('localhost', None))` will raise a `TypeError`. Also, `chrome_args.remove(f'--remote-debugging-port={self.config.chrome_remote_debugging_port}')` would try to remove `'--remote-debugging-port=None'` which won't be present (since `CHROME_DEBUGGING_ARG % {...}` would produce `'--remote-debugging-port=None'` — actually it would, so remove would succeed but the arg is invalid). Guard against `None` here.\"\n    },\n    {\n      \"path\": \"browser_use/browser/browser.py\",\n      \"start_line\": 218,\n      \"end_line\": 220,\n      \"content\": \"The set literal `{...}` is used to deduplicate args, but sets are unordered. The comment acknowledges this ('usually preserves the order, but not guaranteed'). For Chrome CLI args, order can matter (e.g., `--user-data-dir` before other flags). Consider using `dict.fromkeys(...)` to preserve insertion order while deduplicating.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

@@ -1,0 +1,87 @@
+{
+  "instance_id": "facebook__react@b045f18",
+  "repo": "facebook/react",
+  "base_commit": "99563e91736e9de473c4865d5cb6fd9eb1a26bcb",
+  "head_commit": "b045f18e378341876ee69e729fc855cab501c3cd",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:35:15.942862+00:00",
+  "duration_seconds": 12.3,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/react-reconciler/src/ReactFiberBeginWork.js",
+        "start_line": 871,
+        "end_line": 908,
+        "content": "`updateActivityComponent` does not handle the `mode` prop for visibility. Unlike `updateOffscreenComponent`, it never sets `workInProgress.memoizedState` or `workInProgress.flags` based on `nextMode`. As a result, `<Activity mode=\"hidden\">` will always render its children as visible, and the Offscreen fiber's `memoizedState` will be `null`, which can break downstream logic (e.g., `updateOffscreenComponent`/`completeWork`/`commitWork` paths that read `memoizedState`). Consider delegating to `updateOffscreenComponent` (or replicating its mode handling) so hidden mode actually hides children.",
+        "side": "right"
+      },
+      {
+        "path": "packages/react-reconciler/src/ReactFiberBeginWork.js",
+        "start_line": 871,
+        "end_line": 908,
+        "content": "The `updateActivityComponent` branch does not handle `workInProgress.ref` cleanup or `workInProgress.flags` for refs. `updateOffscreenComponent` sets `workInProgress.flags |= Ref` when the ref changes; here the ref is copied onto the child fragment but the parent fiber's ref flag is never set, so refs on `<Activity>` may not be attached/detached correctly.",
+        "side": "right"
+      },
+      {
+        "path": "packages/react-reconciler/src/ReactFiberBeginWork.js",
+        "start_line": 871,
+        "end_line": 908,
+        "content": "`updateActivityComponent` ignores `renderLanes` in the update path and does not bail out when props are unchanged. `updateOffscreenComponent` includes a `bailoutOffscreenComponent` fast path; without it, every render of an Activity will re-render its subtree even when nothing changed.",
+        "side": "right"
+      },
+      {
+        "path": "packages/react-reconciler/src/ReactFiberBeginWork.js",
+        "start_line": 871,
+        "end_line": 908,
+        "content": "The `offscreenChildProps` object is recreated on every render and passed to `updateWorkInProgressOffscreenFiber`, which will mark the child as having new pending props each time. This defeats memoization/bailout for the child fragment. Consider reusing `currentChild.pendingProps`/`memoizedProps` when `nextMode` and `nextChildren` are unchanged.",
+        "side": "right"
+      },
+      {
+        "path": "packages/react-reconciler/src/ReactFiberBeginWork.js",
+        "start_line": 871,
+        "end_line": 908,
+        "content": "`updateActivityComponent` does not handle the case where `current.child` is not an Offscreen fiber (e.g., after a previous render produced a different child type). `updateWorkInProgressOffscreenFiber` assumes the current child is an Offscreen fiber; if not, it will produce an invalid work-in-progress. Consider asserting or falling back to a fresh mount.",
+        "side": "right"
+      },
+      {
+        "path": "packages/react-reconciler/src/ReactFiberCompleteWork.js",
+        "start_line": 960,
+        "end_line": 963,
+        "content": "Adding `ActivityComponent` to the fallthrough case that includes `LazyComponent`, `FunctionComponent`, etc. means `completeWork` will call `bubbleProperties(workInProgress)` and return `null` without handling the Offscreen-specific completion logic (e.g., `updateOffscreenComponent`'s `memoizedState`/`flags` handling in `completeWork`). Since `ActivityComponent` wraps an Offscreen child, the Offscreen child will still complete, but the Activity fiber itself will not propagate any Offscreen-related flags. Verify this is intentional; if Activity is meant to behave like Offscreen, it likely needs its own completion handling.",
+        "side": "right"
+      },
+      {
+        "path": "packages/react-reconciler/src/ReactFiber.js",
+        "start_line": 881,
+        "end_line": 889,
+        "content": "`createFiberFromActivity` does not set `fiber.stateNode` (unlike `createFiberFromOffscreen`, which sets `fiber.stateNode = primaryChildInstance`). If any downstream code (e.g., commit phase, DevTools) expects `stateNode` on Offscreen-like fibers, this will be `null`. Confirm whether Activity fibers need a `stateNode`.",
+        "side": "right"
+      },
+      {
+        "path": "packages/react-server/src/ReactFizzServer.js",
+        "start_line": 2265,
+        "end_line": 2268,
+        "content": "`REACT_ACTIVITY_TYPE` is routed to `renderOffscreen`, which reads `props.mode` and `props.children`. Since `Activity` uses the same `mode`/`children` shape this is fine, but note that `renderOffscreen` may also check `props.mode === 'hidden'` and set `task.blockedSegment`/postponement behavior. Ensure the Activity element's `mode` prop is validated the same way as Offscreen (e.g., only 'hidden'/'visible') to avoid silently treating invalid modes as visible.",
+        "side": "right"
+      },
+      {
+        "path": "packages/react/src/ReactClient.js",
+        "start_line": 119,
+        "end_line": 119,
+        "content": "Changing `unstable_Activity` from `REACT_OFFSCREEN_TYPE` to `REACT_ACTIVITY_TYPE` is a breaking change for any code that relied on the previous symbol identity (e.g., `element.type === React.unstable_Activity` comparisons against `REACT_OFFSCREEN_TYPE`, or serialized element types). This is likely intentional for the new Activity component, but it should be called out in the changelog/release notes.",
+        "side": "right"
+      },
+      {
+        "path": "packages/shared/isValidElementType.js",
+        "start_line": 54,
+        "end_line": 54,
+        "content": "`REACT_ACTIVITY_TYPE` is added unconditionally, while `REACT_OFFSCREEN_TYPE` is also unconditional. If Activity is meant to be gated behind a feature flag (like `enableLegacyHidden` for LegacyHidden), consider gating it similarly to avoid exposing an experimental type in stable builds.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/react-reconciler/src/ReactFiberBeginWork.js\",\n      \"start_line\": 871,\n      \"end_line\": 908,\n      \"content\": \"`updateActivityComponent` does not handle the `mode` prop for visibility. Unlike `updateOffscreenComponent`, it never sets `workInProgress.memoizedState` or `workInProgress.flags` based on `nextMode`. As a result, `<Activity mode=\\\"hidden\\\">` will always render its children as visible, and the Offscreen fiber's `memoizedState` will be `null`, which can break downstream logic (e.g., `updateOffscreenComponent`/`completeWork`/`commitWork` paths that read `memoizedState`). Consider delegating to `updateOffscreenComponent` (or replicating its mode handling) so hidden mode actually hides children.\"\n    },\n    {\n      \"path\": \"packages/react-reconciler/src/ReactFiberBeginWork.js\",\n      \"start_line\": 871,\n      \"end_line\": 908,\n      \"content\": \"The `updateActivityComponent` branch does not handle `workInProgress.ref` cleanup or `workInProgress.flags` for refs. `updateOffscreenComponent` sets `workInProgress.flags |= Ref` when the ref changes; here the ref is copied onto the child fragment but the parent fiber's ref flag is never set, so refs on `<Activity>` may not be attached/detached correctly.\"\n    },\n    {\n      \"path\": \"packages/react-reconciler/src/ReactFiberBeginWork.js\",\n      \"start_line\": 871,\n      \"end_line\": 908,\n      \"content\": \"`updateActivityComponent` ignores `renderLanes` in the update path and does not bail out when props are unchanged. `updateOffscreenComponent` includes a `bailoutOffscreenComponent` fast path; without it, every render of an Activity will re-render its subtree even when nothing changed.\"\n    },\n    {\n      \"path\": \"packages/react-reconciler/src/ReactFiberBeginWork.js\",\n      \"start_line\": 871,\n      \"end_line\": 908,\n      \"content\": \"The `offscreenChildProps` object is recreated on every render and passed to `updateWorkInProgressOffscreenFiber`, which will mark the child as having new pending props each time. This defeats memoization/bailout for the child fragment. Consider reusing `currentChild.pendingProps`/`memoizedProps` when `nextMode` and `nextChildren` are unchanged.\"\n    },\n    {\n      \"path\": \"packages/react-reconciler/src/ReactFiberBeginWork.js\",\n      \"start_line\": 871,\n      \"end_line\": 908,\n      \"content\": \"`updateActivityComponent` does not handle the case where `current.child` is not an Offscreen fiber (e.g., after a previous render produced a different child type). `updateWorkInProgressOffscreenFiber` assumes the current child is an Offscreen fiber; if not, it will produce an invalid work-in-progress. Consider asserting or falling back to a fresh mount.\"\n    },\n    {\n      \"path\": \"packages/react-reconciler/src/ReactFiberCompleteWork.js\",\n      \"start_line\": 960,\n      \"end_line\": 963,\n      \"content\": \"Adding `ActivityComponent` to the fallthrough case that includes `LazyComponent`, `FunctionComponent`, etc. means `completeWork` will call `bubbleProperties(workInProgress)` and return `null` without handling the Offscreen-specific completion logic (e.g., `updateOffscreenComponent`'s `memoizedState`/`flags` handling in `completeWork`). Since `ActivityComponent` wraps an Offscreen child, the Offscreen child will still complete, but the Activity fiber itself will not propagate any Offscreen-related flags. Verify this is intentional; if Activity is meant to behave like Offscreen, it likely needs its own completion handling.\"\n    },\n    {\n      \"path\": \"packages/react-reconciler/src/ReactFiber.js\",\n      \"start_line\": 881,\n      \"end_line\": 889,\n      \"content\": \"`createFiberFromActivity` does not set `fiber.stateNode` (unlike `createFiberFromOffscreen`, which sets `fiber.stateNode = primaryChildInstance`). If any downstream code (e.g., commit phase, DevTools) expects `stateNode` on Offscreen-like fibers, this will be `null`. Confirm whether Activity fibers need a `stateNode`.\"\n    },\n    {\n      \"path\": \"packages/react-server/src/ReactFizzServer.js\",\n      \"start_line\": 2265,\n      \"end_line\": 2268,\n      \"content\": \"`REACT_ACTIVITY_TYPE` is routed to `renderOffscreen`, which reads `props.mode` and `props.children`. Since `Activity` uses the same `mode`/`children` shape this is fine, but note that `renderOffscreen` may also check `props.mode === 'hidden'` and set `task.blockedSegment`/postponement behavior. Ensure the Activity element's `mode` prop is validated the same way as Offscreen (e.g., only 'hidden'/'visible') to avoid silently treating invalid modes as visible.\"\n    },\n    {\n      \"path\": \"packages/react/src/ReactClient.js\",\n      \"start_line\": 119,\n      \"end_line\": 119,\n      \"content\": \"Changing `unstable_Activity` from `REACT_OFFSCREEN_TYPE` to `REACT_ACTIVITY_TYPE` is a breaking change for any code that relied on the previous symbol identity (e.g., `element.type === React.unstable_Activity` comparisons against `REACT_OFFSCREEN_TYPE`, or serialized element types). This is likely intentional for the new Activity component, but it should be called out in the changelog/release notes.\"\n    },\n    {\n      \"path\": \"packages/shared/isValidElementType.js\",\n      \"start_line\": 54,\n      \"end_line\": 54,\n      \"content\": \"`REACT_ACTIVITY_TYPE` is added unconditionally, while `REACT_OFFSCREEN_TYPE` is also unconditional. If Activity is meant to be gated behind a feature flag (like `enableLegacyHidden` for LegacyHidden), consider gating it similarly to avoid exposing an experimental type in stable builds.\"\n    }\n  ]\n}",
+  "stderr": null
+}

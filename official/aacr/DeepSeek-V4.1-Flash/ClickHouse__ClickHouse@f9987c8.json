@@ -1,0 +1,45 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@f9987c8",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "25f2e13a8fc3ed6e6215ee7481677e1b8523ac4c",
+  "head_commit": "f9987c89a4cfaa95269385f24323dc6f44cda6e9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:38:19.584289+00:00",
+  "duration_seconds": 6.65,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Storages/MergeTree/KeyCondition.cpp",
+        "start_line": 2904,
+        "end_line": 2922,
+        "content": "The lambda captures `field` by reference and passes it to `getMonotonicityForRange`. This is fine, but the lambda is called for every element in `rpn` and for every mapping in `set_index`. Consider caching the result per function pointer to avoid repeated calls, though this is a minor performance nit.",
+        "side": "right"
+      },
+      {
+        "path": "src/Storages/MergeTree/KeyCondition.cpp",
+        "start_line": 2924,
+        "end_line": 2934,
+        "content": "The check `elem.set_index->size() != 1` restricts to single-element sets. This is correct for exact continuous range matching, but ensure that `getIndexesMapping()` is only valid when `set_index` is non-null. The code checks `elem.set_index` before accessing, so it's safe.",
+        "side": "right"
+      },
+      {
+        "path": "src/Storages/MergeTree/KeyCondition.cpp",
+        "start_line": 2977,
+        "end_line": 2980,
+        "content": "Skipping `ALWAYS_TRUE` elements is correct, but ensure that this doesn't mask other issues. The original code returned false for any unrecognized function. Now `ALWAYS_TRUE` is explicitly allowed. This is intentional and matches the PR's goal.",
+        "side": "right"
+      },
+      {
+        "path": "tests/queries/0_stateless/03518_key_condition_binary_search.sh",
+        "start_line": 31,
+        "end_line": 31,
+        "content": "Missing newline at end of file. Add a trailing newline to follow POSIX standards and avoid potential issues with some tools.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Storages/MergeTree/KeyCondition.cpp\",\n      \"start_line\": 2904,\n      \"end_line\": 2922,\n      \"content\": \"The lambda captures `field` by reference and passes it to `getMonotonicityForRange`. This is fine, but the lambda is called for every element in `rpn` and for every mapping in `set_index`. Consider caching the result per function pointer to avoid repeated calls, though this is a minor performance nit.\"\n    },\n    {\n      \"path\": \"src/Storages/MergeTree/KeyCondition.cpp\",\n      \"start_line\": 2924,\n      \"end_line\": 2934,\n      \"content\": \"The check `elem.set_index->size() != 1` restricts to single-element sets. This is correct for exact continuous range matching, but ensure that `getIndexesMapping()` is only valid when `set_index` is non-null. The code checks `elem.set_index` before accessing, so it's safe.\"\n    },\n    {\n      \"path\": \"src/Storages/MergeTree/KeyCondition.cpp\",\n      \"start_line\": 2977,\n      \"end_line\": 2980,\n      \"content\": \"Skipping `ALWAYS_TRUE` elements is correct, but ensure that this doesn't mask other issues. The original code returned false for any unrecognized function. Now `ALWAYS_TRUE` is explicitly allowed. This is intentional and matches the PR's goal.\"\n    },\n    {\n      \"path\": \"tests/queries/0_stateless/03518_key_condition_binary_search.sh\",\n      \"start_line\": 31,\n      \"end_line\": 31,\n      \"content\": \"Missing newline at end of file. Add a trailing newline to follow POSIX standards and avoid potential issues with some tools.\"\n    }\n  ]\n}",
+  "stderr": null
+}

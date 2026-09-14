@@ -1,0 +1,16 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@3eee886",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "1ac5c4a6a23b4742624d64db210f10ca95133b11",
+  "head_commit": "3eee8866fb55acab61eaba6dc9eebd847f483913",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:25.865305+00:00",
+  "duration_seconds": 75.01,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "Looking at this PR, I need to carefully examine the `ThreadGroupSwitcher` refactoring and its usages.\n\nLet me focus on the key concern: the `ThreadGroupSwitcher` constructor modifies `thread_group` member, and the destructor logic depends on it.\n\nLet me examine the constructor carefully:\n\n```cpp\nThreadGroupSwitcher::ThreadGroupSwitcher(ThreadGroupPtr thread_group_, ...) noexcept : thread_group(std::move(thread_group_))\n{\n    ...\n    if (prev_thread_group == thread_group)\n    {\n        thread_group = nullptr;\n        prev_thread_group = nullptr;\n        return;\n    }\n    ...\n}\n```\n\nAnd in `AggregatingTransform.h`, I notice a semantic issue worth checking. Let me look at the destructor's memory tracker handling.\n\nIn the destructor, when it detaches and reattaches to `prev_thread_group`, the destruction of captured resources (like `my_variant` in AggregatingTransform) happens AFTER the switcher destructor runs (member destruction order / scope). Let me verify the AggregatingTransform case:\n\n```cpp\n[my_variant = std::move(variant), thread_group = CurrentThread::getGroup()]() mutable\n{\n    ThreadGroupSwitcher switcher(thread_group, \"AggregDestruct\");\n    my_variant.reset();  // explicit reset inside scope - GOOD\n});\n```\n\nThis correctly resets inside the scope. Good.\n\nNow the key finding — in `threadPoolCallbackRunner.h`, the `packaged_task` captures `my_callback`, and the SCOPE_EXIT releases it before the switcher destructor. But the switcher is now constructed BEFORE the SCOPE_EXIT is registered. Since SCOPE_EXIT runs before switcher destructor (reverse construction order), resources release with correct memory tracker. This looks fine.\n\nLet me verify the destructor memory-tracker concern is legitimately handled and check one real issue.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Interpreters/ThreadStatusExt.cpp\",\n      \"start_line\": 173,\n      \"end_line\": 205,\n      \"content\": \"In the constructor, when `prev_thread_group == thread_group`, you set `thread_group = nullptr` so the destructor becomes a no-op. But you also reset `prev_thread_group = nullptr` and return early WITHOUT calling `setThreadName(thread_name)`. In the old `attachToGroupIfDetached`-based code, `setThreadName` was always called even when already attached to the same group. This changes behavior: for pool tasks that reuse a thread already attached to the same group, the thread name will no longer be updated. If any caller relied on the thread name being set, this is a silent regression. Consider still calling setThreadName in the early-return path.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

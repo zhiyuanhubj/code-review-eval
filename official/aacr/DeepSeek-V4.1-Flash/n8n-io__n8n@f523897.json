@@ -1,0 +1,24 @@
+{
+  "instance_id": "n8n-io__n8n@f523897",
+  "repo": "n8n-io/n8n",
+  "base_commit": "ef550104cdceb8113381c24fabb63d7e0f6fa6a4",
+  "head_commit": "f523897785e1a45484b31c9bb16e66e060553601",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:01.666322+00:00",
+  "duration_seconds": 5.45,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/cli/src/controllers/users.controller.ts",
+        "start_line": 99,
+        "end_line": 106,
+        "content": "The `userMemberSchema.parse(user)` call will throw a ZodError if the user object contains fields that are not defined in the schema. Since `removeSupplementaryFields` only removes fields based on the `select` query option, and the default behavior returns all fields, a member without `user:create` scope will receive a 500 error when the response includes admin-only fields (e.g., `isPending`, `isOwner`, `signInType`, `mfaEnabled`, `settings`, `personalizationAnswers`, `inviteAcceptUrl`, `lastActiveAt`, `projectRelations`). The schema should use `.strip()` or the controller should explicitly pick only the allowed fields before parsing. The integration test `should return limited fields for members without user:create scope` likely passes only because the test setup may not include those fields, but in production this will break.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/cli/src/controllers/users.controller.ts\",\n      \"start_line\": 99,\n      \"end_line\": 106,\n      \"content\": \"The `userMemberSchema.parse(user)` call will throw a ZodError if the user object contains fields that are not defined in the schema. Since `removeSupplementaryFields` only removes fields based on the `select` query option, and the default behavior returns all fields, a member without `user:create` scope will receive a 500 error when the response includes admin-only fields (e.g., `isPending`, `isOwner`, `signInType`, `mfaEnabled`, `settings`, `personalizationAnswers`, `inviteAcceptUrl`, `lastActiveAt`, `projectRelations`). The schema should use `.strip()` or the controller should explicitly pick only the allowed fields before parsing. The integration test `should return limited fields for members without user:create scope` likely passes only because the test setup may not include those fields, but in production this will break.\"\n    }\n  ]\n}",
+  "stderr": null
+}

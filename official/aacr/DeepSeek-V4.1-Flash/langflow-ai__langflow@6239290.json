@@ -1,0 +1,38 @@
+{
+  "instance_id": "langflow-ai__langflow@6239290",
+  "repo": "langflow-ai/langflow",
+  "base_commit": "a8f6ee4af97fe594eb2c84b655abc549f6d7c741",
+  "head_commit": "623929065f9ae45792afce2eb3185dad353df78e",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:41:28.782764+00:00",
+  "duration_seconds": 4.71,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/backend/base/langflow/components/processing/parser.py",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The `_validate_input` method checks `isinstance(self.input_data, Data | DataFrame | Message | str | list)`, but `_clean_args` (called first in `parse_combined_text`) only accepts `DataFrame`, `Data`, or a `dict` with a `data` key. If `stringify=True` and `input_data` is a `Message`, `str`, or `list`, `_clean_args` will raise `ValueError` before `convert_to_string` is reached, making `_validate_input`'s broader type check dead code and breaking the documented/tested behavior (e.g., `test_stringify_message_object`). Consider short-circuiting to `convert_to_string()` before calling `_clean_args()` when `stringify` is enabled.",
+        "side": "right"
+      },
+      {
+        "path": "src/backend/base/langflow/components/processing/parser.py",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "`_clean_args` raises `ValueError` for `None` input, but `_validate_input` (used in the stringify path) raises `ValueError` with a different message for `None`. The test `test_none_input` expects the `_clean_args` message. This inconsistency is a symptom of the ordering issue above; ensure the stringify path is reachable for all supported types.",
+        "side": "right"
+      },
+      {
+        "path": "src/backend/base/langflow/components/processing/parser.py",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "In `parse_combined_text`, when `df is not None` and the DataFrame is empty, `lines` remains empty and `combined_text` is `\"\"`. This is likely fine, but consider whether an empty DataFrame should produce an empty Message or raise. Not blocking.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/backend/base/langflow/components/processing/parser.py\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The `_validate_input` method checks `isinstance(self.input_data, Data | DataFrame | Message | str | list)`, but `_clean_args` (called first in `parse_combined_text`) only accepts `DataFrame`, `Data`, or a `dict` with a `data` key. If `stringify=True` and `input_data` is a `Message`, `str`, or `list`, `_clean_args` will raise `ValueError` before `convert_to_string` is reached, making `_validate_input`'s broader type check dead code and breaking the documented/tested behavior (e.g., `test_stringify_message_object`). Consider short-circuiting to `convert_to_string()` before calling `_clean_args()` when `stringify` is enabled.\"\n    },\n    {\n      \"path\": \"src/backend/base/langflow/components/processing/parser.py\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"`_clean_args` raises `ValueError` for `None` input, but `_validate_input` (used in the stringify path) raises `ValueError` with a different message for `None`. The test `test_none_input` expects the `_clean_args` message. This inconsistency is a symptom of the ordering issue above; ensure the stringify path is reachable for all supported types.\"\n    },\n    {\n      \"path\": \"src/backend/base/langflow/components/processing/parser.py\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"In `parse_combined_text`, when `df is not None` and the DataFrame is empty, `lines` remains empty and `combined_text` is `\\\"\\\"`. This is likely fine, but consider whether an empty DataFrame should produce an empty Message or raise. Not blocking.\"\n    }\n  ]\n}",
+  "stderr": null
+}

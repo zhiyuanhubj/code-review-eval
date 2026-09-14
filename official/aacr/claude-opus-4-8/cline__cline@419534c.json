@@ -1,0 +1,16 @@
+{
+  "instance_id": "cline__cline@419534c",
+  "repo": "cline/cline",
+  "base_commit": "a1bf1f95a30ca95581d9811488636aec42dd2f80",
+  "head_commit": "419534ccd4241fc11827741eb0d76ba0c9d21277",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:49.596585+00:00",
+  "duration_seconds": 10.19,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

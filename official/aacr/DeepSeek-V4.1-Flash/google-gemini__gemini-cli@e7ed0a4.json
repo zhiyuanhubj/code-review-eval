@@ -1,0 +1,31 @@
+{
+  "instance_id": "google-gemini__gemini-cli@e7ed0a4",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "7ffe8038efaa5bf263a2a933819bcd4badd37dc2",
+  "head_commit": "e7ed0a410ae510cda8b53ea20f3d758bd90a0f00",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:34:22.479110+00:00",
+  "duration_seconds": 3.04,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/core/src/tools/grep.ts",
+        "start_line": 95,
+        "end_line": 110,
+        "content": "The path validation here uses `targetPath.startsWith(this.config.getTargetDir())` which is vulnerable to prefix attacks. For example, if the target dir is `/home/user/project`, a path like `/home/user/project-evil/file` would incorrectly pass validation. Use the `isWithinRoot` utility from `../utils/fileUtils.js` instead, which properly handles path separators.",
+        "side": "right"
+      },
+      {
+        "path": "packages/core/src/tools/read-many-files.ts",
+        "start_line": 296,
+        "end_line": 310,
+        "content": "The security check `absoluteFilePath.startsWith(this.config.getTargetDir())` is vulnerable to prefix attacks. A path like `/home/user/project-evil/file` would pass when target dir is `/home/user/project`. Use the `isWithinRoot` utility from `../utils/fileUtils.js` for proper path boundary checking.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"packages/core/src/tools/grep.ts\",\n      \"start_line\": 95,\n      \"end_line\": 110,\n      \"content\": \"The path validation here uses `targetPath.startsWith(this.config.getTargetDir())` which is vulnerable to prefix attacks. For example, if the target dir is `/home/user/project`, a path like `/home/user/project-evil/file` would incorrectly pass validation. Use the `isWithinRoot` utility from `../utils/fileUtils.js` instead, which properly handles path separators.\"\n    },\n    {\n      \"path\": \"packages/core/src/tools/read-many-files.ts\",\n      \"start_line\": 296,\n      \"end_line\": 310,\n      \"content\": \"The security check `absoluteFilePath.startsWith(this.config.getTargetDir())` is vulnerable to prefix attacks. A path like `/home/user/project-evil/file` would pass when target dir is `/home/user/project`. Use the `isWithinRoot` utility from `../utils/fileUtils.js` for proper path boundary checking.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

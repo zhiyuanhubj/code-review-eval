@@ -1,0 +1,16 @@
+{
+  "instance_id": "juspay__hyperswitch@59ec03c",
+  "repo": "juspay/hyperswitch",
+  "base_commit": "50cbe20ee1da0392f4f590bade9f866435356b87",
+  "head_commit": "59ec03ceef191dcada50380ec20cd843b80a87b6",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:11.445454+00:00",
+  "duration_seconds": 14.79,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "I'll analyze this PR, which appears to be about adding feature-gate (`v1`/`v2`) conditional compilation to imports and types.\n\nLet me examine the key changes for potential issues.\n\nThe most notable concern is around the `PaymentMethodMigrationResponseType` cfg gate:\n\n```rust\n#[cfg(all(\n    any(feature = \"v2\", feature = \"v1\"),\n    not(feature = \"payment_methods_v2\")\n))]\ntype PaymentMethodMigrationResponseType = ...\n```\n\nThis is a refactoring PR focused on conditional compilation. The changes look mechanical and consistent. Let me verify whether I can identify any genuine bugs.\n\nLooking at the diff carefully, the changes are import reorganization and cfg-gating. Without seeing the usage sites to confirm cfg-gate consistency (e.g., whether `PaymentMethodMigrationResponseType` is used under matching cfg conditions), I cannot confirm a definite bug from the truncated diff alone.\n\nThe `#[allow(dead_code)]` on `deserialize_option` suggests it may be unused under some feature combination, which is a reasonable way to suppress warnings rather than a bug.\n\nGiven the truncated diff and the mechanical nature of these changes, I don't have sufficient context to identify concrete, verifiable bugs without risking inventing issues.\n\n```json\n{\n  \"comments\": []\n}\n```",
+  "stderr": null
+}

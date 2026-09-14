@@ -1,0 +1,29 @@
+{
+  "instance_id": "cline__cline@ca7f02b",
+  "repo": "cline/cline",
+  "base_commit": "8f4c6038dd70ce02caaf7ae924dc28d5be63968e",
+  "head_commit": "ca7f02b8cf8cd36d832a63e1c9ad892356c7df66",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:56.825505+00:00",
+  "duration_seconds": 14.51,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/api/providers/cline.ts",
+        "start_line": 54,
+        "end_line": 54,
+        "content": "The header is still named `X-Task-ID` but is now populated with `this.options.ulid`. If the backend expects an actual task ID here (or the semantics of this header matter downstream), sending a ULID under the `X-Task-ID` name may cause confusion or break correlation. Confirm the backend expects the ULID value under this header name, or rename the header accordingly."
+      },
+      {
+        "path": "src/shared/proto-conversions/models/api-configuration-conversion.ts",
+        "start_line": 332,
+        "end_line": 332,
+        "content": "This assumes the proto field was renamed from `taskId` to `ulid`. The diff doesn't include the .proto/generated changes—verify that `ProtoApiConfiguration` actually exposes a `ulid` field, otherwise this won't compile."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/api/providers/cline.ts\",\n      \"start_line\": 54,\n      \"end_line\": 54,\n      \"content\": \"The header is still named `X-Task-ID` but is now populated with `this.options.ulid`. If the backend expects an actual task ID here (or the semantics of this header matter downstream), sending a ULID under the `X-Task-ID` name may cause confusion or break correlation. Confirm the backend expects the ULID value under this header name, or rename the header accordingly.\"\n    },\n    {\n      \"path\": \"src/shared/proto-conversions/models/api-configuration-conversion.ts\",\n      \"start_line\": 332,\n      \"end_line\": 332,\n      \"content\": \"This assumes the proto field was renamed from `taskId` to `ulid`. The diff doesn't include the .proto/generated changes—verify that `ProtoApiConfiguration` actually exposes a `ulid` field, otherwise this won't compile.\"\n    }\n  ]\n}",
+  "stderr": null
+}

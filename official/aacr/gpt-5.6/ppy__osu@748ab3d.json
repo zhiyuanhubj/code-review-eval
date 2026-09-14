@@ -1,0 +1,16 @@
+{
+  "instance_id": "ppy__osu@748ab3d",
+  "repo": "ppy/osu",
+  "base_commit": "19e9bffc11f026ebff2dc2831668e606c701f71f",
+  "head_commit": "748ab3d4863f6ea4bf6a3fffccb50e5cd616937b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:32:55.576707+00:00",
+  "duration_seconds": 45.2,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\"comments\":[]}",
+  "stderr": null
+}

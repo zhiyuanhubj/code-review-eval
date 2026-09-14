@@ -1,0 +1,101 @@
+{
+  "instance_id": "elastic__elasticsearch@5e318eb",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "fcf040857f04ef064a06d80191fca112d0ba8f04",
+  "head_commit": "5e318eba16c2327289af2e96b9c099ec7469acfa",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:39:02.096325+00:00",
+  "duration_seconds": 20.26,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/entitlement/bootstrap/TestEntitlementsRule.java",
+        "start_line": 96,
+        "end_line": 96,
+        "content": "`POLICY_MANAGER` is a `static final` field assigned in a static initializer. If `isEnabledForTest()` is false, it's set to `null`, but the field is not declared `@Nullable`. More importantly, `newNodeGrant` and `revokeNodeGrants` dereference `POLICY_MANAGER` without a null check in `revokeNodeGrants` (line ~130). `newNodeGrant` guards with `if (POLICY_MANAGER == null)`, but `revokeNodeGrants` does not, so calling it when entitlements are disabled will NPE. `ESIntegTestCase` calls `TEST_ENTITLEMENTS.revokeNodeGrants()` unconditionally, which will throw when `es.entitlement.enableForTests` is false (the default).",
+        "side": "right"
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/entitlement/bootstrap/TestEntitlementsRule.java",
+        "start_line": 130,
+        "end_line": 133,
+        "content": "`revokeNodeGrants()` dereferences `POLICY_MANAGER` without a null check. When entitlements are disabled for tests (the default), `POLICY_MANAGER` is null and this will NPE. Add a null guard like in `newNodeGrant`.",
+        "side": "right"
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/entitlement/bootstrap/TestEntitlementsRule.java",
+        "start_line": 100,
+        "end_line": 106,
+        "content": "`initialize(Path tempDir)` puts `List.of(tempDir)` into `BASE_DIR_PATHS` for TEMP. If `tempDir` is null (which the old `TestEntitlementBootstrap.bootstrap` explicitly allowed via `zeroOrOne`), `List.of(null)` throws NPE. `BootstrapForTesting` passes `javaTmpDir` which may be null in some environments. Consider handling null like the previous implementation did.",
+        "side": "right"
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/entitlement/bootstrap/TestEntitlementsRule.java",
+        "start_line": 155,
+        "end_line": 160,
+        "content": "The `NodeGrant.close()` method is a no-op (the `onClose.accept(this)` call is commented out). This means `MockNode.awaitClose` calling `IOUtils.closeWhileHandlingException(entitlementGrant)` does nothing, and grants are only cleaned up via `revokeNodeGrants()` at the cluster level. This is intentional per the comment, but it means `newNodeGrant` returns a `Closeable` that silently does nothing, which is misleading. Consider documenting this more clearly or returning a no-op marker type.",
+        "side": "right"
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/entitlement/bootstrap/TestEntitlementsRule.java",
+        "start_line": 138,
+        "end_line": 145,
+        "content": "`newNodeGrant` unwraps `FilterPath` from `configPath` but does not unwrap it from the paths derived from settings (homeDir, dataDirs, etc.). The old `TestEntitlementBootstrap` used `absolutePath` with `@SuppressForbidden` to resolve via the default filesystem, which is preserved in `NodeGrant.absolutePath`. However, `configPath` is passed in already-unwrapped here, while `NodeGrant.configDir()` returns it directly. This looks consistent, but verify that `configPath` passed from `InternalTestCluster` (via `nodeConfigurationSource.nodeConfigPath(nodeId)`) is not a `FilterPath` that needs unwrapping in other code paths.",
+        "side": "right"
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/entitlement/runtime/policy/TestPolicyManager.java",
+        "start_line": 66,
+        "end_line": 76,
+        "content": "`setEntitledTestPackages` now resets to `TEST_FRAMEWORK_PACKAGE_PREFIXES` when called with no args, and always concatenates with `TEST_FRAMEWORK_PACKAGE_PREFIXES` rather than `this.entitledTestPackages`. This is a behavior change: previously, calling `setEntitledTestPackages` twice would accumulate. Now the second call discards the first call's packages. Verify this is intended — the `TestEntitlementsRule` calls `setEntitledTestPackages()` (no args) in the finally block to reset, which relies on this new behavior. But if any test calls it multiple times expecting accumulation, this will break.",
+        "side": "right"
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/node/MockNode.java",
+        "start_line": 296,
+        "end_line": 300,
+        "content": "`awaitClose` now closes `entitlementGrant` instead of unregistering node base dirs. Since `NodeGrant.close()` is a no-op (see TestEntitlementsRule), this effectively does nothing. The comment about `wipePendingDataDirectories` and ES-10920 was removed, but the underlying issue (grants not being revoked on node close) remains. This is fine if intentional, but the removal of the explanatory comment makes the no-op less obvious to future readers.",
+        "side": "right"
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/test/ESIntegTestCase.java",
+        "start_line": 552,
+        "end_line": 552,
+        "content": "`TEST_ENTITLEMENTS.revokeNodeGrants()` is called unconditionally after closing the test cluster. As noted, `revokeNodeGrants` will NPE when entitlements are disabled (the default). This will break all integration tests that don't enable entitlements.",
+        "side": "right"
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/test/ESTestCase.java",
+        "start_line": 528,
+        "end_line": 529,
+        "content": "`TEST_ENTITLEMENTS` is declared as a `@ClassRule` on `ESTestCase`. JUnit `@ClassRule` fields must be `public static` and implement `TestRule` — this is satisfied. However, `TestEntitlementsRule.apply` asserts `description.isSuite()`. When a `@ClassRule` is inherited by subclasses, JUnit may invoke `apply` with a non-suite description in some edge cases (e.g., when the rule is applied to a `Suite` that wraps a single test). Verify this assertion holds across all test runners used in the codebase (e.g., parameterized tests, `LuceneTestCase` subclasses).",
+        "side": "right"
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/test/ESTestCase.java",
+        "start_line": 528,
+        "end_line": 529,
+        "content": "The `@ClassRule` is `static final` and shared across all subclasses. `TestEntitlementsRule.apply` uses a static `AtomicBoolean active` to detect parallel suite execution and throws `AssertionError` if two suites run concurrently. This is a hard failure mode — if any test infrastructure runs suites in parallel (e.g., Gradle parallel test execution within a single JVM), all tests will fail. The old `@BeforeClass`/`@AfterClass` approach didn't have this restriction. Confirm that parallel suite execution within a single JVM is not supported/expected.",
+        "side": "right"
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/test/ESSingleNodeTestCase.java",
+        "start_line": 291,
+        "end_line": 291,
+        "content": "`TEST_ENTITLEMENTS.newNodeGrant(settings, null)` is called with `configPath = null`. In `newNodeGrant`, `configPath` is unwrapped in a while loop — `null instanceof FilterPath` is false, so it's fine. But `NodeGrant.configDir()` handles null by falling back to `homeDir().resolve(\"config\")`. This matches the old behavior. OK.",
+        "side": "right"
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/test/InternalTestCluster.java",
+        "start_line": 1077,
+        "end_line": 1077,
+        "content": "In the node restart path, `nodeGrantProvider.create(finalSettings, null)` is called with `configPath = null`, whereas the initial node creation at line ~795 passes the actual `configPath`. This means on restart, the config dir grant will be computed from `homeDir().resolve(\"config\")` instead of the actual config path. If the node was originally created with a custom config path, the restart will register a different (wrong) config dir. This is a behavior regression compared to the old code which used `getEnvironment().configDir()` on unregister.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/entitlement/bootstrap/TestEntitlementsRule.java\",\n      \"start_line\": 96,\n      \"end_line\": 96,\n      \"content\": \"`POLICY_MANAGER` is a `static final` field assigned in a static initializer. If `isEnabledForTest()` is false, it's set to `null`, but the field is not declared `@Nullable`. More importantly, `newNodeGrant` and `revokeNodeGrants` dereference `POLICY_MANAGER` without a null check in `revokeNodeGrants` (line ~130). `newNodeGrant` guards with `if (POLICY_MANAGER == null)`, but `revokeNodeGrants` does not, so calling it when entitlements are disabled will NPE. `ESIntegTestCase` calls `TEST_ENTITLEMENTS.revokeNodeGrants()` unconditionally, which will throw when `es.entitlement.enableForTests` is false (the default).\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/entitlement/bootstrap/TestEntitlementsRule.java\",\n      \"start_line\": 130,\n      \"end_line\": 133,\n      \"content\": \"`revokeNodeGrants()` dereferences `POLICY_MANAGER` without a null check. When entitlements are disabled for tests (the default), `POLICY_MANAGER` is null and this will NPE. Add a null guard like in `newNodeGrant`.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/entitlement/bootstrap/TestEntitlementsRule.java\",\n      \"start_line\": 100,\n      \"end_line\": 106,\n      \"content\": \"`initialize(Path tempDir)` puts `List.of(tempDir)` into `BASE_DIR_PATHS` for TEMP. If `tempDir` is null (which the old `TestEntitlementBootstrap.bootstrap` explicitly allowed via `zeroOrOne`), `List.of(null)` throws NPE. `BootstrapForTesting` passes `javaTmpDir` which may be null in some environments. Consider handling null like the previous implementation did.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/entitlement/bootstrap/TestEntitlementsRule.java\",\n      \"start_line\": 155,\n      \"end_line\": 160,\n      \"content\": \"The `NodeGrant.close()` method is a no-op (the `onClose.accept(this)` call is commented out). This means `MockNode.awaitClose` calling `IOUtils.closeWhileHandlingException(entitlementGrant)` does nothing, and grants are only cleaned up via `revokeNodeGrants()` at the cluster level. This is intentional per the comment, but it means `newNodeGrant` returns a `Closeable` that silently does nothing, which is misleading. Consider documenting this more clearly or returning a no-op marker type.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/entitlement/bootstrap/TestEntitlementsRule.java\",\n      \"start_line\": 138,\n      \"end_line\": 145,\n      \"content\": \"`newNodeGrant` unwraps `FilterPath` from `configPath` but does not unwrap it from the paths derived from settings (homeDir, dataDirs, etc.). The old `TestEntitlementBootstrap` used `absolutePath` with `@SuppressForbidden` to resolve via the default filesystem, which is preserved in `NodeGrant.absolutePath`. However, `configPath` is passed in already-unwrapped here, while `NodeGrant.configDir()` returns it directly. This looks consistent, but verify that `configPath` passed from `InternalTestCluster` (via `nodeConfigurationSource.nodeConfigPath(nodeId)`) is not a `FilterPath` that needs unwrapping in other code paths.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/entitlement/runtime/policy/TestPolicyManager.java\",\n      \"start_line\": 66,\n      \"end_line\": 76,\n      \"content\": \"`setEntitledTestPackages` now resets to `TEST_FRAMEWORK_PACKAGE_PREFIXES` when called with no args, and always concatenates with `TEST_FRAMEWORK_PACKAGE_PREFIXES` rather than `this.entitledTestPackages`. This is a behavior change: previously, calling `setEntitledTestPackages` twice would accumulate. Now the second call discards the first call's packages. Verify this is intended — the `TestEntitlementsRule` calls `setEntitledTestPackages()` (no args) in the finally block to reset, which relies on this new behavior. But if any test calls it multiple times expecting accumulation, this will break.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/node/MockNode.java\",\n      \"start_line\": 296,\n      \"end_line\": 300,\n      \"content\": \"`awaitClose` now closes `entitlementGrant` instead of unregistering node base dirs. Since `NodeGrant.close()` is a no-op (see TestEntitlementsRule), this effectively does nothing. The comment about `wipePendingDataDirectories` and ES-10920 was removed, but the underlying issue (grants not being revoked on node close) remains. This is fine if intentional, but the removal of the explanatory comment makes the no-op less obvious to future readers.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/test/ESIntegTestCase.java\",\n      \"start_line\": 552,\n      \"end_line\": 552,\n      \"content\": \"`TEST_ENTITLEMENTS.revokeNodeGrants()` is called unconditionally after closing the test cluster. As noted, `revokeNodeGrants` will NPE when entitlements are disabled (the default). This will break all integration tests that don't enable entitlements.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/test/ESTestCase.java\",\n      \"start_line\": 528,\n      \"end_line\": 529,\n      \"content\": \"`TEST_ENTITLEMENTS` is declared as a `@ClassRule` on `ESTestCase`. JUnit `@ClassRule` fields must be `public static` and implement `TestRule` — this is satisfied. However, `TestEntitlementsRule.apply` asserts `description.isSuite()`. When a `@ClassRule` is inherited by subclasses, JUnit may invoke `apply` with a non-suite description in some edge cases (e.g., when the rule is applied to a `Suite` that wraps a single test). Verify this assertion holds across all test runners used in the codebase (e.g., parameterized tests, `LuceneTestCase` subclasses).\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/test/ESTestCase.java\",\n      \"start_line\": 528,\n      \"end_line\": 529,\n      \"content\": \"The `@ClassRule` is `static final` and shared across all subclasses. `TestEntitlementsRule.apply` uses a static `AtomicBoolean active` to detect parallel suite execution and throws `AssertionError` if two suites run concurrently. This is a hard failure mode — if any test infrastructure runs suites in parallel (e.g., Gradle parallel test execution within a single JVM), all tests will fail. The old `@BeforeClass`/`@AfterClass` approach didn't have this restriction. Confirm that parallel suite execution within a single JVM is not supported/expected.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/test/ESSingleNodeTestCase.java\",\n      \"start_line\": 291,\n      \"end_line\": 291,\n      \"content\": \"`TEST_ENTITLEMENTS.newNodeGrant(settings, null)` is called with `configPath = null`. In `newNodeGrant`, `configPath` is unwrapped in a while loop — `null instanceof FilterPath` is false, so it's fine. But `NodeGrant.configDir()` handles null by falling back to `homeDir().resolve(\\\"config\\\")`. This matches the old behavior. OK.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/test/InternalTestCluster.java\",\n      \"start_line\": 1077,\n      \"end_line\": 1077,\n      \"content\": \"In the node restart path, `nodeGrantProvider.create(finalSettings, null)` is called with `configPath = null`, whereas the initial node creation at line ~795 passes the actual `configPath`. This means on restart, the config dir grant will be computed from `homeDir().resolve(\\\"config\\\")` instead of the actual config path. If the node was originally created with a custom config path, the restart will register a different (wrong) config dir. This is a behavior regression compared to the old code which used `getEnvironment().configDir()` on unregister.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

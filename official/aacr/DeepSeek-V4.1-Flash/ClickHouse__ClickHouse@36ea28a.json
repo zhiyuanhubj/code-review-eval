@@ -1,0 +1,16 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@36ea28a",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "3d6e0982755b235c6b55f377894ff1652a5c8f99",
+  "head_commit": "36ea28ab28fd93258143ab4312e60e2b5e244843",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:37:59.680618+00:00",
+  "duration_seconds": 3.41,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\"comments\": []}",
+  "stderr": null
+}

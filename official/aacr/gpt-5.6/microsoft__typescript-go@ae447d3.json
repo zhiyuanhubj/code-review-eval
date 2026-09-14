@@ -1,0 +1,23 @@
+{
+  "instance_id": "microsoft__typescript-go@ae447d3",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "15def0236938e25ec7822755444f4d58c68045be",
+  "head_commit": "ae447d3b2a6db00072941e1992a09981b6096061",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:36.900465+00:00",
+  "duration_seconds": 43.42,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "internal/execute/watch.go",
+        "start_line": 45,
+        "end_line": 48,
+        "content": "`fmt.Fprintln` always inserts a space between operands, while both message literals already end with a space. This changes the user-visible output to contain two spaces before the timestamp/duration. Remove the trailing spaces from the literals (for example, `\"build starting at\"`)."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"internal/execute/watch.go\",\"start_line\":45,\"end_line\":48,\"content\":\"`fmt.Fprintln` always inserts a space between operands, while both message literals already end with a space. This changes the user-visible output to contain two spaces before the timestamp/duration. Remove the trailing spaces from the literals (for example, `\\\"build starting at\\\"`).\"}]}",
+  "stderr": null
+}

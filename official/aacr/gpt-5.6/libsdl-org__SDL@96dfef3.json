@@ -1,0 +1,16 @@
+{
+  "instance_id": "libsdl-org__SDL@96dfef3",
+  "repo": "libsdl-org/SDL",
+  "base_commit": "ab34ea5a2684766e510de1daf8ae44c41b6af704",
+  "head_commit": "96dfef35c4b0b89f2f8d9c2ecc4f5e3a25d3e7a0",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:51.235916+00:00",
+  "duration_seconds": 11.64,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit exceeded for api_key: bd37f53bc7782f394ae27bb722f76980beb718d24d1388d8024361d054bdbb43. Limit type: requests. Current limit: 50, Remaining: 0. Limit resets at: 2026-09-14 04:24:50 UTC', 'type': 'throttling_error', 'param': None, 'code': '429'}}"
+}

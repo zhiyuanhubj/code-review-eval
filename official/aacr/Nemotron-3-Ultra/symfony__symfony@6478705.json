@@ -1,0 +1,23 @@
+{
+  "instance_id": "symfony__symfony@6478705",
+  "repo": "symfony/symfony",
+  "base_commit": "e06b10c4f0088e2966c510d335531f7daed61915",
+  "head_commit": "647870557cf275de666557e552e11e9a295b9d4a",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:52:26.781392+00:00",
+  "duration_seconds": 33.68,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Symfony/Component/TypeInfo/TypeFactoryTrait.php",
+        "start_line": 415,
+        "end_line": 415,
+        "content": "The condition `is_subclass_of($value::class, \\UnitEnum::class)` will fail for backed enums (e.g., `int|string` backed enums) because they implement `\\BackedEnum`, not `\\UnitEnum`. Since `\\BackedEnum` extends `\\UnitEnum`, use `is_a($value::class, \\UnitEnum::class, true)` or `is_subclass_of($value::class, \\UnitEnum::class, true)` with the third parameter set to `true` to allow interface checking. Alternatively, use `$value instanceof \\UnitEnum` directly on the instance."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Symfony/Component/TypeInfo/TypeFactoryTrait.php\",\n      \"start_line\": 415,\n      \"end_line\": 415,\n      \"content\": \"The condition `is_subclass_of($value::class, \\\\UnitEnum::class)` will fail for backed enums (e.g., `int|string` backed enums) because they implement `\\\\BackedEnum`, not `\\\\UnitEnum`. Since `\\\\BackedEnum` extends `\\\\UnitEnum`, use `is_a($value::class, \\\\UnitEnum::class, true)` or `is_subclass_of($value::class, \\\\UnitEnum::class, true)` with the third parameter set to `true` to allow interface checking. Alternatively, use `$value instanceof \\\\UnitEnum` directly on the instance.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -12,6 +12,7 @@ import json
 import os
 import subprocess
 import sys
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
@@ -89,39 +90,64 @@ def chat(base_url: str, api_key: str, model: str, prompt: str, max_tokens: int) 
         if choice.delta.content:
             content.append(choice.delta.content)
         extra_d = getattr(choice.delta, "model_extra", None) or {}
-        r = getattr(choice.delta, "reasoning_content", None) or extra_d.get("reasoning_content")
+        r = (
+            getattr(choice.delta, "reasoning_content", None)
+            or extra_d.get("reasoning_content")
+            or getattr(choice.delta, "reasoning", None)
+            or extra_d.get("reasoning")
+        )
         if r:
             reason.append(str(r))
-    return "\n".join(p for p in ("".join(reason).strip(), "".join(content).strip()) if p)
+    # Prefer the visible answer. Thinking-only streams are a fallback.
+    visible = "".join(content).strip()
+    thought = "".join(reason).strip()
+    return visible or thought
 
 
 def parse_comments(text: str) -> list:
     if not text:
         return []
-    start = text.find("{")
-    end = text.rfind("}")
-    if start < 0 or end <= start:
+    t = text.strip()
+    # Glimmer chat-template often echoes the prompt as `to=self...to=user{json}`.
+    if "to=user" in t:
+        t = t.rsplit("to=user", 1)[-1]
+    elif t.startswith("to=self"):
+        t = t[len("to=self") :]
+    decoder = json.JSONDecoder()
+    blobs = []
+    i = 0
+    while i < len(t):
+        j = t.find("{", i)
+        if j < 0:
+            break
+        try:
+            obj, end = decoder.raw_decode(t, j)
+        except json.JSONDecodeError:
+            i = j + 1
+            continue
+        if isinstance(obj, dict) and isinstance(obj.get("comments"), list):
+            blobs.append(obj)
+        i = max(end, j + 1)
+    blob = blobs[-1] if blobs else None
+    if blob is None:
         return []
-    try:
-        blob = json.loads(text[start : end + 1])
-    except json.JSONDecodeError:
-        return []
-    comments = blob.get("comments") if isinstance(blob, dict) else None
-    if not isinstance(comments, list):
-        return []
+    comments = blob.get("comments")
     out = []
+    placeholders = {"actionable review comment", "repo-relative file path"}
     for item in comments:
         if not isinstance(item, dict):
             continue
         content = (item.get("content") or item.get("body") or item.get("note") or "").strip()
-        if not content:
+        path = item.get("path") or item.get("file") or ""
+        if not content or content in placeholders or path in placeholders:
             continue
         out.append(
             {
-                "path": item.get("path") or item.get("file") or "",
+                "path": path,
                 "start_line": item.get("start_line") or item.get("line") or 1,
                 "end_line": item.get("end_line") or item.get("line") or item.get("start_line") or 1,
                 "content": content,
+                "side": "right",
             }
         )
     return out
@@ -155,22 +181,30 @@ def main() -> None:
     repo_dir = Path(os.environ.get("AACR_REPO_DIR", "/opt/dlami/nvme/zhiyuan-official-aacr/repos"))
     repo_dir.mkdir(parents=True, exist_ok=True)
     instances = load_instances(args.limit)
-    print(json.dumps({"n": len(instances), "model": args.model}), flush=True)
+    print(json.dumps({"n": len(instances), "model": args.model, "workers": args.workers}), flush=True)
+    repo_locks: dict[str, threading.Lock] = {}
+    repo_locks_guard = threading.Lock()
+
+    def lock_for(repo_name: str) -> threading.Lock:
+        with repo_locks_guard:
+            return repo_locks.setdefault(repo_name, threading.Lock())
 
     def work(inst: ReviewInstance) -> dict:
         dest = config.result_path(out, inst.instance_id)
         if dest.exists():
             return {"instance_id": inst.instance_id, "status": "skip"}
         t0 = time.time()
+        repo_path = None
         try:
-            repo_path = prepare_repo(
-                repo_dir=repo_dir,
-                clone_url=inst.resolved_clone_url,
-                repo_full_name=inst.repo,
-                base_commit=inst.base_commit,
-                head_commit=inst.head_commit,
-            )
-            diff = git_diff(repo_path, inst.base_commit, inst.head_commit)
+            with lock_for(inst.repo):
+                repo_path = prepare_repo(
+                    repo_dir=repo_dir,
+                    clone_url=inst.resolved_clone_url,
+                    repo_full_name=inst.repo,
+                    base_commit=inst.base_commit,
+                    head_commit=inst.head_commit,
+                )
+                diff = git_diff(repo_path, inst.base_commit, inst.head_commit)
             prompt = REVIEW_PROMPT.format(
                 repo=inst.repo,
                 instance_id=inst.instance_id,
@@ -202,7 +236,8 @@ def main() -> None:
         dest.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
         if repo_path:
             try:
-                clean_worktree(repo_path)
+                with lock_for(inst.repo):
+                    clean_worktree(repo_path)
             except Exception:
                 pass
         return {"instance_id": inst.instance_id, "status": "ok" if not err else "error", "n_comments": len(comments)}

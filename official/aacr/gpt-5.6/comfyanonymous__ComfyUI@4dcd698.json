@@ -1,0 +1,16 @@
+{
+  "instance_id": "comfyanonymous__ComfyUI@4dcd698",
+  "repo": "comfyanonymous/ComfyUI",
+  "base_commit": "c7b25784b141a298d8ee5f0d830a29da6e8a3d54",
+  "head_commit": "4dcd698e489da69294ee01de0350a9a02e3e4b41",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:19.736381+00:00",
+  "duration_seconds": 75.62,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": null
+}

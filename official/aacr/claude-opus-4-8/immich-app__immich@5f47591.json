@@ -1,0 +1,16 @@
+{
+  "instance_id": "immich-app__immich@5f47591",
+  "repo": "immich-app/immich",
+  "base_commit": "584e5894bfd4fe356e790fa9781ccee4e5224874",
+  "head_commit": "5f4759196534661bd332085514878d0efbb7ce84",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:52.942070+00:00",
+  "duration_seconds": 19.59,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "Let me analyze the key changes, particularly in the person service.\n\nLooking at `handleGeneratePersonThumbnail`:\n\n```javascript\nconst person = await this.personRepository.getPersonForThumbnailGenerationJob(data.id);\nif (!person?.face?.asset) {\n  this.logger.error(`Could not generate person thumbnail: person ${person} has no face asset`);\n  return JobStatus.FAILED;\n}\n```\n\nLet me check the SQL query limit parameter and the preview file filter.\n\nThe query uses `limit(1)` on asset_files with PREVIEW type, so `files` will have at most 1 element. Then `getInputDimensions` uses `getAssetFile(asset.files, AssetFileType.PREVIEW)`.\n\nLet me look for actual bugs.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"server/src/services/person.service.ts\",\n      \"start_line\": 553,\n      \"end_line\": 555,\n      \"content\": \"The error message interpolates the `person` object directly: `person ${person} has no face asset`. Since `person` is an object (or undefined), this will log `[object Object]` or `undefined`, which is not useful. Use `data.id` instead, e.g. `person ${data.id} has no face asset`.\"\n    },\n    {\n      \"path\": \"server/test/fixtures/person.stub.ts\",\n      \"start_line\": 191,\n      \"end_line\": 200,\n      \"content\": \"personThumbnailStub.noPreview has `exifImageHeight: 3840, exifImageWidth: 2160` but `files: []`. For AssetType.IMAGE, getInputDimensions returns early using exif dimensions before checking the preview file, so this stub would not actually trigger the 'has no preview' path in getInputDimensions. However, handleGeneratePersonThumbnail checks `asset.files.length === 0` first and returns FAILED — confirm the test intent matches the code path being exercised (files.length check, not preview-missing check).\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

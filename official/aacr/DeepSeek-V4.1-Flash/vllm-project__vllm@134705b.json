@@ -1,0 +1,24 @@
+{
+  "instance_id": "vllm-project__vllm@134705b",
+  "repo": "vllm-project/vllm",
+  "base_commit": "d8037867313eef09779b265ea4bace76d2d118ba",
+  "head_commit": "134705b1474ddcfac234a0a01313874f7c8b59bc",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:34.686637+00:00",
+  "duration_seconds": 2.36,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "vllm/logger.py",
+        "start_line": 56,
+        "end_line": 56,
+        "content": "`_print_info_once` and `_print_warning_once` are decorated with `@lru_cache`, which requires all arguments to be hashable. The new `*args: Hashable` annotation is only a type hint and does not enforce hashability at runtime. If a caller passes an unhashable argument (e.g., a list or dict), `lru_cache` will raise `TypeError: unhashable type`. Consider either removing `@lru_cache` and implementing deduplication differently, or ensuring callers only pass hashable arguments.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"vllm/logger.py\",\n      \"start_line\": 56,\n      \"end_line\": 56,\n      \"content\": \"`_print_info_once` and `_print_warning_once` are decorated with `@lru_cache`, which requires all arguments to be hashable. The new `*args: Hashable` annotation is only a type hint and does not enforce hashability at runtime. If a caller passes an unhashable argument (e.g., a list or dict), `lru_cache` will raise `TypeError: unhashable type`. Consider either removing `@lru_cache` and implementing deduplication differently, or ensuring callers only pass hashable arguments.\"\n    }\n  ]\n}",
+  "stderr": null
+}

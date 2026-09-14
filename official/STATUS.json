@@ -1,36 +1,16 @@
 {
-  "snapshot_utc": "2026-09-13 18:26 UTC",
-  "note": "Live official-protocol generation snapshot. Judges (SWR evaluation_struct, AACR evaluate.py, Martian step3, SWE-Review compute_da) have not finished.",
-  "swrbench_generation_n_over_1000": {
-    "Nemotron-3-Ultra": 396,
-    "DeepSeek-V4.1-Flash": 81,
-    "claude-opus-4-8": 235,
-    "gpt-5.6": 118,
-    "Muse-Glimmer": 99
-  },
-  "aacr_result_files_over_196": {
-    "Nemotron-3-Ultra": 117,
-    "Muse-Glimmer": 14,
-    "DeepSeek-V4.1-Flash": 8
-  },
-  "martian_prs_over_50": {
-    "Nemotron-3-Ultra": 50,
-    "DeepSeek-V4.1-Flash": 38,
-    "claude-opus-4-8": 50,
-    "gpt-5.6": 20,
-    "Muse-Glimmer": 18
-  },
-  "swe_review": {
-    "split": "glm5_500",
-    "harness": "Harbor + OpenHands-SDK, OPENHANDS_LLM_NATIVE_TOOL_CALLING=true, max_iterations=100, concurrency=2 (official default n=32 is resource-limited here), skip-revision DA first",
-    "n_completed_trials": 0,
-    "n_running_trials": 2,
-    "n_pending_trials": 498
+  "snapshot_utc": "2026-09-14 17:15 UTC",
+  "note": "Official-harness scores. Cite official/SCORES.json, not the legacy unofficial proxy tables in ../results/.",
+  "complete": {
+    "SWR-Bench": "generation + evaluation_struct for all 5 models",
+    "AACR-Bench": "196/196 OCR reviews + evaluate.py for all 5 models",
+    "Martian": "judge complete; Opus / Nemotron / gpt-5.6 are valid. V4.1 empty gens not rerun. Glimmer empty-PR retry in progress.",
+    "SWE-Review-Bench glm5_500": "compute_da complete for Opus / Nemotron / gpt-5.6. V4.1 not rerun. Glimmer Harbor rerun in progress."
   },
   "protocol": {
-    "SWR-Bench": "swrbench/generation.py base_review, dataset swr_datasets_d5c5.jsonl, max_tokens=8192, temperature=0.2 (Claude/GPT-5 APIs require 1.0)",
-    "AACR-Bench": "positive_samples.json (196 PRs in the official dump), git checkout base..head, OCR-schema comments, later evaluation/evaluate.py",
-    "Martian": "real PR diffs + path/line/body comments, later official step3_judge_comments.py vs golden comments",
-    "SWE-Review-Bench": "not SWE-Review-Traj; Harbor agentic review on glm5_500"
+    "SWR-Bench": "swrbench/generation.py base_review on swr_datasets_d5c5.jsonl, max_tokens=8192, temperature 0.2 (Claude/GPT-5 APIs require 1.0). Judge evaluation_struct.py with gpt-5.6.",
+    "AACR-Bench": "dataset/positive_samples.json (196 PRs), git checkout source_commit..target_commit, OCR-schema comments, evaluation/evaluate.py --reviewer ocr.",
+    "Martian": "real GitHub PR diffs; model returns {path,line,body}; official step3_judge_comments.py vs golden comments, judge gpt-5.6 temperature=1.0.",
+    "SWE-Review-Bench": "Harbor + OpenHands-SDK on glm5_500 (not SWE-Review-Traj). DA first. Official compute_da.py."
   }
 }

@@ -1,0 +1,23 @@
+{
+  "instance_id": "facebook__react@be58f26",
+  "repo": "facebook/react",
+  "base_commit": "88b976740467f9dfabae03c79a8eff9033c35050",
+  "head_commit": "be58f26f9a6e579d8df36d901a59249d9ac1393f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:27:34.586497+00:00",
+  "duration_seconds": 42.58,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/react-dom/src/__tests__/ReactDOMForm-test.js",
+        "start_line": 1673,
+        "end_line": 1673,
+        "content": "Remove `.only`; this causes the rest of the tests in this suite to be skipped."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"packages/react-dom/src/__tests__/ReactDOMForm-test.js\",\"start_line\":1673,\"end_line\":1673,\"content\":\"Remove `.only`; this causes the rest of the tests in this suite to be skipped.\"}]}",
+  "stderr": null
+}

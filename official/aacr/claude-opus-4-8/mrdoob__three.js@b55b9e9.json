@@ -1,0 +1,16 @@
+{
+  "instance_id": "mrdoob__three.js@b55b9e9",
+  "repo": "mrdoob/three.js",
+  "base_commit": "de413e2112ff1ae80599f145b101354a1476976c",
+  "head_commit": "b55b9e97f6d0f5829e4d8fc364949e72b0d9e98c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:49.714650+00:00",
+  "duration_seconds": 23.25,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "Looking at the diff, let me analyze the key changes.\n\nIn `WebGPUBackend.js`, the `compute` function has a subtle bug worth flagging around the `dispatchSize` fallback assignment.\n\nLet me check the logic carefully:\n\n```js\nconst computeNodeData = this.get( computeNode );\nconst { passEncoderGPU } = this.get( computeGroup );\nconst isValid = dispatchSize[ 0 ] > 0 && dispatchSize[ 1 ] > 0 && dispatchSize[ 2 ] > 0;\n\ndispatchSize = isValid ? dispatchSize : computeNodeData;\n```\n\nThe line `dispatchSize = isValid ? dispatchSize : computeNodeData;` assigns `computeNodeData` (the full data object) to `dispatchSize`, but then in the else branch it's re-derived from `computeNodeData.dispatchSize`. This assignment is dead/misleading. Let me verify — yes, in the `else` branch, `dispatchSize` variable is never used (it uses `computeNodeData.dispatchSize`). So this assignment is dead code but not a correctness bug.\n\nAlso, the WGSL indentation uses spaces mixed with the codebase's tab convention.\n\nLet me report the real, precise issues.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/renderers/webgpu/WebGPUBackend.js\",\n      \"start_line\": 1329,\n      \"end_line\": 1329,\n      \"content\": \"The assignment `dispatchSize = isValid ? dispatchSize : computeNodeData;` is dead/misleading code. When `isValid` is false, the else branch re-derives from `computeNodeData.dispatchSize` and never reads this reassigned `dispatchSize` value; when `isValid` is true, the ternary is a no-op. Removing this line would clarify intent and avoid confusion (assigning the whole data object to a variable named `dispatchSize` is a code smell).\"\n    },\n    {\n      \"path\": \"src/renderers/webgpu/nodes/WGSLNodeBuilder.js\",\n      \"start_line\": 2135,\n      \"end_line\": 2137,\n      \"content\": \"The new multi-line `instanceIndex` expression uses space-based indentation, which is inconsistent with the tab indentation used throughout this file (and three.js style). Please re-indent with tabs to match the codebase convention.\"\n    },\n    {\n      \"path\": \"src/nodes/gpgpu/ComputeNode.js\",\n      \"start_line\": 231,\n      \"end_line\": 240,\n      \"content\": \"The overloaded `compute()` signature accepts either `count` or `workgroupSize` as the second argument, but the JSDoc still documents `countOrWorkgroupSize` as `{number}` only. Please update the JSDoc to reflect that this parameter can also be `Array<number>` (the workgroup size), otherwise the array-based usage is undocumented and misleading.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

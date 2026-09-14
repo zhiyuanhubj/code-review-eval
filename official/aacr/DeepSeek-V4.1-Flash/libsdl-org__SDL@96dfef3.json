@@ -1,0 +1,38 @@
+{
+  "instance_id": "libsdl-org__SDL@96dfef3",
+  "repo": "libsdl-org/SDL",
+  "base_commit": "ab34ea5a2684766e510de1daf8ae44c41b6af704",
+  "head_commit": "96dfef35c4b0b89f2f8d9c2ecc4f5e3a25d3e7a0",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:31:37.314913+00:00",
+  "duration_seconds": 3.98,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/gpu/vulkan/SDL_gpu_vulkan.c",
+        "start_line": 5875,
+        "end_line": 5885,
+        "content": "The call to VULKAN_INTERNAL_TextureTransitionToDefaultUsage is made before checking if texture is NULL. If VULKAN_INTERNAL_CreateTexture fails and returns NULL, this will dereference a NULL pointer. Move the transition after the NULL check.",
+        "side": "right"
+      },
+      {
+        "path": "src/gpu/vulkan/SDL_gpu_vulkan.c",
+        "start_line": 10444,
+        "end_line": 10453,
+        "content": "VULKAN_INTERNAL_DefragmentMemory is now called before VULKAN_INTERNAL_EndCommandBuffer. The defrag function records copy commands into the same command buffer that is about to be ended, which is correct, but it also sets commandBuffer->isDefrag = 1. If defrag fails (e.g., OOM), the function returns false but the command buffer may already have partial defrag commands recorded and isDefrag set. The error is logged but execution continues to end and submit the command buffer, potentially submitting an incomplete defrag. Consider handling the failure by canceling or resetting the command buffer state.",
+        "side": "right"
+      },
+      {
+        "path": "src/gpu/vulkan/SDL_gpu_vulkan.c",
+        "start_line": 10694,
+        "end_line": 10700,
+        "content": "The error message says \"Failed to allocate defrag buffer!\" but this branch is for texture allocation. The message should say \"texture\" instead of \"buffer\" for clarity.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/gpu/vulkan/SDL_gpu_vulkan.c\",\n      \"start_line\": 5875,\n      \"end_line\": 5885,\n      \"content\": \"The call to VULKAN_INTERNAL_TextureTransitionToDefaultUsage is made before checking if texture is NULL. If VULKAN_INTERNAL_CreateTexture fails and returns NULL, this will dereference a NULL pointer. Move the transition after the NULL check.\"\n    },\n    {\n      \"path\": \"src/gpu/vulkan/SDL_gpu_vulkan.c\",\n      \"start_line\": 10444,\n      \"end_line\": 10453,\n      \"content\": \"VULKAN_INTERNAL_DefragmentMemory is now called before VULKAN_INTERNAL_EndCommandBuffer. The defrag function records copy commands into the same command buffer that is about to be ended, which is correct, but it also sets commandBuffer->isDefrag = 1. If defrag fails (e.g., OOM), the function returns false but the command buffer may already have partial defrag commands recorded and isDefrag set. The error is logged but execution continues to end and submit the command buffer, potentially submitting an incomplete defrag. Consider handling the failure by canceling or resetting the command buffer state.\"\n    },\n    {\n      \"path\": \"src/gpu/vulkan/SDL_gpu_vulkan.c\",\n      \"start_line\": 10694,\n      \"end_line\": 10700,\n      \"content\": \"The error message says \\\"Failed to allocate defrag buffer!\\\" but this branch is for texture allocation. The message should say \\\"texture\\\" instead of \\\"buffer\\\" for clarity.\"\n    }\n  ]\n}",
+  "stderr": null
+}

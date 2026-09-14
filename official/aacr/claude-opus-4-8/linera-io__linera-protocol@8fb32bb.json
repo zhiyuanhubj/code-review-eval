@@ -1,0 +1,16 @@
+{
+  "instance_id": "linera-io__linera-protocol@8fb32bb",
+  "repo": "linera-io/linera-protocol",
+  "base_commit": "ad508025a9d05552a1c8ac1ba4e71a0062ebb556",
+  "head_commit": "8fb32bb8a463a3b19e291426f83833027739f868",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:42.612896+00:00",
+  "duration_seconds": 12.58,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

@@ -1,0 +1,29 @@
+{
+  "instance_id": "elastic__elasticsearch@bef908c",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "4b868b0e11f4a59d608523c57d1a62b870ac8e0e",
+  "head_commit": "bef908cb3aaf20210b267551df1210ad881722c5",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:28.651380+00:00",
+  "duration_seconds": 14.65,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/main/java/org/elasticsearch/index/mapper/vectors/MultiDenseVectorScriptDocValues.java",
+        "start_line": 44,
+        "end_line": 44,
+        "content": "Grammar/typo in the Javadoc: \"Get rank-vectors's value as an array of floats\" has an awkward possessive. Consider \"Get the rank vectors' values as an array of floats\"."
+      },
+      {
+        "path": "server/src/main/java/org/elasticsearch/script/field/vectors/MultiDenseVector.java",
+        "start_line": 49,
+        "end_line": 49,
+        "content": "The renamed message now reads \"vector value missing for a field, use isEmpty()...\" which lost its leading capitalization and context. Consider \"Rank vectors value missing for a field, use isEmpty() to check for a missing vector value\" for a clearer, properly capitalized message."
+      }
+    ]
+  },
+  "raw_output": "Looking at this PR, it's primarily a rename refactoring from \"multi_dense_vector\" to \"rank_vectors\". Let me review for any issues in the changes.\n\nThe changes are consistent renames. Let me check the doc comment and message strings for quality issues.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/index/mapper/vectors/MultiDenseVectorScriptDocValues.java\",\n      \"start_line\": 44,\n      \"end_line\": 44,\n      \"content\": \"Grammar/typo in the Javadoc: \\\"Get rank-vectors's value as an array of floats\\\" has an awkward possessive. Consider \\\"Get the rank vectors' values as an array of floats\\\".\"\n    },\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/script/field/vectors/MultiDenseVector.java\",\n      \"start_line\": 49,\n      \"end_line\": 49,\n      \"content\": \"The renamed message now reads \\\"vector value missing for a field, use isEmpty()...\\\" which lost its leading capitalization and context. Consider \\\"Rank vectors value missing for a field, use isEmpty() to check for a missing vector value\\\" for a clearer, properly capitalized message.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

@@ -1,0 +1,23 @@
+{
+  "instance_id": "infiniflow__ragflow@7051234",
+  "repo": "infiniflow/ragflow",
+  "base_commit": "b1c874698469ac999d210cd8cde59425781e4da2",
+  "head_commit": "705123406ec7cd5eb1f9be26f6c5c31357aeffc9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:11.309227+00:00",
+  "duration_seconds": 11.68,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "api/db/services/document_service.py",
+        "start_line": 338,
+        "end_line": 340,
+        "content": "Returning `None` (instead of an empty list) when there are no matching doc names breaks the caller in `api_app.py:document_rm`. There, the result is used directly with `if doc_id not in doc_ids: doc_ids.append(doc_id)`, which raises `TypeError` on `None`. Return `[]` here instead of `None` (or drop the early return entirely, since the list comprehension already yields `[]`)."
+      }
+    ]
+  },
+  "raw_output": "<think>\nLet me analyze the changes.\n\n1. `get_doc_ids_by_doc_names` returns `None` if empty. But the caller does:\n```python\ndoc_ids = DocumentService.get_doc_ids_by_doc_names(req.get(\"doc_names\", []))\nfor doc_id in req.get(\"doc_ids\", []):\n    if doc_id not in doc_ids:\n        doc_ids.append(doc_id)\n```\nIf `doc_ids` is `None`, then `doc_id not in None` raises TypeError, and `doc_ids.append` fails. This is a bug. Previously it was a list comprehension that always returned a list. Now if doc_names is empty or no matches, returns None.\n\nAlso, when `doc_names` is empty, `.in_([])` returns empty query, so returns None. Then the for loop over doc_ids would fail.\n\nThis is a real bug.\n\n2. The `if not doc_ids` check on a peewee query—`doc_ids` is `.dicts()` result. `if not doc_ids` on a ModelSelect... Actually calling `bool()` on it may execute a query. But the main issue is returning None instead of empty list.\n\nLet me focus on the clear bug.\n</think>\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"api/db/services/document_service.py\",\n      \"start_line\": 338,\n      \"end_line\": 340,\n      \"content\": \"Returning `None` (instead of an empty list) when there are no matching doc names breaks the caller in `api_app.py:document_rm`. There, the result is used directly with `if doc_id not in doc_ids: doc_ids.append(doc_id)`, which raises `TypeError` on `None`. Return `[]` here instead of `None` (or drop the early return entirely, since the list comprehension already yields `[]`).\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

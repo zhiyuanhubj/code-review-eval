@@ -1,0 +1,16 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@fd6ba0c",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "473c1b82e2bc2cbbbaac137fb86187c31d244700",
+  "head_commit": "fd6ba0c19048b6a546188661d1092c6c76a72796",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T19:28:27.644482+00:00",
+  "duration_seconds": 2.45,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RepoError: commit fd6ba0c19048b6a546188661d1092c6c76a72796 unavailable after fetch: fatal: remote error: upload-pack: not our ref fd6ba0c19048b6a546188661d1092c6c76a72796"
+}

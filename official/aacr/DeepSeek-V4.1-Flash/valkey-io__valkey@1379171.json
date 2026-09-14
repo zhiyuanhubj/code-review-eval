@@ -1,0 +1,94 @@
+{
+  "instance_id": "valkey-io__valkey@1379171",
+  "repo": "valkey-io/valkey",
+  "base_commit": "b5c7743971df5476acbdbbbd3b378496e885e1e4",
+  "head_commit": "1379171021c18b009fa02c42088e82caf0e33203",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:35:03.591267+00:00",
+  "duration_seconds": 10.3,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Makefile",
+        "start_line": 344,
+        "end_line": 344,
+        "content": "`FINAL_LIBS` already includes `$(RDMA_LIBS)` on the previous line, and this line appends `$(RDMA_LIBS)` again. This duplicates the RDMA libraries in the link line for the server. Remove the redundant `$(RDMA_LIBS)` here.",
+        "side": "right"
+      },
+      {
+        "path": "src/cli_common.c",
+        "start_line": 433,
+        "end_line": 441,
+        "content": "When `rdma` is non-zero but `USE_RDMA` is not defined, the function silently falls through without initializing `options` (no TCP options are set). This will produce a broken connection attempt. Either guard the caller so `rdma` can only be set when `USE_RDMA` is defined, or return an error/fallback to TCP here.",
+        "side": "right"
+      },
+      {
+        "path": "src/valkey-benchmark.c",
+        "start_line": 395,
+        "end_line": 400,
+        "content": "Calling `writeHandler` directly here (and similarly in `createClient`) bypasses the event loop and can recurse or run before the client is fully initialized. In particular, `writeHandler` may call `resetClient`/`freeClient` and manipulate the event loop while we are still inside `resetClient`/`createClient`. Consider scheduling the write via the event loop or deferring it until after initialization completes.",
+        "side": "right"
+      },
+      {
+        "path": "src/valkey-benchmark.c",
+        "start_line": 832,
+        "end_line": 838,
+        "content": "Same concern as in `resetClient`: invoking `writeHandler` directly from `createClient` can run before the client is fully set up and may re-enter client lifecycle code. Prefer registering the event or deferring the initial write.",
+        "side": "right"
+      },
+      {
+        "path": "src/valkey-benchmark.c",
+        "start_line": 1104,
+        "end_line": 1104,
+        "content": "`getValkeyContext` is called with `rdma=0` here even when the user requested `--rdma`. If cluster configuration fetching should also use RDMA, pass `config.rdma`; otherwise this is intentional but worth confirming, since the rest of the benchmark uses RDMA.",
+        "side": "right"
+      },
+      {
+        "path": "src/valkey-benchmark.c",
+        "start_line": 1217,
+        "end_line": 1217,
+        "content": "Same as above: cluster slot configuration connections ignore `config.rdma`. Confirm whether RDMA should be used for these auxiliary connections.",
+        "side": "right"
+      },
+      {
+        "path": "src/valkey-benchmark.c",
+        "start_line": 2079,
+        "end_line": 2079,
+        "content": "The FCALL setup connection also passes `rdma=0`, ignoring `config.rdma`. If RDMA is requested, this connection will use TCP, which may be inconsistent with the rest of the benchmark run.",
+        "side": "right"
+      },
+      {
+        "path": "src/valkey-cli.c",
+        "start_line": 2535,
+        "end_line": 2535,
+        "content": "After reconnecting with RDMA, the code still checks `config.tls` and calls `cliSecureConnection`. RDMA and TLS are likely mutually exclusive; if both flags are set this may fail or be meaningless. Consider rejecting the combination at option parsing time.",
+        "side": "right"
+      },
+      {
+        "path": "src/valkey-cli.c",
+        "start_line": 3992,
+        "end_line": 3992,
+        "content": "`clusterManagerNodeConnect` now uses `config.rdma` for cluster manager connections. Ensure this is intended, since cluster manager operations may not support RDMA and could break cluster commands when `--rdma` is passed.",
+        "side": "right"
+      },
+      {
+        "path": "src/valkey-cli.c",
+        "start_line": 7734,
+        "end_line": 7734,
+        "content": "`clusterManagerCommandImport` connects to the source node using `config.rdma`. If the source node does not support RDMA, this will fail. Consider using TCP for the import source or documenting the requirement.",
+        "side": "right"
+      },
+      {
+        "path": "deps/CMakeLists.txt",
+        "start_line": 19,
+        "end_line": 24,
+        "content": "The `ENABLE_RDMA` cache variable is set but never used to actually enable RDMA in the libvalkey subdirectory (unlike `ENABLE_TLS`). Verify that libvalkey's CMake reads `ENABLE_RDMA`; otherwise this block has no effect.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Makefile\",\n      \"start_line\": 344,\n      \"end_line\": 344,\n      \"content\": \"`FINAL_LIBS` already includes `$(RDMA_LIBS)` on the previous line, and this line appends `$(RDMA_LIBS)` again. This duplicates the RDMA libraries in the link line for the server. Remove the redundant `$(RDMA_LIBS)` here.\"\n    },\n    {\n      \"path\": \"src/cli_common.c\",\n      \"start_line\": 433,\n      \"end_line\": 441,\n      \"content\": \"When `rdma` is non-zero but `USE_RDMA` is not defined, the function silently falls through without initializing `options` (no TCP options are set). This will produce a broken connection attempt. Either guard the caller so `rdma` can only be set when `USE_RDMA` is defined, or return an error/fallback to TCP here.\"\n    },\n    {\n      \"path\": \"src/valkey-benchmark.c\",\n      \"start_line\": 395,\n      \"end_line\": 400,\n      \"content\": \"Calling `writeHandler` directly here (and similarly in `createClient`) bypasses the event loop and can recurse or run before the client is fully initialized. In particular, `writeHandler` may call `resetClient`/`freeClient` and manipulate the event loop while we are still inside `resetClient`/`createClient`. Consider scheduling the write via the event loop or deferring it until after initialization completes.\"\n    },\n    {\n      \"path\": \"src/valkey-benchmark.c\",\n      \"start_line\": 832,\n      \"end_line\": 838,\n      \"content\": \"Same concern as in `resetClient`: invoking `writeHandler` directly from `createClient` can run before the client is fully set up and may re-enter client lifecycle code. Prefer registering the event or deferring the initial write.\"\n    },\n    {\n      \"path\": \"src/valkey-benchmark.c\",\n      \"start_line\": 1104,\n      \"end_line\": 1104,\n      \"content\": \"`getValkeyContext` is called with `rdma=0` here even when the user requested `--rdma`. If cluster configuration fetching should also use RDMA, pass `config.rdma`; otherwise this is intentional but worth confirming, since the rest of the benchmark uses RDMA.\"\n    },\n    {\n      \"path\": \"src/valkey-benchmark.c\",\n      \"start_line\": 1217,\n      \"end_line\": 1217,\n      \"content\": \"Same as above: cluster slot configuration connections ignore `config.rdma`. Confirm whether RDMA should be used for these auxiliary connections.\"\n    },\n    {\n      \"path\": \"src/valkey-benchmark.c\",\n      \"start_line\": 2079,\n      \"end_line\": 2079,\n      \"content\": \"The FCALL setup connection also passes `rdma=0`, ignoring `config.rdma`. If RDMA is requested, this connection will use TCP, which may be inconsistent with the rest of the benchmark run.\"\n    },\n    {\n      \"path\": \"src/valkey-cli.c\",\n      \"start_line\": 2535,\n      \"end_line\": 2535,\n      \"content\": \"After reconnecting with RDMA, the code still checks `config.tls` and calls `cliSecureConnection`. RDMA and TLS are likely mutually exclusive; if both flags are set this may fail or be meaningless. Consider rejecting the combination at option parsing time.\"\n    },\n    {\n      \"path\": \"src/valkey-cli.c\",\n      \"start_line\": 3992,\n      \"end_line\": 3992,\n      \"content\": \"`clusterManagerNodeConnect` now uses `config.rdma` for cluster manager connections. Ensure this is intended, since cluster manager operations may not support RDMA and could break cluster commands when `--rdma` is passed.\"\n    },\n    {\n      \"path\": \"src/valkey-cli.c\",\n      \"start_line\": 7734,\n      \"end_line\": 7734,\n      \"content\": \"`clusterManagerCommandImport` connects to the source node using `config.rdma`. If the source node does not support RDMA, this will fail. Consider using TCP for the import source or documenting the requirement.\"\n    },\n    {\n      \"path\": \"deps/CMakeLists.txt\",\n      \"start_line\": 19,\n      \"end_line\": 24,\n      \"content\": \"The `ENABLE_RDMA` cache variable is set but never used to actually enable RDMA in the libvalkey subdirectory (unlike `ENABLE_TLS`). Verify that libvalkey's CMake reads `ENABLE_RDMA`; otherwise this block has no effect.\"\n    }\n  ]\n}",
+  "stderr": null
+}

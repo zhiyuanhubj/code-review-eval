@@ -1,0 +1,16 @@
+{
+  "instance_id": "n8n-io__n8n@f523897",
+  "repo": "n8n-io/n8n",
+  "base_commit": "ef550104cdceb8113381c24fabb63d7e0f6fa6a4",
+  "head_commit": "f523897785e1a45484b31c9bb16e66e060553601",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:35.717508+00:00",
+  "duration_seconds": 9.89,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

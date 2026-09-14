@@ -1,0 +1,35 @@
+{
+  "instance_id": "nodejs__node@e8b6c18",
+  "repo": "nodejs/node",
+  "base_commit": "18b9120435287eafb1865102c6c4dc6a7cff5ede",
+  "head_commit": "e8b6c183d46c41b2992c4f5cafceb7f9c6f8710d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:07.145559+00:00",
+  "duration_seconds": 16.1,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "test/parallel/test-repl-custom-eval.js",
+        "start_line": 108,
+        "end_line": 128,
+        "content": "The REPL instances created in `getReplOutput` are never closed. Consider capturing the return value of `repl.start(...)` and closing it (e.g. `r.close()`) after collecting output to avoid leaking REPL/readline instances across the many `it` blocks that use this helper."
+      },
+      {
+        "path": "test/parallel/test-repl-custom-eval.js",
+        "start_line": 120,
+        "end_line": 122,
+        "content": "`outputStream.write` is reassigned only after `inputStream.emit('data', input)` would be able to produce output, but note that writes triggered synchronously during `repl.start` (e.g. the initial prompt) are lost because the override happens after `repl.start`. Confirm this ordering is intended; if the prompt should be captured, move the `outputStream.write` override before `repl.start`."
+      },
+      {
+        "path": "test/parallel/test-repl-custom-eval.js",
+        "start_line": 33,
+        "end_line": 41,
+        "content": "This test relies on `repl.start` using default input/output (stdin/stdout) since no streams are provided. This attaches to the real stdin and may interfere with the test runner or leave the process listening on stdin. Consider passing explicit `input`/`output` ArrayStreams here as well, consistent with `getReplOutput`."
+      }
+    ]
+  },
+  "raw_output": "I'll review this PR that adds test coverage for custom eval functions in the REPL.\n\n{\n  \"comments\": [\n    {\n      \"path\": \"test/parallel/test-repl-custom-eval.js\",\n      \"start_line\": 108,\n      \"end_line\": 128,\n      \"content\": \"The REPL instances created in `getReplOutput` are never closed. Consider capturing the return value of `repl.start(...)` and closing it (e.g. `r.close()`) after collecting output to avoid leaking REPL/readline instances across the many `it` blocks that use this helper.\"\n    },\n    {\n      \"path\": \"test/parallel/test-repl-custom-eval.js\",\n      \"start_line\": 120,\n      \"end_line\": 122,\n      \"content\": \"`outputStream.write` is reassigned only after `inputStream.emit('data', input)` would be able to produce output, but note that writes triggered synchronously during `repl.start` (e.g. the initial prompt) are lost because the override happens after `repl.start`. Confirm this ordering is intended; if the prompt should be captured, move the `outputStream.write` override before `repl.start`.\"\n    },\n    {\n      \"path\": \"test/parallel/test-repl-custom-eval.js\",\n      \"start_line\": 33,\n      \"end_line\": 41,\n      \"content\": \"This test relies on `repl.start` using default input/output (stdin/stdout) since no streams are provided. This attaches to the real stdin and may interfere with the test runner or leave the process listening on stdin. Consider passing explicit `input`/`output` ArrayStreams here as well, consistent with `getReplOutput`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

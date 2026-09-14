@@ -1,0 +1,59 @@
+{
+  "instance_id": "cline__cline@ca7f02b",
+  "repo": "cline/cline",
+  "base_commit": "8f4c6038dd70ce02caaf7ae924dc28d5be63968e",
+  "head_commit": "ca7f02b8cf8cd36d832a63e1c9ad892356c7df66",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:33:21.419819+00:00",
+  "duration_seconds": 6.37,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/core/task/ToolExecutor.ts",
+        "start_line": 2355,
+        "end_line": 2355,
+        "content": "`captureTaskCompleted` signature was changed to `(ulid: string)` but this call site still passes two arguments (`this.taskId, this.ulid`). This will cause a TypeScript compile error. Should be `telemetryService.captureTaskCompleted(this.ulid)`.",
+        "side": "right"
+      },
+      {
+        "path": "src/core/task/ToolExecutor.ts",
+        "start_line": 2380,
+        "end_line": 2380,
+        "content": "Same issue as above: `captureTaskCompleted` now takes only `ulid`, but this call still passes `this.taskId, this.ulid`. Update to `telemetryService.captureTaskCompleted(this.ulid)`.",
+        "side": "right"
+      },
+      {
+        "path": "src/core/task/ToolExecutor.ts",
+        "start_line": 1719,
+        "end_line": 1719,
+        "content": "This adds a new `captureOptionSelected` call in the act-mode branch, but the corresponding plan-mode branch (around line 2194) also adds one. Verify this is intentional — previously `captureOptionSelected` was not called at all in this file. If the intent was only to rename `taskId` to `ulid`, this is a behavior change that should be called out in the PR description.",
+        "side": "right"
+      },
+      {
+        "path": "src/services/posthog/telemetry/TelemetryService.ts",
+        "start_line": 372,
+        "end_line": 388,
+        "content": "`captureHistoricalTaskLoaded` and `captureRetryClicked` were removed entirely. If any callers still reference these methods, this will break the build. Please confirm there are no remaining call sites (e.g., in webview or controller code) that invoke these methods.",
+        "side": "right"
+      },
+      {
+        "path": "src/services/posthog/telemetry/TelemetryService.ts",
+        "start_line": 571,
+        "end_line": 575,
+        "content": "`captureProviderApiError` no longer accepts `taskId`. Ensure all call sites have been updated to remove the `taskId` field — the diff only shows one update in `refreshGroqModels.ts`. Search the codebase for other invocations of `captureProviderApiError` that still pass `taskId`.",
+        "side": "right"
+      },
+      {
+        "path": "src/services/browser/BrowserSession.ts",
+        "start_line": 175,
+        "end_line": 177,
+        "content": "The JSDoc still says \"Set the task ID for telemetry tracking\" but the parameter is now `ulid`. Minor doc nit — update the description to reference the ULID for consistency.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/core/task/ToolExecutor.ts\",\n      \"start_line\": 2355,\n      \"end_line\": 2355,\n      \"content\": \"`captureTaskCompleted` signature was changed to `(ulid: string)` but this call site still passes two arguments (`this.taskId, this.ulid`). This will cause a TypeScript compile error. Should be `telemetryService.captureTaskCompleted(this.ulid)`.\"\n    },\n    {\n      \"path\": \"src/core/task/ToolExecutor.ts\",\n      \"start_line\": 2380,\n      \"end_line\": 2380,\n      \"content\": \"Same issue as above: `captureTaskCompleted` now takes only `ulid`, but this call still passes `this.taskId, this.ulid`. Update to `telemetryService.captureTaskCompleted(this.ulid)`.\"\n    },\n    {\n      \"path\": \"src/core/task/ToolExecutor.ts\",\n      \"start_line\": 1719,\n      \"end_line\": 1719,\n      \"content\": \"This adds a new `captureOptionSelected` call in the act-mode branch, but the corresponding plan-mode branch (around line 2194) also adds one. Verify this is intentional — previously `captureOptionSelected` was not called at all in this file. If the intent was only to rename `taskId` to `ulid`, this is a behavior change that should be called out in the PR description.\"\n    },\n    {\n      \"path\": \"src/services/posthog/telemetry/TelemetryService.ts\",\n      \"start_line\": 372,\n      \"end_line\": 388,\n      \"content\": \"`captureHistoricalTaskLoaded` and `captureRetryClicked` were removed entirely. If any callers still reference these methods, this will break the build. Please confirm there are no remaining call sites (e.g., in webview or controller code) that invoke these methods.\"\n    },\n    {\n      \"path\": \"src/services/posthog/telemetry/TelemetryService.ts\",\n      \"start_line\": 571,\n      \"end_line\": 575,\n      \"content\": \"`captureProviderApiError` no longer accepts `taskId`. Ensure all call sites have been updated to remove the `taskId` field — the diff only shows one update in `refreshGroqModels.ts`. Search the codebase for other invocations of `captureProviderApiError` that still pass `taskId`.\"\n    },\n    {\n      \"path\": \"src/services/browser/BrowserSession.ts\",\n      \"start_line\": 175,\n      \"end_line\": 177,\n      \"content\": \"The JSDoc still says \\\"Set the task ID for telemetry tracking\\\" but the parameter is now `ulid`. Minor doc nit — update the description to reference the ULID for consistency.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

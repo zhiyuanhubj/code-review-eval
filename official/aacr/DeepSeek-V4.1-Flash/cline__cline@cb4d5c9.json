@@ -1,0 +1,24 @@
+{
+  "instance_id": "cline__cline@cb4d5c9",
+  "repo": "cline/cline",
+  "base_commit": "4d8bdf29458db722a2bce1dfacc50771959b32fa",
+  "head_commit": "cb4d5c90460885942cbbae0298b95f4ee5682086",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:33:21.876465+00:00",
+  "duration_seconds": 2.07,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/api/providers/openai.ts",
+        "start_line": 17,
+        "end_line": 21,
+        "content": "Using `openAiBaseUrl.includes(\"deepseek\")` to detect DeepSeek is fragile: a legitimate Azure endpoint whose hostname/path happens to contain \"deepseek\" (e.g. `https://my-deepseek-resource.openai.azure.com`) would be routed to the plain OpenAI client instead of AzureOpenAI, breaking Azure auth/API shape. Consider detecting Azure first, or matching the actual DeepSeek host (e.g. `api.deepseek.com`) rather than a substring.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/api/providers/openai.ts\",\n      \"start_line\": 17,\n      \"end_line\": 21,\n      \"content\": \"Using `openAiBaseUrl.includes(\\\"deepseek\\\")` to detect DeepSeek is fragile: a legitimate Azure endpoint whose hostname/path happens to contain \\\"deepseek\\\" (e.g. `https://my-deepseek-resource.openai.azure.com`) would be routed to the plain OpenAI client instead of AzureOpenAI, breaking Azure auth/API shape. Consider detecting Azure first, or matching the actual DeepSeek host (e.g. `api.deepseek.com`) rather than a substring.\"\n    }\n  ]\n}",
+  "stderr": null
+}

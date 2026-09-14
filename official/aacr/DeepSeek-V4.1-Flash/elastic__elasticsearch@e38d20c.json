@@ -1,0 +1,80 @@
+{
+  "instance_id": "elastic__elasticsearch@e38d20c",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "078f7ff9f7134a9c3011106e7b742a9fd8f04d56",
+  "head_commit": "e38d20c726cffb1ef9563d3146951a5356596464",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:39:46.437662+00:00",
+  "duration_seconds": 16.27,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/search/ErrorTraceHelper.java",
+        "start_line": 62,
+        "end_line": 90,
+        "content": "The `addSeenLoggingExpectations` builds a regex disjunction of node IDs and embeds it into the pattern. Node IDs are typically base64-ish strings that may contain regex metacharacters (e.g. `+`, `/`, `=`). These should be quoted with `Pattern.quote(...)` before joining, otherwise the pattern may fail to match or match unintended strings. Same applies to `errorTriggeringIndex` if it ever contains special characters.",
+        "side": "right"
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/search/ErrorTraceHelper.java",
+        "start_line": 100,
+        "end_line": 118,
+        "content": "`addUnseenLoggingExpectations` uses `UnseenEventExpectation` with a plain string message. `UnseenEventExpectation` matches the message exactly (not as a regex), so this is fine, but note the inconsistency with `addSeenLoggingExpectations` which uses a regex pattern. If the intent is to match the same log line, consider documenting this asymmetry or using a consistent approach.",
+        "side": "right"
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/test/MockLog.java",
+        "start_line": 319,
+        "end_line": 350,
+        "content": "`PatternAndExceptionSeenEventExpectation` overrides `match(LogEvent)` but does not call `super.match(event)`. The parent `SeenEventExpectation.match` presumably handles the `seenLatch`/`seen` bookkeeping; here it is reimplemented, which is fine, but the `patternMatches` check is nested inside `if (exceptionMatches)` — meaning if the exception matches but the pattern does not, nothing happens (correct), but if the pattern matches and the exception does not, also nothing happens (correct). However, the `pattern` field shadows the parent's `pattern` field (if any) and the parent's `match` may still be invoked elsewhere. Verify the parent class does not also have a `pattern` field with different semantics; if it does, this shadowing is confusing and could lead to subtle bugs.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/main/java/org/elasticsearch/search/SearchService.java",
+        "start_line": 553,
+        "end_line": 561,
+        "content": "The debug log is emitted inside the `delegateResponse` failure handler, which is invoked on every failure path when `error_trace` is false. This means for every failed shard search the full exception (with stack trace) is logged at DEBUG. On a cluster with many shards and frequent failures this could be very noisy. Consider whether this should be gated behind a more specific logger or a dynamic setting, or at least document the intent. Also, the log message uses `request.shardId()` but the surrounding code uses `clusterService.localNode().getId()` — verify `shardId()` is always non-null here (it is for `ShardSearchRequest`, but the method is also called from `executeRankFeaturePhase` with a `shardSearchRequest` derived from a reader context).",
+        "side": "right"
+      },
+      {
+        "path": "server/src/main/java/org/elasticsearch/search/SearchService.java",
+        "start_line": 862,
+        "end_line": 866,
+        "content": "In `executeQueryPhase(InternalScrollSearchRequest, ...)`, `readerContext.getShardSearchRequest(null)` is now called before `markAsUsed`. Previously this call happened inside the `runAsync` lambda. Moving it earlier means it runs on the transport thread rather than the search thread pool. Verify `getShardSearchRequest` is safe to call on the transport thread (it may touch the reader context / index shard state). If it can throw or block, this changes the threading semantics.",
+        "side": "right"
+      },
+      {
+        "path": "qa/smoke-test-http/src/internalClusterTest/java/org/elasticsearch/http/SearchErrorTraceIT.java",
+        "start_line": 47,
+        "end_line": 50,
+        "content": "`Configurator.setLevel` in `@BeforeClass` mutates global Log4j configuration and is never reset. This can leak into other test classes in the same JVM (especially with randomized test ordering). Prefer using `MockLog.capture` which already handles level setup, or reset the level in `@AfterClass`.",
+        "side": "right"
+      },
+      {
+        "path": "x-pack/plugin/async-search/src/internalClusterTest/java/org/elasticsearch/xpack/search/AsyncSearchErrorTraceIT.java",
+        "start_line": 48,
+        "end_line": 51,
+        "content": "Same issue as `SearchErrorTraceIT`: `Configurator.setLevel` in `@BeforeClass` is never reset, leaking DEBUG level for `SearchService` into other tests in the same JVM.",
+        "side": "right"
+      },
+      {
+        "path": "x-pack/plugin/async-search/src/internalClusterTest/java/org/elasticsearch/xpack/search/AsyncSearchErrorTraceIT.java",
+        "start_line": 153,
+        "end_line": 178,
+        "content": "`testLoggingInAsyncSearchFailingQueryErrorTraceDefault` submits the async search request twice: once before the `try (var mockLog = ...)` block (to obtain the execution id) and once inside the block. The first submission already triggers the shard failures and logs, so the `MockLog` capture inside the block may not see the expected log events (they were emitted before capture started). The test may be flaky or pass for the wrong reason. The same pattern appears in the `ErrorTraceTrue` and `ErrorTraceFalse` variants. Consider capturing the log around the initial submission, or re-issuing the search inside the capture block.",
+        "side": "right"
+      },
+      {
+        "path": "x-pack/plugin/async-search/src/internalClusterTest/java/org/elasticsearch/xpack/search/AsyncSearchErrorTraceIT.java",
+        "start_line": 153,
+        "end_line": 178,
+        "content": "The `while (responseEntity.get(\"is_running\") instanceof Boolean isRunning && isRunning)` loop polls the async search status, but the `mockLog` expectations are only asserted after the loop. If the async search completes asynchronously on a different thread, the log events may be emitted after `mockLog.assertAllExpectationsMatched()` is called. Ensure the async search has fully completed (including all shard-level logging) before asserting.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/search/ErrorTraceHelper.java\",\n      \"start_line\": 62,\n      \"end_line\": 90,\n      \"content\": \"The `addSeenLoggingExpectations` builds a regex disjunction of node IDs and embeds it into the pattern. Node IDs are typically base64-ish strings that may contain regex metacharacters (e.g. `+`, `/`, `=`). These should be quoted with `Pattern.quote(...)` before joining, otherwise the pattern may fail to match or match unintended strings. Same applies to `errorTriggeringIndex` if it ever contains special characters.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/search/ErrorTraceHelper.java\",\n      \"start_line\": 100,\n      \"end_line\": 118,\n      \"content\": \"`addUnseenLoggingExpectations` uses `UnseenEventExpectation` with a plain string message. `UnseenEventExpectation` matches the message exactly (not as a regex), so this is fine, but note the inconsistency with `addSeenLoggingExpectations` which uses a regex pattern. If the intent is to match the same log line, consider documenting this asymmetry or using a consistent approach.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/test/MockLog.java\",\n      \"start_line\": 319,\n      \"end_line\": 350,\n      \"content\": \"`PatternAndExceptionSeenEventExpectation` overrides `match(LogEvent)` but does not call `super.match(event)`. The parent `SeenEventExpectation.match` presumably handles the `seenLatch`/`seen` bookkeeping; here it is reimplemented, which is fine, but the `patternMatches` check is nested inside `if (exceptionMatches)` — meaning if the exception matches but the pattern does not, nothing happens (correct), but if the pattern matches and the exception does not, also nothing happens (correct). However, the `pattern` field shadows the parent's `pattern` field (if any) and the parent's `match` may still be invoked elsewhere. Verify the parent class does not also have a `pattern` field with different semantics; if it does, this shadowing is confusing and could lead to subtle bugs.\"\n    },\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/search/SearchService.java\",\n      \"start_line\": 553,\n      \"end_line\": 561,\n      \"content\": \"The debug log is emitted inside the `delegateResponse` failure handler, which is invoked on every failure path when `error_trace` is false. This means for every failed shard search the full exception (with stack trace) is logged at DEBUG. On a cluster with many shards and frequent failures this could be very noisy. Consider whether this should be gated behind a more specific logger or a dynamic setting, or at least document the intent. Also, the log message uses `request.shardId()` but the surrounding code uses `clusterService.localNode().getId()` — verify `shardId()` is always non-null here (it is for `ShardSearchRequest`, but the method is also called from `executeRankFeaturePhase` with a `shardSearchRequest` derived from a reader context).\"\n    },\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/search/SearchService.java\",\n      \"start_line\": 862,\n      \"end_line\": 866,\n      \"content\": \"In `executeQueryPhase(InternalScrollSearchRequest, ...)`, `readerContext.getShardSearchRequest(null)` is now called before `markAsUsed`. Previously this call happened inside the `runAsync` lambda. Moving it earlier means it runs on the transport thread rather than the search thread pool. Verify `getShardSearchRequest` is safe to call on the transport thread (it may touch the reader context / index shard state). If it can throw or block, this changes the threading semantics.\"\n    },\n    {\n      \"path\": \"qa/smoke-test-http/src/internalClusterTest/java/org/elasticsearch/http/SearchErrorTraceIT.java\",\n      \"start_line\": 47,\n      \"end_line\": 50,\n      \"content\": \"`Configurator.setLevel` in `@BeforeClass` mutates global Log4j configuration and is never reset. This can leak into other test classes in the same JVM (especially with randomized test ordering). Prefer using `MockLog.capture` which already handles level setup, or reset the level in `@AfterClass`.\"\n    },\n    {\n      \"path\": \"x-pack/plugin/async-search/src/internalClusterTest/java/org/elasticsearch/xpack/search/AsyncSearchErrorTraceIT.java\",\n      \"start_line\": 48,\n      \"end_line\": 51,\n      \"content\": \"Same issue as `SearchErrorTraceIT`: `Configurator.setLevel` in `@BeforeClass` is never reset, leaking DEBUG level for `SearchService` into other tests in the same JVM.\"\n    },\n    {\n      \"path\": \"x-pack/plugin/async-search/src/internalClusterTest/java/org/elasticsearch/xpack/search/AsyncSearchErrorTraceIT.java\",\n      \"start_line\": 153,\n      \"end_line\": 178,\n      \"content\": \"`testLoggingInAsyncSearchFailingQueryErrorTraceDefault` submits the async search request twice: once before the `try (var mockLog = ...)` block (to obtain the execution id) and once inside the block. The first submission already triggers the shard failures and logs, so the `MockLog` capture inside the block may not see the expected log events (they were emitted before capture started). The test may be flaky or pass for the wrong reason. The same pattern appears in the `ErrorTraceTrue` and `ErrorTraceFalse` variants. Consider capturing the log around the initial submission, or re-issuing the search inside the capture block.\"\n    },\n    {\n      \"path\": \"x-pack/plugin/async-search/src/internalClusterTest/java/org/elasticsearch/xpack/search/AsyncSearchErrorTraceIT.java\",\n      \"start_line\": 153,\n      \"end_line\": 178,\n      \"content\": \"The `while (responseEntity.get(\\\"is_running\\\") instanceof Boolean isRunning && isRunning)` loop polls the async search status, but the `mockLog` expectations are only asserted after the loop. If the async search completes asynchronously on a different thread, the log events may be emitted after `mockLog.assertAllExpectationsMatched()` is called. Ensure the async search has fully completed (including all shard-level logging) before asserting.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

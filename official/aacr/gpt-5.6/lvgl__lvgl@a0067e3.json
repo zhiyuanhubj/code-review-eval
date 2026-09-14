@@ -1,0 +1,23 @@
+{
+  "instance_id": "lvgl__lvgl@a0067e3",
+  "repo": "lvgl/lvgl",
+  "base_commit": "5f41926f0414c02f70547c50329969f7fe6a4b8d",
+  "head_commit": "a0067e3984cc95bb3ed0dce9abb664ee6a01a199",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:38.861623+00:00",
+  "duration_seconds": 52.96,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/misc/lv_text.c",
+        "start_line": 656,
+        "end_line": 656,
+        "content": "This does not safely handle `NULL` through `lv_text_encoded_letter_next_2`: that function subsequently forms `&txt[*ofs]` before the second decode. Pointer arithmetic on `NULL` is undefined behavior, and a nonzero initial offset can produce an invalid non-NULL address that is then dereferenced. Guard `txt == NULL` in `lv_text_encoded_letter_next_2` itself and set both output letters to 0 while leaving `ofs` unchanged."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/misc/lv_text.c\",\"start_line\":656,\"end_line\":656,\"content\":\"This does not safely handle `NULL` through `lv_text_encoded_letter_next_2`: that function subsequently forms `&txt[*ofs]` before the second decode. Pointer arithmetic on `NULL` is undefined behavior, and a nonzero initial offset can produce an invalid non-NULL address that is then dereferenced. Guard `txt == NULL` in `lv_text_encoded_letter_next_2` itself and set both output letters to 0 while leaving `ofs` unchanged.\"}]}",
+  "stderr": null
+}

@@ -1,0 +1,35 @@
+{
+  "instance_id": "keycloak__keycloak@04ad5d5",
+  "repo": "keycloak/keycloak",
+  "base_commit": "ad511cbc538f1d9727d17cc423420abc50367af4",
+  "head_commit": "04ad5d530007517b60e2bf8706542556078d17f7",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:51:18.689381+00:00",
+  "duration_seconds": 25.48,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "test-framework/clustering/src/main/java/org/keycloak/testframework/server/ClusteredKeycloakServer.java",
+        "start_line": 100,
+        "end_line": 100,
+        "content": "The error message in startContainersWithMixedImage has the arguments swapped: it says 'Requested nodeIndex: %d, cluster size: %d' but passes (server.clusterSize(), nodeIndex). Should be (nodeIndex, server.clusterSize())."
+      },
+      {
+        "path": "test-framework/clustering/src/main/java/org/keycloak/testframework/server/ClusteredKeycloakServer.java",
+        "start_line": 100,
+        "end_line": 100,
+        "content": "The exception message format string uses %d twice but the arguments are in wrong order. The message says 'Requested nodeIndex: %d, cluster size: %d' but passes server.clusterSize() first, then nodeIndex. This will produce confusing error messages."
+      },
+      {
+        "path": "test-framework/clustering/src/main/java/org/keycloak/testframework/server/ClusteredKeycloakServer.java",
+        "start_line": 100,
+        "end_line": 100,
+        "content": "The IllegalArgumentException message in LoadBalancer.node() has swapped arguments: format string expects (nodeIndex, clusterSize) but passes (clusterSize, nodeIndex)."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"test-framework/clustering/src/main/java/org/keycloak/testframework/server/ClusteredKeycloakServer.java\",\n      \"start_line\": 100,\n      \"end_line\": 100,\n      \"content\": \"The error message in startContainersWithMixedImage has the arguments swapped: it says 'Requested nodeIndex: %d, cluster size: %d' but passes (server.clusterSize(), nodeIndex). Should be (nodeIndex, server.clusterSize()).\"\n    },\n    {\n      \"path\": \"test-framework/clustering/src/main/java/org/keycloak/testframework/server/ClusteredKeycloakServer.java\",\n      \"start_line\": 100,\n      \"end_line\": 100,\n      \"content\": \"The exception message format string uses %d twice but the arguments are in wrong order. The message says 'Requested nodeIndex: %d, cluster size: %d' but passes server.clusterSize() first, then nodeIndex. This will produce confusing error messages.\"\n    },\n    {\n      \"path\": \"test-framework/clustering/src/main/java/org/keycloak/testframework/server/ClusteredKeycloakServer.java\",\n      \"start_line\": 100,\n      \"end_line\": 100,\n      \"content\": \"The IllegalArgumentException message in LoadBalancer.node() has swapped arguments: format string expects (nodeIndex, clusterSize) but passes (clusterSize, nodeIndex).\"\n    }\n  ]\n}",
+  "stderr": null
+}

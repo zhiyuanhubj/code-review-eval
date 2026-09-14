@@ -1,0 +1,29 @@
+{
+  "instance_id": "microsoft__semantic-kernel@a712b62",
+  "repo": "microsoft/semantic-kernel",
+  "base_commit": "fa96214dbc167080bec90a917c7d911a1f3539e4",
+  "head_commit": "a712b62f7804121730a95d34195cad365eb350b7",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:29:01.695320+00:00",
+  "duration_seconds": 28.81,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "dotnet/samples/Demos/ModelContextProtocolPlugin/Program.cs",
+        "start_line": 85,
+        "end_line": 85,
+        "content": "Typo in agent instructions: 'GitGub' should be 'GitHub'."
+      },
+      {
+        "path": "dotnet/samples/Demos/ModelContextProtocolPlugin/Program.cs",
+        "start_line": 95,
+        "end_line": 95,
+        "content": "The comment '/// Create the chat history thread...' uses XML doc comment syntax (///) but is not documenting a type or member. Use a regular comment (//) instead."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"dotnet/samples/Demos/ModelContextProtocolPlugin/Program.cs\",\n      \"start_line\": 85,\n      \"end_line\": 85,\n      \"content\": \"Typo in agent instructions: 'GitGub' should be 'GitHub'.\"\n    },\n    {\n      \"path\": \"dotnet/samples/Demos/ModelContextProtocolPlugin/Program.cs\",\n      \"start_line\": 95,\n      \"end_line\": 95,\n      \"content\": \"The comment '/// Create the chat history thread...' uses XML doc comment syntax (///) but is not documenting a type or member. Use a regular comment (//) instead.\"\n    }\n  ]\n}",
+  "stderr": null
+}

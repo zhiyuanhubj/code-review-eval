@@ -1,0 +1,23 @@
+{
+  "instance_id": "microsoft__semantic-kernel@a712b62",
+  "repo": "microsoft/semantic-kernel",
+  "base_commit": "fa96214dbc167080bec90a917c7d911a1f3539e4",
+  "head_commit": "a712b62f7804121730a95d34195cad365eb350b7",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:29:25.614479+00:00",
+  "duration_seconds": 15.15,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "dotnet/samples/Demos/ModelContextProtocolPlugin/Program.cs",
+        "start_line": 76,
+        "end_line": 76,
+        "content": "Fix the typo in the agent instructions: `GitGub` should be `GitHub`."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"dotnet/samples/Demos/ModelContextProtocolPlugin/Program.cs\",\"start_line\":76,\"end_line\":76,\"content\":\"Fix the typo in the agent instructions: `GitGub` should be `GitHub`.\"}]}",
+  "stderr": null
+}

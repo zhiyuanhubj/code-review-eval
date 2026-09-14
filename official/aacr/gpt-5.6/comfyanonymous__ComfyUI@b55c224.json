@@ -1,0 +1,23 @@
+{
+  "instance_id": "comfyanonymous__ComfyUI@b55c224",
+  "repo": "comfyanonymous/ComfyUI",
+  "base_commit": "832e3f5ca3c357e527fdf811502357bd2798425e",
+  "head_commit": "b55c2247654476fbc744e572ba7a834fd9378745",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:29.611712+00:00",
+  "duration_seconds": 15.57,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "comfy/clip_model.py",
+        "start_line": 108,
+        "end_line": 108,
+        "content": "This constructs the DirectML causal mask from uninitialized memory. `triu_(1)` only zeros entries below the diagonal, leaving arbitrary values above it, so future tokens may be unmasked or receive random attention biases. Initialize the tensor with a supported large negative value before applying `triu_(1)` (as the previous implementation did), or build a triangular boolean mask and `masked_fill` its upper triangle."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"comfy/clip_model.py\",\"start_line\":108,\"end_line\":108,\"content\":\"This constructs the DirectML causal mask from uninitialized memory. `triu_(1)` only zeros entries below the diagonal, leaving arbitrary values above it, so future tokens may be unmasked or receive random attention biases. Initialize the tensor with a supported large negative value before applying `triu_(1)` (as the previous implementation did), or build a triangular boolean mask and `masked_fill` its upper triangle.\"}]}",
+  "stderr": null
+}

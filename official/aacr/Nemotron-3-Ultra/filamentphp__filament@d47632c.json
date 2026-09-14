@@ -1,0 +1,23 @@
+{
+  "instance_id": "filamentphp__filament@d47632c",
+  "repo": "filamentphp/filament",
+  "base_commit": "ce4d9d08df41142ff219bb3dc44968084eaae0dc",
+  "head_commit": "d47632c0583bac481d4ce7cc9b6b1711d0f8e0fc",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:27:33.034430+00:00",
+  "duration_seconds": 41.5,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/support/src/helpers.php",
+        "start_line": 184,
+        "end_line": 188,
+        "content": "The `invade()` function is used to access a private method `wrapJsonFieldAndPath` on the query grammar. This relies on internal Laravel implementation details that may change between versions. Consider using a public API or a more stable approach if available. Additionally, the `@phpstan-ignore-line` suppresses static analysis warnings for this fragile code."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/support/src/helpers.php\",\n      \"start_line\": 184,\n      \"end_line\": 188,\n      \"content\": \"The `invade()` function is used to access a private method `wrapJsonFieldAndPath` on the query grammar. This relies on internal Laravel implementation details that may change between versions. Consider using a public API or a more stable approach if available. Additionally, the `@phpstan-ignore-line` suppresses static analysis warnings for this fragile code.\"\n    }\n  ]\n}",
+  "stderr": null
+}

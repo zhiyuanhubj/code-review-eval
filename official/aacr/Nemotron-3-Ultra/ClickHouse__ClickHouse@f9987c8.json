@@ -1,0 +1,23 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@f9987c8",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "25f2e13a8fc3ed6e6215ee7481677e1b8523ac4c",
+  "head_commit": "f9987c89a4cfaa95269385f24323dc6f44cda6e9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:40:51.479211+00:00",
+  "duration_seconds": 15.82,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Storages/MergeTree/KeyCondition.cpp",
+        "start_line": 2907,
+        "end_line": 2907,
+        "content": "The `field` variable is default-constructed (empty) and passed to `getMonotonicityForRange`. This may not correctly represent the actual column type for monotonicity analysis. Consider using the actual data type from the key condition context instead of an empty Field."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Storages/MergeTree/KeyCondition.cpp\",\n      \"start_line\": 2907,\n      \"end_line\": 2907,\n      \"content\": \"The `field` variable is default-constructed (empty) and passed to `getMonotonicityForRange`. This may not correctly represent the actual column type for monotonicity analysis. Consider using the actual data type from the key condition context instead of an empty Field.\"\n    }\n  ]\n}",
+  "stderr": null
+}

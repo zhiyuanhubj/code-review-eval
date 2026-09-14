@@ -1,0 +1,94 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@e596925",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "f001b8a10ac2206458f7db457a45c9b2853e7bff",
+  "head_commit": "e59692501d1a08e7306189fed5c31b02553f7746",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:30:59.053786+00:00",
+  "duration_seconds": 12.12,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Mod/Fem/App/FemVTKTools.cpp",
+        "start_line": 1085,
+        "end_line": 1090,
+        "content": "`valueFromLine<double>` uses `std::strtof` (float) instead of `std::strtod` (double). This truncates precision for all node coordinates and result values. Use `std::strtod`.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Fem/App/FemVTKTools.cpp",
+        "start_line": 1130,
+        "end_line": 1140,
+        "content": "`readNodes` calls `points->SetPoint(nodeID, coords.data())` unconditionally, even when the line did not match `keyCodeCoord` (coords is empty). This reads out of bounds. Move the `SetPoint`/`mapNodes` update inside the `if` block.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Fem/App/FemVTKTools.cpp",
+        "start_line": 1160,
+        "end_line": 1165,
+        "content": "`readElements` uses `mapNodes.at(node)` which throws `std::out_of_range` if a node id is missing. Unlike `readResults`, this is not caught, so a malformed/partial FRD file will crash. Wrap in try/catch or use `find`.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Fem/App/FemVTKTools.cpp",
+        "start_line": 1185,
+        "end_line": 1195,
+        "content": "`readElements` reads `info` (type/group/material) from the `-1` line, but the `-2` node line may be processed before `info` is populated if the file order differs, and `mapCcxTypeNodes[info[0]]` will silently insert a 0 entry for unknown types, causing `topoElem.size() == 0` to never match and cells to be dropped. Validate `info[0]` against `mapCcxTypeNodes` before use.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Fem/App/FemVTKTools.cpp",
+        "start_line": 1300,
+        "end_line": 1320,
+        "content": "In `readResults`, `countScaPos` is only reset inside the `-1` branch. If a `-2` continuation line appears before any `-1` line (or after a `-1` that threw), `countScaPos` is stale/uninitialized, leading to incorrect scalar/vector classification. Initialize `countScaPos = 0` before the loop and reset it in both branches as appropriate.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Fem/App/FemVTKTools.cpp",
+        "start_line": 1330,
+        "end_line": 1345,
+        "content": "When `mapNodes.at(node)` throws in the `-1` branch, `nodes.emplace_back` is skipped but `countNodes` is still incremented and `vecValues`/`scaValues` may be partially filled. Subsequent `SetTuple(mapNodes.at(node), ...)` calls outside the try block will then throw uncaught. Guard the tuple-setting block with the same try/catch or track validity.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Fem/App/FemVTKTools.cpp",
+        "start_line": 1360,
+        "end_line": 1375,
+        "content": "`vecArray->SetNumberOfComponents(numComps - scalarPos.size())` can be 0 when all components are scalar; VTK may warn or misbehave. The array is only added when `numComps != scalarPos.size()`, but it is still constructed and filled. Consider skipping construction when there are no vector components.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Fem/App/FemVTKTools.cpp",
+        "start_line": 1420,
+        "end_line": 1440,
+        "content": "`readFRD` reuses the same `points` and `cells` objects for every grid created per (step, analysisType). Since `grid->SetPoints(points)` and `grid->SetCells(...)` share the same underlying data, later modifications or VTK pipeline updates can affect all grids. Also, `cellTypes.data()` is passed to `SetCells` which expects a `vtkUnsignedCharArray` or similar; passing a raw `int*` here is incorrect and will not compile/behave as intended. Use `vtkCellArray` directly via `SetCells(cells)`.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Fem/App/FemVTKTools.cpp",
+        "start_line": 1445,
+        "end_line": 1455,
+        "content": "When `grids` is empty, `multiBlock->SetBlock(0, grid)` is called after `SetNumberOfBlocks(grids.size())` which is 0. This sets block 0 without increasing the block count, leaving the multiblock inconsistent. Call `SetNumberOfBlocks(1)` before setting the block.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Fem/App/FemVTKTools.cpp",
+        "start_line": 1470,
+        "end_line": 1485,
+        "content": "`frdToVTK` opens the file but never checks `ifstr.is_open()`/`ifstr.good()` after opening. If the file cannot be opened despite `isReadable()`, `readFRD` will silently return an empty multiblock. Add a check and throw `Base::FileException` on failure.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Fem/App/AppFemPy.cpp",
+        "start_line": 255,
+        "end_line": 268,
+        "content": "`frdToVTK` uses `PyArg_ParseTuple` with `\"et\"` and `PyMem_Free`, which is correct, but the method is registered with `add_varargs_method` and does not accept keyword arguments. Consider using `Py::Tuple`/`Py::String` helpers for consistency with the rest of the file and to avoid manual memory management.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Mod/Fem/App/FemVTKTools.cpp\",\n      \"start_line\": 1085,\n      \"end_line\": 1090,\n      \"content\": \"`valueFromLine<double>` uses `std::strtof` (float) instead of `std::strtod` (double). This truncates precision for all node coordinates and result values. Use `std::strtod`.\"\n    },\n    {\n      \"path\": \"src/Mod/Fem/App/FemVTKTools.cpp\",\n      \"start_line\": 1130,\n      \"end_line\": 1140,\n      \"content\": \"`readNodes` calls `points->SetPoint(nodeID, coords.data())` unconditionally, even when the line did not match `keyCodeCoord` (coords is empty). This reads out of bounds. Move the `SetPoint`/`mapNodes` update inside the `if` block.\"\n    },\n    {\n      \"path\": \"src/Mod/Fem/App/FemVTKTools.cpp\",\n      \"start_line\": 1160,\n      \"end_line\": 1165,\n      \"content\": \"`readElements` uses `mapNodes.at(node)` which throws `std::out_of_range` if a node id is missing. Unlike `readResults`, this is not caught, so a malformed/partial FRD file will crash. Wrap in try/catch or use `find`.\"\n    },\n    {\n      \"path\": \"src/Mod/Fem/App/FemVTKTools.cpp\",\n      \"start_line\": 1185,\n      \"end_line\": 1195,\n      \"content\": \"`readElements` reads `info` (type/group/material) from the `-1` line, but the `-2` node line may be processed before `info` is populated if the file order differs, and `mapCcxTypeNodes[info[0]]` will silently insert a 0 entry for unknown types, causing `topoElem.size() == 0` to never match and cells to be dropped. Validate `info[0]` against `mapCcxTypeNodes` before use.\"\n    },\n    {\n      \"path\": \"src/Mod/Fem/App/FemVTKTools.cpp\",\n      \"start_line\": 1300,\n      \"end_line\": 1320,\n      \"content\": \"In `readResults`, `countScaPos` is only reset inside the `-1` branch. If a `-2` continuation line appears before any `-1` line (or after a `-1` that threw), `countScaPos` is stale/uninitialized, leading to incorrect scalar/vector classification. Initialize `countScaPos = 0` before the loop and reset it in both branches as appropriate.\"\n    },\n    {\n      \"path\": \"src/Mod/Fem/App/FemVTKTools.cpp\",\n      \"start_line\": 1330,\n      \"end_line\": 1345,\n      \"content\": \"When `mapNodes.at(node)` throws in the `-1` branch, `nodes.emplace_back` is skipped but `countNodes` is still incremented and `vecValues`/`scaValues` may be partially filled. Subsequent `SetTuple(mapNodes.at(node), ...)` calls outside the try block will then throw uncaught. Guard the tuple-setting block with the same try/catch or track validity.\"\n    },\n    {\n      \"path\": \"src/Mod/Fem/App/FemVTKTools.cpp\",\n      \"start_line\": 1360,\n      \"end_line\": 1375,\n      \"content\": \"`vecArray->SetNumberOfComponents(numComps - scalarPos.size())` can be 0 when all components are scalar; VTK may warn or misbehave. The array is only added when `numComps != scalarPos.size()`, but it is still constructed and filled. Consider skipping construction when there are no vector components.\"\n    },\n    {\n      \"path\": \"src/Mod/Fem/App/FemVTKTools.cpp\",\n      \"start_line\": 1420,\n      \"end_line\": 1440,\n      \"content\": \"`readFRD` reuses the same `points` and `cells` objects for every grid created per (step, analysisType). Since `grid->SetPoints(points)` and `grid->SetCells(...)` share the same underlying data, later modifications or VTK pipeline updates can affect all grids. Also, `cellTypes.data()` is passed to `SetCells` which expects a `vtkUnsignedCharArray` or similar; passing a raw `int*` here is incorrect and will not compile/behave as intended. Use `vtkCellArray` directly via `SetCells(cells)`.\"\n    },\n    {\n      \"path\": \"src/Mod/Fem/App/FemVTKTools.cpp\",\n      \"start_line\": 1445,\n      \"end_line\": 1455,\n      \"content\": \"When `grids` is empty, `multiBlock->SetBlock(0, grid)` is called after `SetNumberOfBlocks(grids.size())` which is 0. This sets block 0 without increasing the block count, leaving the multiblock inconsistent. Call `SetNumberOfBlocks(1)` before setting the block.\"\n    },\n    {\n      \"path\": \"src/Mod/Fem/App/FemVTKTools.cpp\",\n      \"start_line\": 1470,\n      \"end_line\": 1485,\n      \"content\": \"`frdToVTK` opens the file but never checks `ifstr.is_open()`/`ifstr.good()` after opening. If the file cannot be opened despite `isReadable()`, `readFRD` will silently return an empty multiblock. Add a check and throw `Base::FileException` on failure.\"\n    },\n    {\n      \"path\": \"src/Mod/Fem/App/AppFemPy.cpp\",\n      \"start_line\": 255,\n      \"end_line\": 268,\n      \"content\": \"`frdToVTK` uses `PyArg_ParseTuple` with `\\\"et\\\"` and `PyMem_Free`, which is correct, but the method is registered with `add_varargs_method` and does not accept keyword arguments. Consider using `Py::Tuple`/`Py::String` helpers for consistency with the rest of the file and to avoid manual memory management.\"\n    }\n  ]\n}",
+  "stderr": null
+}

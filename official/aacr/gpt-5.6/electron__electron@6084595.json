@@ -1,0 +1,16 @@
+{
+  "instance_id": "electron__electron@6084595",
+  "repo": "electron/electron",
+  "base_commit": "a42afaa8665b6d1b3a344918c60853184a97060e",
+  "head_commit": "6084595c5608226e961d251bfb5ec138de8022ca",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:52.689266+00:00",
+  "duration_seconds": 83.57,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\"comments\":[]}",
+  "stderr": null
+}

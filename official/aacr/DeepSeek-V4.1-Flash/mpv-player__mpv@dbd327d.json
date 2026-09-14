@@ -1,0 +1,59 @@
+{
+  "instance_id": "mpv-player__mpv@dbd327d",
+  "repo": "mpv-player/mpv",
+  "base_commit": "30869ddb904f800ad1b858ac99c5fb81690f0cb7",
+  "head_commit": "dbd327d36fd0dc80ebd6e5517c102a92e31a0836",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:19.589854+00:00",
+  "duration_seconds": 7.82,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "misc/random.c",
+        "start_line": 44,
+        "end_line": 44,
+        "content": "`mp_rand_seed` is now a public function that returns a state, but the `FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION` override still forces `seed = 42`. This makes all PRNG states identical in fuzzing builds, which is probably intended for reproducibility, but it also means `mp_rand_seed(0)` no longer randomizes in fuzzing builds. If that is not desired, consider only forcing the seed when the caller passes 0, or documenting this behavior.",
+        "side": "right"
+      },
+      {
+        "path": "misc/random.c",
+        "start_line": 52,
+        "end_line": 52,
+        "content": "`av_random_bytes((void *)ret.v, sizeof(ret.v))` writes directly into the state array. If `av_random_bytes` fails after partially writing, `ret` may contain uninitialized or partially random data. The previous code used a temporary buffer and only copied on success. Consider using a temporary buffer to avoid returning a partially initialized state on failure.",
+        "side": "right"
+      },
+      {
+        "path": "misc/random.c",
+        "start_line": 55,
+        "end_line": 56,
+        "content": "`seed ^= (uintptr_t)&mp_rand_seed;` and `seed += (uintptr_t)&ret;` use function and stack addresses as entropy. While this adds ASLR/stack entropy, it is not a reliable source of randomness and may be predictable in some environments. Since this is only a fallback when `av_random_bytes` fails, it is acceptable, but consider mixing in `mp_raw_time_ns()` again or other available entropy sources.",
+        "side": "right"
+      },
+      {
+        "path": "misc/random.c",
+        "start_line": 91,
+        "end_line": 91,
+        "content": "`mp_round_next_power_of_2(range)` is used to compute the mask. If `range` is already a power of two, `mp_round_next_power_of_2` may return `range` (or the next power), and `mask = range - 1` is correct. However, if `range` is 0, `mp_round_next_power_of_2(0)` behavior is undefined. The assert `min < max` ensures `range > 0`, so this is safe, but the assert is only active in debug builds. Consider documenting that `min < max` is a hard requirement.",
+        "side": "right"
+      },
+      {
+        "path": "common/playlist.c",
+        "start_line": 173,
+        "end_line": 175,
+        "content": "The shuffle algorithm now uses `mp_rand_in_range32(&s, n, pl->num_entries)`. This is a correct Fisher-Yates shuffle. However, `mp_rand_in_range32` takes `uint32_t` arguments, while `n` and `pl->num_entries` are `int`. If `pl->num_entries` exceeds `UINT32_MAX`, this will truncate. Playlists are unlikely to be that large, but consider using `size_t` or adding a check.",
+        "side": "right"
+      },
+      {
+        "path": "misc/io_utils.c",
+        "start_line": 43,
+        "end_line": 43,
+        "content": "`struct mp_rand_state s = mp_rand_seed(0);` is initialized once before the loop. This is correct for generating a sequence of random values. However, `mp_rand_next(&s)` returns a 64-bit value, and `fuckmess` is `size_t`. On 32-bit platforms, `size_t` is 32-bit, so the upper 32 bits are truncated. This was also true before, but now the state is local, so the sequence is deterministic per call. Consider using `mp_rand_in_range32` or masking to the desired width.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"misc/random.c\",\n      \"start_line\": 44,\n      \"end_line\": 44,\n      \"content\": \"`mp_rand_seed` is now a public function that returns a state, but the `FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION` override still forces `seed = 42`. This makes all PRNG states identical in fuzzing builds, which is probably intended for reproducibility, but it also means `mp_rand_seed(0)` no longer randomizes in fuzzing builds. If that is not desired, consider only forcing the seed when the caller passes 0, or documenting this behavior.\"\n    },\n    {\n      \"path\": \"misc/random.c\",\n      \"start_line\": 52,\n      \"end_line\": 52,\n      \"content\": \"`av_random_bytes((void *)ret.v, sizeof(ret.v))` writes directly into the state array. If `av_random_bytes` fails after partially writing, `ret` may contain uninitialized or partially random data. The previous code used a temporary buffer and only copied on success. Consider using a temporary buffer to avoid returning a partially initialized state on failure.\"\n    },\n    {\n      \"path\": \"misc/random.c\",\n      \"start_line\": 55,\n      \"end_line\": 56,\n      \"content\": \"`seed ^= (uintptr_t)&mp_rand_seed;` and `seed += (uintptr_t)&ret;` use function and stack addresses as entropy. While this adds ASLR/stack entropy, it is not a reliable source of randomness and may be predictable in some environments. Since this is only a fallback when `av_random_bytes` fails, it is acceptable, but consider mixing in `mp_raw_time_ns()` again or other available entropy sources.\"\n    },\n    {\n      \"path\": \"misc/random.c\",\n      \"start_line\": 91,\n      \"end_line\": 91,\n      \"content\": \"`mp_round_next_power_of_2(range)` is used to compute the mask. If `range` is already a power of two, `mp_round_next_power_of_2` may return `range` (or the next power), and `mask = range - 1` is correct. However, if `range` is 0, `mp_round_next_power_of_2(0)` behavior is undefined. The assert `min < max` ensures `range > 0`, so this is safe, but the assert is only active in debug builds. Consider documenting that `min < max` is a hard requirement.\"\n    },\n    {\n      \"path\": \"common/playlist.c\",\n      \"start_line\": 173,\n      \"end_line\": 175,\n      \"content\": \"The shuffle algorithm now uses `mp_rand_in_range32(&s, n, pl->num_entries)`. This is a correct Fisher-Yates shuffle. However, `mp_rand_in_range32` takes `uint32_t` arguments, while `n` and `pl->num_entries` are `int`. If `pl->num_entries` exceeds `UINT32_MAX`, this will truncate. Playlists are unlikely to be that large, but consider using `size_t` or adding a check.\"\n    },\n    {\n      \"path\": \"misc/io_utils.c\",\n      \"start_line\": 43,\n      \"end_line\": 43,\n      \"content\": \"`struct mp_rand_state s = mp_rand_seed(0);` is initialized once before the loop. This is correct for generating a sequence of random values. However, `mp_rand_next(&s)` returns a 64-bit value, and `fuckmess` is `size_t`. On 32-bit platforms, `size_t` is 32-bit, so the upper 32 bits are truncated. This was also true before, but now the state is local, so the sequence is deterministic per call. Consider using `mp_rand_in_range32` or masking to the desired width.\"\n    }\n  ]\n}",
+  "stderr": null
+}

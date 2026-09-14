@@ -1,0 +1,29 @@
+{
+  "instance_id": "gofr-dev__gofr@dc0b3e6",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "44e3eeb2786ad4d333dc1f528fb104236693d060",
+  "head_commit": "dc0b3e630423b72cb9b2f273fdc18a5c11d12984",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:53.125768+00:00",
+  "duration_seconds": 56.52,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/gofr/datasource/mongo/mongo.go",
+        "start_line": 149,
+        "end_line": 156,
+        "content": "Do not pre-escape values assigned to `url.URL.Path` or `url.UserPassword`; `URL.String()` escapes them again. For example, a password containing `@` becomes `%2540`, and a space processed by `QueryEscape` becomes `+`, so MongoDB receives different credentials. Assign the raw database, username, and password here and let `url.URL` perform the encoding."
+      },
+      {
+        "path": "pkg/gofr/datasource/mongo/mongo.go",
+        "start_line": 172,
+        "end_line": 174,
+        "content": "This rejects valid `mongodb+srv://` connection strings, causing common MongoDB Atlas/SRV configurations that previously reached the driver to fail before connecting. Accept both `mongodb` and `mongodb+srv` schemes."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/datasource/mongo/mongo.go\",\n      \"start_line\": 149,\n      \"end_line\": 156,\n      \"content\": \"Do not pre-escape values assigned to `url.URL.Path` or `url.UserPassword`; `URL.String()` escapes them again. For example, a password containing `@` becomes `%2540`, and a space processed by `QueryEscape` becomes `+`, so MongoDB receives different credentials. Assign the raw database, username, and password here and let `url.URL` perform the encoding.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/mongo/mongo.go\",\n      \"start_line\": 172,\n      \"end_line\": 174,\n      \"content\": \"This rejects valid `mongodb+srv://` connection strings, causing common MongoDB Atlas/SRV configurations that previously reached the driver to fail before connecting. Accept both `mongodb` and `mongodb+srv` schemes.\"\n    }\n  ]\n}",
+  "stderr": null
+}

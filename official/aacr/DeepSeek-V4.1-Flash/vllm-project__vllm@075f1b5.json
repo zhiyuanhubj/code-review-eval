@@ -1,0 +1,66 @@
+{
+  "instance_id": "vllm-project__vllm@075f1b5",
+  "repo": "vllm-project/vllm",
+  "base_commit": "7a8987dac5f0ed0c798a73e8b4ec8f5e640bc63a",
+  "head_commit": "075f1b5b8015e343f25b45d36ccff571cb39739b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:34.136926+00:00",
+  "duration_seconds": 14.0,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "vllm/v1/core/kv_cache_manager.py",
+        "start_line": 132,
+        "end_line": 136,
+        "content": "The `num_new_blocks` calculation subtracts `len(new_computed_blocks)` from `num_required_blocks - len(req_blocks)`. However, `num_required_blocks` is computed from `num_computed_tokens` which already includes `len(new_computed_blocks) * self.block_size`. Since `req_blocks` does not yet include the new computed blocks at this point, the subtraction of `len(new_computed_blocks)` is correct to avoid double-counting. But note that `num_required_blocks` uses `cdiv(num_computed_tokens + num_tokens, block_size)` where `num_computed_tokens` includes the new computed blocks. This means `num_required_blocks` counts the new computed blocks as required blocks. Then `len(req_blocks)` does not include them, so `num_required_blocks - len(req_blocks)` would overcount by `len(new_computed_blocks)`. Subtracting `len(new_computed_blocks)` corrects this. This logic is correct but subtle; consider adding a comment explaining why `len(new_computed_blocks)` is subtracted.",
+        "side": "right"
+      },
+      {
+        "path": "vllm/v1/core/kv_cache_manager.py",
+        "start_line": 138,
+        "end_line": 141,
+        "content": "When `num_new_blocks > self.free_block_queue.num_free_blocks`, the code calls `self._untouch(new_computed_blocks)` and returns None. However, `_untouch` decrements ref counts and may add blocks to the free queue. This is correct for reversing the touch. But note that `_touch` was called earlier only if `self.enable_caching` is True. If caching is disabled, `new_computed_blocks` must be empty (asserted), so `_untouch` on an empty list is a no-op. This is fine.",
+        "side": "right"
+      },
+      {
+        "path": "vllm/v1/core/kv_cache_manager.py",
+        "start_line": 143,
+        "end_line": 144,
+        "content": "The code extends `req_blocks` with `new_computed_blocks` before allocating new blocks. This is correct to ensure the computed blocks are part of the request's block table. However, if `num_new_blocks <= 0`, no new blocks are allocated, and the function returns an empty list. This is correct because the computed blocks are already added to `req_blocks`.",
+        "side": "right"
+      },
+      {
+        "path": "vllm/v1/core/kv_cache_manager.py",
+        "start_line": 160,
+        "end_line": 162,
+        "content": "The assertion `assert num_new_blocks > 0` is placed after the `min` operation. If `num_new_blocks` was originally positive but the `min` reduces it to 0 or negative, the assertion would fail. However, the `min` includes `self.free_block_queue.num_free_blocks` which is checked earlier to be >= `num_new_blocks` (before adding preallocate blocks). Actually, the earlier check is `if num_new_blocks > self.free_block_queue.num_free_blocks: return None`. So `num_new_blocks <= num_free_blocks`. Then `num_new_blocks + self.num_preallocate_blocks` could exceed `num_free_blocks`, but `min` with `num_free_blocks` ensures it doesn't. Also `min` with `max_num_blocks_per_req - len(req_blocks)` could be 0 or negative if the request already has max blocks. In that case, the assertion would fail. This is a potential bug: if `max_num_blocks_per_req - len(req_blocks)` is <= 0, the assertion fails. However, this might be an invariant that the request never exceeds max blocks. Still, it's safer to handle this case gracefully or assert with a message.",
+        "side": "right"
+      },
+      {
+        "path": "vllm/v1/core/kv_cache_manager.py",
+        "start_line": 170,
+        "end_line": 180,
+        "content": "The caching logic for full blocks: `num_computed_full_blocks = num_computed_tokens // self.block_size`. Here `num_computed_tokens` includes the new computed blocks. Then `new_full_blocks = req_blocks[num_computed_full_blocks:num_full_blocks]`. This correctly identifies the newly full blocks that are not yet cached. The `prev_block` is set to `req_blocks[num_computed_full_blocks - 1]` if `num_computed_full_blocks > 0`. This is correct because the previous block is the one before the first new full block. However, note that `req_blocks` now includes the new computed blocks, so `num_computed_full_blocks` correctly points to the first block after the computed blocks. This logic seems correct.",
+        "side": "right"
+      },
+      {
+        "path": "vllm/v1/core/kv_cache_manager.py",
+        "start_line": 425,
+        "end_line": 435,
+        "content": "The `_untouch` method decrements ref counts and adds blocks to the free queue if ref_cnt becomes 0. This is correct for reversing a touch. However, it does not check if the block is already in the free queue. If a block was touched (ref_cnt incremented) and then untouch is called, it might be added to the free queue even if it was already there? Actually, `_touch` removes the block from the free queue if ref_cnt was 0. So after `_touch`, the block is not in the free queue. Then `_untouch` decrements ref_cnt to 0 and adds it back. This is correct. But if `_touch` was called on a block that already had ref_cnt > 0, it would not be in the free queue, and `_untouch` would decrement but not add to free queue (since ref_cnt > 0). This is correct.",
+        "side": "right"
+      },
+      {
+        "path": "vllm/v1/core/scheduler.py",
+        "start_line": 141,
+        "end_line": 142,
+        "content": "The scheduler now calls `allocate_slots` with an empty list for `new_computed_blocks`. This is correct for the decode case where no new computed blocks are hit. However, for the prefill case, the scheduler should pass the computed blocks from `get_computed_blocks`. Looking at the diff, only the decode path is shown. Ensure that the prefill path also uses `allocate_slots` with the correct computed blocks. If not, this could be a bug.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"vllm/v1/core/kv_cache_manager.py\",\n      \"start_line\": 132,\n      \"end_line\": 136,\n      \"content\": \"The `num_new_blocks` calculation subtracts `len(new_computed_blocks)` from `num_required_blocks - len(req_blocks)`. However, `num_required_blocks` is computed from `num_computed_tokens` which already includes `len(new_computed_blocks) * self.block_size`. Since `req_blocks` does not yet include the new computed blocks at this point, the subtraction of `len(new_computed_blocks)` is correct to avoid double-counting. But note that `num_required_blocks` uses `cdiv(num_computed_tokens + num_tokens, block_size)` where `num_computed_tokens` includes the new computed blocks. This means `num_required_blocks` counts the new computed blocks as required blocks. Then `len(req_blocks)` does not include them, so `num_required_blocks - len(req_blocks)` would overcount by `len(new_computed_blocks)`. Subtracting `len(new_computed_blocks)` corrects this. This logic is correct but subtle; consider adding a comment explaining why `len(new_computed_blocks)` is subtracted.\"\n    },\n    {\n      \"path\": \"vllm/v1/core/kv_cache_manager.py\",\n      \"start_line\": 138,\n      \"end_line\": 141,\n      \"content\": \"When `num_new_blocks > self.free_block_queue.num_free_blocks`, the code calls `self._untouch(new_computed_blocks)` and returns None. However, `_untouch` decrements ref counts and may add blocks to the free queue. This is correct for reversing the touch. But note that `_touch` was called earlier only if `self.enable_caching` is True. If caching is disabled, `new_computed_blocks` must be empty (asserted), so `_untouch` on an empty list is a no-op. This is fine.\"\n    },\n    {\n      \"path\": \"vllm/v1/core/kv_cache_manager.py\",\n      \"start_line\": 143,\n      \"end_line\": 144,\n      \"content\": \"The code extends `req_blocks` with `new_computed_blocks` before allocating new blocks. This is correct to ensure the computed blocks are part of the request's block table. However, if `num_new_blocks <= 0`, no new blocks are allocated, and the function returns an empty list. This is correct because the computed blocks are already added to `req_blocks`.\"\n    },\n    {\n      \"path\": \"vllm/v1/core/kv_cache_manager.py\",\n      \"start_line\": 160,\n      \"end_line\": 162,\n      \"content\": \"The assertion `assert num_new_blocks > 0` is placed after the `min` operation. If `num_new_blocks` was originally positive but the `min` reduces it to 0 or negative, the assertion would fail. However, the `min` includes `self.free_block_queue.num_free_blocks` which is checked earlier to be >= `num_new_blocks` (before adding preallocate blocks). Actually, the earlier check is `if num_new_blocks > self.free_block_queue.num_free_blocks: return None`. So `num_new_blocks <= num_free_blocks`. Then `num_new_blocks + self.num_preallocate_blocks` could exceed `num_free_blocks`, but `min` with `num_free_blocks` ensures it doesn't. Also `min` with `max_num_blocks_per_req - len(req_blocks)` could be 0 or negative if the request already has max blocks. In that case, the assertion would fail. This is a potential bug: if `max_num_blocks_per_req - len(req_blocks)` is <= 0, the assertion fails. However, this might be an invariant that the request never exceeds max blocks. Still, it's safer to handle this case gracefully or assert with a message.\"\n    },\n    {\n      \"path\": \"vllm/v1/core/kv_cache_manager.py\",\n      \"start_line\": 170,\n      \"end_line\": 180,\n      \"content\": \"The caching logic for full blocks: `num_computed_full_blocks = num_computed_tokens // self.block_size`. Here `num_computed_tokens` includes the new computed blocks. Then `new_full_blocks = req_blocks[num_computed_full_blocks:num_full_blocks]`. This correctly identifies the newly full blocks that are not yet cached. The `prev_block` is set to `req_blocks[num_computed_full_blocks - 1]` if `num_computed_full_blocks > 0`. This is correct because the previous block is the one before the first new full block. However, note that `req_blocks` now includes the new computed blocks, so `num_computed_full_blocks` correctly points to the first block after the computed blocks. This logic seems correct.\"\n    },\n    {\n      \"path\": \"vllm/v1/core/kv_cache_manager.py\",\n      \"start_line\": 425,\n      \"end_line\": 435,\n      \"content\": \"The `_untouch` method decrements ref counts and adds blocks to the free queue if ref_cnt becomes 0. This is correct for reversing a touch. However, it does not check if the block is already in the free queue. If a block was touched (ref_cnt incremented) and then untouch is called, it might be added to the free queue even if it was already there? Actually, `_touch` removes the block from the free queue if ref_cnt was 0. So after `_touch`, the block is not in the free queue. Then `_untouch` decrements ref_cnt to 0 and adds it back. This is correct. But if `_touch` was called on a block that already had ref_cnt > 0, it would not be in the free queue, and `_untouch` would decrement but not add to free queue (since ref_cnt > 0). This is correct.\"\n    },\n    {\n      \"path\": \"vllm/v1/core/scheduler.py\",\n      \"start_line\": 141,\n      \"end_line\": 142,\n      \"content\": \"The scheduler now calls `allocate_slots` with an empty list for `new_computed_blocks`. This is correct for the decode case where no new computed blocks are hit. However, for the prefill case, the scheduler should pass the computed blocks from `get_computed_blocks`. Looking at the diff, only the decode path is shown. Ensure that the prefill path also uses `allocate_slots` with the correct computed blocks. If not, this could be a bug.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

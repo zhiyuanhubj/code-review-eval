@@ -1,0 +1,59 @@
+{
+  "instance_id": "n8n-io__n8n@9321691",
+  "repo": "n8n-io/n8n",
+  "base_commit": "aae55fe7ac77594444c3405161555a517902c68b",
+  "head_commit": "93216919462181f52d6994f8f20a9a478716545f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:35:54.751843+00:00",
+  "duration_seconds": 6.87,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/@n8n/config/src/decorators.ts",
+        "start_line": 58,
+        "end_line": 64,
+        "content": "The Date branch is placed before the String branch, but the order of checks matters: `type === Date` will never match if the env var is declared with a different type. More importantly, when parsing fails, the code only warns and leaves `config[key]` unset — but the default value assigned on the class field is overwritten by the decorator loop? Verify that the default (undefined) is preserved. Also, `Date.parse` accepts many non-ISO formats; consider using a stricter check if only ISO 8601 is intended.",
+        "side": "right"
+      },
+      {
+        "path": "packages/core/src/errors/error-reporter.ts",
+        "start_line": 80,
+        "end_line": 92,
+        "content": "The `setTimeout` is not unref'd, which will keep the Node.js event loop alive and prevent graceful process exit. Use `setTimeout(...).unref()` so the timer doesn't block shutdown. Additionally, the timer is never cleared if `init` is called multiple times (e.g., in tests), potentially leaking timers.",
+        "side": "right"
+      },
+      {
+        "path": "packages/core/src/errors/error-reporter.ts",
+        "start_line": 80,
+        "end_line": 92,
+        "content": "When the release is already expired, the method returns early before `if (!dsn) return;` and before Sentry is initialized. That's fine, but note that `this.enabled` stays `true` in that path — subsequent calls to `beforeSend` would still pass the enabled check. Set `this.enabled = false` before returning in the expired branch for consistency.",
+        "side": "right"
+      },
+      {
+        "path": "packages/core/src/errors/error-reporter.ts",
+        "start_line": 142,
+        "end_line": 143,
+        "content": "`beforeSend` returning `null` disables sending, but Sentry's `beforeSend` is also invoked for non-error events (transactions, etc.). If the intent is only to disable error reporting, this is fine, but confirm that returning null here doesn't cause unexpected behavior for other event types.",
+        "side": "right"
+      },
+      {
+        "path": "docker/images/n8n/Dockerfile",
+        "start_line": 12,
+        "end_line": 12,
+        "content": "`N8N_RELEASE_DATE` is set as an ENV in the image. This means the release date is baked into the image at build time and will be used at runtime. However, the build arg is only passed in `release-publish.yml`; other Dockerfiles or build paths (e.g., local builds, nightly) may not set it, leaving `N8N_RELEASE_DATE` empty. The config decorator will then warn on every startup. Consider defaulting to empty string handling or documenting that this is only set for stable releases.",
+        "side": "right"
+      },
+      {
+        "path": "packages/@n8n/config/test/config.test.ts",
+        "start_line": 11,
+        "end_line": 11,
+        "content": "`consoleWarnMock` is created at module scope and `jest.clearAllMocks()` is called in `beforeEach`, which clears call history but keeps the mock implementation. That's fine, but the mock is never restored. Consider adding `afterAll(() => consoleWarnMock.mockRestore())` to avoid leaking the mock into other test files.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"packages/@n8n/config/src/decorators.ts\",\"start_line\":58,\"end_line\":64,\"content\":\"The Date branch is placed before the String branch, but the order of checks matters: `type === Date` will never match if the env var is declared with a different type. More importantly, when parsing fails, the code only warns and leaves `config[key]` unset — but the default value assigned on the class field is overwritten by the decorator loop? Verify that the default (undefined) is preserved. Also, `Date.parse` accepts many non-ISO formats; consider using a stricter check if only ISO 8601 is intended.\"},{\"path\":\"packages/core/src/errors/error-reporter.ts\",\"start_line\":80,\"end_line\":92,\"content\":\"The `setTimeout` is not unref'd, which will keep the Node.js event loop alive and prevent graceful process exit. Use `setTimeout(...).unref()` so the timer doesn't block shutdown. Additionally, the timer is never cleared if `init` is called multiple times (e.g., in tests), potentially leaking timers.\"},{\"path\":\"packages/core/src/errors/error-reporter.ts\",\"start_line\":80,\"end_line\":92,\"content\":\"When the release is already expired, the method returns early before `if (!dsn) return;` and before Sentry is initialized. That's fine, but note that `this.enabled` stays `true` in that path — subsequent calls to `beforeSend` would still pass the enabled check. Set `this.enabled = false` before returning in the expired branch for consistency.\"},{\"path\":\"packages/core/src/errors/error-reporter.ts\",\"start_line\":142,\"end_line\":143,\"content\":\"`beforeSend` returning `null` disables sending, but Sentry's `beforeSend` is also invoked for non-error events (transactions, etc.). If the intent is only to disable error reporting, this is fine, but confirm that returning null here doesn't cause unexpected behavior for other event types.\"},{\"path\":\"docker/images/n8n/Dockerfile\",\"start_line\":12,\"end_line\":12,\"content\":\"`N8N_RELEASE_DATE` is set as an ENV in the image. This means the release date is baked into the image at build time and will be used at runtime. However, the build arg is only passed in `release-publish.yml`; other Dockerfiles or build paths (e.g., local builds, nightly) may not set it, leaving `N8N_RELEASE_DATE` empty. The config decorator will then warn on every startup. Consider defaulting to empty string handling or documenting that this is only set for stable releases.\"},{\"path\":\"packages/@n8n/config/test/config.test.ts\",\"start_line\":11,\"end_line\":11,\"content\":\"`consoleWarnMock` is created at module scope and `jest.clearAllMocks()` is called in `beforeEach`, which clears call history but keeps the mock implementation. That's fine, but the mock is never restored. Consider adding `afterAll(() => consoleWarnMock.mockRestore())` to avoid leaking the mock into other test files.\"}]}",
+  "stderr": null
+}

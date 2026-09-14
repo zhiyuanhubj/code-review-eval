@@ -1,0 +1,31 @@
+{
+  "instance_id": "electron__electron@6084595",
+  "repo": "electron/electron",
+  "base_commit": "a42afaa8665b6d1b3a344918c60853184a97060e",
+  "head_commit": "6084595c5608226e961d251bfb5ec138de8022ca",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:33:35.783630+00:00",
+  "duration_seconds": 3.52,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "shell/browser/api/electron_api_session.cc",
+        "start_line": 298,
+        "end_line": 301,
+        "content": "`ClearDataTask` now inherits from `gin_helper::CleanedUpAtExit`, which deletes the object at exit. However, `OnTaskFinished` also calls `delete this`. If the task is still running when the environment shuts down, `CleanedUpAtExit` will delete it, and later `OnTaskFinished` could be called (e.g., if the `BrowsingDataRemover` completes during shutdown) leading to a double-free. Consider using a `WeakPtr` or ensuring the task is not deleted twice.",
+        "side": "right"
+      },
+      {
+        "path": "shell/browser/api/electron_api_session.cc",
+        "start_line": 304,
+        "end_line": 310,
+        "content": "`ClearDataOperation` is now owned by `ClearDataTask` via `operations_`. When `ClearDataTask` is destroyed (e.g., at exit), `operations_.clear()` destroys the operations. However, the `BrowsingDataRemover` may still hold a pointer to the observer and call `OnBrowsingDataRemoverDone` after the operation is destroyed, leading to a use-after-free. Ensure that the observation is properly removed before destruction, or that the remover is guaranteed to not call back after the task is destroyed.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"shell/browser/api/electron_api_session.cc\",\n      \"start_line\": 298,\n      \"end_line\": 301,\n      \"content\": \"`ClearDataTask` now inherits from `gin_helper::CleanedUpAtExit`, which deletes the object at exit. However, `OnTaskFinished` also calls `delete this`. If the task is still running when the environment shuts down, `CleanedUpAtExit` will delete it, and later `OnTaskFinished` could be called (e.g., if the `BrowsingDataRemover` completes during shutdown) leading to a double-free. Consider using a `WeakPtr` or ensuring the task is not deleted twice.\"\n    },\n    {\n      \"path\": \"shell/browser/api/electron_api_session.cc\",\n      \"start_line\": 304,\n      \"end_line\": 310,\n      \"content\": \"`ClearDataOperation` is now owned by `ClearDataTask` via `operations_`. When `ClearDataTask` is destroyed (e.g., at exit), `operations_.clear()` destroys the operations. However, the `BrowsingDataRemover` may still hold a pointer to the observer and call `OnBrowsingDataRemoverDone` after the operation is destroyed, leading to a use-after-free. Ensure that the observation is properly removed before destruction, or that the remover is guaranteed to not call back after the task is destroyed.\"\n    }\n  ]\n}",
+  "stderr": null
+}

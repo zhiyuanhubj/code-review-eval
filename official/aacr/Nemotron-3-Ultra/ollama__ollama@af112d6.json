@@ -1,0 +1,59 @@
+{
+  "instance_id": "ollama__ollama@af112d6",
+  "repo": "ollama/ollama",
+  "base_commit": "2db96c18e72289928e45704a77f96f7bdfaee30f",
+  "head_commit": "af112d6365207a5a3f65136c7057d6bb98203c35",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:48:01.637427+00:00",
+  "duration_seconds": 61.37,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/create.go",
+        "start_line": 47,
+        "end_line": 57,
+        "content": "The validation loop uses `validRelative(k)` on the original key but then stores `filepath.Clean(k)` in the map. This is inconsistent: if a user provides `./model.safetensors`, `validRelative` will reject it (line 172-173), but if they provide `model.safetensors`, it passes and gets cleaned (no-op). However, the test `ValidRelativeWithDot` expects `./model.safetensors` to be valid. Either the validation should allow `./` prefix and clean it, or the test is wrong. Since `filepath.Clean` removes `./`, consider allowing `./` prefix in `validRelative` and cleaning before validation, or clean first then validate."
+      },
+      {
+        "path": "server/create.go",
+        "start_line": 172,
+        "end_line": 173,
+        "content": "`validRelative` rejects paths starting with `./` but the test `ValidRelativeWithDot` in create_test.go expects `./model.safetensors` to be valid. This is a contradiction. Since `filepath.Clean` strips `./`, either allow `./` prefix here (and clean before validation) or update the test to not expect `./` to be valid."
+      },
+      {
+        "path": "server/create.go",
+        "start_line": 175,
+        "end_line": 176,
+        "content": "`validRelative` rejects paths starting with `../` but the test `ValidNestedWithValidParentRef` expects `nested/../model.safetensors` to be valid. This path contains `../` which is rejected by line 175-176. The test comment says it references `tempDir/valid.safetensors`, implying it should be allowed. However, `validRelative` is called on the user-provided path before any filesystem resolution, so `../` should likely be rejected at this layer. The test expectation seems wrong, or the validation should happen after cleaning (where `nested/../model.safetensors` becomes `model.safetensors`)."
+      },
+      {
+        "path": "server/create.go",
+        "start_line": 270,
+        "end_line": 290,
+        "content": "In `convertFromSafetensors`, `root.OpenFile(fp, os.O_CREATE|os.O_WRONLY, 0o644)` is used to validate path containment. This creates the file if it doesn't exist, which is a side effect. Since the file is immediately closed and later overwritten/used, this may be acceptable, but consider using `os.O_RDONLY` with a check for existence first, or document why creation is needed for validation. Also, `root.OpenFile` with `O_CREATE` will create parent directories? No, it won't — it will fail if parent dirs don't exist. That's fine for validation but may cause confusing errors if the path is valid but parents missing."
+      },
+      {
+        "path": "server/create_test.go",
+        "start_line": 60,
+        "end_line": 65,
+        "content": "Test case `ValidRelativeWithDot` expects `./model.safetensors` to be valid, but `validRelative` rejects paths starting with `./`. This test will fail. Either fix `validRelative` to allow `./` (and clean before validation) or change the test to use `model.safetensors`."
+      },
+      {
+        "path": "server/create_test.go",
+        "start_line": 66,
+        "end_line": 71,
+        "content": "Test case `ValidNestedWithValidParentRef` uses `nested/../model.safetensors` and expects no error. However, `validRelative` rejects any path containing `/../` (line 183-184). This test will fail. The path `nested/../model.safetensors` normalizes to `model.safetensors` via `filepath.Clean`, so consider cleaning before validation, or reject such paths at the API layer (current behavior). The test expectation should match the design decision."
+      },
+      {
+        "path": "server/create_test.go",
+        "start_line": 74,
+        "end_line": 79,
+        "content": "Test case `AbsolutePathOutsideRoot` uses `filepath.Join(os.TempDir(), \"model.safetensors\")` and expects `errFilePath`. However, `validRelative` only checks for leading `/` (Unix) — on Windows, absolute paths start with drive letter (e.g., `C:\\`). This test may pass on Unix but fail on Windows. Consider using `filepath.IsAbs` for cross-platform absolute path detection in `validRelative`."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"server/create.go\",\n      \"start_line\": 47,\n      \"end_line\": 57,\n      \"content\": \"The validation loop uses `validRelative(k)` on the original key but then stores `filepath.Clean(k)` in the map. This is inconsistent: if a user provides `./model.safetensors`, `validRelative` will reject it (line 172-173), but if they provide `model.safetensors`, it passes and gets cleaned (no-op). However, the test `ValidRelativeWithDot` expects `./model.safetensors` to be valid. Either the validation should allow `./` prefix and clean it, or the test is wrong. Since `filepath.Clean` removes `./`, consider allowing `./` prefix in `validRelative` and cleaning before validation, or clean first then validate.\"\n    },\n    {\n      \"path\": \"server/create.go\",\n      \"start_line\": 172,\n      \"end_line\": 173,\n      \"content\": \"`validRelative` rejects paths starting with `./` but the test `ValidRelativeWithDot` in create_test.go expects `./model.safetensors` to be valid. This is a contradiction. Since `filepath.Clean` strips `./`, either allow `./` prefix here (and clean before validation) or update the test to not expect `./` to be valid.\"\n    },\n    {\n      \"path\": \"server/create.go\",\n      \"start_line\": 175,\n      \"end_line\": 176,\n      \"content\": \"`validRelative` rejects paths starting with `../` but the test `ValidNestedWithValidParentRef` expects `nested/../model.safetensors` to be valid. This path contains `../` which is rejected by line 175-176. The test comment says it references `tempDir/valid.safetensors`, implying it should be allowed. However, `validRelative` is called on the user-provided path before any filesystem resolution, so `../` should likely be rejected at this layer. The test expectation seems wrong, or the validation should happen after cleaning (where `nested/../model.safetensors` becomes `model.safetensors`).\"\n    },\n    {\n      \"path\": \"server/create.go\",\n      \"start_line\": 270,\n      \"end_line\": 290,\n      \"content\": \"In `convertFromSafetensors`, `root.OpenFile(fp, os.O_CREATE|os.O_WRONLY, 0o644)` is used to validate path containment. This creates the file if it doesn't exist, which is a side effect. Since the file is immediately closed and later overwritten/used, this may be acceptable, but consider using `os.O_RDONLY` with a check for existence first, or document why creation is needed for validation. Also, `root.OpenFile` with `O_CREATE` will create parent directories? No, it won't — it will fail if parent dirs don't exist. That's fine for validation but may cause confusing errors if the path is valid but parents missing.\"\n    },\n    {\n      \"path\": \"server/create_test.go\",\n      \"start_line\": 60,\n      \"end_line\": 65,\n      \"content\": \"Test case `ValidRelativeWithDot` expects `./model.safetensors` to be valid, but `validRelative` rejects paths starting with `./`. This test will fail. Either fix `validRelative` to allow `./` (and clean before validation) or change the test to use `model.safetensors`.\"\n    },\n    {\n      \"path\": \"server/create_test.go\",\n      \"start_line\": 66,\n      \"end_line\": 71,\n      \"content\": \"Test case `ValidNestedWithValidParentRef` uses `nested/../model.safetensors` and expects no error. However, `validRelative` rejects any path containing `/../` (line 183-184). This test will fail. The path `nested/../model.safetensors` normalizes to `model.safetensors` via `filepath.Clean`, so consider cleaning before validation, or reject such paths at the API layer (current behavior). The test expectation should match the design decision.\"\n    },\n    {\n      \"path\": \"server/create_test.go\",\n      \"start_line\": 74,\n      \"end_line\": 79,\n      \"content\": \"Test case `AbsolutePathOutsideRoot` uses `filepath.Join(os.TempDir(), \\\"model.safetensors\\\")` and expects `errFilePath`. However, `validRelative` only checks for leading `/` (Unix) — on Windows, absolute paths start with drive letter (e.g., `C:\\\\`). This test may pass on Unix but fail on Windows. Consider using `filepath.IsAbs` for cross-platform absolute path detection in `validRelative`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,29 @@
+{
+  "instance_id": "n8n-io__n8n@ebe680f",
+  "repo": "n8n-io/n8n",
+  "base_commit": "291a39c87eb2bc228816d02c55a1f6857822006f",
+  "head_commit": "ebe680fbcacd9210aa219ab01d98012ac1d6faae",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:35.147641+00:00",
+  "duration_seconds": 13.49,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/testing/playwright/composables/TestEntryComposer.ts",
+        "start_line": 97,
+        "end_line": 104,
+        "content": "The new browser context created in `withUser` is never closed, which leaks resources across tests. Since only `newN8n` (wrapping the page) is returned, the caller has no handle to `context` to close it. Consider tracking the created contexts for cleanup (e.g. via a fixture teardown) or returning the context/page so it can be closed."
+      },
+      {
+        "path": "packages/testing/playwright/tests/ui/18-user-management.spec.ts",
+        "start_line": 143,
+        "end_line": 158,
+        "content": "The `secondBrowser` obtained from `n8n.start.withUser(newTestUser)` is never disposed, leaking a browser context. Since `withUser` doesn't expose the context, this test can't close it. Consider adding a way to clean up (see the `withUser` implementation comment)."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\": [\n  {\n    \"path\": \"packages/testing/playwright/composables/TestEntryComposer.ts\",\n    \"start_line\": 97,\n    \"end_line\": 104,\n    \"content\": \"The new browser context created in `withUser` is never closed, which leaks resources across tests. Since only `newN8n` (wrapping the page) is returned, the caller has no handle to `context` to close it. Consider tracking the created contexts for cleanup (e.g. via a fixture teardown) or returning the context/page so it can be closed.\"\n  },\n  {\n    \"path\": \"packages/testing/playwright/tests/ui/18-user-management.spec.ts\",\n    \"start_line\": 143,\n    \"end_line\": 158,\n    \"content\": \"The `secondBrowser` obtained from `n8n.start.withUser(newTestUser)` is never disposed, leaking a browser context. Since `withUser` doesn't expose the context, this test can't close it. Consider adding a way to clean up (see the `withUser` implementation comment).\"\n  }\n]}",
+  "stderr": null
+}

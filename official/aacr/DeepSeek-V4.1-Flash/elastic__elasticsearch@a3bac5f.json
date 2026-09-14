@@ -1,0 +1,24 @@
+{
+  "instance_id": "elastic__elasticsearch@a3bac5f",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "4ac8d55ff7c5612413e4a45e14a2b39f3e85f3a9",
+  "head_commit": "a3bac5f2d4020183019a47d8d64c08123f7ec25d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:39:07.300409+00:00",
+  "duration_seconds": 4.19,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "x-pack/qa/repository-old-versions-compatibility/src/javaRestTest/java/org/elasticsearch/oldrepos/TestSnapshotCases.java",
+        "start_line": 19,
+        "end_line": 25,
+        "content": "ES_VERSION_6 and ES_VERSION_6_STANDARD_TOKEN_FILTER are incorrectly set to the same values as the version 5 constants (\"5\" and \"5_custom_analyzer\"). They should be \"6\" and \"6_custom_analyzer\" respectively, otherwise the version 6 tests will load the version 5 snapshots.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"x-pack/qa/repository-old-versions-compatibility/src/javaRestTest/java/org/elasticsearch/oldrepos/TestSnapshotCases.java\",\n      \"start_line\": 19,\n      \"end_line\": 25,\n      \"content\": \"ES_VERSION_6 and ES_VERSION_6_STANDARD_TOKEN_FILTER are incorrectly set to the same values as the version 5 constants (\\\"5\\\" and \\\"5_custom_analyzer\\\"). They should be \\\"6\\\" and \\\"6_custom_analyzer\\\" respectively, otherwise the version 6 tests will load the version 5 snapshots.\"\n    }\n  ]\n}",
+  "stderr": null
+}

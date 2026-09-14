@@ -61,7 +61,38 @@ def fetch_pr_diff(url: str) -> str:
     return "\n\n".join(chunks)[:80000]
 
 
-def chat(base_url: str, api_key: str, model: str, prompt: str) -> str:
+def _delta_dump(delta) -> dict:
+    if delta is None:
+        return {}
+    if hasattr(delta, "model_dump"):
+        try:
+            return delta.model_dump(exclude_none=True) or {}
+        except Exception:
+            pass
+    out = {}
+    for key in ("content", "reasoning_content", "reasoning", "tool_calls"):
+        val = getattr(delta, key, None)
+        if val:
+            out[key] = val
+    extra = getattr(delta, "model_extra", None) or {}
+    if extra:
+        out.update(extra)
+    return out
+
+
+def _chunk_text(value) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict):
+        return str(value.get("text") or value.get("content") or "")
+    if isinstance(value, list):
+        return "".join(_chunk_text(x) for x in value)
+    return str(value)
+
+
+def chat(base_url: str, api_key: str, model: str, prompt: str, max_tokens: int = 8192) -> str:
     cli = OpenAI(
         base_url=base_url.rstrip("/") + ("" if base_url.rstrip("/").endswith("/v1") else "/v1"),
         api_key=api_key,
@@ -74,7 +105,7 @@ def chat(base_url: str, api_key: str, model: str, prompt: str) -> str:
     kwargs = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 4096,
+        "max_tokens": max_tokens,
         "temperature": 0.2,
         "stream": True,
         **extra,
@@ -87,46 +118,114 @@ def chat(base_url: str, api_key: str, model: str, prompt: str) -> str:
         stream = cli.chat.completions.create(**kwargs)
     for event in stream:
         choice = (event.choices or [None])[0]
-        if not choice or not choice.delta:
+        if not choice:
             continue
-        if choice.delta.content:
-            content.append(choice.delta.content)
-        extra_d = getattr(choice.delta, "model_extra", None) or {}
-        r = getattr(choice.delta, "reasoning_content", None) or extra_d.get("reasoning_content")
-        if r:
-            reason.append(str(r))
-    return "\n".join(p for p in ("".join(reason).strip(), "".join(content).strip()) if p)
+        dump = _delta_dump(getattr(choice, "delta", None))
+        if dump.get("content"):
+            content.append(_chunk_text(dump["content"]))
+        for key in ("reasoning_content", "reasoning", "reasoning_details"):
+            if dump.get(key):
+                reason.append(_chunk_text(dump[key]))
+    body = "".join(content).strip()
+    thoughts = "".join(reason).strip()
+    text = body or thoughts
+    if text:
+        return text
+    # Stream captured nothing (common for muse_glimmer channel output). Non-stream fallback.
+    kwargs["stream"] = False
+    try:
+        resp = cli.chat.completions.create(**kwargs)
+    except Exception:
+        kwargs["temperature"] = 1.0
+        resp = cli.chat.completions.create(**kwargs)
+    msg = resp.choices[0].message
+    dump = _delta_dump(msg)
+    return (
+        _chunk_text(dump.get("content") or getattr(msg, "content", None)).strip()
+        or _chunk_text(dump.get("reasoning_content") or getattr(msg, "reasoning_content", None)).strip()
+        or _chunk_text(dump.get("reasoning")).strip()
+    )
 
 
 def parse_comments(text: str) -> list:
-    start, end = text.find("{"), text.rfind("}")
-    if start < 0 or end <= start:
+    if not text:
         return []
-    try:
-        blob = json.loads(text[start : end + 1])
-    except json.JSONDecodeError:
-        return []
-    comments = blob.get("comments") if isinstance(blob, dict) else None
+    t = text.strip()
+    # Glimmer chat-template often wraps the answer as `to=self...to=user{json}`.
+    if "to=user" in t:
+        t = t.rsplit("to=user", 1)[-1]
+    elif t.startswith("to=self"):
+        t = t[len("to=self") :]
+    decoder = json.JSONDecoder()
+    blobs = []
+    i = 0
+    while i < len(t):
+        j = t.find("{", i)
+        if j < 0:
+            break
+        try:
+            obj, end = decoder.raw_decode(t, j)
+        except json.JSONDecodeError:
+            i = j + 1
+            continue
+        if isinstance(obj, dict) and isinstance(obj.get("comments"), list):
+            blobs.append(obj)
+        i = max(end, j + 1)
+    blob = blobs[-1] if blobs else None
+    comments = blob.get("comments") if blob else None
+    if not isinstance(comments, list):
+        comments = _recover_truncated_comments(t)
     if not isinstance(comments, list):
         return []
     out = []
+    placeholders = {"issue description", "file", "actionable review comment"}
     for item in comments:
         if not isinstance(item, dict):
             continue
         body = (item.get("body") or item.get("content") or item.get("comment") or "").strip()
-        if not body:
+        path = item.get("path") or item.get("file") or ""
+        if not body or body in placeholders or path in placeholders:
             continue
-        out.append(
-            {
-                "path": item.get("path") or "",
-                "line": item.get("line") or 0,
-                "body": body,
-            }
-        )
+        line = item.get("line") or item.get("start_line") or 0
+        try:
+            line = int(line)
+        except (TypeError, ValueError):
+            line = 0
+        out.append({"path": path, "line": line, "body": body})
+    return out
+
+
+def _recover_truncated_comments(text: str) -> list:
+    """Keep complete comment objects when the model cuts off mid-JSON."""
+    marker = '"comments"'
+    idx = text.find(marker)
+    if idx < 0:
+        return []
+    bracket = text.find("[", idx)
+    if bracket < 0:
+        return []
+    decoder = json.JSONDecoder()
+    out = []
+    i = bracket + 1
+    while i < len(text):
+        while i < len(text) and text[i] in " \n\r\t,":
+            i += 1
+        if i >= len(text) or text[i] == "]":
+            break
+        if text[i] != "{":
+            break
+        try:
+            obj, end = decoder.raw_decode(text, i)
+        except json.JSONDecodeError:
+            break
+        if isinstance(obj, dict):
+            out.append(obj)
+        i = end
     return out
 
 
 PROMPT = """You are a code reviewer. Review this pull request diff.
+Put the JSON in the final answer, not in hidden thinking.
 Return ONLY JSON:
 {{"comments":[{{"path":"file","line":1,"body":"issue description"}}]}}
 If there are no real issues, return {{"comments":[]}}.
@@ -145,6 +244,8 @@ def main() -> None:
     ap.add_argument("--base-url", required=True)
     ap.add_argument("--tool-name", required=True)
     ap.add_argument("--out-dir", required=True)
+    ap.add_argument("--max-tokens", type=int, default=8192)
+    ap.add_argument("--reparse-only", action="store_true", help="Re-parse existing raw_output; do not call the model")
     args = ap.parse_args()
     api_key = os.environ.get("OPENAI_API_KEY", "dummy")
     bench = json.loads(BENCH.read_text())
@@ -156,6 +257,24 @@ def main() -> None:
         existing = json.loads(cand_path.read_text())
 
     payload = existing if isinstance(existing, dict) else {}
+    recovered = 0
+    for url, rec in list(payload.items()):
+        if not isinstance(rec, dict):
+            continue
+        if rec.get("review_comments"):
+            continue
+        comments = parse_comments(rec.get("raw_output") or "")
+        if comments:
+            rec["review_comments"] = comments
+            recovered += 1
+    if recovered:
+        cand_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False))
+        print(json.dumps({"reparsed": recovered}), flush=True)
+    if args.reparse_only:
+        n_ok = sum(1 for v in payload.values() if isinstance(v, dict) and v.get("review_comments"))
+        print(json.dumps({"wrote": str(cand_path), "with_comments": n_ok, "n": len(payload)}))
+        return
+
     for i, (url, item) in enumerate(bench.items(), 1):
         if url in payload and payload[url].get("review_comments"):
             continue
@@ -165,6 +284,7 @@ def main() -> None:
             api_key,
             args.model,
             PROMPT.format(title=item.get("pr_title") or "", url=url, diff=diff),
+            max_tokens=args.max_tokens,
         )
         comments = parse_comments(text)
         payload[url] = {
@@ -176,7 +296,7 @@ def main() -> None:
             "latency_s": None,
         }
         cand_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False))
-        print(json.dumps({"progress": i, "n": len(bench), "url": url, "n_comments": len(comments)}), flush=True)
+        print(json.dumps({"progress": i, "n": len(bench), "url": url, "n_comments": len(comments), "raw_len": len(text or "")}), flush=True)
         time.sleep(0.2)
     print("wrote", cand_path)
 

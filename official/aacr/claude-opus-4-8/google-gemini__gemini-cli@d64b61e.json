@@ -1,0 +1,35 @@
+{
+  "instance_id": "google-gemini__gemini-cli@d64b61e",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "6e4236bf7681b2a2cba5630a8dd0a0d5a200a0df",
+  "head_commit": "d64b61ef89f01ecdc0e095a995d47522245a0065",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:21.615184+00:00",
+  "duration_seconds": 24.96,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/cli/src/commands/extensions/disable.ts",
+        "start_line": 19,
+        "end_line": 26,
+        "content": "The success message logs the raw `args.scope`, which is now optional and preserves the user's casing (or is undefined when no scope is provided). When `--scope` is omitted, this prints `for scope \"undefined\"`, and when the user passes e.g. `--scope=WORKSPACE` it echoes the un-normalized value. Consider logging the resolved SettingScope instead, e.g. compute `const resolvedScope = args.scope?.toLowerCase() === 'workspace' ? SettingScope.Workspace : SettingScope.User;` and interpolate that."
+      },
+      {
+        "path": "packages/cli/src/config/extensions/extensionEnablement.ts",
+        "start_line": 102,
+        "end_line": 104,
+        "content": "`globToRegex` now converts `*` to `($1.*)?` where `$1` captures the preceding slash. But the surrounding characters were already escaped by the previous `.replace(/[.+?^${}()|[\\]\\\\]/g, '\\\\$&')` step, which does NOT escape `/`. That's fine, but note that this replacement makes both the slash and the wildcard optional, so a rule like `/path/to/dir/*` now matches `/path/to/dir` (without trailing slash) as well as `/path/to/dir/sub`. Given base rules always carry a trailing slash, verify this intended broadening does not accidentally match sibling paths like `/path/to/dirextra` — since the trailing `/` before `*` is consumed into the optional group, `^/path/to/dir/($1.*)?$` won't match `/path/to/dirextra`, so this is okay, but please add a test asserting `/path/to/dirextra/` is NOT enabled to lock in this behavior."
+      },
+      {
+        "path": "packages/cli/src/config/extensions/extensionEnablement.test.ts",
+        "start_line": 82,
+        "end_line": 91,
+        "content": "Test name 'should handle' is not descriptive. Rename to describe the actual scenario being tested (child disable override taking precedence over a parent enable), e.g. 'should let a child disable rule override a parent enable rule'."
+      }
+    ]
+  },
+  "raw_output": "Looking at the diff, let me analyze the key logic.\n\nLet me examine the `enable`/`disable` refactor and the `Override` class for bugs.\n\nIn `disable`, it calls `this.enable(extensionName, includeSubdirs, '!'+scopePath)`. In `enable`, `Override.fromInput` parses the `!` prefix to set `isDisable`. That seems fine.\n\nLet me check the regex conversion and `globToRegex` behavior for potential issues, and the console.log message with `args.scope` being undefined.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"packages/cli/src/commands/extensions/disable.ts\",\n      \"start_line\": 19,\n      \"end_line\": 26,\n      \"content\": \"The success message logs the raw `args.scope`, which is now optional and preserves the user's casing (or is undefined when no scope is provided). When `--scope` is omitted, this prints `for scope \\\"undefined\\\"`, and when the user passes e.g. `--scope=WORKSPACE` it echoes the un-normalized value. Consider logging the resolved SettingScope instead, e.g. compute `const resolvedScope = args.scope?.toLowerCase() === 'workspace' ? SettingScope.Workspace : SettingScope.User;` and interpolate that.\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/extensions/extensionEnablement.ts\",\n      \"start_line\": 102,\n      \"end_line\": 104,\n      \"content\": \"`globToRegex` now converts `*` to `($1.*)?` where `$1` captures the preceding slash. But the surrounding characters were already escaped by the previous `.replace(/[.+?^${}()|[\\\\]\\\\\\\\]/g, '\\\\\\\\$&')` step, which does NOT escape `/`. That's fine, but note that this replacement makes both the slash and the wildcard optional, so a rule like `/path/to/dir/*` now matches `/path/to/dir` (without trailing slash) as well as `/path/to/dir/sub`. Given base rules always carry a trailing slash, verify this intended broadening does not accidentally match sibling paths like `/path/to/dirextra` — since the trailing `/` before `*` is consumed into the optional group, `^/path/to/dir/($1.*)?$` won't match `/path/to/dirextra`, so this is okay, but please add a test asserting `/path/to/dirextra/` is NOT enabled to lock in this behavior.\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/extensions/extensionEnablement.test.ts\",\n      \"start_line\": 82,\n      \"end_line\": 91,\n      \"content\": \"Test name 'should handle' is not descriptive. Rename to describe the actual scenario being tested (child disable override taking precedence over a parent enable), e.g. 'should let a child disable rule override a parent enable rule'.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

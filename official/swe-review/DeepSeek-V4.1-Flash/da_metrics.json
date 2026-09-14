@@ -1,0 +1,15 @@
+{
+  "DA": 0,
+  "DA_total_50": 50.0,
+  "CR": 0.0,
+  "FAR": 0,
+  "FRR": 0,
+  "total": 500,
+  "correct": 0,
+  "model_fail": 500,
+  "produced": 0,
+  "TP": 0,
+  "FP": 0,
+  "TN": 0,
+  "FN": 0
+}

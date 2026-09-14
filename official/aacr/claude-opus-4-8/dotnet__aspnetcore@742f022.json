@@ -1,0 +1,16 @@
+{
+  "instance_id": "dotnet__aspnetcore@742f022",
+  "repo": "dotnet/aspnetcore",
+  "base_commit": "8bb2b2067815996d9a8224ee38aa80a79f797827",
+  "head_commit": "742f022e92563bd6fb87d1c752f25fd14e1b2a43",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:01.903262+00:00",
+  "duration_seconds": 10.72,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

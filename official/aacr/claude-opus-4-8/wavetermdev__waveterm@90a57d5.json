@@ -1,0 +1,16 @@
+{
+  "instance_id": "wavetermdev__waveterm@90a57d5",
+  "repo": "wavetermdev/waveterm",
+  "base_commit": "286783fb8e71cec6d2294bd871e5ccf8c798c646",
+  "head_commit": "90a57d552d15f1b2a4d92cdfc3a4308efcf5c57b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:34.264069+00:00",
+  "duration_seconds": 15.91,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

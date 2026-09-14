@@ -1,0 +1,29 @@
+{
+  "instance_id": "alibaba__spring-ai-alibaba@3555a95",
+  "repo": "alibaba/spring-ai-alibaba",
+  "base_commit": "76c06b58a4d9e8ee3fe3c0269a046987ad0502e5",
+  "head_commit": "3555a95e7b888335d9f72e432eb4f9fb9640e8cd",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:42.332599+00:00",
+  "duration_seconds": 62.22,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "community/tool-calls/spring-ai-alibaba-starter-tool-calling-alitranslate/src/main/java/com/alibaba/cloud/ai/toolcalling/alitranslate/AliTranslateService.java",
+        "start_line": 141,
+        "end_line": 149,
+        "content": "The advertised defaults are not applied to deserialized requests. Jackson constructs records through the three-argument canonical constructor, so omitted optional fields remain null; `apply` then rejects the request and returns null. Apply the zh/en defaults in a compact canonical constructor, or mark both fields as required."
+      },
+      {
+        "path": "community/tool-calls/spring-ai-alibaba-starter-tool-calling-alitranslate/src/main/java/com/alibaba/cloud/ai/toolcalling/alitranslate/AliTranslateService.java",
+        "start_line": 137,
+        "end_line": 149,
+        "content": "Adding `sourceLanguage` removes the previous public `Request(String text, String targetLanguage)` constructor, breaking existing Java callers. Preserve that signature as an overload delegating to `this(text, LANGUAGE_CODE_ZH, targetLanguage)`."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"community/tool-calls/spring-ai-alibaba-starter-tool-calling-alitranslate/src/main/java/com/alibaba/cloud/ai/toolcalling/alitranslate/AliTranslateService.java\",\"start_line\":141,\"end_line\":149,\"content\":\"The advertised defaults are not applied to deserialized requests. Jackson constructs records through the three-argument canonical constructor, so omitted optional fields remain null; `apply` then rejects the request and returns null. Apply the zh/en defaults in a compact canonical constructor, or mark both fields as required.\"},{\"path\":\"community/tool-calls/spring-ai-alibaba-starter-tool-calling-alitranslate/src/main/java/com/alibaba/cloud/ai/toolcalling/alitranslate/AliTranslateService.java\",\"start_line\":137,\"end_line\":149,\"content\":\"Adding `sourceLanguage` removes the previous public `Request(String text, String targetLanguage)` constructor, breaking existing Java callers. Preserve that signature as an overload delegating to `this(text, LANGUAGE_CODE_ZH, targetLanguage)`.\"}]}",
+  "stderr": null
+}

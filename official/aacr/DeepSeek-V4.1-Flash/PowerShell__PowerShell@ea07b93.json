@@ -1,0 +1,45 @@
+{
+  "instance_id": "PowerShell__PowerShell@ea07b93",
+  "repo": "PowerShell/PowerShell",
+  "base_commit": "ce76ae1def6d5b00fff0d855ec01575121268ef3",
+  "head_commit": "ea07b93a40f64274505e3a070c1fd91684ff2959",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:31:33.146695+00:00",
+  "duration_seconds": 5.36,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs",
+        "start_line": 2209,
+        "end_line": 2214,
+        "content": "The previous code used `context.CommandDiscovery.LookupCommandInfo(...)`, which respects the runspace's command discovery settings (e.g., custom PATH, command resolution preferences). The new code calls the static `CommandDiscovery.LookupCommandInfo(...)` directly. Verify that this static overload performs the same resolution semantics; otherwise this is a behavioral regression for runspaces with customized command discovery.",
+        "side": "right"
+      },
+      {
+        "path": "src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs",
+        "start_line": 2222,
+        "end_line": 2240,
+        "content": "The manual PATH lookup only considers fully-qualified entries and ignores relative PATH entries. On Windows, relative entries in PATH are resolved against the current working directory, so this fallback can fail to find `ssh` in configurations where the runspace-less path is taken. Consider resolving relative entries against the current directory, or document the limitation.",
+        "side": "right"
+      },
+      {
+        "path": "src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs",
+        "start_line": 2233,
+        "end_line": 2238,
+        "content": "On Windows, `File.Exists` will match a directory named `ssh` (or `ssh.exe` directory) as well as files, and it does not honor PATHEXT. Since the intent is to locate an executable, consider checking `File.Exists` plus that the path is not a directory, and/or appending PATHEXT extensions on Windows to match `ProcessStartInfo` behavior.",
+        "side": "right"
+      },
+      {
+        "path": "src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs",
+        "start_line": 2243,
+        "end_line": 2249,
+        "content": "Throwing `CommandNotFoundException` here changes behavior: previously, if `ssh` was not found, `filePath` remained null and the subsequent `ProcessStartInfo` would surface a different error (or the OS would fail to start the process). Confirm this new exception type and error ID (`CommandNotFoundException` / `DiscoveryExceptions.CommandNotFoundException`) are the intended public contract, and that callers/tests expecting the old failure mode are updated.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs\",\n      \"start_line\": 2209,\n      \"end_line\": 2214,\n      \"content\": \"The previous code used `context.CommandDiscovery.LookupCommandInfo(...)`, which respects the runspace's command discovery settings (e.g., custom PATH, command resolution preferences). The new code calls the static `CommandDiscovery.LookupCommandInfo(...)` directly. Verify that this static overload performs the same resolution semantics; otherwise this is a behavioral regression for runspaces with customized command discovery.\"\n    },\n    {\n      \"path\": \"src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs\",\n      \"start_line\": 2222,\n      \"end_line\": 2240,\n      \"content\": \"The manual PATH lookup only considers fully-qualified entries and ignores relative PATH entries. On Windows, relative entries in PATH are resolved against the current working directory, so this fallback can fail to find `ssh` in configurations where the runspace-less path is taken. Consider resolving relative entries against the current directory, or document the limitation.\"\n    },\n    {\n      \"path\": \"src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs\",\n      \"start_line\": 2233,\n      \"end_line\": 2238,\n      \"content\": \"On Windows, `File.Exists` will match a directory named `ssh` (or `ssh.exe` directory) as well as files, and it does not honor PATHEXT. Since the intent is to locate an executable, consider checking `File.Exists` plus that the path is not a directory, and/or appending PATHEXT extensions on Windows to match `ProcessStartInfo` behavior.\"\n    },\n    {\n      \"path\": \"src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs\",\n      \"start_line\": 2243,\n      \"end_line\": 2249,\n      \"content\": \"Throwing `CommandNotFoundException` here changes behavior: previously, if `ssh` was not found, `filePath` remained null and the subsequent `ProcessStartInfo` would surface a different error (or the OS would fail to start the process). Confirm this new exception type and error ID (`CommandNotFoundException` / `DiscoveryExceptions.CommandNotFoundException`) are the intended public contract, and that callers/tests expecting the old failure mode are updated.\"\n    }\n  ]\n}",
+  "stderr": null
+}

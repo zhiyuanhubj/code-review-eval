@@ -1,0 +1,24 @@
+{
+  "instance_id": "ollama__ollama@c2d08dd",
+  "repo": "ollama/ollama",
+  "base_commit": "f53f4198c36d0a943de598ad91a20baa9481c5c5",
+  "head_commit": "c2d08dd67a9bcf15e52a2f15b1fad888afffcd32",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:04.266254+00:00",
+  "duration_seconds": 1.9,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "envconfig/config.go",
+        "start_line": 190,
+        "end_line": 196,
+        "content": "The condition `ctxLength <= 0` is always false for an unsigned integer, so the warning branch is dead code. Since `Uint` already returns the default 2048 when the env var is empty or unparseable, the only way to get 0 is an explicit \"0\", which this check does catch, but the `<= 0` is misleading. Consider changing to `ctxLength == 0` and updating the warning message to say \"context length is 0\" rather than \"less than 0\".",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"envconfig/config.go\",\n      \"start_line\": 190,\n      \"end_line\": 196,\n      \"content\": \"The condition `ctxLength <= 0` is always false for an unsigned integer, so the warning branch is dead code. Since `Uint` already returns the default 2048 when the env var is empty or unparseable, the only way to get 0 is an explicit \\\"0\\\", which this check does catch, but the `<= 0` is misleading. Consider changing to `ctxLength == 0` and updating the warning message to say \\\"context length is 0\\\" rather than \\\"less than 0\\\".\"\n    }\n  ]\n}",
+  "stderr": null
+}

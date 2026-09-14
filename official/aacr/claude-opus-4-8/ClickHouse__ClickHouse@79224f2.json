@@ -1,0 +1,35 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@79224f2",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "cb7d649b965c4049bf97942db7125cce1154ca38",
+  "head_commit": "79224f240cf020f73a9f492ce293d046fc0b7949",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:21.513176+00:00",
+  "duration_seconds": 74.99,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp",
+        "start_line": 236,
+        "end_line": 250,
+        "content": "This filtering loop rebuilds `new_batch` to drop the null entries, but `file_metadatas` and `result_indexes` are still indexed 1:1 with the *original* batch. If this code path is reached (i.e. the multi-request did NOT fully succeed with ZOK, so `file_metadatas.clear()` was not called), the downstream consumers that iterate `new_batch` and index into `file_metadatas`/`result_indexes` by position will now be misaligned, since `new_batch` has been compacted while the parallel vectors were not. Compact `file_metadatas` and `result_indexes` in the same pass, or key them consistently."
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp",
+        "start_line": 217,
+        "end_line": 220,
+        "content": "The log message `Successfully set {} files as processing` uses `new_batch.size()`, which still counts the null (skipped) entries at this point, overstating the number actually set as processing. Use `num_successful_objects` instead."
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueIFileMetadata.cpp",
+        "start_line": 279,
+        "end_line": 288,
+        "content": "There are two consecutive LOG_TEST calls here: the first describes the actual non-processable state and retries, and then a second unconditional message claiming \"is being processed on this server by another table\" is logged even though the state may be Processed/Failed (not necessarily concurrent processing on this server). This second log line appears copy-pasted from the try_lock branch and is misleading in this context; remove it."
+      }
+    ]
+  },
+  "raw_output": "I need to examine the logic around the batch processing carefully, particularly the ordering of operations.\n\nLet me analyze the key concern: when `prepareSetProcessingRequests` returns nullopt for some files, `new_batch[i]` is set to nullptr. But the responses handling uses `result_indexes[i]` which references indices into the `requests`/`responses` arrays. When some files are skipped, the requests array doesn't include their requests, so response indexes need to stay consistent.\n\nLet me check whether `result_indexes` stays valid.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp\",\n      \"start_line\": 236,\n      \"end_line\": 250,\n      \"content\": \"This filtering loop rebuilds `new_batch` to drop the null entries, but `file_metadatas` and `result_indexes` are still indexed 1:1 with the *original* batch. If this code path is reached (i.e. the multi-request did NOT fully succeed with ZOK, so `file_metadatas.clear()` was not called), the downstream consumers that iterate `new_batch` and index into `file_metadatas`/`result_indexes` by position will now be misaligned, since `new_batch` has been compacted while the parallel vectors were not. Compact `file_metadatas` and `result_indexes` in the same pass, or key them consistently.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp\",\n      \"start_line\": 217,\n      \"end_line\": 220,\n      \"content\": \"The log message `Successfully set {} files as processing` uses `new_batch.size()`, which still counts the null (skipped) entries at this point, overstating the number actually set as processing. Use `num_successful_objects` instead.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueIFileMetadata.cpp\",\n      \"start_line\": 279,\n      \"end_line\": 288,\n      \"content\": \"There are two consecutive LOG_TEST calls here: the first describes the actual non-processable state and retries, and then a second unconditional message claiming \\\"is being processed on this server by another table\\\" is logged even though the state may be Processed/Failed (not necessarily concurrent processing on this server). This second log line appears copy-pasted from the try_lock branch and is misleading in this context; remove it.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

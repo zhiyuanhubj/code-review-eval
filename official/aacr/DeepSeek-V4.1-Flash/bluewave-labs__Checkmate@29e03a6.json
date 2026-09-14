@@ -1,0 +1,45 @@
+{
+  "instance_id": "bluewave-labs__Checkmate@29e03a6",
+  "repo": "bluewave-labs/Checkmate",
+  "base_commit": "7c369e84052aaee15a6dedf8928b5af4c869037b",
+  "head_commit": "29e03a6294edfe43b49eba20fe49099cef601d34",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:37.757693+00:00",
+  "duration_seconds": 4.46,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": ".github/workflows/poeditor-sync.yml",
+        "start_line": 1,
+        "end_line": 92,
+        "content": "The workflow uses `github.event.inputs.languages` and `github.event.inputs.format` in the env block, but these are only available for `workflow_dispatch` events. For scheduled runs, these expressions will evaluate to empty strings, causing the fallback `|| 'tr,gb'` and `|| 'key_value_json'` to be used. However, the fallback for languages is `'tr,gb'` while the script's default is `'tr,en'`. This inconsistency could lead to unexpected languages being downloaded. Consider using `github.event.inputs.languages || 'tr,en'` to match the script's default, or explicitly set the default in the workflow to `'tr,en'`.",
+        "side": "right"
+      },
+      {
+        "path": ".github/workflows/poeditor-sync.yml",
+        "start_line": 1,
+        "end_line": 92,
+        "content": "The workflow commits and pushes changes directly to the main branch without creating a pull request. This bypasses any branch protection rules or review processes. Consider creating a pull request instead, or at least ensure that the main branch allows direct pushes from the GitHub Actions bot.",
+        "side": "right"
+      },
+      {
+        "path": ".github/scripts/download-translations.js",
+        "start_line": 1,
+        "end_line": 92,
+        "content": "The script uses `process.cwd()` to determine the output path for translations (`temp/${language}.json`). This assumes the script is run from the repository root. While the workflow does run from the root, it's safer to use a path relative to the script's location or an environment variable to avoid issues if the working directory changes.",
+        "side": "right"
+      },
+      {
+        "path": ".github/scripts/download-translations.js",
+        "start_line": 1,
+        "end_line": 92,
+        "content": "The script does not validate that the downloaded translations are non-empty or valid JSON before saving. While the workflow has a verification step, it would be better to validate within the script to fail fast and provide clearer error messages.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \".github/workflows/poeditor-sync.yml\",\n      \"start_line\": 1,\n      \"end_line\": 92,\n      \"content\": \"The workflow uses `github.event.inputs.languages` and `github.event.inputs.format` in the env block, but these are only available for `workflow_dispatch` events. For scheduled runs, these expressions will evaluate to empty strings, causing the fallback `|| 'tr,gb'` and `|| 'key_value_json'` to be used. However, the fallback for languages is `'tr,gb'` while the script's default is `'tr,en'`. This inconsistency could lead to unexpected languages being downloaded. Consider using `github.event.inputs.languages || 'tr,en'` to match the script's default, or explicitly set the default in the workflow to `'tr,en'`.\"\n    },\n    {\n      \"path\": \".github/workflows/poeditor-sync.yml\",\n      \"start_line\": 1,\n      \"end_line\": 92,\n      \"content\": \"The workflow commits and pushes changes directly to the main branch without creating a pull request. This bypasses any branch protection rules or review processes. Consider creating a pull request instead, or at least ensure that the main branch allows direct pushes from the GitHub Actions bot.\"\n    },\n    {\n      \"path\": \".github/scripts/download-translations.js\",\n      \"start_line\": 1,\n      \"end_line\": 92,\n      \"content\": \"The script uses `process.cwd()` to determine the output path for translations (`temp/${language}.json`). This assumes the script is run from the repository root. While the workflow does run from the root, it's safer to use a path relative to the script's location or an environment variable to avoid issues if the working directory changes.\"\n    },\n    {\n      \"path\": \".github/scripts/download-translations.js\",\n      \"start_line\": 1,\n      \"end_line\": 92,\n      \"content\": \"The script does not validate that the downloaded translations are non-empty or valid JSON before saving. While the workflow has a verification step, it would be better to validate within the script to fail fast and provide clearer error messages.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,16 @@
+{
+  "instance_id": "opencv__opencv@79afad9",
+  "repo": "opencv/opencv",
+  "base_commit": "868fc5c581228f8f47bf4bc3ee84427acc99226a",
+  "head_commit": "79afad939ecfaa332af0541db473fa94f8f425b6",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:49.942356+00:00",
+  "duration_seconds": 80.2,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": null
+}

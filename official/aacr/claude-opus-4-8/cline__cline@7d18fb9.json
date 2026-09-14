@@ -1,0 +1,41 @@
+{
+  "instance_id": "cline__cline@7d18fb9",
+  "repo": "cline/cline",
+  "base_commit": "07d20574868b2ebb51c95c30a7a81b3793f0f07e",
+  "head_commit": "7d18fb9df620c61420c6939df22fb6f7af836bb2",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:56.678962+00:00",
+  "duration_seconds": 16.36,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/integrations/misc/extract-text.ts",
+        "start_line": 26,
+        "end_line": 42,
+        "content": "The binary detection logic has a gap: jschardet may confidently detect an encoding for genuinely binary files (e.g. it often returns 'windows-1252' or similar with non-null encoding), so the `isBinaryFile` check is only reached when detection fails entirely. Consider running `isBinaryFile` first (or in addition) to preserve the previous binary-file guard, otherwise binary files will now be decoded and returned as garbled text instead of throwing."
+      },
+      {
+        "path": "src/integrations/misc/extract-text.ts",
+        "start_line": 26,
+        "end_line": 42,
+        "content": "jschardet's detection includes a confidence score. Relying on any non-null `encoding` regardless of confidence can misclassify short files. Consider gating on a minimum confidence threshold (e.g. `detected.confidence >= 0.5`) before trusting the detected encoding, and falling back to utf8/binary check otherwise."
+      },
+      {
+        "path": "src/integrations/editor/DiffViewProvider.ts",
+        "start_line": 237,
+        "end_line": 240,
+        "content": "iconv-lite normalizes encoding names but jschardet can return values like 'ascii', 'ISO-8859-1', etc. The comparison `this.fileEncoding.toLowerCase() !== \"utf8\"` will treat 'UTF-8' (with hyphen) as non-utf8 and re-encode unnecessarily. Normalize the detected encoding (e.g. strip hyphens / compare against both 'utf-8' and 'utf8', or use `iconv.encodingExists`) to avoid needless re-encoding and potential corruption for ASCII/UTF-8 files."
+      },
+      {
+        "path": "src/integrations/editor/DiffViewProvider.ts",
+        "start_line": 46,
+        "end_line": 56,
+        "content": "If jschardet returns an encoding that iconv-lite doesn't support, `iconv.decode` will throw and break file opening. Consider guarding with `iconv.encodingExists(this.fileEncoding)` and falling back to 'utf8' when unsupported."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/integrations/misc/extract-text.ts\",\n      \"start_line\": 26,\n      \"end_line\": 42,\n      \"content\": \"The binary detection logic has a gap: jschardet may confidently detect an encoding for genuinely binary files (e.g. it often returns 'windows-1252' or similar with non-null encoding), so the `isBinaryFile` check is only reached when detection fails entirely. Consider running `isBinaryFile` first (or in addition) to preserve the previous binary-file guard, otherwise binary files will now be decoded and returned as garbled text instead of throwing.\"\n    },\n    {\n      \"path\": \"src/integrations/misc/extract-text.ts\",\n      \"start_line\": 26,\n      \"end_line\": 42,\n      \"content\": \"jschardet's detection includes a confidence score. Relying on any non-null `encoding` regardless of confidence can misclassify short files. Consider gating on a minimum confidence threshold (e.g. `detected.confidence >= 0.5`) before trusting the detected encoding, and falling back to utf8/binary check otherwise.\"\n    },\n    {\n      \"path\": \"src/integrations/editor/DiffViewProvider.ts\",\n      \"start_line\": 237,\n      \"end_line\": 240,\n      \"content\": \"iconv-lite normalizes encoding names but jschardet can return values like 'ascii', 'ISO-8859-1', etc. The comparison `this.fileEncoding.toLowerCase() !== \\\"utf8\\\"` will treat 'UTF-8' (with hyphen) as non-utf8 and re-encode unnecessarily. Normalize the detected encoding (e.g. strip hyphens / compare against both 'utf-8' and 'utf8', or use `iconv.encodingExists`) to avoid needless re-encoding and potential corruption for ASCII/UTF-8 files.\"\n    },\n    {\n      \"path\": \"src/integrations/editor/DiffViewProvider.ts\",\n      \"start_line\": 46,\n      \"end_line\": 56,\n      \"content\": \"If jschardet returns an encoding that iconv-lite doesn't support, `iconv.decode` will throw and break file opening. Consider guarding with `iconv.encodingExists(this.fileEncoding)` and falling back to 'utf8' when unsupported.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,35 @@
+{
+  "instance_id": "mpv-player__mpv@0729afe",
+  "repo": "mpv-player/mpv",
+  "base_commit": "5809d4d1bc54c3a3a32b38c7cf8a6ed90e91f7db",
+  "head_commit": "0729afe8d7067f0e4d69000309ec6f3e24ac3926",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:49:38.201997+00:00",
+  "duration_seconds": 31.76,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "player/command.c",
+        "start_line": 7703,
+        "end_line": 7735,
+        "content": "The coalescing logic has a bug: when `drop` is true, it shifts subsequent callbacks left but doesn't properly handle the case where multiple callbacks match the drop condition. The loop modifies the array while iterating over it, which can skip elements or cause out-of-bounds access. Consider using a separate write index or filtering approach instead."
+      },
+      {
+        "path": "player/command.c",
+        "start_line": 7737,
+        "end_line": 7742,
+        "content": "The `init` variable was removed but the IPC reinitialization logic now runs on every callback with matching opt_ptr, not just on startup. The original code only ran `mp_uninit_ipc`/`mp_init_ipc` when `init` was true (startup) OR when ipc_path/ipc_client changed. Now it runs on every callback invocation for those options, which could cause unnecessary IPC reinitialization."
+      },
+      {
+        "path": "player/main.c",
+        "start_line": 412,
+        "end_line": 415,
+        "content": "IPC initialization moved from `mp_option_change_callback` (init path) to `mp_initialize`. This changes behavior: IPC is now always initialized at startup even if not needed, whereas before it was lazily initialized on first option callback. Consider if this eager initialization is intentional."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"player/command.c\",\n      \"start_line\": 7703,\n      \"end_line\": 7735,\n      \"content\": \"The coalescing logic has a bug: when `drop` is true, it shifts subsequent callbacks left but doesn't properly handle the case where multiple callbacks match the drop condition. The loop modifies the array while iterating over it, which can skip elements or cause out-of-bounds access. Consider using a separate write index or filtering approach instead.\"\n    },\n    {\n      \"path\": \"player/command.c\",\n      \"start_line\": 7737,\n      \"end_line\": 7742,\n      \"content\": \"The `init` variable was removed but the IPC reinitialization logic now runs on every callback with matching opt_ptr, not just on startup. The original code only ran `mp_uninit_ipc`/`mp_init_ipc` when `init` was true (startup) OR when ipc_path/ipc_client changed. Now it runs on every callback invocation for those options, which could cause unnecessary IPC reinitialization.\"\n    },\n    {\n      \"path\": \"player/main.c\",\n      \"start_line\": 412,\n      \"end_line\": 415,\n      \"content\": \"IPC initialization moved from `mp_option_change_callback` (init path) to `mp_initialize`. This changes behavior: IPC is now always initialized at startup even if not needed, whereas before it was lazily initialized on first option callback. Consider if this eager initialization is intentional.\"\n    }\n  ]\n}",
+  "stderr": null
+}

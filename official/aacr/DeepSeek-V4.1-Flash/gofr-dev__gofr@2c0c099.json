@@ -1,0 +1,52 @@
+{
+  "instance_id": "gofr-dev__gofr@2c0c099",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "c2ab1eb3308afa4f29842f0a982751bf65c059d0",
+  "head_commit": "2c0c0997cad66a1ee1e47f95db6a830394157c00",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:31:51.997587+00:00",
+  "duration_seconds": 8.17,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "examples/http-server/main_test.go",
+        "start_line": 151,
+        "end_line": 158,
+        "content": "This change replaces the Redis port with the metrics port. The original code used `REDIS_PORT: \"2001\"` (a mock Redis port), but now it uses `strconv.Itoa(configs.MetricsPort)`. This is incorrect because `configs.MetricsPort` is the port for the metrics server, not the Redis server. The Redis client should connect to a Redis port, not the metrics port. This will likely cause the test to fail or behave unexpectedly. Please revert to using a fixed Redis port or a dedicated Redis port configuration.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/context_test.go",
+        "start_line": 80,
+        "end_line": 95,
+        "content": "The test now uses `configs.HTTPPort` to construct the WebSocket URL, but the server is started with `go app.Run()`. The `app.Run()` method will use the `HTTP_PORT` environment variable set by `NewServerConfigs`, so the port should match. However, the previous code used `httptest.NewServer(app.httpServer.router)` which created a test server on a random port. The new approach relies on the actual server starting on the configured port. This should work, but ensure that the server is fully started before attempting to connect. The `time.Sleep(100 * time.Millisecond)` might be insufficient in some environments. Consider using a more robust synchronization mechanism.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/gofr_test.go",
+        "start_line": 49,
+        "end_line": 72,
+        "content": "The test `TestGoFr_isPortAvailable` now uses `configs.HTTPPort` for checking port availability. However, the test logic previously set `HTTP_PORT` and `METRICS_PORT` only when `!tt.isAvailable`. Now, `NewServerConfigs` sets these environment variables unconditionally. This means that for the case where `isAvailable` is true, the environment variables are still set, which might affect the test's behavior. The test should ensure that the port is actually free when `isAvailable` is true. Since `NewServerConfigs` sets the environment variables, the server might start on that port, making it unavailable. This could cause the test to fail. Please review the test logic to ensure it correctly tests port availability.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/testutil/port.go",
+        "start_line": 36,
+        "end_line": 68,
+        "content": "The `NewServerConfigs` function sets the `GRPC_PORT` environment variable unconditionally. This might affect tests that do not expect this variable to be set. Consider making the gRPC port configuration optional or only setting it when needed. Additionally, the function returns a `ServiceConfigs` struct, but the name `ServiceConfigs` might be confusing as it includes server configurations. Consider renaming to `ServerConfigs` for consistency with the function name.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/testutil/port_test.go",
+        "start_line": 24,
+        "end_line": 48,
+        "content": "The test `TestNewServerConfigs` checks that the environment variables are set correctly. However, it does not verify that the ports are actually free. Since `GetFreePort` is used, the ports should be free at the time of allocation, but there is a race condition where another process could take the port before the test uses it. This is a common issue with port allocation in tests. Consider using a more robust method, such as binding to port 0 and retrieving the assigned port, to avoid race conditions.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"examples/http-server/main_test.go\",\n      \"start_line\": 151,\n      \"end_line\": 158,\n      \"content\": \"This change replaces the Redis port with the metrics port. The original code used `REDIS_PORT: \\\"2001\\\"` (a mock Redis port), but now it uses `strconv.Itoa(configs.MetricsPort)`. This is incorrect because `configs.MetricsPort` is the port for the metrics server, not the Redis server. The Redis client should connect to a Redis port, not the metrics port. This will likely cause the test to fail or behave unexpectedly. Please revert to using a fixed Redis port or a dedicated Redis port configuration.\"\n    },\n    {\n      \"path\": \"pkg/gofr/context_test.go\",\n      \"start_line\": 80,\n      \"end_line\": 95,\n      \"content\": \"The test now uses `configs.HTTPPort` to construct the WebSocket URL, but the server is started with `go app.Run()`. The `app.Run()` method will use the `HTTP_PORT` environment variable set by `NewServerConfigs`, so the port should match. However, the previous code used `httptest.NewServer(app.httpServer.router)` which created a test server on a random port. The new approach relies on the actual server starting on the configured port. This should work, but ensure that the server is fully started before attempting to connect. The `time.Sleep(100 * time.Millisecond)` might be insufficient in some environments. Consider using a more robust synchronization mechanism.\"\n    },\n    {\n      \"path\": \"pkg/gofr/gofr_test.go\",\n      \"start_line\": 49,\n      \"end_line\": 72,\n      \"content\": \"The test `TestGoFr_isPortAvailable` now uses `configs.HTTPPort` for checking port availability. However, the test logic previously set `HTTP_PORT` and `METRICS_PORT` only when `!tt.isAvailable`. Now, `NewServerConfigs` sets these environment variables unconditionally. This means that for the case where `isAvailable` is true, the environment variables are still set, which might affect the test's behavior. The test should ensure that the port is actually free when `isAvailable` is true. Since `NewServerConfigs` sets the environment variables, the server might start on that port, making it unavailable. This could cause the test to fail. Please review the test logic to ensure it correctly tests port availability.\"\n    },\n    {\n      \"path\": \"pkg/gofr/testutil/port.go\",\n      \"start_line\": 36,\n      \"end_line\": 68,\n      \"content\": \"The `NewServerConfigs` function sets the `GRPC_PORT` environment variable unconditionally. This might affect tests that do not expect this variable to be set. Consider making the gRPC port configuration optional or only setting it when needed. Additionally, the function returns a `ServiceConfigs` struct, but the name `ServiceConfigs` might be confusing as it includes server configurations. Consider renaming to `ServerConfigs` for consistency with the function name.\"\n    },\n    {\n      \"path\": \"pkg/gofr/testutil/port_test.go\",\n      \"start_line\": 24,\n      \"end_line\": 48,\n      \"content\": \"The test `TestNewServerConfigs` checks that the environment variables are set correctly. However, it does not verify that the ports are actually free. Since `GetFreePort` is used, the ports should be free at the time of allocation, but there is a race condition where another process could take the port before the test uses it. This is a common issue with port allocation in tests. Consider using a more robust method, such as binding to port 0 and retrieving the assigned port, to avoid race conditions.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

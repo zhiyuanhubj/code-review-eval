@@ -1,0 +1,16 @@
+{
+  "instance_id": "ollama__ollama@b6002f6",
+  "repo": "ollama/ollama",
+  "base_commit": "92b96d54efd6b49322b7cf046f9a0dc16b00cd0a",
+  "head_commit": "b6002f6b6c69370f8c18a9e6c1cafa8463273a6b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:32:54.645208+00:00",
+  "duration_seconds": 76.99,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": null
+}

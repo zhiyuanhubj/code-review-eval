@@ -1,0 +1,16 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@39c5968",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "b59cd794274c8c007b2ef16c3a06fecf30c0aef1",
+  "head_commit": "39c5968bdc6c0b20d94d4a629cd43eafee1e56d0",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:22.872284+00:00",
+  "duration_seconds": 29.39,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "Looking at the diff, I need to focus on finding real bugs introduced by this refactoring.\n\nThe most suspicious change is in `setupPythonException`, where a lambda uses unusual capture syntax.\n\nLet me analyze the lambda capture:\n```cpp\nauto setup = [&module, str {\"Base.\"}](const std::string& ename, auto excpt) {\n```\n\nThis is an init-capture `str {\"Base.\"}`. This would deduce `str` as `const char*` (from string literal), and `str + ename` where `str` is `const char*` and `ename` is `std::string` — that works via operator+. But wait, `str {\"Base.\"}` with copy-init from string literal creates a `const char*`. `const char* + std::string` is valid. This actually compiles fine. Actually it does work.\n\nLet me check the `getUserHome` / memory leak in FindHomePath — but the buf leak might exist already; the delete[] is present.\n\nLet me look for genuinely introduced bugs. The `getOldDataLocation` and others seem fine. The most concrete issue I can flag is the lambda capture syntax being non-standard but valid.\n\nGiven the constraints (precision over recall), I don't find a clear, definite bug I can prove from the truncated diff.\n\n```json\n{\n  \"comments\": []\n}\n```",
+  "stderr": null
+}

@@ -1,0 +1,24 @@
+{
+  "instance_id": "filamentphp__filament@d47632c",
+  "repo": "filamentphp/filament",
+  "base_commit": "ce4d9d08df41142ff219bb3dc44968084eaae0dc",
+  "head_commit": "d47632c0583bac481d4ce7cc9b6b1711d0f8e0fc",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:49.326135+00:00",
+  "duration_seconds": 3.14,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/support/src/helpers.php",
+        "start_line": 184,
+        "end_line": 188,
+        "content": "This JSON handling only applies when `$isSearchForcedCaseInsensitive` is true, but the `lower()` wrapping is applied unconditionally afterwards. On MySQL/MariaDB, `lower(json_extract(...))` works, but the previous behavior for JSON columns on MySQL/MariaDB (without this branch) would have been `lower(column->path)` which MySQL does not support as a function call — so this is a fix. However, note that `json_extract` returns a JSON value (e.g. quoted string `\"foo\"`), and `lower()` on that will include the surrounding quotes, which may not match the search term. Consider using `json_unquote(json_extract(...))` so the lowercased value matches the raw string. Also, this branch is skipped when `$isSearchForcedCaseInsensitive` is false, leaving `column->path` unhandled for the non-lowercased path — verify that's intentional.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"packages/support/src/helpers.php\",\n      \"start_line\": 184,\n      \"end_line\": 188,\n      \"content\": \"This JSON handling only applies when `$isSearchForcedCaseInsensitive` is true, but the `lower()` wrapping is applied unconditionally afterwards. On MySQL/MariaDB, `lower(json_extract(...))` works, but the previous behavior for JSON columns on MySQL/MariaDB (without this branch) would have been `lower(column->path)` which MySQL does not support as a function call — so this is a fix. However, note that `json_extract` returns a JSON value (e.g. quoted string `\\\"foo\\\"`), and `lower()` on that will include the surrounding quotes, which may not match the search term. Consider using `json_unquote(json_extract(...))` so the lowercased value matches the raw string. Also, this branch is skipped when `$isSearchForcedCaseInsensitive` is false, leaving `column->path` unhandled for the non-lowercased path — verify that's intentional.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

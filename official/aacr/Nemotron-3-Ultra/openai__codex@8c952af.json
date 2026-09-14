@@ -1,0 +1,29 @@
+{
+  "instance_id": "openai__codex@8c952af",
+  "repo": "openai/codex",
+  "base_commit": "d6182becbe155776b159270fe4a5e88d607f0c5e",
+  "head_commit": "8c952af20fe791cc0c5d0a59089d3329968b4373",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:47:00.079616+00:00",
+  "duration_seconds": 41.88,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "codex-rs/core/src/client.rs",
+        "start_line": 165,
+        "end_line": 170,
+        "content": "The comment says 'Always request encrypted COT to avoid ID references in reasoning content' but the condition is still `if reasoning.is_some()`. If the intent is truly 'always', the condition should be removed and `include` should always be set to `vec![\"reasoning.encrypted_content\".to_string()]`. If the intent is 'when reasoning is enabled', the comment should be updated to reflect that."
+      },
+      {
+        "path": "codex-rs/core/src/models.rs",
+        "start_line": 44,
+        "end_line": 115,
+        "content": "Adding `#[serde(skip_serializing)]` to `id` fields across all `ResponseItem` variants is a significant change. This will prevent IDs from being sent to the API. Need to verify this is intentional and doesn't break conversation history/resumption where the API might expect IDs for referencing previous items. The test changes removing `\"id\": null` from expected JSON suggest this is intentional, but worth double-checking that the API doesn't require IDs for any flow (e.g., function call outputs referencing call_ids)."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"codex-rs/core/src/client.rs\",\n      \"start_line\": 165,\n      \"end_line\": 170,\n      \"content\": \"The comment says 'Always request encrypted COT to avoid ID references in reasoning content' but the condition is still `if reasoning.is_some()`. If the intent is truly 'always', the condition should be removed and `include` should always be set to `vec![\\\"reasoning.encrypted_content\\\".to_string()]`. If the intent is 'when reasoning is enabled', the comment should be updated to reflect that.\"\n    },\n    {\n      \"path\": \"codex-rs/core/src/models.rs\",\n      \"start_line\": 44,\n      \"end_line\": 115,\n      \"content\": \"Adding `#[serde(skip_serializing)]` to `id` fields across all `ResponseItem` variants is a significant change. This will prevent IDs from being sent to the API. Need to verify this is intentional and doesn't break conversation history/resumption where the API might expect IDs for referencing previous items. The test changes removing `\\\"id\\\": null` from expected JSON suggest this is intentional, but worth double-checking that the API doesn't require IDs for any flow (e.g., function call outputs referencing call_ids).\"\n    }\n  ]\n}",
+  "stderr": null
+}

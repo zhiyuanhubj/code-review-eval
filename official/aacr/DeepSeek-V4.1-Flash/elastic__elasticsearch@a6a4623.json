@@ -1,0 +1,31 @@
+{
+  "instance_id": "elastic__elasticsearch@a6a4623",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "cc0e53e883ee7e0b136e58a0105103c1a7ffddf9",
+  "head_commit": "a6a4623f4a0216b515a8cb323110305504431459",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:39:28.202972+00:00",
+  "duration_seconds": 4.38,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/main/java/org/elasticsearch/lucene/search/uhighlight/QueryMaxAnalyzedOffset.java",
+        "start_line": 17,
+        "end_line": 17,
+        "content": "The comment is misleading: the constructor does not actually grab the index value; the substitution happens in `create`. Consider removing or moving the comment to `create`.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/main/java/org/elasticsearch/search/fetch/subphase/highlight/AbstractHighlighterBuilder.java",
+        "start_line": 564,
+        "end_line": 569,
+        "content": "The validation now allows `maxAnalyzedOffset == 0`, but `QueryMaxAnalyzedOffset.create` only substitutes the index value for negative inputs. A value of 0 will be passed through as the query max analyzed offset, which is likely not intended and may cause unexpected behavior. Should 0 also be treated as \"use index default\" (i.e., reject or substitute)?",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/lucene/search/uhighlight/QueryMaxAnalyzedOffset.java\",\n      \"start_line\": 17,\n      \"end_line\": 17,\n      \"content\": \"The comment is misleading: the constructor does not actually grab the index value; the substitution happens in `create`. Consider removing or moving the comment to `create`.\"\n    },\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/search/fetch/subphase/highlight/AbstractHighlighterBuilder.java\",\n      \"start_line\": 564,\n      \"end_line\": 569,\n      \"content\": \"The validation now allows `maxAnalyzedOffset == 0`, but `QueryMaxAnalyzedOffset.create` only substitutes the index value for negative inputs. A value of 0 will be passed through as the query max analyzed offset, which is likely not intended and may cause unexpected behavior. Should 0 also be treated as \\\"use index default\\\" (i.e., reject or substitute)?\"\n    }\n  ]\n}",
+  "stderr": null
+}

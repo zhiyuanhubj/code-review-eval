@@ -1,0 +1,45 @@
+{
+  "instance_id": "immich-app__immich@9032c7e",
+  "repo": "immich-app/immich",
+  "base_commit": "55f4e93456ab7415082e342af9ad5cabd52562a6",
+  "head_commit": "9032c7e021872a913e28de2e79bd9ab9806e7413",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:14.839424+00:00",
+  "duration_seconds": 5.87,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 36,
+        "end_line": 36,
+        "content": "`APP_RESOURCES` contains paths from `$service-worker`'s `build` and `files`, which are absolute paths like `/foo.js`. `url.pathname` is also absolute, so this check works. However, `appResources` is called for every matching request, and inside it re-checks `APP_RESOURCES.includes(url.pathname)` and then does `cache.match(url.pathname)`. Since `addFilesToCache` already populated the cache during install, this is fine, but note that `cache.match(url.pathname)` uses a string, which is resolved relative to the service worker scope. It's safer to use `cache.match(url)` or `cache.match(new Request(url))` to avoid any base-URL ambiguity.",
+        "side": "right"
+      },
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 57,
+        "end_line": 57,
+        "content": "`cache.addAll(APP_RESOURCES)` will reject the entire install if any single resource fails to fetch (e.g., a 404 or network hiccup). Since `event.waitUntil(addFilesToCache())` is used, a failure here will cause the service worker installation to fail. Consider using `Promise.allSettled` with individual `cache.add` calls, or at least handle errors so a single missing asset doesn't break SW installation.",
+        "side": "right"
+      },
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 62,
+        "end_line": 62,
+        "content": "`ssr` caches the root `/` response and serves it for all SSR routes. This means navigating to e.g. `/photos` while offline will return the cached HTML for `/`, which is likely the SPA shell — that's probably intended. However, the cached response is stored under the key `url` (root `/`), and `cache.put(url, response.clone())` is called without awaiting. If the put fails, it's an unhandled rejection. Consider `await cache.put(...)` or `.catch(() => {})`.",
+        "side": "right"
+      },
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 36,
+        "end_line": 36,
+        "content": "The regex for SSR routes includes `/link` and `/shared-links` etc., but does not include the root `/` itself. Navigating to `/` offline will not be handled by the service worker's fetch handler (it falls through to the browser default), even though `ssr` caches `/`. Consider adding `^\\/$` to the SSR route regex so the root path is also served from cache when offline.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 36,\n      \"end_line\": 36,\n      \"content\": \"`APP_RESOURCES` contains paths from `$service-worker`'s `build` and `files`, which are absolute paths like `/foo.js`. `url.pathname` is also absolute, so this check works. However, `appResources` is called for every matching request, and inside it re-checks `APP_RESOURCES.includes(url.pathname)` and then does `cache.match(url.pathname)`. Since `addFilesToCache` already populated the cache during install, this is fine, but note that `cache.match(url.pathname)` uses a string, which is resolved relative to the service worker scope. It's safer to use `cache.match(url)` or `cache.match(new Request(url))` to avoid any base-URL ambiguity.\"\n    },\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 57,\n      \"end_line\": 57,\n      \"content\": \"`cache.addAll(APP_RESOURCES)` will reject the entire install if any single resource fails to fetch (e.g., a 404 or network hiccup). Since `event.waitUntil(addFilesToCache())` is used, a failure here will cause the service worker installation to fail. Consider using `Promise.allSettled` with individual `cache.add` calls, or at least handle errors so a single missing asset doesn't break SW installation.\"\n    },\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 62,\n      \"end_line\": 62,\n      \"content\": \"`ssr` caches the root `/` response and serves it for all SSR routes. This means navigating to e.g. `/photos` while offline will return the cached HTML for `/`, which is likely the SPA shell — that's probably intended. However, the cached response is stored under the key `url` (root `/`), and `cache.put(url, response.clone())` is called without awaiting. If the put fails, it's an unhandled rejection. Consider `await cache.put(...)` or `.catch(() => {})`.\"\n    },\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 36,\n      \"end_line\": 36,\n      \"content\": \"The regex for SSR routes includes `/link` and `/shared-links` etc., but does not include the root `/` itself. Navigating to `/` offline will not be handled by the service worker's fetch handler (it falls through to the browser default), even though `ssr` caches `/`. Consider adding `^\\\\/$` to the SSR route regex so the root path is also served from cache when offline.\"\n    }\n  ]\n}",
+  "stderr": null
+}

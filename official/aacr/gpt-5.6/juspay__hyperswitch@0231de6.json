@@ -1,0 +1,16 @@
+{
+  "instance_id": "juspay__hyperswitch@0231de6",
+  "repo": "juspay/hyperswitch",
+  "base_commit": "b26e845198407f3672a7f80d8eea670419858e0e",
+  "head_commit": "0231de6ae6795ef7fa85e5ab87b6fe46a4955333",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:30:40.077186+00:00",
+  "duration_seconds": 76.96,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"crates/hyperswitch_connectors/src/connectors/checkout/transformers.rs\",\"start_line\":369,\"end_line\":369,\"content\":\"Do not hard-code the ECI to `06`. Google Pay's decrypted `eciIndicator` varies by card network and authentication result, and sending the wrong value can cause Checkout to decline the authorization or apply incorrect liability handling. Populate this from `google_pay",
+  "stderr": null
+}

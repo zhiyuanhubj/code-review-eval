@@ -1,0 +1,41 @@
+{
+  "instance_id": "ollama__ollama@2ed14f2",
+  "repo": "ollama/ollama",
+  "base_commit": "4ea4d2b18952a104a47079df00ac0bfe4706f3aa",
+  "head_commit": "2ed14f2a28867c017426b41a9ff6bfc52c981a43",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:28.004872+00:00",
+  "duration_seconds": 16.82,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/internal/cache/blob/chunked.go",
+        "start_line": 63,
+        "end_line": 65,
+        "content": "Close will panic with a nil pointer dereference when the Chunker was created for a pre-validated blob (the `return &Chunker{}, nil` path in Chunked, where f is nil). The `defer chunked.Close()` in Pull would then panic. Guard against a nil file: `if c.f == nil { return nil }` before calling `c.f.Close()`."
+      },
+      {
+        "path": "server/internal/client/ollama/registry_test.go",
+        "start_line": 535,
+        "end_line": 535,
+        "content": "This `t.Skip(\"TODO: BRING BACK BEFORE LANDING\")` looks like a leftover debugging marker that disables TestRegistryPullChunking. The chunking path is a core part of this PR; skipping its test before landing removes coverage for the new chunksums download logic. Please re-enable this test (or explain why it must stay skipped)."
+      },
+      {
+        "path": "server/internal/client/ollama/registry.go",
+        "start_line": 463,
+        "end_line": 466,
+        "content": "The `defer chunked.Close()` is inside a `for` loop, so all Chunker files stay open until Pull returns rather than being closed per-layer. For models with many layers this can exhaust file descriptors. Consider closing each chunked writer when its layer's downloads complete (e.g. within the errgroup goroutines) rather than deferring to function return."
+      },
+      {
+        "path": "server/internal/registry/server.go",
+        "start_line": 290,
+        "end_line": 290,
+        "content": "The streaming progress update sets `Status` to the empty string (progressUpdateJSON{Digest: p.model()} leaves Status unset), so streamed lines are emitted as `{\"status\":\"\",...}`. The test now asserts this empty status, but existing clients that switch on the status string (e.g. \"pulling\") may break. Confirm this empty-status contract is intended for streaming consumers."
+      }
+    ]
+  },
+  "raw_output": "Looking at the code, let me analyze for real bugs.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"server/internal/cache/blob/chunked.go\",\n      \"start_line\": 63,\n      \"end_line\": 65,\n      \"content\": \"Close will panic with a nil pointer dereference when the Chunker was created for a pre-validated blob (the `return &Chunker{}, nil` path in Chunked, where f is nil). The `defer chunked.Close()` in Pull would then panic. Guard against a nil file: `if c.f == nil { return nil }` before calling `c.f.Close()`.\"\n    },\n    {\n      \"path\": \"server/internal/client/ollama/registry_test.go\",\n      \"start_line\": 535,\n      \"end_line\": 535,\n      \"content\": \"This `t.Skip(\\\"TODO: BRING BACK BEFORE LANDING\\\")` looks like a leftover debugging marker that disables TestRegistryPullChunking. The chunking path is a core part of this PR; skipping its test before landing removes coverage for the new chunksums download logic. Please re-enable this test (or explain why it must stay skipped).\"\n    },\n    {\n      \"path\": \"server/internal/client/ollama/registry.go\",\n      \"start_line\": 463,\n      \"end_line\": 466,\n      \"content\": \"The `defer chunked.Close()` is inside a `for` loop, so all Chunker files stay open until Pull returns rather than being closed per-layer. For models with many layers this can exhaust file descriptors. Consider closing each chunked writer when its layer's downloads complete (e.g. within the errgroup goroutines) rather than deferring to function return.\"\n    },\n    {\n      \"path\": \"server/internal/registry/server.go\",\n      \"start_line\": 290,\n      \"end_line\": 290,\n      \"content\": \"The streaming progress update sets `Status` to the empty string (progressUpdateJSON{Digest: p.model()} leaves Status unset), so streamed lines are emitted as `{\\\"status\\\":\\\"\\\",...}`. The test now asserts this empty status, but existing clients that switch on the status string (e.g. \\\"pulling\\\") may break. Confirm this empty-status contract is intended for streaming consumers.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

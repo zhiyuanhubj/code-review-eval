@@ -1,0 +1,59 @@
+{
+  "instance_id": "CherryHQ__cherry-studio@5644b00",
+  "repo": "CherryHQ/cherry-studio",
+  "base_commit": "636c788e2ba413d21a5fd385c3ea4cc7e134e1be",
+  "head_commit": "5644b00b87e07fa1acd84d4ec93f9f2fb1205090",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:32:34.290157+00:00",
+  "duration_seconds": 8.22,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/renderer/src/providers/AiProvider/OpenAIProvider.ts",
+        "start_line": 487,
+        "end_line": 660,
+        "content": "The refactored `processStream` no longer handles the `assistant.enableWebSearch` link conversion logic that existed before (convertLinks/convertLinksToOpenRouter/convertLinksToZhipu/convertLinksToHunyuan). The new `convertLinksMiddleware` only calls `convertLinks(chunk.textDelta)` unconditionally, dropping the provider-specific converters (OpenRouter, Zhipu, Hunyuan) and the `isFirstChunk` argument. This is a functional regression for web-search-enabled models from those providers. Please restore the provider-specific conversion logic (or extend the middleware to accept a converter function).",
+        "side": "right"
+      },
+      {
+        "path": "src/renderer/src/providers/AiProvider/OpenAIProvider.ts",
+        "start_line": 495,
+        "end_line": 505,
+        "content": "`getAppropriateTag` always returns `reasoningTags[0]` (i.e. `think`) regardless of the model — the `claude` branch is dead code. If the intent was to use `reasoning` for some models, this is a bug; otherwise remove the misleading branch.",
+        "side": "right"
+      },
+      {
+        "path": "src/renderer/src/providers/AiProvider/OpenAIProvider.ts",
+        "start_line": 555,
+        "end_line": 570,
+        "content": "`THINKING_COMPLETE` is only emitted inside the `text-delta` case when `time_thinking_start > 0 && time_first_content_millsec === 0`. If the model produces reasoning but no subsequent text (e.g. stream ends after reasoning, or only tool calls follow), `THINKING_COMPLETE` is never emitted. The previous implementation emitted it via `isReasoningJustDone`. Consider emitting `THINKING_COMPLETE` on `finish` if reasoning was produced but no content followed.",
+        "side": "right"
+      },
+      {
+        "path": "src/renderer/src/providers/AiProvider/OpenAIProvider.ts",
+        "start_line": 605,
+        "end_line": 615,
+        "content": "`processToolUses(content, idx)` and `BLOCK_COMPLETE` are now invoked inside the `finish` case of the switch. If the upstream stream ends without ever yielding a `finish` chunk (e.g. paused via `CHAT_COMPLETION_PAUSED`, or a provider that omits `finish_reason`), `processToolUses` and `BLOCK_COMPLETE` will never fire. The previous code called them after the for-await loop unconditionally. Move these calls outside the loop (after the for-await) to preserve behavior.",
+        "side": "right"
+      },
+      {
+        "path": "src/renderer/src/middleware/extractReasoningMiddleware.ts",
+        "start_line": 60,
+        "end_line": 100,
+        "content": "The stream transform never flushes the remaining `buffer` on stream close. If the stream ends while `buffer` still contains text (e.g. partial tag or trailing content), that text is silently dropped. Add a `flush` handler to the TransformStream that publishes any remaining buffer.",
+        "side": "right"
+      },
+      {
+        "path": "src/renderer/src/utils/stream.ts",
+        "start_line": 1,
+        "end_line": 12,
+        "content": "`readableStreamAsyncIterable` does not release the reader lock or cancel the stream when iteration is aborted early (e.g. `break` in the for-await). Consider implementing `return()` on the iterator to call `reader.cancel()` / `reader.releaseLock()` to avoid leaking the underlying stream.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/renderer/src/providers/AiProvider/OpenAIProvider.ts\",\n      \"start_line\": 487,\n      \"end_line\": 660,\n      \"content\": \"The refactored `processStream` no longer handles the `assistant.enableWebSearch` link conversion logic that existed before (convertLinks/convertLinksToOpenRouter/convertLinksToZhipu/convertLinksToHunyuan). The new `convertLinksMiddleware` only calls `convertLinks(chunk.textDelta)` unconditionally, dropping the provider-specific converters (OpenRouter, Zhipu, Hunyuan) and the `isFirstChunk` argument. This is a functional regression for web-search-enabled models from those providers. Please restore the provider-specific conversion logic (or extend the middleware to accept a converter function).\"\n    },\n    {\n      \"path\": \"src/renderer/src/providers/AiProvider/OpenAIProvider.ts\",\n      \"start_line\": 495,\n      \"end_line\": 505,\n      \"content\": \"`getAppropriateTag` always returns `reasoningTags[0]` (i.e. `think`) regardless of the model — the `claude` branch is dead code. If the intent was to use `reasoning` for some models, this is a bug; otherwise remove the misleading branch.\"\n    },\n    {\n      \"path\": \"src/renderer/src/providers/AiProvider/OpenAIProvider.ts\",\n      \"start_line\": 555,\n      \"end_line\": 570,\n      \"content\": \"`THINKING_COMPLETE` is only emitted inside the `text-delta` case when `time_thinking_start > 0 && time_first_content_millsec === 0`. If the model produces reasoning but no subsequent text (e.g. stream ends after reasoning, or only tool calls follow), `THINKING_COMPLETE` is never emitted. The previous implementation emitted it via `isReasoningJustDone`. Consider emitting `THINKING_COMPLETE` on `finish` if reasoning was produced but no content followed.\"\n    },\n    {\n      \"path\": \"src/renderer/src/providers/AiProvider/OpenAIProvider.ts\",\n      \"start_line\": 605,\n      \"end_line\": 615,\n      \"content\": \"`processToolUses(content, idx)` and `BLOCK_COMPLETE` are now invoked inside the `finish` case of the switch. If the upstream stream ends without ever yielding a `finish` chunk (e.g. paused via `CHAT_COMPLETION_PAUSED`, or a provider that omits `finish_reason`), `processToolUses` and `BLOCK_COMPLETE` will never fire. The previous code called them after the for-await loop unconditionally. Move these calls outside the loop (after the for-await) to preserve behavior.\"\n    },\n    {\n      \"path\": \"src/renderer/src/middleware/extractReasoningMiddleware.ts\",\n      \"start_line\": 60,\n      \"end_line\": 100,\n      \"content\": \"The stream transform never flushes the remaining `buffer` on stream close. If the stream ends while `buffer` still contains text (e.g. partial tag or trailing content), that text is silently dropped. Add a `flush` handler to the TransformStream that publishes any remaining buffer.\"\n    },\n    {\n      \"path\": \"src/renderer/src/utils/stream.ts\",\n      \"start_line\": 1,\n      \"end_line\": 12,\n      \"content\": \"`readableStreamAsyncIterable` does not release the reader lock or cancel the stream when iteration is aborted early (e.g. `break` in the for-await). Consider implementing `return()` on the iterator to call `reader.cancel()` / `reader.releaseLock()` to avoid leaking the underlying stream.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

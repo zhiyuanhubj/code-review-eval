@@ -1,0 +1,29 @@
+{
+  "instance_id": "elastic__elasticsearch@a6a4623",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "cc0e53e883ee7e0b136e58a0105103c1a7ffddf9",
+  "head_commit": "a6a4623f4a0216b515a8cb323110305504431459",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:10.860550+00:00",
+  "duration_seconds": 20.01,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/test/java/org/elasticsearch/search/fetch/subphase/highlight/HighlightBuilderTests.java",
+        "start_line": 580,
+        "end_line": 580,
+        "content": "This test now generates values in the range [-100, 0], but the validation was relaxed to only reject values `< -1`. When `randomIntBetween` returns `-1` or `0`, no exception is thrown and the test will fail intermittently. Update the range to exclude the now-valid values, e.g. `randomIntBetween(-100, -2)`."
+      },
+      {
+        "path": "server/src/main/java/org/elasticsearch/lucene/search/uhighlight/QueryMaxAnalyzedOffset.java",
+        "start_line": 15,
+        "end_line": 17,
+        "content": "The comment inside the constructor about grabbing the maximum from the index is misplaced—the negative-to-index resolution happens in `create(...)`, not here. Consider moving/removing this comment to avoid confusion."
+      }
+    ]
+  },
+  "raw_output": "Looking at the diff, let me analyze the key changes.\n\nThe test `HighlightBuilderTests` at line 580 uses `randomIntBetween(-100, 0)` but the validation now only rejects values `< -1`. This means values `-1` and `0` would no longer throw the expected exception, causing a test failure.\n\nLet me verify the logic:\n- New validation: `maxAnalyzedOffset < -1` throws\n- So `-1` and `0` are now valid values\n- `randomIntBetween(-100, 0)` includes `-1` and `0`\n\nThis is a real bug in the test.\n\nLet me also check the `CustomUnifiedHighlighter` boundary condition change with the paren removal, which looks correct.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"server/src/test/java/org/elasticsearch/search/fetch/subphase/highlight/HighlightBuilderTests.java\",\n      \"start_line\": 580,\n      \"end_line\": 580,\n      \"content\": \"This test now generates values in the range [-100, 0], but the validation was relaxed to only reject values `< -1`. When `randomIntBetween` returns `-1` or `0`, no exception is thrown and the test will fail intermittently. Update the range to exclude the now-valid values, e.g. `randomIntBetween(-100, -2)`.\"\n    },\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/lucene/search/uhighlight/QueryMaxAnalyzedOffset.java\",\n      \"start_line\": 15,\n      \"end_line\": 17,\n      \"content\": \"The comment inside the constructor about grabbing the maximum from the index is misplaced—the negative-to-index resolution happens in `create(...)`, not here. Consider moving/removing this comment to avoid confusion.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

@@ -1,0 +1,45 @@
+{
+  "instance_id": "immich-app__immich@5f47591",
+  "repo": "immich-app/immich",
+  "base_commit": "584e5894bfd4fe356e790fa9781ccee4e5224874",
+  "head_commit": "5f4759196534661bd332085514878d0efbb7ce84",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:13.163310+00:00",
+  "duration_seconds": 4.93,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/services/person.service.ts",
+        "start_line": 551,
+        "end_line": 555,
+        "content": "The error message interpolates the entire `person` object instead of `person.id`. When `person` is undefined this will log `undefined`, and when it exists it will dump the whole object. Use `person?.id` for a useful message.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/services/person.service.ts",
+        "start_line": 566,
+        "end_line": 569,
+        "content": "The error message references `asset.originalPath` but the actual failure is that the asset has no preview file. The message is misleading; consider including the asset id or clarifying that the preview is missing.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/repositories/person.repository.ts",
+        "start_line": 328,
+        "end_line": 335,
+        "content": "`getById` returns `this.db...executeTakeFirst() ?? null`, but `executeTakeFirst()` already resolves to `undefined` when no row exists, and the `?? null` is applied to the Promise (which is always truthy), so it never converts to `null`. The previous code had the same bug, but since this PR is touching the method, it would be good to fix it by awaiting the query before applying `?? null`.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/dtos/person.dto.ts",
+        "start_line": 249,
+        "end_line": 258,
+        "content": "`mapFaces` now inlines the fields from `mapFacesWithoutPerson` instead of spreading it. This duplicates the field mapping and risks divergence if `mapFacesWithoutPerson` changes. Consider keeping the spread and only overriding `person`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"server/src/services/person.service.ts\",\n      \"start_line\": 551,\n      \"end_line\": 555,\n      \"content\": \"The error message interpolates the entire `person` object instead of `person.id`. When `person` is undefined this will log `undefined`, and when it exists it will dump the whole object. Use `person?.id` for a useful message.\"\n    },\n    {\n      \"path\": \"server/src/services/person.service.ts\",\n      \"start_line\": 566,\n      \"end_line\": 569,\n      \"content\": \"The error message references `asset.originalPath` but the actual failure is that the asset has no preview file. The message is misleading; consider including the asset id or clarifying that the preview is missing.\"\n    },\n    {\n      \"path\": \"server/src/repositories/person.repository.ts\",\n      \"start_line\": 328,\n      \"end_line\": 335,\n      \"content\": \"`getById` returns `this.db...executeTakeFirst() ?? null`, but `executeTakeFirst()` already resolves to `undefined` when no row exists, and the `?? null` is applied to the Promise (which is always truthy), so it never converts to `null`. The previous code had the same bug, but since this PR is touching the method, it would be good to fix it by awaiting the query before applying `?? null`.\"\n    },\n    {\n      \"path\": \"server/src/dtos/person.dto.ts\",\n      \"start_line\": 249,\n      \"end_line\": 258,\n      \"content\": \"`mapFaces` now inlines the fields from `mapFacesWithoutPerson` instead of spreading it. This duplicates the field mapping and risks divergence if `mapFacesWithoutPerson` changes. Consider keeping the spread and only overriding `person`.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

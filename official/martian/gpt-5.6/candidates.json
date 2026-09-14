@@ -193,5 +193,377 @@
     ],
     "raw_output": "{\"comments\":[{\"path\":\"pkg/services/authz/rbac/cache.go\",\"line\":30,\"body\":\"This key construction is ambiguous because `name` and `parent` can contain underscores. For example, `(name=\\\"a_b\\\", parent=\\\"c\\\")` and `(name=\\\"a\\\", parent=\\\"b_c\\\")` produce the same key, so a denial cached for one resource can incorrectly deny the other. Use a collision-free encoding such as length-prefixed fields or a hash of a structured value.\"},{\"path\":\"pkg/services/authz/rbac/service.go\",\"line\":116,\"body\":\"The denial cache key omits `IdentityType`, unlike the permission-cache lookup which handles anonymous, render-service, user, and service-account identities separately. Two identity types with the same raw `UserUID` would share denial entries, allowing one subject's denial to incorrectly deny another. Include the identity type (and preferably the canonical identifier) in the key.\"}]}",
     "latency_s": null
+  },
+  "https://github.com/getsentry/sentry/pull/67876": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/getsentry/sentry/pull/67876",
+    "pr_title": "GitHub OAuth Security Enhancement",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/keycloak/keycloak/pull/32918": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/keycloak/keycloak/pull/32918",
+    "pr_title": "Add caching support for IdentityProviderStorageProvider.getForLogin operations",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/94942": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/grafana/grafana/pull/94942",
+    "pr_title": "Advanced SQL Analytics Framework",
+    "review_comments": [
+      {
+        "path": "pkg/expr/reader.go",
+        "line": 193,
+        "body": "This helper always returns false: when the negated feature flag is true it returns false, and otherwise it falls through to false. Consequently every SQL expression is rejected, even when `FlagSqlExpressions` is enabled. Return `h.features.IsEnabledGlobally(featuremgmt.FlagSqlExpressions)` instead."
+      },
+      {
+        "path": "pkg/expr/sql/db.go",
+        "line": 17,
+        "body": "The new DB replaces the working go-duck implementation, but all of its operations unconditionally return `not implemented`. `TablesList` now always fails through `RunCommands`, and `SQLCommand.Execute` always fails through `QueryFramesInto`; SQL expressions cannot execute even after the feature-gate bug is fixed. These methods need a functional implementation before removing go-duck."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"pkg/expr/reader.go\",\"line\":193,\"body\":\"This helper always returns false: when the negated feature flag is true it returns false, and otherwise it falls through to false. Consequently every SQL expression is rejected, even when `FlagSqlExpressions` is enabled. Return `h.features.IsEnabledGlobally(featuremgmt.FlagSqlExpressions)` instead.\"},{\"path\":\"pkg/expr/sql/db.go\",\"line\":17,\"body\":\"The new DB replaces the working go-duck implementation, but all of its operations unconditionally return `not implemented`. `TablesList` now always fails through `RunCommands`, and `SQLCommand.Execute` always fails through `QueryFramesInto`; SQL expressions cannot execute even after the feature-gate bug is fixed. These methods need a functional implementation before removing go-duck.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/90939": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/grafana/grafana/pull/90939",
+    "pr_title": "Frontend Asset Optimization",
+    "review_comments": [
+      {
+        "path": "pkg/api/webassets/webassets.go",
+        "line": 46,
+        "body": "Re-check `entryPointAssetsCache` after acquiring the write lock. Multiple callers can observe a nil cache before the first caller populates it; each will then acquire this lock in turn and recompute the assets instead of using the newly populated cache. This serializes repeated expensive work and can even return a later computation error despite a valid cache being available."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"pkg/api/webassets/webassets.go\",\"line\":46,\"body\":\"Re-check `entryPointAssetsCache` after acquiring the write lock. Multiple callers can observe a nil cache before the first caller populates it; each will then acquire this lock in turn and recompute the assets instead of using the newly populated cache. This serializes repeated expensive work and can even return a later computation error despite a valid cache being available.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/80329": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/grafana/grafana/pull/80329",
+    "pr_title": "Database Performance Optimizations",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/90045": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/grafana/grafana/pull/90045",
+    "pr_title": "Dual Storage Architecture",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/106778": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/grafana/grafana/pull/106778",
+    "pr_title": "Notification Rule Processing Engine",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/107534": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/grafana/grafana/pull/107534",
+    "pr_title": "Advanced Query Processing Architecture",
+    "review_comments": [
+      {
+        "path": "public/app/plugins/datasource/loki/shardQuerySplitting.ts",
+        "line": 52,
+        "body": "This causes shard-split queries to be templated twice: once here and again when each generated shard request passes through `runSplitQuery()`. The updated test even expects five calls for one target. `applyTemplateVariables` is not guaranteed to be idempotent; replacement values containing template syntax can be expanded on the second pass, and `request.filters` may be injected repeatedly. Ensure the shard path marks the generated requests as already interpolated or otherwise performs interpolation only once."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"public/app/plugins/datasource/loki/shardQuerySplitting.ts\",\"line\":52,\"body\":\"This causes shard-split queries to be templated twice: once here and again when each generated shard request passes through `runSplitQuery()`. The updated test even expects five calls for one target. `applyTemplateVariables` is not guaranteed to be idempotent; replacement values containing template syntax can be expanded on the second pass, and `request.filters` may be injected repeatedly. Ensure the shard path marks the generated requests as already interpolated or otherwise performs interpolation only once.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/79265": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/grafana/grafana/pull/79265",
+    "pr_title": "Anonymous: Add configurable device limit",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/9": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/9",
+    "pr_title": "FEATURE: Localization fallbacks (server-side)",
+    "review_comments": [
+      {
+        "path": "app/controllers/application_controller.rb",
+        "line": 159,
+        "body": "Fallback locale files are loaded only from this controller callback. Translations performed in non-controller processes (for example background jobs or email rendering workers) load only the active locale via `translate`, so the fallback backend will search unloaded site/default and English translations and fail to fall back. Load the fallback chain as part of the translation/fallback path rather than only during web requests."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"app/controllers/application_controller.rb\",\"line\":159,\"body\":\"Fallback locale files are loaded only from this controller callback. Translations performed in non-controller processes (for example background jobs or email rendering workers) load only the active locale via `translate`, so the fallback backend will search unloaded site/default and English translations and fail to fall back. Load the fallback chain as part of the translation/fallback path rather than only during web requests.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/grafana/grafana/pull/76186": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/grafana/grafana/pull/76186",
+    "pr_title": "Plugins: Chore: Renamed instrumentation middleware to metrics middleware",
+    "review_comments": [
+      {
+        "path": "pkg/plugins/log/fake.go",
+        "line": 50,
+        "body": "Returning a fresh TestLogger discards all subsequent log calls from the supplied fake. LoggerMiddleware now logs through FromContext(ctx), so tests using TestLogger can no longer observe InfoLogs/ErrorLogs on the original instance. Return f (as New does) or create a child that shares the same log storage."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"pkg/plugins/log/fake.go\",\"line\":50,\"body\":\"Returning a fresh TestLogger discards all subsequent log calls from the supplied fake. LoggerMiddleware now logs through FromContext(ctx), so tests using TestLogger can no longer observe InfoLogs/ErrorLogs on the original instance. Return f (as New does) or create a child that shares the same log storage.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/10": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/10",
+    "pr_title": "FEATURE: Can edit category/host relationships for embedding",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/7": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/7",
+    "pr_title": "scale-color $lightness must use $secondary for dark themes",
+    "review_comments": [
+      {
+        "path": "app/assets/stylesheets/desktop/topic-post.scss",
+        "line": 291,
+        "body": "This changes the light-theme color from `scale-color($primary, $lightness: 30%)` to 70%. Preserve the original first branch and use `scale-color($secondary, $lightness: 70%)` only for the dark branch."
+      },
+      {
+        "path": "app/assets/stylesheets/desktop/user.scss",
+        "line": 522,
+        "body": "The light-theme `.name` color was unintentionally changed from 30% to 50%. This should be `dark-light-choose(scale-color($primary, $lightness: 30%), scale-color($secondary, $lightness: 70%))`."
+      },
+      {
+        "path": "app/assets/stylesheets/mobile/modal.scss",
+        "line": 102,
+        "body": "The branches are reversed relative to the original 70% light-theme value. Use primary at 70% for the light branch and secondary at 30% for the dark branch."
+      },
+      {
+        "path": "app/assets/stylesheets/mobile/topic-post.scss",
+        "line": 182,
+        "body": "This changes the light-theme `h3` color from 20% to 50%. Preserve the original primary 20% value and use secondary 80% for the dark branch."
+      },
+      {
+        "path": "app/assets/stylesheets/mobile/user.scss",
+        "line": 497,
+        "body": "The light-theme `.name` color was unintentionally changed from 30% to 50%. This should use primary 30% for the light branch and secondary 70% for the dark branch."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"app/assets/stylesheets/desktop/topic-post.scss\",\"line\":291,\"body\":\"This changes the light-theme color from `scale-color($primary, $lightness: 30%)` to 70%. Preserve the original first branch and use `scale-color($secondary, $lightness: 70%)` only for the dark branch.\"},{\"path\":\"app/assets/stylesheets/desktop/user.scss\",\"line\":522,\"body\":\"The light-theme `.name` color was unintentionally changed from 30% to 50%. This should be `dark-light-choose(scale-color($primary, $lightness: 30%), scale-color($secondary, $lightness: 70%))`.\"},{\"path\":\"app/assets/stylesheets/mobile/modal.scss\",\"line\":102,\"body\":\"The branches are reversed relative to the original 70% light-theme value. Use primary at 70% for the light branch and secondary at 30% for the dark branch.\"},{\"path\":\"app/assets/stylesheets/mobile/topic-post.scss\",\"line\":182,\"body\":\"This changes the light-theme `h3` color from 20% to 50%. Preserve the original primary 20% value and use secondary 80% for the dark branch.\"},{\"path\":\"app/assets/stylesheets/mobile/user.scss\",\"line\":497,\"body\":\"The light-theme `.name` color was unintentionally changed from 30% to 50%. This should use primary 30% for the light branch and secondary 70% for the dark branch.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/8": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/8",
+    "pr_title": "FIX: proper handling of group memberships",
+    "review_comments": [
+      {
+        "path": "app/assets/javascripts/admin/controllers/admin-group.js.es6",
+        "line": 14,
+        "body": "This overcounts pages whenever `user_count` is an exact multiple of `limit` (for example, 50 members at a limit of 50 produces 2 pages). The extra page is empty; use `Math.ceil(user_count / limit)`."
+      },
+      {
+        "path": "app/assets/javascripts/discourse/models/group.js",
+        "line": 47,
+        "body": "Reloading at the same offset can leave the admin on an empty page after removing the final member of the last page. For example, removing member 51 while at offset 50 returns total 50 with no members and retains offset 50. Clamp to the last valid page and refetch when the returned offset is no longer below `meta.total`."
+      },
+      {
+        "path": "app/assets/javascripts/discourse/routes/group-members.js.es6",
+        "line": 13,
+        "body": "`findMembers()` now fetches only one page (default 50), but the public group-members page has no pagination controls or load-more behavior. Groups with more than 50 members will therefore silently show only the first 50, whereas non-automatic groups previously displayed all members."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"app/assets/javascripts/admin/controllers/admin-group.js.es6\",\"line\":14,\"body\":\"This overcounts pages whenever `user_count` is an exact multiple of `limit` (for example, 50 members at a limit of 50 produces 2 pages). The extra page is empty; use `Math.ceil(user_count / limit)`.\"},{\"path\":\"app/assets/javascripts/discourse/models/group.js\",\"line\":47,\"body\":\"Reloading at the same offset can leave the admin on an empty page after removing the final member of the last page. For example, removing member 51 while at offset 50 returns total 50 with no members and retains offset 50. Clamp to the last valid page and refetch when the returned offset is no longer below `meta.total`.\"},{\"path\":\"app/assets/javascripts/discourse/routes/group-members.js.es6\",\"line\":13,\"body\":\"`findMembers()` now fetches only one page (default 50), but the public group-members page has no pagination controls or load-more behavior. Groups with more than 50 members will therefore silently show only the first 50, whereas non-automatic groups previously displayed all members.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/3": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/3",
+    "pr_title": "Add comprehensive email validation for blocked users",
+    "review_comments": [],
+    "raw_output": "{\"comments\":[{\"path\":\"app/models/blocked_email.rb\",\"line\":12,\"body\":\"The",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/5": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/5",
+    "pr_title": "Optimize header layout performance with flexbox mixins",
+    "review_comments": [
+      {
+        "path": "app/assets/stylesheets/common/foundation/mixins.scss",
+        "line": 120,
+        "body": "The flexbox mixin supports legacy Firefox via `display: -moz-box`, but this alignment mixin omits the corresponding `-moz-box-align`. Those Firefox versions will fall back to the default stretch alignment, breaking the intended centering/baseline alignment. Add `-moz-box-align: $alignment;`."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"app/assets/stylesheets/common/foundation/mixins.scss\",\"line\":120,\"body\":\"The flexbox mixin supports legacy Firefox via `display: -moz-box`, but this alignment mixin omits the corresponding `-moz-box-align`. Those Firefox versions will fall back to the default stretch alignment, breaking the intended centering/baseline alignment. Add `-moz-box-align: $alignment;`.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/6": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/6",
+    "pr_title": "UX: show complete URL path if website domain is same as instance domain",
+    "review_comments": [
+      {
+        "path": "app/serializers/user_serializer.rb",
+        "line": 147,
+        "body": "Comparing all labels except the first incorrectly treats unrelated registrable domains under multi-label or private public suffixes as the same domain. For example, an instance at `forum.co.uk` would expose the path for `example.co.uk/user`, and `foo.github.io` would match `bar.github.io`. Use a public-suffix-aware registrable-domain comparison rather than this label-count heuristic."
+      },
+      {
+        "path": "app/serializers/user_serializer.rb",
+        "line": 142,
+        "body": "Hostname comparisons are case-sensitive, although DNS hostnames are not. A stored URL such as `https://EXAMPLE.com/user` will not match an instance hostname of `example.com`, so the path is omitted. Normalize comparison hosts (at least lowercase, and ideally remove a trailing dot) before comparing them."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"app/serializers/user_serializer.rb\",\"line\":147,\"body\":\"Comparing all labels except the first incorrectly treats unrelated registrable domains under multi-label or private public suffixes as the same domain. For example, an instance at `forum.co.uk` would expose the path for `example.co.uk/user`, and `foo.github.io` would match `bar.github.io`. Use a public-suffix-aware registrable-domain comparison rather than this label-count heuristic.\"},{\"path\":\"app/serializers/user_serializer.rb\",\"line\":142,\"body\":\"Hostname comparisons are case-sensitive, although DNS hostnames are not. A stored URL such as `https://EXAMPLE.com/user` will not match an instance hostname of `example.com`, so the path is omitted. Normalize comparison hosts (at least lowercase, and ideally remove a trailing dot) before comparing them.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/4": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/4",
+    "pr_title": "Enhance embed URL handling and validation system",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/1": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/1",
+    "pr_title": "FEATURE: automatically downsize large images",
+    "review_comments": [
+      {
+        "path": "app/models/optimized_image.rb",
+        "line": 149,
+        "body": "Ruby does not overload methods by arity, so this definition replaces the `downsize(from, to, max_width, max_height, opts={})` method immediately above it. Existing width/height calls will either raise `ArgumentError` (five arguments) or treat `height` as `opts` and fail at `opts[:allow_animation]`. Use a differently named method or a single backwards-compatible implementation."
+      },
+      {
+        "path": "app/assets/javascripts/discourse/lib/utilities.js",
+        "line": 182,
+        "body": "This validation is also used for attachments, so replacing the type-specific setting with 10 MB changes `max_attachment_size_kb` behavior. Sites configured to allow attachments larger than 10 MB will now reject them client-side, while sites with a lower limit will unnecessarily upload files the server rejects. Apply the enlarged source limit only to images and retain the configured limit for other upload types."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"app/models/optimized_image.rb\",\"line\":149,\"body\":\"Ruby does not overload methods by arity, so this definition replaces the `downsize(from, to, max_width, max_height, opts={})` method immediately above it. Existing width/height calls will either raise `ArgumentError` (five arguments) or treat `height` as `opts` and fail at `opts[:allow_animation]`. Use a differently named method or a single backwards-compatible implementation.\"},{\"path\":\"app/assets/javascripts/discourse/lib/utilities.js\",\"line\":182,\"body\":\"This validation is also used for attachments, so replacing the type-specific setting with 10 MB changes `max_attachment_size_kb` behavior. Sites configured to allow attachments larger than 10 MB will now reject them client-side, while sites with a lower limit will unnecessarily upload files the server rejects. Apply the enlarged source limit only to images and retain the configured limit for other upload types.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/2": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/ai-code-review-evaluation/discourse-graphite/pull/2",
+    "pr_title": "FEATURE: per-topic unsubscribe option in emails",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/calcom/cal.com/pull/22532": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/calcom/cal.com/pull/22532",
+    "pr_title": "feat: add calendar cache status and actions (#22532)",
+    "review_comments": [
+      {
+        "path": "packages/app-store/googlecalendar/lib/CalendarService.ts",
+        "line": 1024,
+        "body": "Passing an empty `data` object does not trigger Prisma's `@updatedAt`; Prisma treats an empty update as a no-op. Consequently, these selected calendars retain their old timestamps. Set `updatedAt` explicitly (for example, `{ updatedAt: new Date() }`) if this timestamp is meant to record the refresh."
+      },
+      {
+        "path": "packages/features/apps/components/CredentialActionsDropdown.tsx",
+        "line": 95,
+        "body": "The timestamp formatter hard-codes `en-US`, so every locale sees US date ordering and 12-hour time despite this UI being localized. Use the active locale from `useLocale` (or let `Intl.DateTimeFormat` use the browser locale)."
+      },
+      {
+        "path": "scripts/test-gcal-webhooks.sh",
+        "line": 5,
+        "body": "This path is resolved relative to the caller's working directory, not the script's directory. Running the natural command from the repository root (`./scripts/test-gcal-webhooks.sh`) therefore reads or creates `../.env` outside the repository. Derive the repository path from `${BASH_SOURCE[0]}` or use a documented absolute/root-relative path."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"packages/app-store/googlecalendar/lib/CalendarService.ts\",\"line\":1024,\"body\":\"Passing an empty `data` object does not trigger Prisma's `@updatedAt`; Prisma treats an empty update as a no-op. Consequently, these selected calendars retain their old timestamps. Set `updatedAt` explicitly (for example, `{ updatedAt: new Date() }`) if this timestamp is meant to record the refresh.\"},{\"path\":\"packages/features/apps/components/CredentialActionsDropdown.tsx\",\"line\":95,\"body\":\"The timestamp formatter hard-codes `en-US`, so every locale sees US date ordering and 12-hour time despite this UI being localized. Use the active locale from `useLocale` (or let `Intl.DateTimeFormat` use the browser locale).\"},{\"path\":\"scripts/test-gcal-webhooks.sh\",\"line\":5,\"body\":\"This path is resolved relative to the caller's working directory, not the script's directory. Running the natural command from the repository root (`./scripts/test-gcal-webhooks.sh`) therefore reads or creates `../.env` outside the repository. Derive the repository path from `${BASH_SOURCE[0]}` or use a documented absolute/root-relative path.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/calcom/cal.com/pull/8330": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/calcom/cal.com/pull/8330",
+    "pr_title": "Advanced date override handling and timezone compatibility improvements",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/calcom/cal.com/pull/14943": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/calcom/cal.com/pull/14943",
+    "pr_title": "SMS workflow reminder retry count tracking",
+    "review_comments": [
+      {
+        "path": "packages/features/ee/workflows/api/scheduleSMSReminders.ts",
+        "line": 32,
+        "body": "The top-level `OR` allows this SMS-specific endpoint to delete any `WorkflowReminder` with `retryCount > 1`, regardless of its method. Keep `method: WorkflowMethods.SMS` outside the `OR`, and place only the date/retry conditions inside it, so non-SMS reminders cannot be removed."
+      },
+      {
+        "path": "packages/features/ee/workflows/api/scheduleSMSReminders.ts",
+        "line": 185,
+        "body": "This read-modify-write increment is not atomic. If scheduler invocations overlap, both can read the same `retryCount` and write the same next value, losing an attempted retry and potentially preventing cleanup. Use Prisma's atomic update (`retryCount: { increment: 1 }`) here and in the catch block."
+      }
+    ],
+    "raw_output": "{\"comments\":[{\"path\":\"packages/features/ee/workflows/api/scheduleSMSReminders.ts\",\"line\":32,\"body\":\"The top-level `OR` allows this SMS-specific endpoint to delete any `WorkflowReminder` with `retryCount > 1`, regardless of its method. Keep `method: WorkflowMethods.SMS` outside the `OR`, and place only the date/retry conditions inside it, so non-SMS reminders cannot be removed.\"},{\"path\":\"packages/features/ee/workflows/api/scheduleSMSReminders.ts\",\"line\":185,\"body\":\"This read-modify-write increment is not atomic. If scheduler invocations overlap, both can read the same `retryCount` and write the same next value, losing an attempted retry and potentially preventing cleanup. Use Prisma's atomic update (`retryCount: { increment: 1 }`) here and in the catch block.\"}]}",
+    "latency_s": null
+  },
+  "https://github.com/calcom/cal.com/pull/22345": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/calcom/cal.com/pull/22345",
+    "pr_title": "feat: convert InsightsBookingService to use Prisma.sql raw queries",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/calcom/cal.com/pull/11059": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/calcom/cal.com/pull/11059",
+    "pr_title": "OAuth credential sync and app integration enhancements",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/calcom/cal.com/pull/7232": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/calcom/cal.com/pull/7232",
+    "pr_title": "Comprehensive workflow reminder management for booking lifecycle events",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/calcom/cal.com/pull/14740": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/calcom/cal.com/pull/14740",
+    "pr_title": "Add guest management functionality to existing bookings",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/calcom/cal.com/pull/10600": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/calcom/cal.com/pull/10600",
+    "pr_title": "feat: 2fa backup codes",
+    "review_comments": [],
+    "raw_output": "{\"comments\":[{\"path\":\"apps/web/pages/auth/login.tsx\",\"",
+    "latency_s": null
+  },
+  "https://github.com/calcom/cal.com/pull/10967": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/calcom/cal.com/pull/10967",
+    "pr_title": "fix: handle collective multiple host on destinationCalendar",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
+  },
+  "https://github.com/calcom/cal.com/pull/8087": {
+    "tool": "gpt-5.6",
+    "pr_url": "https://github.com/calcom/cal.com/pull/8087",
+    "pr_title": "Async import of the appStore packages",
+    "review_comments": [],
+    "raw_output": "",
+    "latency_s": null
   }
 }

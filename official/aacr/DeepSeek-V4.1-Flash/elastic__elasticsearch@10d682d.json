@@ -1,0 +1,24 @@
+{
+  "instance_id": "elastic__elasticsearch@10d682d",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "47e352fda0567a682687fe926927cee3f631ea24",
+  "head_commit": "10d682d9aa4b1c2976e1db769ba04cb15256da9e",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:39:34.671643+00:00",
+  "duration_seconds": 4.79,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "x-pack/plugin/security/cli/src/main/java/org/elasticsearch/xpack/security/cli/CertificateTool.java",
+        "start_line": 967,
+        "end_line": 967,
+        "content": "This call to `generateSignedCertificate` now passes `days` as the `signatureAlgorithm` argument because the overload with `(principal, san, keyPair, caCert, caPrivKey, days, signatureAlgorithm)` was removed. The `days` value is an `int` and will be autoboxed to `Integer`, but the parameter type is `String`, so this will not compile. It should likely be `null` for the signature algorithm, or the call should be updated to use the new overload with `keyUsage` and `extendedKeyUsages`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"x-pack/plugin/security/cli/src/main/java/org/elasticsearch/xpack/security/cli/CertificateTool.java\",\n      \"start_line\": 967,\n      \"end_line\": 967,\n      \"content\": \"This call to `generateSignedCertificate` now passes `days` as the `signatureAlgorithm` argument because the overload with `(principal, san, keyPair, caCert, caPrivKey, days, signatureAlgorithm)` was removed. The `days` value is an `int` and will be autoboxed to `Integer`, but the parameter type is `String`, so this will not compile. It should likely be `null` for the signature algorithm, or the call should be updated to use the new overload with `keyUsage` and `extendedKeyUsages`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

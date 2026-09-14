@@ -1,0 +1,59 @@
+{
+  "instance_id": "ollama__ollama@af112d6",
+  "repo": "ollama/ollama",
+  "base_commit": "2db96c18e72289928e45704a77f96f7bdfaee30f",
+  "head_commit": "af112d6365207a5a3f65136c7057d6bb98203c35",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:39:46.742032+00:00",
+  "duration_seconds": 10.42,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/create.go",
+        "start_line": 47,
+        "end_line": 56,
+        "content": "The `validRelative` check is applied to `r.Files` here, but `r.Adapters` is not validated. `convertModelFromFiles` is called with `r.Adapters` later in the handler, and `convertFromSafetensors` now relies on `os.OpenRoot` for containment. However, the error returned from `convertFromSafetensors` for an invalid adapter path is `errFilePath`, which is included in the bad-request list only for the `r.Adapters` branch. This is fine, but consider validating `r.Adapters` keys with `validRelative` up front for consistency and to avoid unnecessary work. Not a bug, but worth noting.",
+        "side": "right"
+      },
+      {
+        "path": "server/create.go",
+        "start_line": 263,
+        "end_line": 285,
+        "content": "`root.OpenFile(fp, os.O_CREATE|os.O_WRONLY, 0o644)` creates the file if it doesn't exist. This means that for every entry in `files`, an empty file is created in `tmpDir` before the actual blob is copied. If the subsequent `os.Open(blobPath)` or `io.Copy` fails, these empty files remain until `os.RemoveAll(tmpDir)` runs. More importantly, creating the file with `O_CREATE` means a path like `foo/bar` will fail if `foo` doesn't exist, which is fine, but the created file is immediately closed and then later `os.Create` is called on the same path. This is redundant and could be simplified by using `root.OpenFile(fp, os.O_WRONLY, 0)` or a stat-like check. Also, the error message wraps `errFilePath` for any error from `OpenFile`, including permission errors or missing parent directories, which may mislead callers into thinking the path was invalid when it was actually a filesystem error. Consider distinguishing path-validation errors from I/O errors.",
+        "side": "right"
+      },
+      {
+        "path": "server/create.go",
+        "start_line": 156,
+        "end_line": 188,
+        "content": "`validRelative` rejects paths containing `/./` or `/../` anywhere, and paths ending in `/.` or `/..`. However, it does not reject paths containing `..` as a component without a leading slash, e.g. `foo/..bar` is fine (correct), but `foo/../bar` is rejected (correct). It also does not reject Windows-style backslashes or drive letters (e.g. `C:\\foo` or `..\\foo`). On Windows, `filepath.Clean` and `os.OpenRoot` will interpret backslashes as separators, so a path like `..\\..\\etc\\passwd` would pass `validRelative` (no `/` prefixes or `/../` sequences) but could escape the root. Since `filepath.Clean` is applied after validation in `CreateHandler`, the cleaned path may still contain `..` components on Windows. This is a potential path traversal vulnerability on Windows. Consider using `filepath.IsLocal` (Go 1.20+) or normalizing separators before validation.",
+        "side": "right"
+      },
+      {
+        "path": "server/create_test.go",
+        "start_line": 1,
+        "end_line": 176,
+        "content": "The test `TestConvertFromSafetensors` sets `OLLAMA_MODELS` to `cmp.Or(os.Getenv(\"OLLAMA_MODELS\"), t.TempDir())`. If `OLLAMA_MODELS` is already set in the environment, the test will use that directory instead of an isolated temp dir, which could pollute the user's model store or cause flaky tests. Prefer always using `t.TempDir()` for isolation.",
+        "side": "right"
+      },
+      {
+        "path": "server/create_test.go",
+        "start_line": 100,
+        "end_line": 120,
+        "content": "The test case `ValidNestedWithValidParentRef` uses `nested/../model.safetensors` and expects success. However, `validRelative` rejects paths containing `/../`, so this path would be rejected by `validRelative` in `CreateHandler`. The test calls `convertFromSafetensors` directly, bypassing `validRelative`, so it passes. This is inconsistent: the test claims the path is valid, but the handler would reject it. Either update `validRelative` to allow such paths (after cleaning) or change the test expectation to reflect the handler's behavior.",
+        "side": "right"
+      },
+      {
+        "path": "server/create_test.go",
+        "start_line": 130,
+        "end_line": 150,
+        "content": "`TestValidRelative` includes `\"a/b/\"` and `\"a//b\"` as valid paths. `validRelative` does not reject trailing slashes or double slashes, so these pass. However, `filepath.Clean` will normalize them to `a/b` and `a/b` respectively. This is fine, but note that `validRelative` is called before `filepath.Clean` in `CreateHandler`, so the map key stored is the cleaned version. The test only checks `validRelative` directly, not the full handler flow. Consider adding a test that exercises `CreateHandler` end-to-end to ensure the cleaned keys are used consistently.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"server/create.go\",\n      \"start_line\": 47,\n      \"end_line\": 56,\n      \"content\": \"The `validRelative` check is applied to `r.Files` here, but `r.Adapters` is not validated. `convertModelFromFiles` is called with `r.Adapters` later in the handler, and `convertFromSafetensors` now relies on `os.OpenRoot` for containment. However, the error returned from `convertFromSafetensors` for an invalid adapter path is `errFilePath`, which is included in the bad-request list only for the `r.Adapters` branch. This is fine, but consider validating `r.Adapters` keys with `validRelative` up front for consistency and to avoid unnecessary work. Not a bug, but worth noting.\"\n    },\n    {\n      \"path\": \"server/create.go\",\n      \"start_line\": 263,\n      \"end_line\": 285,\n      \"content\": \"`root.OpenFile(fp, os.O_CREATE|os.O_WRONLY, 0o644)` creates the file if it doesn't exist. This means that for every entry in `files`, an empty file is created in `tmpDir` before the actual blob is copied. If the subsequent `os.Open(blobPath)` or `io.Copy` fails, these empty files remain until `os.RemoveAll(tmpDir)` runs. More importantly, creating the file with `O_CREATE` means a path like `foo/bar` will fail if `foo` doesn't exist, which is fine, but the created file is immediately closed and then later `os.Create` is called on the same path. This is redundant and could be simplified by using `root.OpenFile(fp, os.O_WRONLY, 0)` or a stat-like check. Also, the error message wraps `errFilePath` for any error from `OpenFile`, including permission errors or missing parent directories, which may mislead callers into thinking the path was invalid when it was actually a filesystem error. Consider distinguishing path-validation errors from I/O errors.\"\n    },\n    {\n      \"path\": \"server/create.go\",\n      \"start_line\": 156,\n      \"end_line\": 188,\n      \"content\": \"`validRelative` rejects paths containing `/./` or `/../` anywhere, and paths ending in `/.` or `/..`. However, it does not reject paths containing `..` as a component without a leading slash, e.g. `foo/..bar` is fine (correct), but `foo/../bar` is rejected (correct). It also does not reject Windows-style backslashes or drive letters (e.g. `C:\\\\foo` or `..\\\\foo`). On Windows, `filepath.Clean` and `os.OpenRoot` will interpret backslashes as separators, so a path like `..\\\\..\\\\etc\\\\passwd` would pass `validRelative` (no `/` prefixes or `/../` sequences) but could escape the root. Since `filepath.Clean` is applied after validation in `CreateHandler`, the cleaned path may still contain `..` components on Windows. This is a potential path traversal vulnerability on Windows. Consider using `filepath.IsLocal` (Go 1.20+) or normalizing separators before validation.\"\n    },\n    {\n      \"path\": \"server/create_test.go\",\n      \"start_line\": 1,\n      \"end_line\": 176,\n      \"content\": \"The test `TestConvertFromSafetensors` sets `OLLAMA_MODELS` to `cmp.Or(os.Getenv(\\\"OLLAMA_MODELS\\\"), t.TempDir())`. If `OLLAMA_MODELS` is already set in the environment, the test will use that directory instead of an isolated temp dir, which could pollute the user's model store or cause flaky tests. Prefer always using `t.TempDir()` for isolation.\"\n    },\n    {\n      \"path\": \"server/create_test.go\",\n      \"start_line\": 100,\n      \"end_line\": 120,\n      \"content\": \"The test case `ValidNestedWithValidParentRef` uses `nested/../model.safetensors` and expects success. However, `validRelative` rejects paths containing `/../`, so this path would be rejected by `validRelative` in `CreateHandler`. The test calls `convertFromSafetensors` directly, bypassing `validRelative`, so it passes. This is inconsistent: the test claims the path is valid, but the handler would reject it. Either update `validRelative` to allow such paths (after cleaning) or change the test expectation to reflect the handler's behavior.\"\n    },\n    {\n      \"path\": \"server/create_test.go\",\n      \"start_line\": 130,\n      \"end_line\": 150,\n      \"content\": \"`TestValidRelative` includes `\\\"a/b/\\\"` and `\\\"a//b\\\"` as valid paths. `validRelative` does not reject trailing slashes or double slashes, so these pass. However, `filepath.Clean` will normalize them to `a/b` and `a/b` respectively. This is fine, but note that `validRelative` is called before `filepath.Clean` in `CreateHandler`, so the map key stored is the cleaned version. The test only checks `validRelative` directly, not the full handler flow. Consider adding a test that exercises `CreateHandler` end-to-end to ensure the cleaned keys are used consistently.\"\n    }\n  ]\n}",
+  "stderr": null
+}

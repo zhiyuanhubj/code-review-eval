@@ -1,0 +1,16 @@
+{
+  "instance_id": "immich-app__immich@966c3f2",
+  "repo": "immich-app/immich",
+  "base_commit": "6ba94ac2f2f78c871f56874a7c2ff61b2ff4a06b",
+  "head_commit": "966c3f22d034c230a14bb21b02627ef6d00eec68",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:38.856675+00:00",
+  "duration_seconds": 7.23,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

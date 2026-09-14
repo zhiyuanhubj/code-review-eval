@@ -1,0 +1,23 @@
+{
+  "instance_id": "filamentphp__filament@77874d0",
+  "repo": "filamentphp/filament",
+  "base_commit": "753ceeac007a0d0aa4423971b01d651288720873",
+  "head_commit": "77874d0c3782a257101c3fb578144a6950f3dc9c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:27:43.402563+00:00",
+  "duration_seconds": 17.05,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/actions/src/Exports/Jobs/PrepareCsvExport.php",
+        "start_line": 152,
+        "end_line": 156,
+        "content": "Potential bug: The condition `in_array($query->getQuery()->orders[0]['column'] ?? null, [$keyName, $qualifiedKeyName])` only checks the first order. If the query has multiple orders and the first is not the key but a later one is, the distinct won't be applied. This could cause duplicate keys in the chunking logic. Consider checking all orders or using the same logic as lines 71-72 which collects all orders."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/actions/src/Exports/Jobs/PrepareCsvExport.php\",\n      \"start_line\": 152,\n      \"end_line\": 156,\n      \"content\": \"Potential bug: The condition `in_array($query->getQuery()->orders[0]['column'] ?? null, [$keyName, $qualifiedKeyName])` only checks the first order. If the query has multiple orders and the first is not the key but a later one is, the distinct won't be applied. This could cause duplicate keys in the chunking logic. Consider checking all orders or using the same logic as lines 71-72 which collects all orders.\"\n    }\n  ]\n}",
+  "stderr": null
+}

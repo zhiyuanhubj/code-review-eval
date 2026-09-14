@@ -1,0 +1,16 @@
+{
+  "instance_id": "lvgl__lvgl@4a57db3",
+  "repo": "lvgl/lvgl",
+  "base_commit": "d2ed41dda1618049a037df2639b9d28578847195",
+  "head_commit": "4a57db33476f1caf3e85726a6b1e189c68c1f36b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:50.838848+00:00",
+  "duration_seconds": 10.44,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit exceeded for api_key: ae216d0793f98a0b4884105df8b57205bdef6cc20ec0d8440c48851cbb4f4d7d. Limit type: requests. Current limit: 50, Remaining: 0. Limit resets at: 2026-09-14 04:25:50 UTC', 'type': 'throttling_error', 'param': None, 'code': '429'}}"
+}

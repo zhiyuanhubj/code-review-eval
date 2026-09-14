@@ -1,0 +1,23 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@79224f2",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "cb7d649b965c4049bf97942db7125cce1154ca38",
+  "head_commit": "79224f240cf020f73a9f492ce293d046fc0b7949",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:41:17.020088+00:00",
+  "duration_seconds": 25.12,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueIFileMetadata.cpp",
+        "start_line": 278,
+        "end_line": 280,
+        "content": "The log message 'File {} is being processed on this server by another table on this server' is misleading when the file state is Processed/Failed with max retries. This message should only appear when the lock contention occurs (line 267-271). For non-processable states, the first log message is sufficient."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueIFileMetadata.cpp\",\n      \"start_line\": 278,\n      \"end_line\": 280,\n      \"content\": \"The log message 'File {} is being processed on this server by another table on this server' is misleading when the file state is Processed/Failed with max retries. This message should only appear when the lock contention occurs (line 267-271). For non-processable states, the first log message is sufficient.\"\n    }\n  ]\n}",
+  "stderr": null
+}

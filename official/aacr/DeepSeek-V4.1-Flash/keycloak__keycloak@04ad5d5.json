@@ -1,0 +1,129 @@
+{
+  "instance_id": "keycloak__keycloak@04ad5d5",
+  "repo": "keycloak/keycloak",
+  "base_commit": "ad511cbc538f1d9727d17cc423420abc50367af4",
+  "head_commit": "04ad5d530007517b60e2bf8706542556078d17f7",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:43.408015+00:00",
+  "duration_seconds": 14.42,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "test-framework/clustering/src/main/java/org/keycloak/testframework/clustering/LoadBalancer.java",
+        "start_line": 16,
+        "end_line": 18,
+        "content": "The error message arguments are swapped: it reports `Requested nodeIndex: %d, cluster size: %d` but passes `(server.clusterSize(), nodeIndex)`. Should be `(nodeIndex, server.clusterSize())`.",
+        "side": "right"
+      },
+      {
+        "path": "test-framework/clustering/src/main/java/org/keycloak/testframework/server/ClusteredKeycloakServer.java",
+        "start_line": 54,
+        "end_line": 54,
+        "content": "Typo in parameter name `mumServers` — should be `numServers`.",
+        "side": "right"
+      },
+      {
+        "path": "test-framework/clustering/src/main/java/org/keycloak/testframework/server/ClusteredKeycloakServer.java",
+        "start_line": 60,
+        "end_line": 66,
+        "content": "`images.split(\",\")` is called twice; the second call inside the condition is redundant and confusing. Also, when `images` is non-empty but contains a single value, `imagePeServer` is set to the split result and then `imagePeServer[0]` is used — this works, but the logic is convoluted. Consider simplifying.",
+        "side": "right"
+      },
+      {
+        "path": "test-framework/clustering/src/main/java/org/keycloak/testframework/server/ClusteredKeycloakServer.java",
+        "start_line": 60,
+        "end_line": 60,
+        "content": "`String[] imagePeServer = null;` — variable name `imagePeServer` looks like a typo (probably `imagePerServer`).",
+        "side": "right"
+      },
+      {
+        "path": "test-framework/clustering/src/main/java/org/keycloak/testframework/server/ClusteredKeycloakServerSupplier.java",
+        "start_line": 11,
+        "end_line": 15,
+        "content": "`@ConfigProperty` on fields of a class that is not a CDI bean (it's instantiated via `new` in the extension) will not be injected. These fields will always keep their default values, so `numContainer` and `images` config properties are effectively ignored. Use `Config.getXxx` (as done elsewhere in the test framework) or make this a CDI bean.",
+        "side": "right"
+      },
+      {
+        "path": "test-framework/core/src/main/java/org/keycloak/testframework/database/AbstractContainerTestDatabase.java",
+        "start_line": 85,
+        "end_line": 91,
+        "content": "`container.getExposedPorts().get(0)` assumes the first exposed port is the DB port. For some containers (e.g. those exposing multiple ports) this may not be the DB port. Consider using `container.getMappedPort(...)` semantics or the specific DB port constant.",
+        "side": "right"
+      },
+      {
+        "path": "test-framework/core/src/main/java/org/keycloak/testframework/database/AbstractContainerTestDatabase.java",
+        "start_line": 85,
+        "end_line": 91,
+        "content": "`getContainerInfo().getNetworkSettings().getNetworks().values().iterator().next()` picks an arbitrary network. If the container is attached to multiple networks this may return the wrong IP. Consider selecting the network by name or documenting the assumption.",
+        "side": "right"
+      },
+      {
+        "path": "quarkus/tests/junit5/src/main/java/org/keycloak/it/utils/DockerKeycloakDistribution.java",
+        "start_line": 78,
+        "end_line": 78,
+        "content": "`BuildToolHelper.getProjectDir(Paths.get(\"\"))` relies on the current working directory. This is fragile when tests are run from a different directory. Consider resolving relative to a known classpath resource (as done in `ClusteredKeycloakServer.defaultImage()`).",
+        "side": "right"
+      },
+      {
+        "path": "quarkus/tests/junit5/src/main/java/org/keycloak/it/utils/DockerKeycloakDistribution.java",
+        "start_line": 78,
+        "end_line": 78,
+        "content": "The default constructor eagerly calls `createImage(...)` which resolves the distribution archive and may throw if it doesn't exist. Previously the image was created lazily inside `getKeycloakContainer()`. This changes behavior for callers that construct the distribution but never start it.",
+        "side": "right"
+      },
+      {
+        "path": "quarkus/tests/junit5/src/main/java/org/keycloak/it/utils/DockerKeycloakDistribution.java",
+        "start_line": 190,
+        "end_line": 200,
+        "content": "`copyToContainer` is a `Map<MountableFile, String>` keyed by `MountableFile`. If the same source file is copied to two different destinations, the second put will overwrite the first. Consider keying by destination path instead.",
+        "side": "right"
+      },
+      {
+        "path": "tests/clustering/src/test/java/org/keycloak/tests/compatibility/MixedVersionClusterTest.java",
+        "start_line": 37,
+        "end_line": 41,
+        "content": "The test sleeps for a full minute and only prints URLs — it doesn't actually assert anything. This looks like a placeholder/WIP test that will slow down CI. Consider removing the sleep or converting to a real assertion before merging.",
+        "side": "right"
+      },
+      {
+        "path": "tests/base/pom.xml",
+        "start_line": 91,
+        "end_line": 95,
+        "content": "Hardcoded version `999.0.0-SNAPSHOT` instead of `${project.version}`. This will break when the project version changes.",
+        "side": "right"
+      },
+      {
+        "path": "test-framework/clustering/pom.xml",
+        "start_line": 22,
+        "end_line": 22,
+        "content": "Missing newline at end of file.",
+        "side": "right"
+      },
+      {
+        "path": "tests/clustering/pom.xml",
+        "start_line": 45,
+        "end_line": 45,
+        "content": "Missing newline at end of file.",
+        "side": "right"
+      },
+      {
+        "path": "tests/clustering/src/test/resources/keycloak-test.properties",
+        "start_line": 13,
+        "end_line": 13,
+        "content": "Missing newline at end of file.",
+        "side": "right"
+      },
+      {
+        "path": "test-framework/clustering/src/main/resources/META-INF/services/org.keycloak.testframework.TestFrameworkExtension",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "Missing newline at end of file.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"test-framework/clustering/src/main/java/org/keycloak/testframework/clustering/LoadBalancer.java\",\n      \"start_line\": 16,\n      \"end_line\": 18,\n      \"content\": \"The error message arguments are swapped: it reports `Requested nodeIndex: %d, cluster size: %d` but passes `(server.clusterSize(), nodeIndex)`. Should be `(nodeIndex, server.clusterSize())`.\"\n    },\n    {\n      \"path\": \"test-framework/clustering/src/main/java/org/keycloak/testframework/server/ClusteredKeycloakServer.java\",\n      \"start_line\": 54,\n      \"end_line\": 54,\n      \"content\": \"Typo in parameter name `mumServers` — should be `numServers`.\"\n    },\n    {\n      \"path\": \"test-framework/clustering/src/main/java/org/keycloak/testframework/server/ClusteredKeycloakServer.java\",\n      \"start_line\": 60,\n      \"end_line\": 66,\n      \"content\": \"`images.split(\\\",\\\")` is called twice; the second call inside the condition is redundant and confusing. Also, when `images` is non-empty but contains a single value, `imagePeServer` is set to the split result and then `imagePeServer[0]` is used — this works, but the logic is convoluted. Consider simplifying.\"\n    },\n    {\n      \"path\": \"test-framework/clustering/src/main/java/org/keycloak/testframework/server/ClusteredKeycloakServer.java\",\n      \"start_line\": 60,\n      \"end_line\": 60,\n      \"content\": \"`String[] imagePeServer = null;` — variable name `imagePeServer` looks like a typo (probably `imagePerServer`).\"\n    },\n    {\n      \"path\": \"test-framework/clustering/src/main/java/org/keycloak/testframework/server/ClusteredKeycloakServerSupplier.java\",\n      \"start_line\": 11,\n      \"end_line\": 15,\n      \"content\": \"`@ConfigProperty` on fields of a class that is not a CDI bean (it's instantiated via `new` in the extension) will not be injected. These fields will always keep their default values, so `numContainer` and `images` config properties are effectively ignored. Use `Config.getXxx` (as done elsewhere in the test framework) or make this a CDI bean.\"\n    },\n    {\n      \"path\": \"test-framework/core/src/main/java/org/keycloak/testframework/database/AbstractContainerTestDatabase.java\",\n      \"start_line\": 85,\n      \"end_line\": 91,\n      \"content\": \"`container.getExposedPorts().get(0)` assumes the first exposed port is the DB port. For some containers (e.g. those exposing multiple ports) this may not be the DB port. Consider using `container.getMappedPort(...)` semantics or the specific DB port constant.\"\n    },\n    {\n      \"path\": \"test-framework/core/src/main/java/org/keycloak/testframework/database/AbstractContainerTestDatabase.java\",\n      \"start_line\": 85,\n      \"end_line\": 91,\n      \"content\": \"`getContainerInfo().getNetworkSettings().getNetworks().values().iterator().next()` picks an arbitrary network. If the container is attached to multiple networks this may return the wrong IP. Consider selecting the network by name or documenting the assumption.\"\n    },\n    {\n      \"path\": \"quarkus/tests/junit5/src/main/java/org/keycloak/it/utils/DockerKeycloakDistribution.java\",\n      \"start_line\": 78,\n      \"end_line\": 78,\n      \"content\": \"`BuildToolHelper.getProjectDir(Paths.get(\\\"\\\"))` relies on the current working directory. This is fragile when tests are run from a different directory. Consider resolving relative to a known classpath resource (as done in `ClusteredKeycloakServer.defaultImage()`).\"\n    },\n    {\n      \"path\": \"quarkus/tests/junit5/src/main/java/org/keycloak/it/utils/DockerKeycloakDistribution.java\",\n      \"start_line\": 78,\n      \"end_line\": 78,\n      \"content\": \"The default constructor eagerly calls `createImage(...)` which resolves the distribution archive and may throw if it doesn't exist. Previously the image was created lazily inside `getKeycloakContainer()`. This changes behavior for callers that construct the distribution but never start it.\"\n    },\n    {\n      \"path\": \"quarkus/tests/junit5/src/main/java/org/keycloak/it/utils/DockerKeycloakDistribution.java\",\n      \"start_line\": 190,\n      \"end_line\": 200,\n      \"content\": \"`copyToContainer` is a `Map<MountableFile, String>` keyed by `MountableFile`. If the same source file is copied to two different destinations, the second put will overwrite the first. Consider keying by destination path instead.\"\n    },\n    {\n      \"path\": \"tests/clustering/src/test/java/org/keycloak/tests/compatibility/MixedVersionClusterTest.java\",\n      \"start_line\": 37,\n      \"end_line\": 41,\n      \"content\": \"The test sleeps for a full minute and only prints URLs — it doesn't actually assert anything. This looks like a placeholder/WIP test that will slow down CI. Consider removing the sleep or converting to a real assertion before merging.\"\n    },\n    {\n      \"path\": \"tests/base/pom.xml\",\n      \"start_line\": 91,\n      \"end_line\": 95,\n      \"content\": \"Hardcoded version `999.0.0-SNAPSHOT` instead of `${project.version}`. This will break when the project version changes.\"\n    },\n    {\n      \"path\": \"test-framework/clustering/pom.xml\",\n      \"start_line\": 22,\n      \"end_line\": 22,\n      \"content\": \"Missing newline at end of file.\"\n    },\n    {\n      \"path\": \"tests/clustering/pom.xml\",\n      \"start_line\": 45,\n      \"end_line\": 45,\n      \"content\": \"Missing newline at end of file.\"\n    },\n    {\n      \"path\": \"tests/clustering/src/test/resources/keycloak-test.properties\",\n      \"start_line\": 13,\n      \"end_line\": 13,\n      \"content\": \"Missing newline at end of file.\"\n    },\n    {\n      \"path\": \"test-framework/clustering/src/main/resources/META-INF/services/org.keycloak.testframework.TestFrameworkExtension\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"Missing newline at end of file.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

@@ -1,0 +1,45 @@
+{
+  "instance_id": "ollama__ollama@0b52f18",
+  "repo": "ollama/ollama",
+  "base_commit": "c2f5d6662ba696b94455eaaa298a797d56fdca5c",
+  "head_commit": "0b52f186fb4af8fa7d4f6a71967f922eb6b69cdc",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:39:55.033936+00:00",
+  "duration_seconds": 7.22,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "cmd/cmd.go",
+        "start_line": 122,
+        "end_line": 122,
+        "content": "The loop variable `f` and `digest` are captured by the goroutine closure. In Go versions before 1.22, this causes all goroutines to use the last iteration's values. Since this repo may support older Go versions, explicitly copy the variables inside the loop (e.g., `f, digest := f, digest`) before the `g.Go` call. The same issue applies to the adapters loop below.",
+        "side": "right"
+      },
+      {
+        "path": "cmd/cmd.go",
+        "start_line": 122,
+        "end_line": 122,
+        "content": "`req.Files` is written concurrently from multiple goroutines under `mu`, but the map is also read elsewhere (e.g., in `createBlob` or later in the handler) without holding `mu`. Ensure all accesses to `req.Files`/`req.Adapters` are synchronized, or populate them after `g.Wait()` to avoid data races.",
+        "side": "right"
+      },
+      {
+        "path": "cmd/cmd.go",
+        "start_line": 122,
+        "end_line": 122,
+        "content": "`createBlob` is called concurrently for all files, but it writes progress to the shared `p` (progress.Progress) and may call `p.Add`/`p.Stop`. Verify that `progress.Progress` is safe for concurrent use; if not, this introduces a data race.",
+        "side": "right"
+      },
+      {
+        "path": "progress/progress.go",
+        "start_line": 118,
+        "end_line": 118,
+        "content": "`termHeight-1` can be zero or negative if `termHeight` is 0 or 1, causing `min(len(p.states), termHeight-1)` to be negative and `range` over a negative integer to panic. Clamp the value to at least 0 (or 1) before using it in `min`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"cmd/cmd.go\",\n      \"start_line\": 122,\n      \"end_line\": 122,\n      \"content\": \"The loop variable `f` and `digest` are captured by the goroutine closure. In Go versions before 1.22, this causes all goroutines to use the last iteration's values. Since this repo may support older Go versions, explicitly copy the variables inside the loop (e.g., `f, digest := f, digest`) before the `g.Go` call. The same issue applies to the adapters loop below.\"\n    },\n    {\n      \"path\": \"cmd/cmd.go\",\n      \"start_line\": 122,\n      \"end_line\": 122,\n      \"content\": \"`req.Files` is written concurrently from multiple goroutines under `mu`, but the map is also read elsewhere (e.g., in `createBlob` or later in the handler) without holding `mu`. Ensure all accesses to `req.Files`/`req.Adapters` are synchronized, or populate them after `g.Wait()` to avoid data races.\"\n    },\n    {\n      \"path\": \"cmd/cmd.go\",\n      \"start_line\": 122,\n      \"end_line\": 122,\n      \"content\": \"`createBlob` is called concurrently for all files, but it writes progress to the shared `p` (progress.Progress) and may call `p.Add`/`p.Stop`. Verify that `progress.Progress` is safe for concurrent use; if not, this introduces a data race.\"\n    },\n    {\n      \"path\": \"progress/progress.go\",\n      \"start_line\": 118,\n      \"end_line\": 118,\n      \"content\": \"`termHeight-1` can be zero or negative if `termHeight` is 0 or 1, causing `min(len(p.states), termHeight-1)` to be negative and `range` over a negative integer to panic. Clamp the value to at least 0 (or 1) before using it in `min`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

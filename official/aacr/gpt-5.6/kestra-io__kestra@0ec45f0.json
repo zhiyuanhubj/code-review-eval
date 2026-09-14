@@ -1,0 +1,16 @@
+{
+  "instance_id": "kestra-io__kestra@0ec45f0",
+  "repo": "kestra-io/kestra",
+  "base_commit": "bfcfb2ac16dd8f198a99fef43072cb178f9a1d8e",
+  "head_commit": "0ec45f028467c99d8d1efeee6c201210d9433e6d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:30:35.224480+00:00",
+  "duration_seconds": 81.47,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": null
+}

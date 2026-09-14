@@ -1,0 +1,16 @@
+{
+  "instance_id": "juspay__hyperswitch@5e0fa17",
+  "repo": "juspay/hyperswitch",
+  "base_commit": "8e9bad6457449ef2a435be03a9f97acc2dd2108a",
+  "head_commit": "5e0fa17a5e9e977daa4b896e1dfc2de61f526113",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:10.759953+00:00",
+  "duration_seconds": 14.63,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "This PR is a wide-ranging spelling/typo cleanup across docs, configs, code identifiers, and postman collections. The changes are consistent (e.g. `encypted_payload`→`encrypted_payload`, `tag_delimeter`→`tag_delimiter`, `PRE_ARBITATION`→`PRE_ARBITRATION`, config key `maintainence_alert`→`maintenance_alert`).\n\nA few things to verify, but they appear internally consistent in the diff:\n- The `FiuuWebhookSignauture`→`FiuuWebhookSignature` rename and `partiall_refund_payment`→`partially_refund_payment` field rename need all usages updated (not shown in truncated diff).\n- The `maintainence_alert` config key rename in `config/dashboard.toml` must be matched by the corresponding config-struct field / consumer.\n\nBased on the visible diff, no incorrect or broken changes are apparent.\n\n```json\n{\n  \"comments\": []\n}\n```",
+  "stderr": null
+}

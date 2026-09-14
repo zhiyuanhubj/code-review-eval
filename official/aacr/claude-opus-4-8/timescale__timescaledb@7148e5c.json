@@ -1,0 +1,23 @@
+{
+  "instance_id": "timescale__timescaledb@7148e5c",
+  "repo": "timescale/timescaledb",
+  "base_commit": "d0fe7370082dbc57d391d5168705909809bd880f",
+  "head_commit": "7148e5c7d90c9da819a8ca77b79664fac300ca60",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:57.089698+00:00",
+  "duration_seconds": 20.9,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "tsl/src/continuous_aggs/refresh.c",
+        "start_line": 1145,
+        "end_line": 1145,
+        "content": "The `%s` substituted into the query is a compile-time constant (\"DESC\"/\"ASC\") so there's no SQL injection risk here, but note that `psprintf` allocates in the current memory context on every call. Since `continuous_agg_split_refresh_window` may be invoked frequently, confirm this runs in an appropriately scoped memory context to avoid leaking the formatted string. Consider using a static conditional pair of full query strings instead of psprintf to avoid the allocation entirely."
+      }
+    ]
+  },
+  "raw_output": "I need to look at the full context to review this PR properly. Let me analyze the diff shown.\n\nLooking at the diff, there are a few areas of concern. Let me focus on the C code that handles the new option and how it's stored in the config.\n\nThe diff shows `policy_refresh_cagg_get_refresh_newest_first` reads the config, and `policy_refresh_cagg_read_and_validate_config` uses it. However, I notice the diff doesn't show where the `refresh_newest_first` argument is actually written into the JSONB config in the `add_continuous_aggregate_policy` function (the `ts_policy_refresh_cagg_add` handler). Let me check for potential issues within what's visible.\n\nLet me look at the key concern: the `query_str` construction.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"tsl/src/continuous_aggs/refresh.c\",\n      \"start_line\": 1145,\n      \"end_line\": 1145,\n      \"content\": \"The `%s` substituted into the query is a compile-time constant (\\\"DESC\\\"/\\\"ASC\\\") so there's no SQL injection risk here, but note that `psprintf` allocates in the current memory context on every call. Since `continuous_agg_split_refresh_window` may be invoked frequently, confirm this runs in an appropriately scoped memory context to avoid leaking the formatted string. Consider using a static conditional pair of full query strings instead of psprintf to avoid the allocation entirely.\"\n    }\n  ]\n}\n```\n\nNote: I was only able to review the truncated diff. The change to add the `refresh_newest_first` boolean is consistent across the SQL definition, update/reverse scripts, config key, struct field, getter, and call site. However, I could not see the `ts_policy_refresh_cagg_add` implementation in `continuous_aggregate_api.c` where the new argument must be parsed from `PG_GETARG` and serialized into the JSONB config — that portion was truncated from the diff. If that write-side logic was not added, the `refresh_newest_first` argument would be silently ignored (always defaulting to `true`), which would be a real bug. This should be verified against the full file.",
+  "stderr": null
+}

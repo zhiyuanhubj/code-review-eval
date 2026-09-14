@@ -1,0 +1,59 @@
+{
+  "instance_id": "ollama__ollama@498792c",
+  "repo": "ollama/ollama",
+  "base_commit": "56dc316a57f07fbed80723d1ecd589da0906018e",
+  "head_commit": "498792c9be023ebfdaa1e0dbc6ac85c0ff8c75b1",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:48:06.142776+00:00",
+  "duration_seconds": 41.13,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "integration/api_test.go",
+        "start_line": 102,
+        "end_line": 102,
+        "content": "The check `if response.DoneReason == \"\" && *req.Stream` dereferences req.Stream which could be nil. Add a nil check before dereferencing."
+      },
+      {
+        "path": "integration/api_test.go",
+        "start_line": 102,
+        "end_line": 102,
+        "content": "The TODO comment suggests uncertainty about whether missing done_reason on non-stream is a bug. This should be clarified or the check should be made unconditional if it's expected behavior."
+      },
+      {
+        "path": "integration/api_test.go",
+        "start_line": 185,
+        "end_line": 185,
+        "content": "The error message says 'missing total_duration' but checks response.CreatedAt. This is misleading - should say 'missing created_at' or check the correct field."
+      },
+      {
+        "path": "integration/model_arch_test.go",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The file has build tag 'integration && models' but the embedModels map contains hardcoded expected embeddings. These will become stale as models update. Consider generating these dynamically or documenting the model versions they correspond to."
+      },
+      {
+        "path": "integration/model_arch_test.go",
+        "start_line": 190,
+        "end_line": 190,
+        "content": "The cosineSimilarity function is used but not defined in this file. Ensure it's imported or defined elsewhere in the integration package."
+      },
+      {
+        "path": "integration/model_arch_test.go",
+        "start_line": 50,
+        "end_line": 50,
+        "content": "The getTimeouts function returns negative durations when deadline is close. This could cause context.WithTimeout to panic. Add validation to ensure returned durations are positive."
+      },
+      {
+        "path": "integration/basic_test.go",
+        "start_line": 34,
+        "end_line": 34,
+        "content": "skipUnderMinVRAM is used but not defined in this diff. Verify it exists in the integration package and handles the VRAM check correctly."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"integration/api_test.go\",\n      \"start_line\": 102,\n      \"end_line\": 102,\n      \"content\": \"The check `if response.DoneReason == \\\"\\\" && *req.Stream` dereferences req.Stream which could be nil. Add a nil check before dereferencing.\"\n    },\n    {\n      \"path\": \"integration/api_test.go\",\n      \"start_line\": 102,\n      \"end_line\": 102,\n      \"content\": \"The TODO comment suggests uncertainty about whether missing done_reason on non-stream is a bug. This should be clarified or the check should be made unconditional if it's expected behavior.\"\n    },\n    {\n      \"path\": \"integration/api_test.go\",\n      \"start_line\": 185,\n      \"end_line\": 185,\n      \"content\": \"The error message says 'missing total_duration' but checks response.CreatedAt. This is misleading - should say 'missing created_at' or check the correct field.\"\n    },\n    {\n      \"path\": \"integration/model_arch_test.go\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The file has build tag 'integration && models' but the embedModels map contains hardcoded expected embeddings. These will become stale as models update. Consider generating these dynamically or documenting the model versions they correspond to.\"\n    },\n    {\n      \"path\": \"integration/model_arch_test.go\",\n      \"start_line\": 190,\n      \"end_line\": 190,\n      \"content\": \"The cosineSimilarity function is used but not defined in this file. Ensure it's imported or defined elsewhere in the integration package.\"\n    },\n    {\n      \"path\": \"integration/model_arch_test.go\",\n      \"start_line\": 50,\n      \"end_line\": 50,\n      \"content\": \"The getTimeouts function returns negative durations when deadline is close. This could cause context.WithTimeout to panic. Add validation to ensure returned durations are positive.\"\n    },\n    {\n      \"path\": \"integration/basic_test.go\",\n      \"start_line\": 34,\n      \"end_line\": 34,\n      \"content\": \"skipUnderMinVRAM is used but not defined in this diff. Verify it exists in the integration package and handles the VRAM check correctly.\"\n    }\n  ]\n}",
+  "stderr": null
+}

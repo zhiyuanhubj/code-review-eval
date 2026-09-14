@@ -1,0 +1,87 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@3143520",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "1c01feef2757648e0b1b801cf1f81c59de527bb6",
+  "head_commit": "314352043db0170026d11475bcaf67c7bb4fc311",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:38:23.851991+00:00",
+  "duration_seconds": 14.45,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Common/JemallocNodumpAllocatorImpl.cpp",
+        "start_line": 33,
+        "end_line": 43,
+        "content": "`madvise` returns 0 on success and -1 on failure, not an errno. The current check `if (auto ret = madvise(...))` treats -1 as truthy (correct) but then passes `ret` (which is -1) to `errnoToString`, which expects an errno value. Should be `if (madvise(...) != 0) { throw ... errnoToString(errno) ... }`. As written, the error message will be wrong/misleading.",
+        "side": "right"
+      },
+      {
+        "path": "src/Common/JemallocNodumpAllocatorImpl.cpp",
+        "start_line": 33,
+        "end_line": 43,
+        "content": "Throwing a C++ exception from within a jemalloc extent hook (`alloc`) is dangerous: this callback is invoked from deep inside jemalloc's allocator, potentially while internal locks are held or from non-C++ contexts. Throwing here can leave jemalloc in an inconsistent state or terminate the process. Consider logging and returning nullptr instead, or at minimum ensure this is only reachable in a controlled path.",
+        "side": "right"
+      },
+      {
+        "path": "src/Common/JemallocNodumpAllocatorImpl.h",
+        "start_line": 22,
+        "end_line": 23,
+        "content": "`extent_hooks_` and `original_alloc_` are declared `inline static`, meaning they are shared across all instances (and there is only one via `instance()`). This is fine for the singleton, but the `chassert(original_alloc_ == nullptr)` in the constructor will fire if the singleton is ever re-created (e.g., in tests). More importantly, making them static members of a class that is not really a singleton-by-type is confusing; consider making them non-static instance members since `instance()` already guarantees a single instance.",
+        "side": "right"
+      },
+      {
+        "path": "src/Common/JemallocNodumpSTLAllocator.h",
+        "start_line": 88,
+        "end_line": 95,
+        "content": "`toNoDumpString(std::string s)` takes the argument by value, forcing a copy of the source string into a `std::string` (which is not nodump) before copying again into the `NoDumpString`. The intermediate `std::string` may end up in a core dump, defeating the purpose. Consider taking `std::string_view` or a `const std::string &` and constructing the `NoDumpString` directly from the data.",
+        "side": "right"
+      },
+      {
+        "path": "src/Common/JemallocNodumpSTLAllocator.h",
+        "start_line": 88,
+        "end_line": 95,
+        "content": "`toNoDumpString` is defined in a header without `inline`, so including this header in multiple translation units will cause ODR violations / multiple-definition linker errors. Mark it `inline`.",
+        "side": "right"
+      },
+      {
+        "path": "src/Common/tests/gtest_jemalloc_nodump_stl_allocator.cpp",
+        "start_line": 78,
+        "end_line": 84,
+        "content": "This test uses `std::numeric_limits<std::size_t>::max()` but the file does not include `<limits>`. It may compile transitively via other headers, but should include `<limits>` explicitly.",
+        "side": "right"
+      },
+      {
+        "path": "src/Common/tests/gtest_aws_nodump_memory_manager.cpp",
+        "start_line": 1,
+        "end_line": 35,
+        "content": "The test uses `memset` but does not include `<cstring>`. Add the include to avoid relying on transitive includes.",
+        "side": "right"
+      },
+      {
+        "path": "src/IO/S3/Client.cpp",
+        "start_line": 990,
+        "end_line": 993,
+        "content": "`memory_manager` is created and its raw pointer is stored in `aws_options.memoryManagementOptions.memoryManager`. Ensure the `ClientFactory` (and thus `memory_manager`) outlives all AWS SDK usage; if `Aws::ShutdownAPI` is called while clients are still alive, or if `ClientFactory` is destroyed before AWS clients, this becomes a dangling pointer. Also verify that `Aws::InitAPI` is only called once per process — if `ClientFactory` is constructed multiple times, the second construction will overwrite the memory manager pointer while the first is still registered with the SDK.",
+        "side": "right"
+      },
+      {
+        "path": "src/Disks/DiskEncrypted.cpp",
+        "start_line": 32,
+        "end_line": 32,
+        "content": "`unhexKey` is now a template, but the `catch` block below (not shown in diff) likely throws with a message that assumes `String`. Verify the template works for both `String` and `NoDumpString` (e.g., `boost::algorithm::unhex` output iterator type). Also, `unhexKey(toNoDumpString(config.getString(key_path)))` creates a temporary `NoDumpString` that is then passed by const-ref — fine, but the intermediate `config.getString(...)` returns a `std::string` that is not nodump-protected.",
+        "side": "right"
+      },
+      {
+        "path": "src/Common/JemallocNodumpAllocatorImpl.cpp",
+        "start_line": 47,
+        "end_line": 47,
+        "content": "`arena_index` is `unsigned` but `mallctl(\"arenas.create\", ...)` expects a `size_t`-sized output (the arena index is `unsigned` in jemalloc, so this is OK), however `Poco::format(\"arena.%u.extent_hooks\", arena_index)` uses `%u` — verify `arena_index` is `unsigned int` and not `unsigned long` on all platforms. On some platforms `unsigned` may not match `%u` if it's promoted. Safer to cast explicitly.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Common/JemallocNodumpAllocatorImpl.cpp\",\n      \"start_line\": 33,\n      \"end_line\": 43,\n      \"content\": \"`madvise` returns 0 on success and -1 on failure, not an errno. The current check `if (auto ret = madvise(...))` treats -1 as truthy (correct) but then passes `ret` (which is -1) to `errnoToString`, which expects an errno value. Should be `if (madvise(...) != 0) { throw ... errnoToString(errno) ... }`. As written, the error message will be wrong/misleading.\"\n    },\n    {\n      \"path\": \"src/Common/JemallocNodumpAllocatorImpl.cpp\",\n      \"start_line\": 33,\n      \"end_line\": 43,\n      \"content\": \"Throwing a C++ exception from within a jemalloc extent hook (`alloc`) is dangerous: this callback is invoked from deep inside jemalloc's allocator, potentially while internal locks are held or from non-C++ contexts. Throwing here can leave jemalloc in an inconsistent state or terminate the process. Consider logging and returning nullptr instead, or at minimum ensure this is only reachable in a controlled path.\"\n    },\n    {\n      \"path\": \"src/Common/JemallocNodumpAllocatorImpl.h\",\n      \"start_line\": 22,\n      \"end_line\": 23,\n      \"content\": \"`extent_hooks_` and `original_alloc_` are declared `inline static`, meaning they are shared across all instances (and there is only one via `instance()`). This is fine for the singleton, but the `chassert(original_alloc_ == nullptr)` in the constructor will fire if the singleton is ever re-created (e.g., in tests). More importantly, making them static members of a class that is not really a singleton-by-type is confusing; consider making them non-static instance members since `instance()` already guarantees a single instance.\"\n    },\n    {\n      \"path\": \"src/Common/JemallocNodumpSTLAllocator.h\",\n      \"start_line\": 88,\n      \"end_line\": 95,\n      \"content\": \"`toNoDumpString(std::string s)` takes the argument by value, forcing a copy of the source string into a `std::string` (which is not nodump) before copying again into the `NoDumpString`. The intermediate `std::string` may end up in a core dump, defeating the purpose. Consider taking `std::string_view` or a `const std::string &` and constructing the `NoDumpString` directly from the data.\"\n    },\n    {\n      \"path\": \"src/Common/JemallocNodumpSTLAllocator.h\",\n      \"start_line\": 88,\n      \"end_line\": 95,\n      \"content\": \"`toNoDumpString` is defined in a header without `inline`, so including this header in multiple translation units will cause ODR violations / multiple-definition linker errors. Mark it `inline`.\"\n    },\n    {\n      \"path\": \"src/Common/tests/gtest_jemalloc_nodump_stl_allocator.cpp\",\n      \"start_line\": 78,\n      \"end_line\": 84,\n      \"content\": \"This test uses `std::numeric_limits<std::size_t>::max()` but the file does not include `<limits>`. It may compile transitively via other headers, but should include `<limits>` explicitly.\"\n    },\n    {\n      \"path\": \"src/Common/tests/gtest_aws_nodump_memory_manager.cpp\",\n      \"start_line\": 1,\n      \"end_line\": 35,\n      \"content\": \"The test uses `memset` but does not include `<cstring>`. Add the include to avoid relying on transitive includes.\"\n    },\n    {\n      \"path\": \"src/IO/S3/Client.cpp\",\n      \"start_line\": 990,\n      \"end_line\": 993,\n      \"content\": \"`memory_manager` is created and its raw pointer is stored in `aws_options.memoryManagementOptions.memoryManager`. Ensure the `ClientFactory` (and thus `memory_manager`) outlives all AWS SDK usage; if `Aws::ShutdownAPI` is called while clients are still alive, or if `ClientFactory` is destroyed before AWS clients, this becomes a dangling pointer. Also verify that `Aws::InitAPI` is only called once per process — if `ClientFactory` is constructed multiple times, the second construction will overwrite the memory manager pointer while the first is still registered with the SDK.\"\n    },\n    {\n      \"path\": \"src/Disks/DiskEncrypted.cpp\",\n      \"start_line\": 32,\n      \"end_line\": 32,\n      \"content\": \"`unhexKey` is now a template, but the `catch` block below (not shown in diff) likely throws with a message that assumes `String`. Verify the template works for both `String` and `NoDumpString` (e.g., `boost::algorithm::unhex` output iterator type). Also, `unhexKey(toNoDumpString(config.getString(key_path)))` creates a temporary `NoDumpString` that is then passed by const-ref — fine, but the intermediate `config.getString(...)` returns a `std::string` that is not nodump-protected.\"\n    },\n    {\n      \"path\": \"src/Common/JemallocNodumpAllocatorImpl.cpp\",\n      \"start_line\": 47,\n      \"end_line\": 47,\n      \"content\": \"`arena_index` is `unsigned` but `mallctl(\\\"arenas.create\\\", ...)` expects a `size_t`-sized output (the arena index is `unsigned` in jemalloc, so this is OK), however `Poco::format(\\\"arena.%u.extent_hooks\\\", arena_index)` uses `%u` — verify `arena_index` is `unsigned int` and not `unsigned long` on all platforms. On some platforms `unsigned` may not match `%u` if it's promoted. Safer to cast explicitly.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

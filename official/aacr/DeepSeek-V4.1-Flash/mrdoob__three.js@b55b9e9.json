@@ -1,0 +1,52 @@
+{
+  "instance_id": "mrdoob__three.js@b55b9e9",
+  "repo": "mrdoob/three.js",
+  "base_commit": "de413e2112ff1ae80599f145b101354a1476976c",
+  "head_commit": "b55b9e97f6d0f5829e4d8fc364949e72b0d9e98c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:32:08.984902+00:00",
+  "duration_seconds": 7.0,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/renderers/webgpu/WebGPUBackend.js",
+        "start_line": 1324,
+        "end_line": 1326,
+        "content": "`dispatchSize` defaults to `[0,0,0]` in Renderer.compute, so `isValid` will be false and the code falls back to `computeNodeData`. But then `dispatchSize = isValid ? dispatchSize : computeNodeData;` assigns `computeNodeData` (the node data object) to `dispatchSize`, and later `const { dispatchSize } = computeNodeData;` shadows it. The outer reassignment is dead code and confusing. Also, when `isValid` is true, the passed `dispatchSize` array is used directly, but when false, `computeNodeData.dispatchSize` is used — verify the fallback path still works correctly given the reassignment.",
+        "side": "right"
+      },
+      {
+        "path": "src/renderers/webgpu/WebGPUBackend.js",
+        "start_line": 1324,
+        "end_line": 1326,
+        "content": "The `dispatchSize` parameter is documented as `Array<number>` but in the fallback branch it gets reassigned to `computeNodeData` (an object). This is inconsistent and the reassignment is never used since the else branch re-destructures from `computeNodeData`. Remove the reassignment line.",
+        "side": "right"
+      },
+      {
+        "path": "src/renderers/webgpu/nodes/WGSLNodeBuilder.js",
+        "start_line": 2131,
+        "end_line": 2134,
+        "content": "The `instanceIndex` formula changed. Previously it was `globalId.x + globalId.y * numWorkgroups.x * workgroupSize + globalId.z * numWorkgroups.x * numWorkgroups.y * workgroupSize`. The new formula uses `workgroupSizeX` for the y term and `workgroupSizeX * workgroupSizeY` for the z term. Verify this matches the intended dispatch semantics — the y term should be `globalId.y * (workgroupSizeY * numWorkgroups.y)`? Actually the original used `numWorkgroups.x * workgroupSize` for y, which is the total x workgroup size. The new formula `globalId.y * (workgroupSizeX * numWorkgroups.x)` is equivalent. For z, original was `numWorkgroups.x * numWorkgroups.y * workgroupSize` (using single workgroupSize), new is `(workgroupSizeX * numWorkgroups.x) * (workgroupSizeY * numWorkgroups.y)` which is the correct generalization. This looks correct.",
+        "side": "right"
+      },
+      {
+        "path": "src/nodes/gpgpu/ComputeNode.js",
+        "start_line": 226,
+        "end_line": 238,
+        "content": "When `countOrWorkgroupSize` is an array, `count` is set to `null`. Verify that `ComputeNode` handles a null count correctly (e.g., `dispatchCount` computation). If count is null, `computeNode.dispatchCount` may be undefined/NaN and the fallback dispatch logic in WebGPUBackend could break.",
+        "side": "right"
+      },
+      {
+        "path": "src/renderers/common/Renderer.js",
+        "start_line": 2311,
+        "end_line": 2311,
+        "content": "Default `dispatchSize = [0,0,0]` means the WebGPU backend's `isValid` check will always be false unless the caller explicitly passes a valid dispatch size. This is fine as a sentinel, but consider documenting that passing `[0,0,0]` (or omitting) falls back to the compute node's own dispatch count.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/renderers/webgpu/WebGPUBackend.js\",\"start_line\":1324,\"end_line\":1326,\"content\":\"`dispatchSize` defaults to `[0,0,0]` in Renderer.compute, so `isValid` will be false and the code falls back to `computeNodeData`. But then `dispatchSize = isValid ? dispatchSize : computeNodeData;` assigns `computeNodeData` (the node data object) to `dispatchSize`, and later `const { dispatchSize } = computeNodeData;` shadows it. The outer reassignment is dead code and confusing. Also, when `isValid` is true, the passed `dispatchSize` array is used directly, but when false, `computeNodeData.dispatchSize` is used — verify the fallback path still works correctly given the reassignment.\"},{\"path\":\"src/renderers/webgpu/WebGPUBackend.js\",\"start_line\":1324,\"end_line\":1326,\"content\":\"The `dispatchSize` parameter is documented as `Array<number>` but in the fallback branch it gets reassigned to `computeNodeData` (an object). This is inconsistent and the reassignment is never used since the else branch re-destructures from `computeNodeData`. Remove the reassignment line.\"},{\"path\":\"src/renderers/webgpu/nodes/WGSLNodeBuilder.js\",\"start_line\":2131,\"end_line\":2134,\"content\":\"The `instanceIndex` formula changed. Previously it was `globalId.x + globalId.y * numWorkgroups.x * workgroupSize + globalId.z * numWorkgroups.x * numWorkgroups.y * workgroupSize`. The new formula uses `workgroupSizeX` for the y term and `workgroupSizeX * workgroupSizeY` for the z term. Verify this matches the intended dispatch semantics — the y term should be `globalId.y * (workgroupSizeY * numWorkgroups.y)`? Actually the original used `numWorkgroups.x * workgroupSize` for y, which is the total x workgroup size. The new formula `globalId.y * (workgroupSizeX * numWorkgroups.x)` is equivalent. For z, original was `numWorkgroups.x * numWorkgroups.y * workgroupSize` (using single workgroupSize), new is `(workgroupSizeX * numWorkgroups.x) * (workgroupSizeY * numWorkgroups.y)` which is the correct generalization. This looks correct.\"},{\"path\":\"src/nodes/gpgpu/ComputeNode.js\",\"start_line\":226,\"end_line\":238,\"content\":\"When `countOrWorkgroupSize` is an array, `count` is set to `null`. Verify that `ComputeNode` handles a null count correctly (e.g., `dispatchCount` computation). If count is null, `computeNode.dispatchCount` may be undefined/NaN and the fallback dispatch logic in WebGPUBackend could break.\"},{\"path\":\"src/renderers/common/Renderer.js\",\"start_line\":2311,\"end_line\":2311,\"content\":\"Default `dispatchSize = [0,0,0]` means the WebGPU backend's `isValid` check will always be false unless the caller explicitly passes a valid dispatch size. This is fine as a sentinel, but consider documenting that passing `[0,0,0]` (or omitting) falls back to the compute node's own dispatch count.\"}]}",
+  "stderr": null
+}

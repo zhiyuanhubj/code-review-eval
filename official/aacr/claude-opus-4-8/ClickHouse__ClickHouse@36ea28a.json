@@ -1,0 +1,16 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@36ea28a",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "3d6e0982755b235c6b55f377894ff1652a5c8f99",
+  "head_commit": "36ea28ab28fd93258143ab4312e60e2b5e244843",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:46.790631+00:00",
+  "duration_seconds": 45.7,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "Looking at the diff, this is primarily a refactoring PR that moves `Identifier` method implementations from the header to a new `.cpp` file, and cleans up includes.\n\nLet me check the changes carefully for potential issues.\n\nThe `StorageKafkaUtils.cpp` change replaces `boost/algorithm/string/replace.hpp` with `boost/algorithm/string/split.hpp`. If the code still uses `boost::replace_all` or similar, this would break compilation. However, I cannot see the actual usage in the truncated diff, so I won't flag speculatively.\n\nThe `Identifier.cpp` implementation looks correct—it's a faithful move of the header code (with `assert` changed to `chassert` in one case, which is an improvement).\n\nWithout being able to verify the removed includes don't break transitive dependencies, and given the refactoring appears faithful, I don't have precise, actionable issues to report.\n\n```json\n{\n  \"comments\": []\n}\n```",
+  "stderr": null
+}

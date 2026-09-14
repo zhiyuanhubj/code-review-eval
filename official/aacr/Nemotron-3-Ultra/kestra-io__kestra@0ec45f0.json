@@ -1,0 +1,77 @@
+{
+  "instance_id": "kestra-io__kestra@0ec45f0",
+  "repo": "kestra-io/kestra",
+  "base_commit": "bfcfb2ac16dd8f198a99fef43072cb178f9a1d8e",
+  "head_commit": "0ec45f028467c99d8d1efeee6c201210d9433e6d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:30:04.471440+00:00",
+  "duration_seconds": 62.46,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java",
+        "start_line": 1,
+        "end_line": 103,
+        "content": "The error message constant says 'The \\'read\\' function expects...' but this is the fileEmpty function. Should be updated to reference 'fileEmpty' function."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileExistsFunction.java",
+        "start_line": 1,
+        "end_line": 99,
+        "content": "The error message constant says 'The \\'fileSize\\' function expects...' but this is the fileExists function. Should be updated to reference 'fileExists' function."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java",
+        "start_line": 70,
+        "end_line": 70,
+        "content": "Reading the entire file into memory with inputStream.readAllBytes() could cause OOM for large files. Consider checking file size first via storageInterface, or reading only the first few bytes to check if empty."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java",
+        "start_line": 70,
+        "end_line": 70,
+        "content": "The function reads the file as UTF-8 text and checks isBlank(). This will not work correctly for binary files. Consider checking if file size is 0 instead, or document that this only works for text files."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileExistsFunction.java",
+        "start_line": 60,
+        "end_line": 60,
+        "content": "The storageInterface.exists() call uses flow.get(\"tenantId\") and flow.get(\"namespace\") but the path already contains the full URI. Verify that the storage implementation correctly handles this - the path may already include namespace/tenant info."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java",
+        "start_line": 60,
+        "end_line": 60,
+        "content": "Same concern as FileExistsFunction - storageInterface.get() uses flow.get(\"tenantId\") and flow.get(\"namespace\") but path is a full kestra:// URI. Verify storage implementation handles this correctly."
+      },
+      {
+        "path": "core/src/test/java/io/kestra/core/runners/pebble/functions/FileEmptyFunctionTest.java",
+        "start_line": 25,
+        "end_line": 25,
+        "content": "The test URI is missing the 'kestra://' scheme prefix. The function expects URIs starting with 'kestra:///' but the test creates URIs like '/my/namespace/flow/executions/...'. This may cause the test to pass incorrectly if the URI validation is not working properly."
+      },
+      {
+        "path": "core/src/test/java/io/kestra/core/runners/pebble/functions/FileExistsFunctionTest.java",
+        "start_line": 25,
+        "end_line": 25,
+        "content": "Same issue - test URI missing 'kestra://' scheme. The function's getUriFromThePath requires URI to start with 'kestra:///' but test creates URI without scheme."
+      },
+      {
+        "path": "core/src/test/java/io/kestra/core/runners/pebble/functions/FileEmptyFunctionTest.java",
+        "start_line": 1,
+        "end_line": 90,
+        "content": "Missing test cases for: 1) File from parent execution (trigger context), 2) Access denied for unauthorized execution, 3) Null/empty path argument, 4) Non-kestra:// URI schemes."
+      },
+      {
+        "path": "core/src/test/java/io/kestra/core/runners/pebble/functions/FileExistsFunctionTest.java",
+        "start_line": 1,
+        "end_line": 71,
+        "content": "Missing test cases for: 1) File from parent execution (trigger context), 2) Access denied for unauthorized execution, 3) Null/empty path argument, 4) Non-kestra:// URI schemes."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java\",\n      \"start_line\": 1,\n      \"end_line\": 103,\n      \"content\": \"The error message constant says 'The \\\\'read\\\\' function expects...' but this is the fileEmpty function. Should be updated to reference 'fileEmpty' function.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileExistsFunction.java\",\n      \"start_line\": 1,\n      \"end_line\": 99,\n      \"content\": \"The error message constant says 'The \\\\'fileSize\\\\' function expects...' but this is the fileExists function. Should be updated to reference 'fileExists' function.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java\",\n      \"start_line\": 70,\n      \"end_line\": 70,\n      \"content\": \"Reading the entire file into memory with inputStream.readAllBytes() could cause OOM for large files. Consider checking file size first via storageInterface, or reading only the first few bytes to check if empty.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java\",\n      \"start_line\": 70,\n      \"end_line\": 70,\n      \"content\": \"The function reads the file as UTF-8 text and checks isBlank(). This will not work correctly for binary files. Consider checking if file size is 0 instead, or document that this only works for text files.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileExistsFunction.java\",\n      \"start_line\": 60,\n      \"end_line\": 60,\n      \"content\": \"The storageInterface.exists() call uses flow.get(\\\"tenantId\\\") and flow.get(\\\"namespace\\\") but the path already contains the full URI. Verify that the storage implementation correctly handles this - the path may already include namespace/tenant info.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java\",\n      \"start_line\": 60,\n      \"end_line\": 60,\n      \"content\": \"Same concern as FileExistsFunction - storageInterface.get() uses flow.get(\\\"tenantId\\\") and flow.get(\\\"namespace\\\") but path is a full kestra:// URI. Verify storage implementation handles this correctly.\"\n    },\n    {\n      \"path\": \"core/src/test/java/io/kestra/core/runners/pebble/functions/FileEmptyFunctionTest.java\",\n      \"start_line\": 25,\n      \"end_line\": 25,\n      \"content\": \"The test URI is missing the 'kestra://' scheme prefix. The function expects URIs starting with 'kestra:///' but the test creates URIs like '/my/namespace/flow/executions/...'. This may cause the test to pass incorrectly if the URI validation is not working properly.\"\n    },\n    {\n      \"path\": \"core/src/test/java/io/kestra/core/runners/pebble/functions/FileExistsFunctionTest.java\",\n      \"start_line\": 25,\n      \"end_line\": 25,\n      \"content\": \"Same issue - test URI missing 'kestra://' scheme. The function's getUriFromThePath requires URI to start with 'kestra:///' but test creates URI without scheme.\"\n    },\n    {\n      \"path\": \"core/src/test/java/io/kestra/core/runners/pebble/functions/FileEmptyFunctionTest.java\",\n      \"start_line\": 1,\n      \"end_line\": 90,\n      \"content\": \"Missing test cases for: 1) File from parent execution (trigger context), 2) Access denied for unauthorized execution, 3) Null/empty path argument, 4) Non-kestra:// URI schemes.\"\n    },\n    {\n      \"path\": \"core/src/test/java/io/kestra/core/runners/pebble/functions/FileExistsFunctionTest.java\",\n      \"start_line\": 1,\n      \"end_line\": 71,\n      \"content\": \"Missing test cases for: 1) File from parent execution (trigger context), 2) Access denied for unauthorized execution, 3) Null/empty path argument, 4) Non-kestra:// URI schemes.\"\n    }\n  ]\n}",
+  "stderr": null
+}

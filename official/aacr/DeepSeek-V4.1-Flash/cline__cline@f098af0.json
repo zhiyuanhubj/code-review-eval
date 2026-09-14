@@ -1,0 +1,52 @@
+{
+  "instance_id": "cline__cline@f098af0",
+  "repo": "cline/cline",
+  "base_commit": "b3abbd886e7e693c48b31a0af8046035bf014118",
+  "head_commit": "f098af0f52bf1cdb7eb561c380caef5746b58d40",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:32:56.793959+00:00",
+  "duration_seconds": 6.39,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/integrations/terminal/TerminalProcess.ts",
+        "start_line": 194,
+        "end_line": 199,
+        "content": "The `captureTerminalOutputFailure(TerminalOutputFailureReason.TIMEOUT)` is fired whenever `fullOutput` is empty, but this branch is reached after the shell integration stream has completed — not necessarily due to a timeout. The reason label is misleading. Consider using a more accurate reason (e.g., `EMPTY_OUTPUT` / `NO_OUTPUT`) or renaming the enum value.",
+        "side": "right"
+      },
+      {
+        "path": "src/integrations/terminal/TerminalProcess.ts",
+        "start_line": 195,
+        "end_line": 199,
+        "content": "`returnCurrentTerminalContents()` is awaited, then `getLatestTerminalOutput()` is called again. If `returnCurrentTerminalContents` already invokes `getLatestTerminalOutput` internally (as it appears to), this is a duplicate call. More importantly, if `returnCurrentTerminalContents` returns the snapshot, prefer using its return value rather than re-fetching, to avoid a race where the terminal content changes between the two calls.",
+        "side": "right"
+      },
+      {
+        "path": "src/core/task/index.ts",
+        "start_line": 1510,
+        "end_line": 1516,
+        "content": "`bufferStuckTimer` is a single shared variable across concurrent `flushBuffer` invocations. If `flushBuffer` is called again while a previous chunk is still enroute (the `chunkEnroute` guard prevents this in the same call, but `flushBuffer` can be re-entered from the `finally` block), the new timer assignment overwrites the old handle without clearing it, leaking the previous timer. Consider clearing any existing `bufferStuckTimer` before assigning a new one, or use a local variable scoped to the invocation.",
+        "side": "right"
+      },
+      {
+        "path": "src/core/task/index.ts",
+        "start_line": 1574,
+        "end_line": 1582,
+        "content": "The `completionTimer` callback sets `completionTimer = null` after firing, but does not clear the timer handle. Since `setTimeout` already fired, this is fine, but the `finally`/cleanup paths check `if (completionTimer)` — after the timer fires and sets itself to null, the cleanup is a no-op, which is correct. However, if the process never completes and the timer fires, `completed` remains false and no further action is taken; the hang is only recorded, not surfaced. Confirm this is intentional (telemetry-only).",
+        "side": "right"
+      },
+      {
+        "path": "src/core/task/index.ts",
+        "start_line": 1533,
+        "end_line": 1535,
+        "content": "`captureTerminalHang(TerminalHangStage.STREAM_TIMEOUT)` is emitted in the catch block for any error thrown by `this.ask(...)`, not specifically a stream timeout. This will mislabel unrelated errors (e.g., user cancellation, network errors) as stream timeouts. Consider narrowing the condition or using a more generic reason.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/integrations/terminal/TerminalProcess.ts\",\n      \"start_line\": 194,\n      \"end_line\": 199,\n      \"content\": \"The `captureTerminalOutputFailure(TerminalOutputFailureReason.TIMEOUT)` is fired whenever `fullOutput` is empty, but this branch is reached after the shell integration stream has completed — not necessarily due to a timeout. The reason label is misleading. Consider using a more accurate reason (e.g., `EMPTY_OUTPUT` / `NO_OUTPUT`) or renaming the enum value.\"\n    },\n    {\n      \"path\": \"src/integrations/terminal/TerminalProcess.ts\",\n      \"start_line\": 195,\n      \"end_line\": 199,\n      \"content\": \"`returnCurrentTerminalContents()` is awaited, then `getLatestTerminalOutput()` is called again. If `returnCurrentTerminalContents` already invokes `getLatestTerminalOutput` internally (as it appears to), this is a duplicate call. More importantly, if `returnCurrentTerminalContents` returns the snapshot, prefer using its return value rather than re-fetching, to avoid a race where the terminal content changes between the two calls.\"\n    },\n    {\n      \"path\": \"src/core/task/index.ts\",\n      \"start_line\": 1510,\n      \"end_line\": 1516,\n      \"content\": \"`bufferStuckTimer` is a single shared variable across concurrent `flushBuffer` invocations. If `flushBuffer` is called again while a previous chunk is still enroute (the `chunkEnroute` guard prevents this in the same call, but `flushBuffer` can be re-entered from the `finally` block), the new timer assignment overwrites the old handle without clearing it, leaking the previous timer. Consider clearing any existing `bufferStuckTimer` before assigning a new one, or use a local variable scoped to the invocation.\"\n    },\n    {\n      \"path\": \"src/core/task/index.ts\",\n      \"start_line\": 1574,\n      \"end_line\": 1582,\n      \"content\": \"The `completionTimer` callback sets `completionTimer = null` after firing, but does not clear the timer handle. Since `setTimeout` already fired, this is fine, but the `finally`/cleanup paths check `if (completionTimer)` — after the timer fires and sets itself to null, the cleanup is a no-op, which is correct. However, if the process never completes and the timer fires, `completed` remains false and no further action is taken; the hang is only recorded, not surfaced. Confirm this is intentional (telemetry-only).\"\n    },\n    {\n      \"path\": \"src/core/task/index.ts\",\n      \"start_line\": 1533,\n      \"end_line\": 1535,\n      \"content\": \"`captureTerminalHang(TerminalHangStage.STREAM_TIMEOUT)` is emitted in the catch block for any error thrown by `this.ask(...)`, not specifically a stream timeout. This will mislabel unrelated errors (e.g., user cancellation, network errors) as stream timeouts. Consider narrowing the condition or using a more generic reason.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

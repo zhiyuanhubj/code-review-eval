@@ -1,0 +1,16 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@40a4654",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "83afa5c6704737ed4afc5a178f96bf49c39e5e4c",
+  "head_commit": "40a4654d7b114f1d42f48680d57007ae80897cd1",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:43.941799+00:00",
+  "duration_seconds": 44.67,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

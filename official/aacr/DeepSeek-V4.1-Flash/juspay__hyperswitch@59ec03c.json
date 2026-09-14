@@ -1,0 +1,16 @@
+{
+  "instance_id": "juspay__hyperswitch@59ec03c",
+  "repo": "juspay/hyperswitch",
+  "base_commit": "50cbe20ee1da0392f4f590bade9f866435356b87",
+  "head_commit": "59ec03ceef191dcada50380ec20cd843b80a87b6",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:37:18.879675+00:00",
+  "duration_seconds": 2.06,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\"comments\": []}",
+  "stderr": null
+}

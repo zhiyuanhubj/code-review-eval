@@ -1,0 +1,52 @@
+{
+  "instance_id": "cline__cline@7d18fb9",
+  "repo": "cline/cline",
+  "base_commit": "07d20574868b2ebb51c95c30a7a81b3793f0f07e",
+  "head_commit": "7d18fb9df620c61420c6939df22fb6f7af836bb2",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:33:11.696269+00:00",
+  "duration_seconds": 6.39,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/integrations/editor/DiffViewProvider.ts",
+        "start_line": 234,
+        "end_line": 240,
+        "content": "This writes the encoded buffer to disk, but the subsequent code path (or the caller) likely also writes `normalizedPostSaveContent` as UTF-8 via `fs.writeFile` or `vscode.workspace.applyEdit`. If both writes happen, the file will be written twice and the second write will clobber the encoded content with UTF-8. Please verify the save flow only writes once, or move the encoding logic into the single write site.",
+        "side": "right"
+      },
+      {
+        "path": "src/integrations/editor/DiffViewProvider.ts",
+        "start_line": 49,
+        "end_line": 57,
+        "content": "`chardet.detect` returns an object `{ encoding, confidence }` in jschardet v3, not a string. The `typeof detected === \"string\"` branch is dead code and the `(detected as any).encoding` cast is unnecessary. More importantly, chardet can return `null`/`undefined` encoding for short or ambiguous buffers, and can misdetect binary files as e.g. `windows-1252`. Consider falling back to `isBinaryFile` check and defaulting to `utf8` when confidence is low, otherwise binary files may be silently decoded as text.",
+        "side": "right"
+      },
+      {
+        "path": "src/integrations/misc/extract-text.ts",
+        "start_line": 26,
+        "end_line": 42,
+        "content": "The binary check is now only performed when chardet fails to detect an encoding. chardet will happily return an encoding (often `windows-1252` or `ISO-8859-1`) for many binary files, so binary files will now be decoded as text and returned to the model instead of throwing `Cannot read text for file type`. The previous behavior relied on `isBinaryFile` first. Please run `isBinaryFile` before decoding (or at least when chardet confidence is low) to preserve binary rejection.",
+        "side": "right"
+      },
+      {
+        "path": "src/integrations/misc/extract-text.ts",
+        "start_line": 23,
+        "end_line": 25,
+        "content": "The size check now reads the entire file into memory before checking the 300KB limit. Previously `getFileSizeInKB` stat'd the file first. For very large files this defeats the purpose of the guard. Consider stat'ing first (or checking `fileBuffer.byteLength` only after a stat-based pre-check) to avoid loading huge files into memory.",
+        "side": "right"
+      },
+      {
+        "path": "src/integrations/misc/extract-text.ts",
+        "start_line": 59,
+        "end_line": 63,
+        "content": "`.ipynb` files are JSON and are always UTF-8 per the Jupyter spec. Running chardet here can misdetect short notebooks (e.g. as `ascii` or `windows-1252`) and produce a decode error or garbled JSON. Just read as UTF-8.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/integrations/editor/DiffViewProvider.ts\",\n      \"start_line\": 234,\n      \"end_line\": 240,\n      \"content\": \"This writes the encoded buffer to disk, but the subsequent code path (or the caller) likely also writes `normalizedPostSaveContent` as UTF-8 via `fs.writeFile` or `vscode.workspace.applyEdit`. If both writes happen, the file will be written twice and the second write will clobber the encoded content with UTF-8. Please verify the save flow only writes once, or move the encoding logic into the single write site.\"\n    },\n    {\n      \"path\": \"src/integrations/editor/DiffViewProvider.ts\",\n      \"start_line\": 49,\n      \"end_line\": 57,\n      \"content\": \"`chardet.detect` returns an object `{ encoding, confidence }` in jschardet v3, not a string. The `typeof detected === \\\"string\\\"` branch is dead code and the `(detected as any).encoding` cast is unnecessary. More importantly, chardet can return `null`/`undefined` encoding for short or ambiguous buffers, and can misdetect binary files as e.g. `windows-1252`. Consider falling back to `isBinaryFile` check and defaulting to `utf8` when confidence is low, otherwise binary files may be silently decoded as text.\"\n    },\n    {\n      \"path\": \"src/integrations/misc/extract-text.ts\",\n      \"start_line\": 26,\n      \"end_line\": 42,\n      \"content\": \"The binary check is now only performed when chardet fails to detect an encoding. chardet will happily return an encoding (often `windows-1252` or `ISO-8859-1`) for many binary files, so binary files will now be decoded as text and returned to the model instead of throwing `Cannot read text for file type`. The previous behavior relied on `isBinaryFile` first. Please run `isBinaryFile` before decoding (or at least when chardet confidence is low) to preserve binary rejection.\"\n    },\n    {\n      \"path\": \"src/integrations/misc/extract-text.ts\",\n      \"start_line\": 23,\n      \"end_line\": 25,\n      \"content\": \"The size check now reads the entire file into memory before checking the 300KB limit. Previously `getFileSizeInKB` stat'd the file first. For very large files this defeats the purpose of the guard. Consider stat'ing first (or checking `fileBuffer.byteLength` only after a stat-based pre-check) to avoid loading huge files into memory.\"\n    },\n    {\n      \"path\": \"src/integrations/misc/extract-text.ts\",\n      \"start_line\": 59,\n      \"end_line\": 63,\n      \"content\": \"`.ipynb` files are JSON and are always UTF-8 per the Jupyter spec. Running chardet here can misdetect short notebooks (e.g. as `ascii` or `windows-1252`) and produce a decode error or garbled JSON. Just read as UTF-8.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

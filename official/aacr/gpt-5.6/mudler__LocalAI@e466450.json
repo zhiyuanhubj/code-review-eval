@@ -1,0 +1,23 @@
+{
+  "instance_id": "mudler__LocalAI@e466450",
+  "repo": "mudler/LocalAI",
+  "base_commit": "78533d7230bdb5e352e325c15d0d53f38428b08e",
+  "head_commit": "e466450c007539a2b1e4d2951c6756ff004a2b52",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:27:23.106953+00:00",
+  "duration_seconds": 30.49,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "core/http/endpoints/openai/completion.go",
+        "start_line": 184,
+        "end_line": 185,
+        "content": "The existing accumulation of `tokenUsage.Prompt` and `tokenUsage.Completion` was removed here, so non-streaming completion responses now report all token counts as zero. Keep the two token-count additions alongside these new timing additions."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"core/http/endpoints/openai/completion.go\",\"start_line\":184,\"end_line\":185,\"content\":\"The existing accumulation of `tokenUsage.Prompt` and `tokenUsage.Completion` was removed here, so non-streaming completion responses now report all token counts as zero. Keep the two token-count additions alongside these new timing additions.\"}]}",
+  "stderr": null
+}

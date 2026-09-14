@@ -1,0 +1,35 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@e596925",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "f001b8a10ac2206458f7db457a45c9b2853e7bff",
+  "head_commit": "e59692501d1a08e7306189fed5c31b02553f7746",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:32.226682+00:00",
+  "duration_seconds": 38.74,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Mod/Fem/App/FemVTKTools.cpp",
+        "start_line": 105,
+        "end_line": 116,
+        "content": "`valueFromLine` builds a `std::string_view` of length `digits` but then calls `std::strtol`/`std::strtof` with `sub.data()`. `strtol`/`strtof` do not respect the string_view length; they parse until a non-numeric char or the NUL terminator. For any field that is not the last one on the line (e.g. the coordinate/component fields parsed in a loop), this will read past `digits` into the adjacent field and produce wrong values whenever fields are packed without a separating blank (fixed-width FRD format). You need to copy the `digits` characters into a NUL-terminated buffer (e.g. `std::string(sub)`) before calling strtol/strtof, or pass an explicit end pointer via `std::from_chars` for integers."
+      },
+      {
+        "path": "src/Mod/Fem/App/FemVTKTools.cpp",
+        "start_line": 447,
+        "end_line": 470,
+        "content": "In the `code1` branch, if `mapNodes.at(node)` throws `std::out_of_range`, it is caught and only a warning is logged, but `countNodes` is still incremented and execution continues. Afterwards the block `if ((vecValues.size() + scaValues.size()) == numComps)` calls `vecArray->SetTuple(mapNodes.at(node), ...)` and `scaArrays[...]->SetTuple1(mapNodes.at(node), ...)` with the same invalid `node`, which will throw again — this time uncaught — aborting the whole conversion. Guard the SetTuple calls so they are skipped for nodes not present in `mapNodes`."
+      },
+      {
+        "path": "src/Mod/Fem/App/FemVTKTools.cpp",
+        "start_line": 341,
+        "end_line": 358,
+        "content": "In `readNodes`, `coords` is filled only when the line starts with `keyCodeCoord` (\" -1\"). If a line inside the node block does not match (e.g. a stray/blank line), `coords` stays empty and `points->SetPoint(nodeID, coords.data())` is called with a null/empty pointer, causing out-of-bounds reads. Only call `SetPoint`/increment when a valid coordinate line was parsed."
+      }
+    ]
+  },
+  "raw_output": "Analyzing this PR for real bugs.\n\nLet me examine the key areas:\n\n1. `valueFromLine` uses `std::strtol`/`std::strtof` on a `std::string_view` that is NOT null-terminated. It creates `std::string_view sub(&*it, digits)` but then calls `sub.data()` and passes to `strtol`/`strtof` which read until a null terminator or invalid char. The view isn't null-terminated, so this could read beyond `digits`. However, since it operates on a std::string line buffer (null-terminated after the last char), and fields tend to be blank-separated, this may accidentally work for last field but not for interior fields (it would read past `digits` into the next field). This is a real bug worth flagging.\n\n2. In `readResults`, when `mapNodes.at(node)` throws in the `code1` branch, `node` retains a stale value but `countNodes` is still incremented. Later at the `if ((vecValues.size() + scaValues.size()) == numComps)` block, `mapNodes.at(node)` is called again unconditionally, which could throw again unguarded. Let me flag.\n\n3. `readResultInfo` reads `info.value` as double via valueFromLine but value being a double uses strtof — precision loss but minor.\n\nLet me focus on the strtof/strtol non-null-termination bug which is the clearest real issue.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Mod/Fem/App/FemVTKTools.cpp\",\n      \"start_line\": 105,\n      \"end_line\": 116,\n      \"content\": \"`valueFromLine` builds a `std::string_view` of length `digits` but then calls `std::strtol`/`std::strtof` with `sub.data()`. `strtol`/`strtof` do not respect the string_view length; they parse until a non-numeric char or the NUL terminator. For any field that is not the last one on the line (e.g. the coordinate/component fields parsed in a loop), this will read past `digits` into the adjacent field and produce wrong values whenever fields are packed without a separating blank (fixed-width FRD format). You need to copy the `digits` characters into a NUL-terminated buffer (e.g. `std::string(sub)`) before calling strtol/strtof, or pass an explicit end pointer via `std::from_chars` for integers.\"\n    },\n    {\n      \"path\": \"src/Mod/Fem/App/FemVTKTools.cpp\",\n      \"start_line\": 447,\n      \"end_line\": 470,\n      \"content\": \"In the `code1` branch, if `mapNodes.at(node)` throws `std::out_of_range`, it is caught and only a warning is logged, but `countNodes` is still incremented and execution continues. Afterwards the block `if ((vecValues.size() + scaValues.size()) == numComps)` calls `vecArray->SetTuple(mapNodes.at(node), ...)` and `scaArrays[...]->SetTuple1(mapNodes.at(node), ...)` with the same invalid `node`, which will throw again — this time uncaught — aborting the whole conversion. Guard the SetTuple calls so they are skipped for nodes not present in `mapNodes`.\"\n    },\n    {\n      \"path\": \"src/Mod/Fem/App/FemVTKTools.cpp\",\n      \"start_line\": 341,\n      \"end_line\": 358,\n      \"content\": \"In `readNodes`, `coords` is filled only when the line starts with `keyCodeCoord` (\\\" -1\\\"). If a line inside the node block does not match (e.g. a stray/blank line), `coords` stays empty and `points->SetPoint(nodeID, coords.data())` is called with a null/empty pointer, causing out-of-bounds reads. Only call `SetPoint`/increment when a valid coordinate line was parsed.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

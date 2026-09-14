@@ -1,0 +1,29 @@
+{
+  "instance_id": "microsoft__typescript-go@45c0de9",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "af2ba7365ad3e2f572ddb95a439b0220eccc06b1",
+  "head_commit": "45c0de96a08812aff07974b859bc2327e7fe25ed",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:32.960391+00:00",
+  "duration_seconds": 39.47,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "internal/ls/diagnostics.go",
+        "start_line": 47,
+        "end_line": 47,
+        "content": "Passing `nil` for the converters into `toLSPDiagnostic` is a regression. The previous code passed `l.converters`, and `toLSPDiagnostic` uses the converters to map source positions to LSP ranges. `toLSPDiagnostics` should accept and forward `l.converters` (e.g. make it a method on `*LanguageService` or pass converters as a parameter) rather than dropping them."
+      },
+      {
+        "path": "internal/ls/diagnostics.go",
+        "start_line": 34,
+        "end_line": 34,
+        "content": "The `Kind: lsproto.StringLiteralFull{}` field was removed from the `FullDocumentDiagnosticReport`. If this field is required by the LSP spec (kind = \"full\"), dropping it may produce an invalid report; confirm this removal is intentional."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"internal/ls/diagnostics.go\",\n      \"start_line\": 47,\n      \"end_line\": 47,\n      \"content\": \"Passing `nil` for the converters into `toLSPDiagnostic` is a regression. The previous code passed `l.converters`, and `toLSPDiagnostic` uses the converters to map source positions to LSP ranges. `toLSPDiagnostics` should accept and forward `l.converters` (e.g. make it a method on `*LanguageService` or pass converters as a parameter) rather than dropping them.\"\n    },\n    {\n      \"path\": \"internal/ls/diagnostics.go\",\n      \"start_line\": 34,\n      \"end_line\": 34,\n      \"content\": \"The `Kind: lsproto.StringLiteralFull{}` field was removed from the `FullDocumentDiagnosticReport`. If this field is required by the LSP spec (kind = \\\"full\\\"), dropping it may produce an invalid report; confirm this removal is intentional.\"\n    }\n  ]\n}",
+  "stderr": null
+}

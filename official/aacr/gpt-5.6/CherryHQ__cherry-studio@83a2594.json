@@ -1,0 +1,35 @@
+{
+  "instance_id": "CherryHQ__cherry-studio@83a2594",
+  "repo": "CherryHQ/cherry-studio",
+  "base_commit": "f258f5b2cb4a4cf9012e106837aba409b383e367",
+  "head_commit": "83a25941859179b635105c9b4fd79d5542e3701e",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:42.997949+00:00",
+  "duration_seconds": 78.1,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/renderer/src/pages/agents/index.ts",
+        "start_line": 21,
+        "end_line": 28,
+        "content": "This conditionally invokes different custom hooks based on mutable Redux state, violating the Rules of Hooks. If `defaultaides` changes between renders, the hook sequence changes (`useLocalSystemAgents` also calls `useRuntime`), which can trigger a “Rendered more/fewer hooks than expected” error. `store.getState()` also does not subscribe this component to updates. Select `defaultaides` with a Redux selector and use one stable hook sequence, branching inside the effect instead."
+      },
+      {
+        "path": "src/renderer/src/pages/settings/DataSettings/DataSettings.tsx",
+        "start_line": 112,
+        "end_line": 114,
+        "content": "The `settings.data.default_aides.*` keys were added only to `zh-cn.json`. The additions to the other locale files use the unrelated key `settings.defaultaides`, so this menu and its form show a raw key or Chinese fallback outside Simplified Chinese. Add `title`, `repo_url`, and `repo_url_placeholder` under `settings.data.default_aides` in the other locales."
+      },
+      {
+        "path": "src/renderer/src/store/settings.ts",
+        "start_line": 209,
+        "end_line": 210,
+        "content": "This initializes the controlled URL input to the literal text `settings.defaultaides`; `DefaultaidesSettings` renders the value directly and never passes it through `t()`. Consequently, a fresh install displays an internal translation key instead of an empty URL or “Built-in”. Use `null`/`''` as the local-mode sentinel, or explicitly translate the sentinel when rendering it."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/renderer/src/pages/agents/index.ts\",\"start_line\":21,\"end_line\":28,\"content\":\"This conditionally invokes different custom hooks based on mutable Redux state, violating the Rules of Hooks. If `defaultaides` changes between renders, the hook sequence changes (`useLocalSystemAgents` also calls `useRuntime`), which can trigger a “Rendered more/fewer hooks than expected” error. `store.getState()` also does not subscribe this component to updates. Select `defaultaides` with a Redux selector and use one stable hook sequence, branching inside the effect instead.\"},{\"path\":\"src/renderer/src/pages/settings/DataSettings/DataSettings.tsx\",\"start_line\":112,\"end_line\":114,\"content\":\"The `settings.data.default_aides.*` keys were added only to `zh-cn.json`. The additions to the other locale files use the unrelated key `settings.defaultaides`, so this menu and its form show a raw key or Chinese fallback outside Simplified Chinese. Add `title`, `repo_url`, and `repo_url_placeholder` under `settings.data.default_aides` in the other locales.\"},{\"path\":\"src/renderer/src/store/settings.ts\",\"start_line\":209,\"end_line\":210,\"content\":\"This initializes the controlled URL input to the literal text `settings.defaultaides`; `DefaultaidesSettings` renders the value directly and never passes it through `t()`. Consequently, a fresh install displays an internal translation key instead of an empty URL or “Built-in”. Use `null`/`''` as the local-mode sentinel, or explicitly translate the sentinel when rendering it.\"}]}",
+  "stderr": null
+}

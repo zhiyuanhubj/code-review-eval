@@ -1,0 +1,80 @@
+{
+  "instance_id": "cline__cline@d0a8db8",
+  "repo": "cline/cline",
+  "base_commit": "0262e13ac48bbbc29f6c76b6b9a72e7e2ed2eb4b",
+  "head_commit": "d0a8db831cbe657faf792f00c0e3325de0b75fb4",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:33:05.183792+00:00",
+  "duration_seconds": 8.26,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/core/storage/state.ts",
+        "start_line": 31,
+        "end_line": 38,
+        "content": "The batched update uses `Promise.all` over `context.globalState.update` calls. VS Code's `Memento.update` is not guaranteed to be safe under concurrent writes to the same underlying storage — batching via `Promise.all` may cause race conditions or lost writes. Consider serializing with a sequential loop, or verify that the VS Code API guarantees atomicity per key. The same concern applies to `updateSecretsBatch`.",
+        "side": "right"
+      },
+      {
+        "path": "src/core/storage/state.ts",
+        "start_line": 31,
+        "end_line": 38,
+        "content": "`updateGlobalStateBatch` accepts `Record<string, any>` and casts keys to `GlobalStateKey` without validation. If a caller passes a key not in `GlobalStateKey`, TypeScript won't catch it. Consider typing the parameter as `Partial<Record<GlobalStateKey, any>>` to preserve type safety.",
+        "side": "right"
+      },
+      {
+        "path": "src/core/storage/state.ts",
+        "start_line": 41,
+        "end_line": 48,
+        "content": "`updateSecretsBatch` accepts `Record<string, string | undefined>` and casts to `SecretKey`. Same type-safety concern as `updateGlobalStateBatch` — prefer `Partial<Record<SecretKey, string | undefined>>`.",
+        "side": "right"
+      },
+      {
+        "path": "src/core/storage/state.ts",
+        "start_line": 538,
+        "end_line": 538,
+        "content": "The comment says 'Batch all global state updates into 2 operations instead of 47' but the batched object contains 20 + 29 = 49 keys (the original code had 20 ephemeral + 27 global = 47). The count in the comment is inaccurate; also the '2 operations' claim is misleading since `Promise.all` still issues N individual `update` calls, just concurrently. Please correct the comment to avoid confusion.",
+        "side": "right"
+      },
+      {
+        "path": "src/core/storage/state.ts",
+        "start_line": 605,
+        "end_line": 605,
+        "content": "The log message hardcodes 'was ~535ms, now should be <50ms'. This is a stale/aspirational claim that will be misleading in production logs. Remove the hardcoded comparison or make it dynamic.",
+        "side": "right"
+      },
+      {
+        "path": "src/core/storage/state.ts",
+        "start_line": 76,
+        "end_line": 82,
+        "content": "Multiple `[PERF]` console.log statements were added throughout `getAllExtensionState` and `updateApiConfiguration`. These will fire on every state read/write and could be noisy in production. Consider gating them behind a debug flag or removing them before merge.",
+        "side": "right"
+      },
+      {
+        "path": "src/core/controller/models/updateApiConfigurationProto.ts",
+        "start_line": 18,
+        "end_line": 18,
+        "content": "Debug `[PERF]` logging added here (and throughout this file) will run on every provider switch in production. Consider gating behind a debug flag or removing before merge.",
+        "side": "right"
+      },
+      {
+        "path": "webview-ui/src/components/settings/utils/useApiConfigurationHandlers.ts",
+        "start_line": 21,
+        "end_line": 21,
+        "content": "Frontend `[PERF]` logging added here will fire on every field change in the settings UI. Consider gating behind a debug flag or removing before merge.",
+        "side": "right"
+      },
+      {
+        "path": "webview-ui/src/components/history/HistoryPreview.tsx",
+        "start_line": 68,
+        "end_line": 68,
+        "content": "`backdropFilter: blur(8px)` is unrelated to the PR's stated purpose (provider switching performance). It also has inconsistent browser support in VS Code webviews (Electron/Chromium should be fine, but this is a visual change that should be in its own PR). Please split this out.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/core/storage/state.ts\",\n      \"start_line\": 31,\n      \"end_line\": 38,\n      \"content\": \"The batched update uses `Promise.all` over `context.globalState.update` calls. VS Code's `Memento.update` is not guaranteed to be safe under concurrent writes to the same underlying storage — batching via `Promise.all` may cause race conditions or lost writes. Consider serializing with a sequential loop, or verify that the VS Code API guarantees atomicity per key. The same concern applies to `updateSecretsBatch`.\"\n    },\n    {\n      \"path\": \"src/core/storage/state.ts\",\n      \"start_line\": 31,\n      \"end_line\": 38,\n      \"content\": \"`updateGlobalStateBatch` accepts `Record<string, any>` and casts keys to `GlobalStateKey` without validation. If a caller passes a key not in `GlobalStateKey`, TypeScript won't catch it. Consider typing the parameter as `Partial<Record<GlobalStateKey, any>>` to preserve type safety.\"\n    },\n    {\n      \"path\": \"src/core/storage/state.ts\",\n      \"start_line\": 41,\n      \"end_line\": 48,\n      \"content\": \"`updateSecretsBatch` accepts `Record<string, string | undefined>` and casts to `SecretKey`. Same type-safety concern as `updateGlobalStateBatch` — prefer `Partial<Record<SecretKey, string | undefined>>`.\"\n    },\n    {\n      \"path\": \"src/core/storage/state.ts\",\n      \"start_line\": 538,\n      \"end_line\": 538,\n      \"content\": \"The comment says 'Batch all global state updates into 2 operations instead of 47' but the batched object contains 20 + 29 = 49 keys (the original code had 20 ephemeral + 27 global = 47). The count in the comment is inaccurate; also the '2 operations' claim is misleading since `Promise.all` still issues N individual `update` calls, just concurrently. Please correct the comment to avoid confusion.\"\n    },\n    {\n      \"path\": \"src/core/storage/state.ts\",\n      \"start_line\": 605,\n      \"end_line\": 605,\n      \"content\": \"The log message hardcodes 'was ~535ms, now should be <50ms'. This is a stale/aspirational claim that will be misleading in production logs. Remove the hardcoded comparison or make it dynamic.\"\n    },\n    {\n      \"path\": \"src/core/storage/state.ts\",\n      \"start_line\": 76,\n      \"end_line\": 82,\n      \"content\": \"Multiple `[PERF]` console.log statements were added throughout `getAllExtensionState` and `updateApiConfiguration`. These will fire on every state read/write and could be noisy in production. Consider gating them behind a debug flag or removing them before merge.\"\n    },\n    {\n      \"path\": \"src/core/controller/models/updateApiConfigurationProto.ts\",\n      \"start_line\": 18,\n      \"end_line\": 18,\n      \"content\": \"Debug `[PERF]` logging added here (and throughout this file) will run on every provider switch in production. Consider gating behind a debug flag or removing before merge.\"\n    },\n    {\n      \"path\": \"webview-ui/src/components/settings/utils/useApiConfigurationHandlers.ts\",\n      \"start_line\": 21,\n      \"end_line\": 21,\n      \"content\": \"Frontend `[PERF]` logging added here will fire on every field change in the settings UI. Consider gating behind a debug flag or removing before merge.\"\n    },\n    {\n      \"path\": \"webview-ui/src/components/history/HistoryPreview.tsx\",\n      \"start_line\": 68,\n      \"end_line\": 68,\n      \"content\": \"`backdropFilter: blur(8px)` is unrelated to the PR's stated purpose (provider switching performance). It also has inconsistent browser support in VS Code webviews (Electron/Chromium should be fine, but this is a visual change that should be in its own PR). Please split this out.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

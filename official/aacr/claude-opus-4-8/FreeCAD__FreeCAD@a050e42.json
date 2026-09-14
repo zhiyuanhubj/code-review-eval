@@ -1,0 +1,59 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@a050e42",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "0c65673a6fd2421be8fbe613116077120adea068",
+  "head_commit": "a050e422e23ce3eaee960b75ceff236b34f369b9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:14.665995+00:00",
+  "duration_seconds": 21.19,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Mod/TechDraw/Gui/DimensionValidators.cpp",
+        "start_line": 442,
+        "end_line": 442,
+        "content": "Bug: this branch handles the vertical case (`fabs(line.x) < FLT_EPSILON`) but returns `DimensionGeometry::isHorizontal`. The original code returned `TechDraw::isVertical`. This should be `DimensionGeometry::isVertical`."
+      },
+      {
+        "path": "src/Mod/TechDraw/Gui/DimensionValidators.cpp",
+        "start_line": 401,
+        "end_line": 401,
+        "content": "Bug: in `isValidSingleEdge`, the vertical branch (`fabs(line.x) < FLT_EPSILON`) returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`. The original code returned `TechDraw::isVertical`."
+      },
+      {
+        "path": "src/Mod/TechDraw/Gui/DimensionValidators.cpp",
+        "start_line": 638,
+        "end_line": 638,
+        "content": "Bug: in `isValidVertexes`, the vertical branch (`fabs(line.x) < FLT_EPSILON`) returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`. The original returned `isVertical`."
+      },
+      {
+        "path": "src/Mod/TechDraw/Gui/DimensionValidators.cpp",
+        "start_line": 677,
+        "end_line": 677,
+        "content": "Bug: in `isValidVertexes3d`, the vertical branch (`fabs(line.x) < FLT_EPSILON`) returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`. The original returned `isVertical`."
+      },
+      {
+        "path": "src/Mod/TechDraw/App/DrawViewPart.cpp",
+        "start_line": 1339,
+        "end_line": 1339,
+        "content": "The `getDirsFromFront` no-match fallback (previously logging an error and returning the anchor's Front direction) has been commented out rather than removed. For `ProjDirection::Front` (a valid enum value), none of the if/else branches match, so `projDir`/`rotVec` remain at their initialized defaults instead of the Front direction. Please verify Front is never passed here, or restore an explicit Front handling / default case."
+      },
+      {
+        "path": "src/Mod/TechDraw/App/DrawProjGroup.cpp",
+        "start_line": 1131,
+        "end_line": 1136,
+        "content": "This dangling commented-out `default:` block (leftover from the removed switch) is orphaned inside the else branch and should be deleted rather than left as dead comment code."
+      },
+      {
+        "path": "src/Mod/TechDraw/App/DrawViewPart.cpp",
+        "start_line": 96,
+        "end_line": 96,
+        "content": "Remove this leftover commented-out line `//using ProjDirection = ProjDirection` (also malformed/self-referential); it is dead code."
+      }
+    ]
+  },
+  "raw_output": "Looking at this large refactoring PR (converting enums to `enum class`), I need to look for real bugs introduced during the conversion.\n\nLet me focus on the DimensionValidators.cpp changes where copy-paste errors are likely:\n\nI found several bugs where `isVertical` was incorrectly converted to `isHorizontal`.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Mod/TechDraw/Gui/DimensionValidators.cpp\",\n      \"start_line\": 442,\n      \"end_line\": 442,\n      \"content\": \"Bug: this branch handles the vertical case (`fabs(line.x) < FLT_EPSILON`) but returns `DimensionGeometry::isHorizontal`. The original code returned `TechDraw::isVertical`. This should be `DimensionGeometry::isVertical`.\"\n    },\n    {\n      \"path\": \"src/Mod/TechDraw/Gui/DimensionValidators.cpp\",\n      \"start_line\": 401,\n      \"end_line\": 401,\n      \"content\": \"Bug: in `isValidSingleEdge`, the vertical branch (`fabs(line.x) < FLT_EPSILON`) returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`. The original code returned `TechDraw::isVertical`.\"\n    },\n    {\n      \"path\": \"src/Mod/TechDraw/Gui/DimensionValidators.cpp\",\n      \"start_line\": 638,\n      \"end_line\": 638,\n      \"content\": \"Bug: in `isValidVertexes`, the vertical branch (`fabs(line.x) < FLT_EPSILON`) returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`. The original returned `isVertical`.\"\n    },\n    {\n      \"path\": \"src/Mod/TechDraw/Gui/DimensionValidators.cpp\",\n      \"start_line\": 677,\n      \"end_line\": 677,\n      \"content\": \"Bug: in `isValidVertexes3d`, the vertical branch (`fabs(line.x) < FLT_EPSILON`) returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`. The original returned `isVertical`.\"\n    },\n    {\n      \"path\": \"src/Mod/TechDraw/App/DrawViewPart.cpp\",\n      \"start_line\": 1339,\n      \"end_line\": 1339,\n      \"content\": \"The `getDirsFromFront` no-match fallback (previously logging an error and returning the anchor's Front direction) has been commented out rather than removed. For `ProjDirection::Front` (a valid enum value), none of the if/else branches match, so `projDir`/`rotVec` remain at their initialized defaults instead of the Front direction. Please verify Front is never passed here, or restore an explicit Front handling / default case.\"\n    },\n    {\n      \"path\": \"src/Mod/TechDraw/App/DrawProjGroup.cpp\",\n      \"start_line\": 1131,\n      \"end_line\": 1136,\n      \"content\": \"This dangling commented-out `default:` block (leftover from the removed switch) is orphaned inside the else branch and should be deleted rather than left as dead comment code.\"\n    },\n    {\n      \"path\": \"src/Mod/TechDraw/App/DrawViewPart.cpp\",\n      \"start_line\": 96,\n      \"end_line\": 96,\n      \"content\": \"Remove this leftover commented-out line `//using ProjDirection = ProjDirection` (also malformed/self-referential); it is dead code.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

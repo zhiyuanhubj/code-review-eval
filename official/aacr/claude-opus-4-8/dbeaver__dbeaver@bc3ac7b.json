@@ -1,0 +1,16 @@
+{
+  "instance_id": "dbeaver__dbeaver@bc3ac7b",
+  "repo": "dbeaver/dbeaver",
+  "base_commit": "24ad3c4030412df3d9c843c405e90a0b1e2ad5dd",
+  "head_commit": "bc3ac7bb47092a934b344791d8aa3a1c41e6c8f7",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:55.277598+00:00",
+  "duration_seconds": 9.28,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

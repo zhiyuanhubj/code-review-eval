@@ -1,0 +1,35 @@
+{
+  "instance_id": "infiniflow__ragflow@2d06022",
+  "repo": "infiniflow/ragflow",
+  "base_commit": "469460483665000f522b6c9a6583bb34f17a954b",
+  "head_commit": "2d06022b78536bd22a0fd83f38804f39aa34cce8",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:15.104875+00:00",
+  "duration_seconds": 12.56,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "web/src/components/api-service/embed-modal/index.tsx",
+        "start_line": 79,
+        "end_line": 85,
+        "content": "The checkbox uses the label `t('avatarHidden')` but the state it controls is `visibleAvatar` and setting it appends `&visible_avatar=1`. This is semantically inverted: checking a box labeled \"avatar hidden\" makes the avatar visible. Either rename the label to something like `t('avatarVisible')`/\"Show avatar\", or invert the logic so that checking \"avatar hidden\" appends a hidden flag. As-is the UI will confuse users."
+      },
+      {
+        "path": "web/src/components/api-service/embed-modal/index.tsx",
+        "start_line": 79,
+        "end_line": 79,
+        "content": "The heading text `<h2>Option</h2>` is hardcoded and not localized, unlike the surrounding labels which use `t(...)`. Consider using a translation key (e.g. `t('options')`) for consistency and i18n support."
+      },
+      {
+        "path": "agent/component/rewrite.py",
+        "start_line": 51,
+        "end_line": 52,
+        "content": "The instruction text \"If the user's latest question is completely, don't do anything\" is grammatically broken (pre-existing, but this refactor touches it). It likely should read \"If the user's latest question is already complete, ...\". Since you're already restructuring this prompt, consider fixing the wording so the LLM gets a clear instruction."
+      }
+    ]
+  },
+  "raw_output": "Looking at the diff, let me analyze the changes for real issues.\n\nIn the `rewrite.py` change, the label `avatarHidden` with a checkbox labeled \"visibleAvatar\" seems semantically inconsistent, but that's a UI concern. Let me look for actual bugs.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"web/src/components/api-service/embed-modal/index.tsx\",\n      \"start_line\": 79,\n      \"end_line\": 85,\n      \"content\": \"The checkbox uses the label `t('avatarHidden')` but the state it controls is `visibleAvatar` and setting it appends `&visible_avatar=1`. This is semantically inverted: checking a box labeled \\\"avatar hidden\\\" makes the avatar visible. Either rename the label to something like `t('avatarVisible')`/\\\"Show avatar\\\", or invert the logic so that checking \\\"avatar hidden\\\" appends a hidden flag. As-is the UI will confuse users.\"\n    },\n    {\n      \"path\": \"web/src/components/api-service/embed-modal/index.tsx\",\n      \"start_line\": 79,\n      \"end_line\": 79,\n      \"content\": \"The heading text `<h2>Option</h2>` is hardcoded and not localized, unlike the surrounding labels which use `t(...)`. Consider using a translation key (e.g. `t('options')`) for consistency and i18n support.\"\n    },\n    {\n      \"path\": \"agent/component/rewrite.py\",\n      \"start_line\": 51,\n      \"end_line\": 52,\n      \"content\": \"The instruction text \\\"If the user's latest question is completely, don't do anything\\\" is grammatically broken (pre-existing, but this refactor touches it). It likely should read \\\"If the user's latest question is already complete, ...\\\". Since you're already restructuring this prompt, consider fixing the wording so the LLM gets a clear instruction.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

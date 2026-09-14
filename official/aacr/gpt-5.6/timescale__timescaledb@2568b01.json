@@ -1,0 +1,23 @@
+{
+  "instance_id": "timescale__timescaledb@2568b01",
+  "repo": "timescale/timescaledb",
+  "base_commit": "17fb43d888dbe3b328da6b08b310bc83d3167d39",
+  "head_commit": "2568b018719e25f262255626c474a461da38fc21",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:33:09.089447+00:00",
+  "duration_seconds": 14.43,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "tsl/src/hypercore/hypercore_handler.c",
+        "start_line": 110,
+        "end_line": 110,
+        "content": "Use the supplied `mode` here instead of always taking `AccessShareLock`. Callers request `RowExclusiveLock`, `RowShareLock`, and `AccessExclusiveLock`; currently those operations run without the required lock and may later attempt to release a lock mode that was never acquired. This should be `table_open(hcinfo->compressed_relid, mode)`."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"tsl/src/hypercore/hypercore_handler.c\",\"start_line\":110,\"end_line\":110,\"content\":\"Use the supplied `mode` here instead of always taking `AccessShareLock`. Callers request `RowExclusiveLock`, `RowShareLock`, and `AccessExclusiveLock`; currently those operations run without the required lock and may later attempt to release a lock mode that was never acquired. This should be `table_open(hcinfo->compressed_relid, mode)`.\"}]}",
+  "stderr": null
+}

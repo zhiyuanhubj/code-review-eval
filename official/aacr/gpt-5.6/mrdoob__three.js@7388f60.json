@@ -1,0 +1,35 @@
+{
+  "instance_id": "mrdoob__three.js@7388f60",
+  "repo": "mrdoob/three.js",
+  "base_commit": "1fc010cb7bd1e17d94c1a33ba8dacdf9e34193cb",
+  "head_commit": "7388f600209ce8a98f7211cd0e93a170b6e98d61",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:13.856176+00:00",
+  "duration_seconds": 52.5,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/cameras/PerspectiveCamera.js",
+        "start_line": 116,
+        "end_line": 117,
+        "content": "`minTarget` and `maxTarget` are output `Vector2` instances (the implementation calls `set()` on them), not numbers. Please document both parameters as `{Vector2}`."
+      },
+      {
+        "path": "src/extras/PMREMGenerator.js",
+        "start_line": 166,
+        "end_line": 166,
+        "content": "`renderTarget` is not restricted to `null`; callers can pass a `WebGLRenderTarget` to reuse. Please use `{WebGLRenderTarget}` (with the existing optional/default annotation), matching `fromEquirectangular()`."
+      },
+      {
+        "path": "src/nodes/utils/StorageArrayElementNode.js",
+        "start_line": 47,
+        "end_line": 47,
+        "content": "This setter represents the `StorageBufferNode` property documented immediately below, so its parameter should be typed as `{StorageBufferNode}`, not the broader `{Node}`."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/cameras/PerspectiveCamera.js\",\"start_line\":116,\"end_line\":117,\"content\":\"`minTarget` and `maxTarget` are output `Vector2` instances (the implementation calls `set()` on them), not numbers. Please document both parameters as `{Vector2}`.\"},{\"path\":\"src/extras/PMREMGenerator.js\",\"start_line\":166,\"end_line\":166,\"content\":\"`renderTarget` is not restricted to `null`; callers can pass a `WebGLRenderTarget` to reuse. Please use `{WebGLRenderTarget}` (with the existing optional/default annotation), matching `fromEquirectangular()`.\"},{\"path\":\"src/nodes/utils/StorageArrayElementNode.js\",\"start_line\":47,\"end_line\":47,\"content\":\"This setter represents the `StorageBufferNode` property documented immediately below, so its parameter should be typed as `{StorageBufferNode}`, not the broader `{Node}`.\"}]}",
+  "stderr": null
+}

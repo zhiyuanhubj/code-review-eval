@@ -1,0 +1,38 @@
+{
+  "instance_id": "dotnet__aspnetcore@0ce67cd",
+  "repo": "dotnet/aspnetcore",
+  "base_commit": "f83c97fa0b91f83bd20511d1abf235dc48b596e2",
+  "head_commit": "0ce67cdee87e9fee014ba95c11e8e36b8913041c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:37:00.301413+00:00",
+  "duration_seconds": 7.65,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Shared/HttpSys/NativeInterop/SocketAddress.cs",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The IPv6 `GetIPAddress` implementation uses `_sockaddr.sin6_addr.u.Byte.AsReadOnlySpan()`. `AsReadOnlySpan()` returns a span over the 16-byte address, which is correct, but note that `IPAddress` constructor taking a span copies the bytes, so this is fine. However, the `SOCKADDR_IN6` struct may contain a scope ID (`sin6_scope_id`) that is being ignored. The original code also ignored scope ID (TODO comment preserved), so this is not a regression. No action needed.",
+        "side": "right"
+      },
+      {
+        "path": "src/Shared/HttpSys/NativeInterop/SocketAddress.cs",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The `CopyOutAddress` method casts `SOCKADDR*` to `SOCKADDR_IN*` or `SOCKADDR_IN6*` and dereferences. This assumes the native buffer is at least as large as the respective struct. For AF_INET, `SOCKADDR_IN` is 16 bytes; for AF_INET6, `SOCKADDR_IN6` is 28 bytes. The original code read only up to `IPv4AddressSize` (16) and `IPv6AddressSize` (28) bytes, so the sizes match. However, the original code copied bytes from offset 2 onward, while the new code reads the full struct. This is safe as long as the buffer is large enough, which it should be per HTTP.sys contract. No action needed.",
+        "side": "right"
+      },
+      {
+        "path": "src/Shared/HttpSys/NativeInterop/SocketAddress.cs",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The `GetPort` methods use `IPAddress.NetworkToHostOrder((short)_sockaddr.sin_port)`. `sin_port` is a `ushort` in network byte order. Casting to `short` and then calling `NetworkToHostOrder(short)` is correct for port values (0-65535) because the sign bit is not relevant for the byte swap. However, if the port is > 32767, casting to `short` yields a negative value, but `NetworkToHostOrder(short)` still correctly swaps the bytes and returns the correct signed short, which when implicitly converted to `int` in the return statement will sign-extend. For example, port 65535 (0xFFFF) as `short` is -1; `NetworkToHostOrder(-1)` returns -1; returning as `int` gives -1, not 65535. This is a bug. The original code returned `(_buffer[2] << 8 & 0xFF00) | (_buffer[3])`, which correctly yields 0-65535. The new code should use `(ushort)IPAddress.NetworkToHostOrder((short)_sockaddr.sin_port)` or better, `BinaryPrimitives.ReadUInt16BigEndian` on the raw bytes, or simply `IPAddress.NetworkToHostOrder((short)_sockaddr.sin_port) & 0xFFFF`. This affects both IPv4 and IPv6 `GetPort` methods.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Shared/HttpSys/NativeInterop/SocketAddress.cs\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The IPv6 `GetIPAddress` implementation uses `_sockaddr.sin6_addr.u.Byte.AsReadOnlySpan()`. `AsReadOnlySpan()` returns a span over the 16-byte address, which is correct, but note that `IPAddress` constructor taking a span copies the bytes, so this is fine. However, the `SOCKADDR_IN6` struct may contain a scope ID (`sin6_scope_id`) that is being ignored. The original code also ignored scope ID (TODO comment preserved), so this is not a regression. No action needed.\"\n    },\n    {\n      \"path\": \"src/Shared/HttpSys/NativeInterop/SocketAddress.cs\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The `CopyOutAddress` method casts `SOCKADDR*` to `SOCKADDR_IN*` or `SOCKADDR_IN6*` and dereferences. This assumes the native buffer is at least as large as the respective struct. For AF_INET, `SOCKADDR_IN` is 16 bytes; for AF_INET6, `SOCKADDR_IN6` is 28 bytes. The original code read only up to `IPv4AddressSize` (16) and `IPv6AddressSize` (28) bytes, so the sizes match. However, the original code copied bytes from offset 2 onward, while the new code reads the full struct. This is safe as long as the buffer is large enough, which it should be per HTTP.sys contract. No action needed.\"\n    },\n    {\n      \"path\": \"src/Shared/HttpSys/NativeInterop/SocketAddress.cs\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The `GetPort` methods use `IPAddress.NetworkToHostOrder((short)_sockaddr.sin_port)`. `sin_port` is a `ushort` in network byte order. Casting to `short` and then calling `NetworkToHostOrder(short)` is correct for port values (0-65535) because the sign bit is not relevant for the byte swap. However, if the port is > 32767, casting to `short` yields a negative value, but `NetworkToHostOrder(short)` still correctly swaps the bytes and returns the correct signed short, which when implicitly converted to `int` in the return statement will sign-extend. For example, port 65535 (0xFFFF) as `short` is -1; `NetworkToHostOrder(-1)` returns -1; returning as `int` gives -1, not 65535. This is a bug. The original code returned `(_buffer[2] << 8 & 0xFF00) | (_buffer[3])`, which correctly yields 0-65535. The new code should use `(ushort)IPAddress.NetworkToHostOrder((short)_sockaddr.sin_port)` or better, `BinaryPrimitives.ReadUInt16BigEndian` on the raw bytes, or simply `IPAddress.NetworkToHostOrder((short)_sockaddr.sin_port) & 0xFFFF`. This affects both IPv4 and IPv6 `GetPort` methods.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,29 @@
+{
+  "instance_id": "google-gemini__gemini-cli@4c150ab",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "53f8617b249c9f0443f5082a293a30504a118030",
+  "head_commit": "4c150ab4befb2a727b493d732d8d3d01f388e492",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:24.900087+00:00",
+  "duration_seconds": 28.09,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/cli/src/config/config.ts",
+        "start_line": 369,
+        "end_line": 377,
+        "content": "`loadCliConfig` is invoked for both interactive and non-interactive startup paths, so this new `shouldBeInteractive` heuristic now decides tool exclusion for every session. Previously, excluding Shell/Edit/WriteFile only happened inside `loadNonInteractiveConfig`, which was called exclusively from the non-interactive branch in gemini.tsx. Please verify this local heuristic (`!!argv.promptInteractive || (process.stdin.isTTY && question.length === 0)`) exactly matches how gemini.tsx decides to enter interactive vs. non-interactive mode; if they diverge, interactive sessions could unexpectedly lose these tools (or non-interactive sessions could retain them)."
+      },
+      {
+        "path": "packages/cli/src/config/config.ts",
+        "start_line": 372,
+        "end_line": 372,
+        "content": "`process.stdin.isTTY` can be `undefined`, making `shouldBeInteractive` evaluate to `undefined` when `promptInteractive` is falsy. It works via truthiness downstream, but consider coercing with `!!(process.stdin.isTTY && question.length === 0)` for clarity and to keep the variable a strict boolean."
+      }
+    ]
+  },
+  "raw_output": "<think>Let me analyze this PR. The change moves the exclusion of interactive tools from a post-load reconfiguration (`loadNonInteractiveConfig`) into `loadCliConfig` itself, computing `shouldBeInteractive`.\n\nThe key logic:\n```js\nconst shouldBeInteractive =\n    !!argv.promptInteractive || (process.stdin.isTTY && question.length === 0);\nconst extraExcludes =\n    !shouldBeInteractive && approvalMode !== ApprovalMode.YOLO\n      ? [ShellTool.Name, EditTool.Name, WriteFileTool.Name]\n      : undefined;\n```\n\nLet me think about potential issues. The `process.stdin.isTTY` could be `undefined`, so `process.stdin.isTTY && question.length === 0` could be `undefined`, which then makes `shouldBeInteractive` be `undefined` if promptInteractive is false. `!!argv.promptInteractive || undefined` → `false || undefined` → `undefined`. Then `!shouldBeInteractive` → `!undefined` → `true`. That's fine behaviorally.\n\nNow the main concern: This logic is duplicated with logic elsewhere. Let me check how the actual interactivity decision is made in gemini.tsx. The original code called `loadNonInteractiveConfig` only in the non-interactive branch. Now the excludes are applied inside `loadCliConfig` based on `shouldBeInteractive` computed from argv. But is the interactive determination in gemini.tsx the same? If they diverge, tools might be excluded even in interactive mode or vice versa.\n\nActually the previous `loadNonInteractiveConfig` was called only when the code decided it was non-interactive. Now this determination is inside loadCliConfig. Need to make sure the `shouldBeInteractive` matches the actual interactive decision in gemini.tsx.\n\nI can't see the full gemini.tsx to confirm the interactive check. This is a potential bug but I can't confirm without seeing more code. Let me be precise.\n\nThe comment says \"In non-interactive and non-yolo mode\" - the redundant `argv.yolo || false` is a nit but that's existing pattern.\n\nLet me focus on the risk that `shouldBeInteractive` in config.ts might not match the actual interactivity check used in gemini.tsx, which could cause tools to be incorrectly excluded when config is loaded for interactive mode. Since loadCliConfig is called for both interactive and non-interactive paths, this new exclusion logic applies to ALL config loads, not just non-interactive. If the interactive detection differs, interactive sessions could lose these tools.\n\nThis is worth flagging. But I should be careful not to invent. The logic `!!argv.promptInteractive || (process.stdin.isTTY && question.length === 0)` seems reasonable to duplicate the interactive determination. Let me flag it as a caution.\n\nI'll provide one comment about ensuring this matches gemini.tsx's interactive determination.</think>{\n  \"comments\": [\n    {\n      \"path\": \"packages/cli/src/config/config.ts\",\n      \"start_line\": 369,\n      \"end_line\": 377,\n      \"content\": \"`loadCliConfig` is invoked for both interactive and non-interactive startup paths, so this new `shouldBeInteractive` heuristic now decides tool exclusion for every session. Previously, excluding Shell/Edit/WriteFile only happened inside `loadNonInteractiveConfig`, which was called exclusively from the non-interactive branch in gemini.tsx. Please verify this local heuristic (`!!argv.promptInteractive || (process.stdin.isTTY && question.length === 0)`) exactly matches how gemini.tsx decides to enter interactive vs. non-interactive mode; if they diverge, interactive sessions could unexpectedly lose these tools (or non-interactive sessions could retain them).\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/config.ts\",\n      \"start_line\": 372,\n      \"end_line\": 372,\n      \"content\": \"`process.stdin.isTTY` can be `undefined`, making `shouldBeInteractive` evaluate to `undefined` when `promptInteractive` is falsy. It works via truthiness downstream, but consider coercing with `!!(process.stdin.isTTY && question.length === 0)` for clarity and to keep the variable a strict boolean.\"\n    }\n  ]\n}",
+  "stderr": null
+}

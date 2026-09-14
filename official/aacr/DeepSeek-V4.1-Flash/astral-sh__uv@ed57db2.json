@@ -1,0 +1,16 @@
+{
+  "instance_id": "astral-sh__uv@ed57db2",
+  "repo": "astral-sh/uv",
+  "base_commit": "1fae8dbf1789717f45e82ea290c1c99642d05139",
+  "head_commit": "ed57db2b34c2a7a955b2dc76583dce7ace02e628",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:36.570397+00:00",
+  "duration_seconds": 1.87,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RepoError: commit ed57db2b34c2a7a955b2dc76583dce7ace02e628 unavailable after fetch: fatal: remote error: upload-pack: not our ref ed57db2b34c2a7a955b2dc76583dce7ace02e628"
+}

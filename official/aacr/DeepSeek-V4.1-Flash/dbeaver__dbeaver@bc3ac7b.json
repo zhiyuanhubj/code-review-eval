@@ -1,0 +1,38 @@
+{
+  "instance_id": "dbeaver__dbeaver@bc3ac7b",
+  "repo": "dbeaver/dbeaver",
+  "base_commit": "24ad3c4030412df3d9c843c405e90a0b1e2ad5dd",
+  "head_commit": "bc3ac7bb47092a934b344791d8aa3a1c41e6c8f7",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:45.139376+00:00",
+  "duration_seconds": 4.35,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "plugins/org.jkiss.dbeaver.model.rcp/src/org/jkiss/dbeaver/model/navigator/DBNResource.java",
+        "start_line": 423,
+        "end_line": 430,
+        "content": "The InputStream returned by `file.getContents()` is never closed by the caller in `DBNPathBase.copyInputStream` (it only calls `Files.copy`, which does not close the source stream). This leaks an open stream on the file. Either close it here (e.g. wrap in a `FilterInputStream` whose `close()` closes the underlying stream, or document that the caller must close it) or ensure the consumer closes it. Currently `copyInputStream` does not close the stream, so this is a resource leak.",
+        "side": "right"
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.model/src/org/jkiss/dbeaver/model/navigator/fs/DBNPathBase.java",
+        "start_line": 363,
+        "end_line": 370,
+        "content": "`copyInputStream` does not close the passed `InputStream`. Since the stream comes from `IFile.getContents()` (an Eclipse `IStorage` stream), it must be closed to release the underlying file handle. Use try-with-resources around the stream, or close it in a finally block after `Files.copy`.",
+        "side": "right"
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.model/src/org/jkiss/dbeaver/model/navigator/fs/DBNPathBase.java",
+        "start_line": 290,
+        "end_line": 300,
+        "content": "When `resource == null` and the node has no `InputStream` adapter, the code silently `continue`s without any log or user feedback. Previously a missing resource was logged at debug level. Consider logging a debug/warn message when neither adapter is available so silent data loss during copy/move is diagnosable.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.model.rcp/src/org/jkiss/dbeaver/model/navigator/DBNResource.java\",\n      \"start_line\": 423,\n      \"end_line\": 430,\n      \"content\": \"The InputStream returned by `file.getContents()` is never closed by the caller in `DBNPathBase.copyInputStream` (it only calls `Files.copy`, which does not close the source stream). This leaks an open stream on the file. Either close it here (e.g. wrap in a `FilterInputStream` whose `close()` closes the underlying stream, or document that the caller must close it) or ensure the consumer closes it. Currently `copyInputStream` does not close the stream, so this is a resource leak.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.model/src/org/jkiss/dbeaver/model/navigator/fs/DBNPathBase.java\",\n      \"start_line\": 363,\n      \"end_line\": 370,\n      \"content\": \"`copyInputStream` does not close the passed `InputStream`. Since the stream comes from `IFile.getContents()` (an Eclipse `IStorage` stream), it must be closed to release the underlying file handle. Use try-with-resources around the stream, or close it in a finally block after `Files.copy`.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.model/src/org/jkiss/dbeaver/model/navigator/fs/DBNPathBase.java\",\n      \"start_line\": 290,\n      \"end_line\": 300,\n      \"content\": \"When `resource == null` and the node has no `InputStream` adapter, the code silently `continue`s without any log or user feedback. Previously a missing resource was logged at debug level. Consider logging a debug/warn message when neither adapter is available so silent data loss during copy/move is diagnosable.\"\n    }\n  ]\n}",
+  "stderr": null
+}

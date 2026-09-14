@@ -1,0 +1,31 @@
+{
+  "instance_id": "immich-app__immich@966c3f2",
+  "repo": "immich-app/immich",
+  "base_commit": "6ba94ac2f2f78c871f56874a7c2ff61b2ff4a06b",
+  "head_commit": "966c3f22d034c230a14bb21b02627ef6d00eec68",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:08.618367+00:00",
+  "duration_seconds": 2.89,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/repositories/album.repository.ts",
+        "start_line": 133,
+        "end_line": 185,
+        "content": "The `lastModifiedAssetTimestamp` is computed as `max(updatedAt::date)`, which truncates the timestamp to a date. The previous implementation returned the full `updatedAt` timestamp of the most recently updated asset. This changes the semantics of the field and will break mobile clients that rely on a precise timestamp (e.g., for sync/incremental updates). Use `max(\"assets\".\"updatedAt\")` without the `::date` cast to preserve the original behavior.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/repositories/album.repository.ts",
+        "start_line": 133,
+        "end_line": 185,
+        "content": "The `startDate`/`endDate` are now computed as `min/max(localDateTime::date)` instead of `min/max(localDateTime)`. This changes the returned type from a timestamp to a date and may alter existing API behavior for clients expecting a full timestamp. If the intent is only to change the query shape, keep the original `min/max(\"assets\".\"localDateTime\")` without the `::date` cast.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"server/src/repositories/album.repository.ts\",\"start_line\":133,\"end_line\":185,\"content\":\"The `lastModifiedAssetTimestamp` is computed as `max(updatedAt::date)`, which truncates the timestamp to a date. The previous implementation returned the full `updatedAt` timestamp of the most recently updated asset. This changes the semantics of the field and will break mobile clients that rely on a precise timestamp (e.g., for sync/incremental updates). Use `max(\\\"assets\\\".\\\"updatedAt\\\")` without the `::date` cast to preserve the original behavior.\"},{\"path\":\"server/src/repositories/album.repository.ts\",\"start_line\":133,\"end_line\":185,\"content\":\"The `startDate`/`endDate` are now computed as `min/max(localDateTime::date)` instead of `min/max(localDateTime)`. This changes the returned type from a timestamp to a date and may alter existing API behavior for clients expecting a full timestamp. If the intent is only to change the query shape, keep the original `min/max(\\\"assets\\\".\\\"localDateTime\\\")` without the `::date` cast.\"}]}",
+  "stderr": null
+}

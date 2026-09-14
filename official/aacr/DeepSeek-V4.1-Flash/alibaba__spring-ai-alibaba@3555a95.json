@@ -1,0 +1,38 @@
+{
+  "instance_id": "alibaba__spring-ai-alibaba@3555a95",
+  "repo": "alibaba/spring-ai-alibaba",
+  "base_commit": "76c06b58a4d9e8ee3fe3c0269a046987ad0502e5",
+  "head_commit": "3555a95e7b888335d9f72e432eb4f9fb9640e8cd",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:33:53.362273+00:00",
+  "duration_seconds": 4.86,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "community/tool-calls/spring-ai-alibaba-starter-tool-calling-alitranslate/src/main/java/com/alibaba/cloud/ai/toolcalling/alitranslate/AliTranslateService.java",
+        "start_line": 84,
+        "end_line": 87,
+        "content": "The `apply` method now requires `sourceLanguage` to be non-blank and returns `null` otherwise. However, the `Request` record's single-argument constructor sets a default `sourceLanguage` of \"zh\", and the `@JsonPropertyDescription` says \"default is zh\". If a caller constructs a `Request` via Jackson deserialization (e.g., from LLM tool-call JSON) without providing `sourceLanguage`, the field will be `null` and the call will silently return `null` instead of using the documented default. Consider defaulting `sourceLanguage` to `LANGUAGE_CODE_ZH` when it is blank, or making the field non-null in the record.",
+        "side": "right"
+      },
+      {
+        "path": "community/tool-calls/spring-ai-alibaba-starter-tool-calling-alitranslate/src/main/java/com/alibaba/cloud/ai/toolcalling/alitranslate/AliTranslateService.java",
+        "start_line": 99,
+        "end_line": 105,
+        "content": "Swallowing the exception and returning `null` changes the previous behavior of throwing a `RuntimeException`. Callers (and the LLM tool-calling framework) may not distinguish between a legitimate empty translation and a failure. Consider logging at error level with the full stack trace (`logger.error(\"...\", e)`) and/or rethrowing a meaningful exception so failures are observable.",
+        "side": "right"
+      },
+      {
+        "path": "community/tool-calls/spring-ai-alibaba-starter-tool-calling-alitranslate/src/main/java/com/alibaba/cloud/ai/toolcalling/alitranslate/AliTranslateService.java",
+        "start_line": 108,
+        "end_line": 129,
+        "content": "`getTranslatedText` throws `IllegalStateException` on non-200 responses, but the only caller (`apply`) catches `Exception` and returns `null`. This means the detailed error message (including the API error code and message) is lost. Either log the exception with its message/stack trace in the catch block, or let it propagate.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"community/tool-calls/spring-ai-alibaba-starter-tool-calling-alitranslate/src/main/java/com/alibaba/cloud/ai/toolcalling/alitranslate/AliTranslateService.java\",\n      \"start_line\": 84,\n      \"end_line\": 87,\n      \"content\": \"The `apply` method now requires `sourceLanguage` to be non-blank and returns `null` otherwise. However, the `Request` record's single-argument constructor sets a default `sourceLanguage` of \\\"zh\\\", and the `@JsonPropertyDescription` says \\\"default is zh\\\". If a caller constructs a `Request` via Jackson deserialization (e.g., from LLM tool-call JSON) without providing `sourceLanguage`, the field will be `null` and the call will silently return `null` instead of using the documented default. Consider defaulting `sourceLanguage` to `LANGUAGE_CODE_ZH` when it is blank, or making the field non-null in the record.\"\n    },\n    {\n      \"path\": \"community/tool-calls/spring-ai-alibaba-starter-tool-calling-alitranslate/src/main/java/com/alibaba/cloud/ai/toolcalling/alitranslate/AliTranslateService.java\",\n      \"start_line\": 99,\n      \"end_line\": 105,\n      \"content\": \"Swallowing the exception and returning `null` changes the previous behavior of throwing a `RuntimeException`. Callers (and the LLM tool-calling framework) may not distinguish between a legitimate empty translation and a failure. Consider logging at error level with the full stack trace (`logger.error(\\\"...\\\", e)`) and/or rethrowing a meaningful exception so failures are observable.\"\n    },\n    {\n      \"path\": \"community/tool-calls/spring-ai-alibaba-starter-tool-calling-alitranslate/src/main/java/com/alibaba/cloud/ai/toolcalling/alitranslate/AliTranslateService.java\",\n      \"start_line\": 108,\n      \"end_line\": 129,\n      \"content\": \"`getTranslatedText` throws `IllegalStateException` on non-200 responses, but the only caller (`apply`) catches `Exception` and returns `null`. This means the detailed error message (including the API error code and message) is lost. Either log the exception with its message/stack trace in the catch block, or let it propagate.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,16 @@
+{
+  "instance_id": "elastic__elasticsearch@dc8943f",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "3c264cff967750ff7cb581defa42b0d69bb31fc6",
+  "head_commit": "dc8943ff2d735c9cd71adef644378ca2850db34f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:31:58.067449+00:00",
+  "duration_seconds": 46.59,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\"comments\":[]}",
+  "stderr": null
+}

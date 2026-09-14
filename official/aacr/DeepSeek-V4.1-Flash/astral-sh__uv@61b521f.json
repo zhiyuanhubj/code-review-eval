@@ -1,0 +1,52 @@
+{
+  "instance_id": "astral-sh__uv@61b521f",
+  "repo": "astral-sh/uv",
+  "base_commit": "041c7a5e63d5559ce5571a30e177c072b1b357b2",
+  "head_commit": "61b521f4e9a1e8bdba760394740814f25cc108c2",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:40.768967+00:00",
+  "duration_seconds": 6.49,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "crates/uv/tests/it/pip_install.rs",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The test uses `#[tokio::test]` but the rest of this file appears to use `#[test]`. Verify that `tokio` is available as a dev-dependency with the `macros` and `rt` features enabled for the `uv` crate's tests; otherwise this test will fail to compile.",
+        "side": "right"
+      },
+      {
+        "path": "crates/uv/tests/it/pip_install.rs",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The mock server is started with `MockServer::start().await` but never explicitly shut down. While `MockServer` shuts down on drop, the test is `async` and the server is held across `.await` points; ensure the server is dropped before the test ends (it is, at end of scope) — no action needed, but consider using `MockServer::start()` with a guard if flakiness is observed.",
+        "side": "right"
+      },
+      {
+        "path": "crates/uv/tests/it/pip_install.rs",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "Two mocks are registered for the same `GET /requirements.txt` path: one requiring basic auth (200) and one without (401). Wiremock matches mocks in registration order, so the first (auth-required) mock will match when credentials are present, and the second will match otherwise. This works, but is fragile — if the first mock's matcher is ever loosened, the 401 mock becomes unreachable. Consider using `.with_priority()` or a single mock with a custom responder to make the intent explicit.",
+        "side": "right"
+      },
+      {
+        "path": "crates/uv/tests/it/pip_install.rs",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The second `Mock::given(...).mount(&server)` for the updated `requirements.txt` is added on top of the existing mocks. Since wiremock matches in registration order, the earlier 200 mock (without content-type) will still match first and the new mock will never be hit. This means the test does not actually exercise the updated body. Use `server.reset().await` before mounting the new mock, or use `MockServer::register` with priorities.",
+        "side": "right"
+      },
+      {
+        "path": "crates/uv/tests/it/pip_install.rs",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The snapshot for the failing case truncates the URL at `http://[LOCALHOST]` because the filter `127\\.0\\.0\\.1[^\\r\\n]*` matches greedily up to end of line. This hides the actual error message (e.g., 401 status). Consider narrowing the filter so the error detail remains visible, e.g. `127\\.0\\.0\\.1:\\d+`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"crates/uv/tests/it/pip_install.rs\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The test uses `#[tokio::test]` but the rest of this file appears to use `#[test]`. Verify that `tokio` is available as a dev-dependency with the `macros` and `rt` features enabled for the `uv` crate's tests; otherwise this test will fail to compile.\"\n    },\n    {\n      \"path\": \"crates/uv/tests/it/pip_install.rs\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The mock server is started with `MockServer::start().await` but never explicitly shut down. While `MockServer` shuts down on drop, the test is `async` and the server is held across `.await` points; ensure the server is dropped before the test ends (it is, at end of scope) — no action needed, but consider using `MockServer::start()` with a guard if flakiness is observed.\"\n    },\n    {\n      \"path\": \"crates/uv/tests/it/pip_install.rs\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"Two mocks are registered for the same `GET /requirements.txt` path: one requiring basic auth (200) and one without (401). Wiremock matches mocks in registration order, so the first (auth-required) mock will match when credentials are present, and the second will match otherwise. This works, but is fragile — if the first mock's matcher is ever loosened, the 401 mock becomes unreachable. Consider using `.with_priority()` or a single mock with a custom responder to make the intent explicit.\"\n    },\n    {\n      \"path\": \"crates/uv/tests/it/pip_install.rs\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The second `Mock::given(...).mount(&server)` for the updated `requirements.txt` is added on top of the existing mocks. Since wiremock matches in registration order, the earlier 200 mock (without content-type) will still match first and the new mock will never be hit. This means the test does not actually exercise the updated body. Use `server.reset().await` before mounting the new mock, or use `MockServer::register` with priorities.\"\n    },\n    {\n      \"path\": \"crates/uv/tests/it/pip_install.rs\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The snapshot for the failing case truncates the URL at `http://[LOCALHOST]` because the filter `127\\\\.0\\\\.0\\\\.1[^\\\\r\\\\n]*` matches greedily up to end of line. This hides the actual error message (e.g., 401 status). Consider narrowing the filter so the error detail remains visible, e.g. `127\\\\.0\\\\.0\\\\.1:\\\\d+`.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

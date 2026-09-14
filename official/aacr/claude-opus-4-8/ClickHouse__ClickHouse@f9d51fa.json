@@ -1,0 +1,29 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@f9d51fa",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "e06542d23d77ca297014b40c7fd0f406f15fef81",
+  "head_commit": "f9d51faa7cba634f38a711494003d404946b05de",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:14.339257+00:00",
+  "duration_seconds": 65.39,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Disks/DiskLocalCheckThread.cpp",
+        "start_line": 84,
+        "end_line": 85,
+        "content": "The CurrentMetrics updates are placed after the retry-exhaustion path (the `else` branch that scheduled the task and returned earlier). If `run()` has an early `return` in the failure/retry path (before retries are exhausted), the metric update will be skipped, causing the ReadonlyDisks/BrokenDisks counters to drift out of sync with the actual disk state. Please verify all code paths that change disk->readonly/disk->broken fall through to these CurrentMetrics::add calls, or move the metric reconciliation so it always runs regardless of which branch is taken."
+      },
+      {
+        "path": "src/Disks/DiskLocalCheckThread.cpp",
+        "start_line": 45,
+        "end_line": 51,
+        "content": "The log message still passes disk->getName() as an argument (`{0}`), but the DiskLocal logger is now already namespaced with the disk name (getLogger(fmt::format(\"DiskLocal({})\", name_))). Some messages were updated to drop the disk name (e.g. \"Disk is readonly\") while this recovery message retained it. Consider making this consistent to avoid redundant naming."
+      }
+    ]
+  },
+  "raw_output": "Looking at this PR carefully.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Disks/DiskLocalCheckThread.cpp\",\n      \"start_line\": 84,\n      \"end_line\": 85,\n      \"content\": \"The CurrentMetrics updates are placed after the retry-exhaustion path (the `else` branch that scheduled the task and returned earlier). If `run()` has an early `return` in the failure/retry path (before retries are exhausted), the metric update will be skipped, causing the ReadonlyDisks/BrokenDisks counters to drift out of sync with the actual disk state. Please verify all code paths that change disk->readonly/disk->broken fall through to these CurrentMetrics::add calls, or move the metric reconciliation so it always runs regardless of which branch is taken.\"\n    },\n    {\n      \"path\": \"src/Disks/DiskLocalCheckThread.cpp\",\n      \"start_line\": 45,\n      \"end_line\": 51,\n      \"content\": \"The log message still passes disk->getName() as an argument (`{0}`), but the DiskLocal logger is now already namespaced with the disk name (getLogger(fmt::format(\\\"DiskLocal({})\\\", name_))). Some messages were updated to drop the disk name (e.g. \\\"Disk is readonly\\\") while this recovery message retained it. Consider making this consistent to avoid redundant naming.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

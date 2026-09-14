@@ -1,0 +1,52 @@
+{
+  "instance_id": "gofr-dev__gofr@dc0b3e6",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "44e3eeb2786ad4d333dc1f528fb104236693d060",
+  "head_commit": "dc0b3e630423b72cb9b2f273fdc18a5c11d12984",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:31:48.861029+00:00",
+  "duration_seconds": 6.88,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/gofr/datasource/mongo/mongo.go",
+        "start_line": 130,
+        "end_line": 130,
+        "content": "Using `url.QueryEscape` for user/password is incorrect here. `url.UserPassword` already handles escaping when serializing the URL, and `QueryEscape` encodes spaces as `+` (form encoding) rather than `%20`, which will produce wrong credentials for passwords containing spaces or special characters. Pass the raw values: `u.User = url.UserPassword(config.User, config.Password)`.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/datasource/mongo/mongo.go",
+        "start_line": 125,
+        "end_line": 125,
+        "content": "`url.PathEscape` on the database name is unnecessary and can be harmful: `url.URL.String()` already escapes the path, so double-escaping will occur for names with special characters. Also, `PathEscape` escapes `/` as `%2F` which is fine, but combined with `String()`'s own escaping it produces `%252F`. Just set `Path: \"/\" + config.Database`.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/datasource/mongo/mongo.go",
+        "start_line": 148,
+        "end_line": 148,
+        "content": "`getDBHost` rejects any scheme other than `mongodb`, but MongoDB also supports `mongodb+srv` (used for Atlas and other SRV-based deployments). This will break existing users who pass a `mongodb+srv://` URI. Consider allowing `mongodb+srv` as well.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/datasource/mongo/mongo.go",
+        "start_line": 148,
+        "end_line": 148,
+        "content": "The error returned when the scheme is not `mongodb` is `errIncorrectURI`, but for a malformed URI like `mongodb:/...` the test expects `errParseHost`. The current logic returns `errIncorrectURI` only when scheme != \"mongodb\"; for `mongodb:/username:...` the scheme is `mongodb` and `Hostname()` is empty, so `errParseHost` is returned — that matches the test. However, the test case named \"Empty URI\" expects `errIncorrectURI`; `url.Parse(\"\")` returns no error and scheme is `\"\"`, so this works. No change needed, but the error naming is misleading — `errIncorrectURI` really means \"unsupported scheme\".",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/datasource/mongo/mongo.go",
+        "start_line": 96,
+        "end_line": 96,
+        "content": "The debug log now prints `c.config.Host` instead of the actual URI. When the user supplies a `URI` (and `Host` is empty), this log will print an empty host, losing useful diagnostic info. Consider logging the resolved `host` variable returned from `generateMongoURI` instead.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/datasource/mongo/mongo.go\",\n      \"start_line\": 130,\n      \"end_line\": 130,\n      \"content\": \"Using `url.QueryEscape` for user/password is incorrect here. `url.UserPassword` already handles escaping when serializing the URL, and `QueryEscape` encodes spaces as `+` (form encoding) rather than `%20`, which will produce wrong credentials for passwords containing spaces or special characters. Pass the raw values: `u.User = url.UserPassword(config.User, config.Password)`.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/mongo/mongo.go\",\n      \"start_line\": 125,\n      \"end_line\": 125,\n      \"content\": \"`url.PathEscape` on the database name is unnecessary and can be harmful: `url.URL.String()` already escapes the path, so double-escaping will occur for names with special characters. Also, `PathEscape` escapes `/` as `%2F` which is fine, but combined with `String()`'s own escaping it produces `%252F`. Just set `Path: \\\"/\\\" + config.Database`.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/mongo/mongo.go\",\n      \"start_line\": 148,\n      \"end_line\": 148,\n      \"content\": \"`getDBHost` rejects any scheme other than `mongodb`, but MongoDB also supports `mongodb+srv` (used for Atlas and other SRV-based deployments). This will break existing users who pass a `mongodb+srv://` URI. Consider allowing `mongodb+srv` as well.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/mongo/mongo.go\",\n      \"start_line\": 148,\n      \"end_line\": 148,\n      \"content\": \"The error returned when the scheme is not `mongodb` is `errIncorrectURI`, but for a malformed URI like `mongodb:/...` the test expects `errParseHost`. The current logic returns `errIncorrectURI` only when scheme != \\\"mongodb\\\"; for `mongodb:/username:...` the scheme is `mongodb` and `Hostname()` is empty, so `errParseHost` is returned — that matches the test. However, the test case named \\\"Empty URI\\\" expects `errIncorrectURI`; `url.Parse(\\\"\\\")` returns no error and scheme is `\\\"\\\"`, so this works. No change needed, but the error naming is misleading — `errIncorrectURI` really means \\\"unsupported scheme\\\".\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/mongo/mongo.go\",\n      \"start_line\": 96,\n      \"end_line\": 96,\n      \"content\": \"The debug log now prints `c.config.Host` instead of the actual URI. When the user supplies a `URI` (and `Host` is empty), this log will print an empty host, losing useful diagnostic info. Consider logging the resolved `host` variable returned from `generateMongoURI` instead.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

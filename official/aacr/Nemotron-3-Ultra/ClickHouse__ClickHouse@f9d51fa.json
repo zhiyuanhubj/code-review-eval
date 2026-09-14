@@ -1,0 +1,35 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@f9d51fa",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "e06542d23d77ca297014b40c7fd0f406f15fef81",
+  "head_commit": "f9d51faa7cba634f38a711494003d404946b05de",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:42:10.436227+00:00",
+  "duration_seconds": 55.61,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Disks/DiskLocalCheckThread.cpp",
+        "start_line": 32,
+        "end_line": 36,
+        "content": "The `diskStatusChange` function is defined in the anonymous namespace but only used once at the end of `run()`. Consider inlining it or making it a static lambda inside `run()` to limit scope."
+      },
+      {
+        "path": "src/Disks/DiskLocalCheckThread.cpp",
+        "start_line": 74,
+        "end_line": 74,
+        "content": "The metrics are updated after the if/else blocks, but `readonly` and `broken` local variables capture state *before* the checks. If `disk->readonly` or `disk->broken` are modified concurrently by another thread between the capture and the metric update, the delta will be incorrect. Consider capturing the new state after the logic or protecting with a lock if these fields are not atomic."
+      },
+      {
+        "path": "src/Disks/DiskLocalCheckThread.cpp",
+        "start_line": 45,
+        "end_line": 45,
+        "content": "The log message \"Disk seems to be fine. It can be recovered using `SYSTEM RESTART DISK {0}`\" uses `{0}` but the argument is passed as `disk->getName()` — this is correct for fmt, but note that the previous line had `{0}` explicitly. No issue, just confirming intentional formatting."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Disks/DiskLocalCheckThread.cpp\",\n      \"start_line\": 32,\n      \"end_line\": 36,\n      \"content\": \"The `diskStatusChange` function is defined in the anonymous namespace but only used once at the end of `run()`. Consider inlining it or making it a static lambda inside `run()` to limit scope.\"\n    },\n    {\n      \"path\": \"src/Disks/DiskLocalCheckThread.cpp\",\n      \"start_line\": 74,\n      \"end_line\": 74,\n      \"content\": \"The metrics are updated after the if/else blocks, but `readonly` and `broken` local variables capture state *before* the checks. If `disk->readonly` or `disk->broken` are modified concurrently by another thread between the capture and the metric update, the delta will be incorrect. Consider capturing the new state after the logic or protecting with a lock if these fields are not atomic.\"\n    },\n    {\n      \"path\": \"src/Disks/DiskLocalCheckThread.cpp\",\n      \"start_line\": 45,\n      \"end_line\": 45,\n      \"content\": \"The log message \\\"Disk seems to be fine. It can be recovered using `SYSTEM RESTART DISK {0}`\\\" uses `{0}` but the argument is passed as `disk->getName()` — this is correct for fmt, but note that the previous line had `{0}` explicitly. No issue, just confirming intentional formatting.\"\n    }\n  ]\n}",
+  "stderr": null
+}

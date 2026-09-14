@@ -1,0 +1,35 @@
+{
+  "instance_id": "cline__cline@7d18fb9",
+  "repo": "cline/cline",
+  "base_commit": "07d20574868b2ebb51c95c30a7a81b3793f0f07e",
+  "head_commit": "7d18fb9df620c61420c6939df22fb6f7af836bb2",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:56.155443+00:00",
+  "duration_seconds": 63.02,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/integrations/misc/extract-text.ts",
+        "start_line": 28,
+        "end_line": 35,
+        "content": "A successful charset guess does not imply that the input is text. `jschardet` can return encodings such as ASCII or Windows-1252 for binary buffers, so `isBinaryFile` is now skipped for many binaries and they are decoded into garbled context. Retain an independent binary check (or equivalent binary/magic-byte validation) before accepting the detected encoding."
+      },
+      {
+        "path": "src/integrations/editor/DiffViewProvider.ts",
+        "start_line": 234,
+        "end_line": 236,
+        "content": "This can silently corrupt newly added characters that are not representable in the detected source encoding. In particular, `jschardet` identifies ordinary ASCII-only files as `ASCII`, so adding any Unicode text causes `iconv.encode(..., \"ASCII\")` to replace it with fallback characters. Treat ASCII as UTF-8, and for other legacy encodings verify an encode/decode round trip or fail/upgrade to UTF-8 rather than writing lossy output."
+      },
+      {
+        "path": "src/integrations/editor/DiffViewProvider.ts",
+        "start_line": 57,
+        "end_line": 57,
+        "content": "`iconv.decode` strips a BOM by default, while the later `iconv.encode` call does not add it back. Saving a BOM-bearing file therefore removes its BOM; this is especially problematic for UTF-16 files where consumers use it to determine byte order. Preserve whether the original buffer had a BOM and pass the appropriate `stripBOM`/`addBOM` options (or otherwise restore it)."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/integrations/misc/extract-text.ts\",\"start_line\":28,\"end_line\":35,\"content\":\"A successful charset guess does not imply that the input is text. `jschardet` can return encodings such as ASCII or Windows-1252 for binary buffers, so `isBinaryFile` is now skipped for many binaries and they are decoded into garbled context. Retain an independent binary check (or equivalent binary/magic-byte validation) before accepting the detected encoding.\"},{\"path\":\"src/integrations/editor/DiffViewProvider.ts\",\"start_line\":234,\"end_line\":236,\"content\":\"This can silently corrupt newly added characters that are not representable in the detected source encoding. In particular, `jschardet` identifies ordinary ASCII-only files as `ASCII`, so adding any Unicode text causes `iconv.encode(..., \\\"ASCII\\\")` to replace it with fallback characters. Treat ASCII as UTF-8, and for other legacy encodings verify an encode/decode round trip or fail/upgrade to UTF-8 rather than writing lossy output.\"},{\"path\":\"src/integrations/editor/DiffViewProvider.ts\",\"start_line\":57,\"end_line\":57,\"content\":\"`iconv.decode` strips a BOM by default, while the later `iconv.encode` call does not add it back. Saving a BOM-bearing file therefore removes its BOM; this is especially problematic for UTF-16 files where consumers use it to determine byte order. Preserve whether the original buffer had a BOM and pass the appropriate `stripBOM`/`addBOM` options (or otherwise restore it).\"}]}",
+  "stderr": null
+}

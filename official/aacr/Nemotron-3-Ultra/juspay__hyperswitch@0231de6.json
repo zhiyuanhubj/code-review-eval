@@ -1,0 +1,41 @@
+{
+  "instance_id": "juspay__hyperswitch@0231de6",
+  "repo": "juspay/hyperswitch",
+  "base_commit": "b26e845198407f3672a7f80d8eea670419858e0e",
+  "head_commit": "0231de6ae6795ef7fa85e5ab87b6fe46a4955333",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:30:53.747286+00:00",
+  "duration_seconds": 47.29,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "crates/hyperswitch_connectors/src/connectors/checkout/transformers.rs",
+        "start_line": 346,
+        "end_line": 346,
+        "content": "The ECI value '06' is hardcoded for Google Pay. Verify if this is the correct ECI indicator for Google Pay network tokenization transactions. Apple Pay typically uses '05' or '07' depending on the scenario. Consider making this configurable or deriving it from the decrypted token data if available."
+      },
+      {
+        "path": "crates/router/src/configs/settings.rs",
+        "start_line": 658,
+        "end_line": 666,
+        "content": "The default variant is `ConnectorTokenization`, but the config files set `google_pay_pre_decrypt_flow = \"network_tokenization\"`. This means the default in code is never used for Checkout connector in any environment. Consider changing the default to `NetworkTokenization` to match the configuration, or add a comment explaining why the default differs from the deployed configuration."
+      },
+      {
+        "path": "crates/router/src/core/payments.rs",
+        "start_line": 6903,
+        "end_line": 6920,
+        "content": "The logic for `is_google_pay_pre_decrypt_type_connector_tokenization` returns `false` (filters out connector) when the flow is `NetworkTokenization` and the payment method is Google Pay with decrypted token. This is the opposite of `is_apple_pay_pre_decrypt_type_connector_tokenization` which returns `false` when the flow is `ConnectorTokenization`. The asymmetry is confusing. Add a comment explaining why Google Pay uses inverse logic compared to Apple Pay, or consider aligning the enum variants and logic for consistency."
+      },
+      {
+        "path": "config/config.example.toml",
+        "start_line": 474,
+        "end_line": 474,
+        "content": "Missing space after comma in `apple_pay_pre_decrypt_flow = \"network_tokenization\",google_pay_pre_decrypt_flow`. All other config files have a space after the comma. Fix for consistency."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"crates/hyperswitch_connectors/src/connectors/checkout/transformers.rs\",\n      \"start_line\": 346,\n      \"end_line\": 346,\n      \"content\": \"The ECI value '06' is hardcoded for Google Pay. Verify if this is the correct ECI indicator for Google Pay network tokenization transactions. Apple Pay typically uses '05' or '07' depending on the scenario. Consider making this configurable or deriving it from the decrypted token data if available.\"\n    },\n    {\n      \"path\": \"crates/router/src/configs/settings.rs\",\n      \"start_line\": 658,\n      \"end_line\": 666,\n      \"enum\": \"GooglePayPreDecryptFlow\",\n      \"content\": \"The default variant is `ConnectorTokenization`, but the config files set `google_pay_pre_decrypt_flow = \\\"network_tokenization\\\"`. This means the default in code is never used for Checkout connector in any environment. Consider changing the default to `NetworkTokenization` to match the configuration, or add a comment explaining why the default differs from the deployed configuration.\"\n    },\n    {\n      \"path\": \"crates/router/src/core/payments.rs\",\n      \"start_line\": 6903,\n      \"end_line\": 6920,\n      \"content\": \"The logic for `is_google_pay_pre_decrypt_type_connector_tokenization` returns `false` (filters out connector) when the flow is `NetworkTokenization` and the payment method is Google Pay with decrypted token. This is the opposite of `is_apple_pay_pre_decrypt_type_connector_tokenization` which returns `false` when the flow is `ConnectorTokenization`. The asymmetry is confusing. Add a comment explaining why Google Pay uses inverse logic compared to Apple Pay, or consider aligning the enum variants and logic for consistency.\"\n    },\n    {\n      \"path\": \"config/config.example.toml\",\n      \"start_line\": 474,\n      \"end_line\": 474,\n      \"content\": \"Missing space after comma in `apple_pay_pre_decrypt_flow = \\\"network_tokenization\\\",google_pay_pre_decrypt_flow`. All other config files have a space after the comma. Fix for consistency.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,23 @@
+{
+  "instance_id": "langflow-ai__langflow@b1cbdba",
+  "repo": "langflow-ai/langflow",
+  "base_commit": "f9b2ce18a4945c04ab786e66e6fc10e4b49e2677",
+  "head_commit": "b1cbdbad29eb3fe3895de1663b2e77b3943b1aef",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:55:45.844118+00:00",
+  "duration_seconds": 66.23,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/backend/base/langflow/graph/graph/utils.py",
+        "start_line": 193,
+        "end_line": 193,
+        "content": "Variable 'field' is used but not defined in this scope. It should likely be 'target_handle[\"field\"]' or passed as a parameter to the function."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/backend/base/langflow/graph/graph/utils.py\",\n      \"start_line\": 193,\n      \"end_line\": 193,\n      \"content\": \"Variable 'field' is used but not defined in this scope. It should likely be 'target_handle[\\\"field\\\"]' or passed as a parameter to the function.\"\n    }\n  ]\n}",
+  "stderr": null
+}

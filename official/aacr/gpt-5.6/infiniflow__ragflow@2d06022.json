@@ -1,0 +1,23 @@
+{
+  "instance_id": "infiniflow__ragflow@2d06022",
+  "repo": "infiniflow/ragflow",
+  "base_commit": "469460483665000f522b6c9a6583bb34f17a954b",
+  "head_commit": "2d06022b78536bd22a0fd83f38804f39aa34cce8",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:50.584301+00:00",
+  "duration_seconds": 40.5,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "web/src/components/api-service/embed-modal/index.tsx",
+        "start_line": 81,
+        "end_line": 85,
+        "content": "This checkbox is labeled `avatarHidden`, but checking it sets `visibleAvatar` and adds `visible_avatar=1`, so the generated embed does the opposite of what the label promises. Either use a visibility label or invert the state/query behavior for a “hide avatar” control."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"web/src/components/api-service/embed-modal/index.tsx\",\"start_line\":81,\"end_line\":85,\"content\":\"This checkbox is labeled `avatarHidden`, but checking it sets `visibleAvatar` and adds `visible_avatar=1`, so the generated embed does the opposite of what the label promises. Either use a visibility label or invert the state/query behavior for a “hide avatar” control.\"}]}",
+  "stderr": null
+}

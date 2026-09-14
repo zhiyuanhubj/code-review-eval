@@ -1,0 +1,31 @@
+{
+  "instance_id": "elastic__elasticsearch@e355340",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "fdfe63eb372a01b91a5b43eb5555c52731a69687",
+  "head_commit": "e355340162f24705db5e48ea2cf0a867490ae001",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:38:56.362940+00:00",
+  "duration_seconds": 5.52,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/main/java/org/elasticsearch/snapshots/SnapshotsService.java",
+        "start_line": 1403,
+        "end_line": 1403,
+        "content": "`finalizeSnapshotEntry` now dispatches to the SNAPSHOT executor, but the assertions `currentlyFinalizing.contains(...)` and `repositoryOperations.assertNotQueued(...)` were moved into `SnapshotFinalization.doRun()`. Since the task is now asynchronous, the caller may return and mutate `currentlyFinalizing`/`repositoryOperations` state before `doRun` executes, causing these assertions to fire spuriously (or, worse, hide real races). Consider keeping the assertions in `finalizeSnapshotEntry` (on the calling thread) in addition to the new ones, or verify the invariants are still guaranteed at the time `doRun` runs.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/main/java/org/elasticsearch/snapshots/SnapshotsService.java",
+        "start_line": 1587,
+        "end_line": 1595,
+        "content": "`onRejection` handles `EsRejectedExecutionException` with `isExecutorShutdown()` by calling `handleFinalizationFailure`, but for other rejections it delegates to `onFailure`, which contains `assert false : ...`. A non-shutdown rejection (e.g. queue full) is a legitimate transient condition, not an unexpected bug, so asserting false here will trip assertions in tests/production with `-ea`. Consider handling all `EsRejectedExecutionException` cases (or at least not asserting) rather than routing them through the `onFailure` path that asserts.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/snapshots/SnapshotsService.java\",\n      \"start_line\": 1403,\n      \"end_line\": 1403,\n      \"content\": \"`finalizeSnapshotEntry` now dispatches to the SNAPSHOT executor, but the assertions `currentlyFinalizing.contains(...)` and `repositoryOperations.assertNotQueued(...)` were moved into `SnapshotFinalization.doRun()`. Since the task is now asynchronous, the caller may return and mutate `currentlyFinalizing`/`repositoryOperations` state before `doRun` executes, causing these assertions to fire spuriously (or, worse, hide real races). Consider keeping the assertions in `finalizeSnapshotEntry` (on the calling thread) in addition to the new ones, or verify the invariants are still guaranteed at the time `doRun` runs.\"\n    },\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/snapshots/SnapshotsService.java\",\n      \"start_line\": 1587,\n      \"end_line\": 1595,\n      \"content\": \"`onRejection` handles `EsRejectedExecutionException` with `isExecutorShutdown()` by calling `handleFinalizationFailure`, but for other rejections it delegates to `onFailure`, which contains `assert false : ...`. A non-shutdown rejection (e.g. queue full) is a legitimate transient condition, not an unexpected bug, so asserting false here will trip assertions in tests/production with `-ea`. Consider handling all `EsRejectedExecutionException` cases (or at least not asserting) rather than routing them through the `onFailure` path that asserts.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

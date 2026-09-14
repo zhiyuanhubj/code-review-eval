@@ -1,0 +1,23 @@
+{
+  "instance_id": "timescale__timescaledb@5ab9b12",
+  "repo": "timescale/timescaledb",
+  "base_commit": "9382a90adac7a889c1df0d821a12ba1d29c8dcba",
+  "head_commit": "5ab9b1295e6bdce4834005e3738074b3a844eeb4",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:33:40.369484+00:00",
+  "duration_seconds": 45.57,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "tsl/src/compression/recompress.c",
+        "start_line": 170,
+        "end_line": 172,
+        "content": "This log is unconditional, so every segmentwise recompression—including chunks with segment-by columns—reports that it is using a non-segmentby index. Guard it with `if (n_keys == 0)` (or otherwise derive the message from the settings) so debug path diagnostics remain accurate."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"tsl/src/compression/recompress.c\",\"start_line\":170,\"end_line\":172,\"content\":\"This log is unconditional, so every segmentwise recompression—including chunks with segment-by columns—reports that it is using a non-segmentby index. Guard it with `if (n_keys == 0)` (or otherwise derive the message from the settings) so debug path diagnostics remain accurate.\"}]}",
+  "stderr": null
+}

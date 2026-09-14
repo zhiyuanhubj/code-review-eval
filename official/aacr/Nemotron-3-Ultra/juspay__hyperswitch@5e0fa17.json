@@ -1,0 +1,47 @@
+{
+  "instance_id": "juspay__hyperswitch@5e0fa17",
+  "repo": "juspay/hyperswitch",
+  "base_commit": "8e9bad6457449ef2a435be03a9f97acc2dd2108a",
+  "head_commit": "5e0fa17a5e9e977daa4b896e1dfc2de61f526113",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:30:47.950353+00:00",
+  "duration_seconds": 59.97,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "crates/hyperswitch_connectors/src/connectors/braintree/transformers.rs",
+        "start_line": 2041,
+        "end_line": 2041,
+        "content": "The fix changes \"PRE_ARBITRATION\" to match the enum variant name, but the original code had \"PRE_ARBITRATION\" (with an 'I') while the enum variant is PreArbitration. This looks correct now, but verify the Braintree webhook actually sends \"PRE_ARBITRATION\" (with 'I') and not \"PRE_ARBITRATION\" (with 'E')."
+      },
+      {
+        "path": "crates/hyperswitch_connectors/src/connectors/fiuu/transformers.rs",
+        "start_line": 1924,
+        "end_line": 1924,
+        "content": "Struct renamed from FiuuWebhookSignauture to FiuuWebhookSignature. Ensure all references to this struct across the codebase have been updated (grep for FiuuWebhookSignauture)."
+      },
+      {
+        "path": "crates/hyperswitch_connectors/src/connectors/worldpay/response.rs",
+        "start_line": 202,
+        "end_line": 202,
+        "content": "Field renamed from partiall_refund_payment to partially_refund_payment. Verify this matches the actual Worldpay API response field name and that all usages in the codebase are updated."
+      },
+      {
+        "path": "crates/router/src/core/payments/retry.rs",
+        "start_line": 618,
+        "end_line": 618,
+        "content": "Parameter renamed from setup_futture_usage_intent to setup_future_usage_intent. Confirm all call sites of make_new_payment_attempt have been updated to use the new parameter name."
+      },
+      {
+        "path": "crates/common_utils/src/macros.rs",
+        "start_line": 557,
+        "end_line": 557,
+        "content": "Macro parameter changed from tag_delimeter to tag_delimiter. This is a breaking change for any external crates using this macro. Since this is internal, verify all internal invocations (like in types.rs line 1362) have been updated."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"crates/hyperswitch_connectors/src/connectors/braintree/transformers.rs\",\n      \"start_line\": 2041,\n      \"end_line\": 2041,\n      \"content\": \"The fix changes \\\"PRE_ARBITRATION\\\" to match the enum variant name, but the original code had \\\"PRE_ARBITRATION\\\" (with an 'I') while the enum variant is PreArbitration. This looks correct now, but verify the Braintree webhook actually sends \\\"PRE_ARBITRATION\\\" (with 'I') and not \\\"PRE_ARBITRATION\\\" (with 'E').\"\n    },\n    {\n      \"path\": \"crates/hyperswitch_connectors/src/connectors/fiuu/transformers.rs\",\n      \"start_line\": 1924,\n      \"end_line\": 1924,\n      \"content\": \"Struct renamed from FiuuWebhookSignauture to FiuuWebhookSignature. Ensure all references to this struct across the codebase have been updated (grep for FiuuWebhookSignauture).\"\n    },\n    {\n      \"path\": \"crates/hyperswitch_connectors/src/connectors/worldpay/response.rs\",\n      \"start_line\": 202,\n      \"end_line\": 202,\n      \"content\": \"Field renamed from partiall_refund_payment to partially_refund_payment. Verify this matches the actual Worldpay API response field name and that all usages in the codebase are updated.\"\n    },\n    {\n      \"path\": \"crates/router/src/core/payments/retry.rs\",\n      \"start_line\": 618,\n      \"end_line\": 618,\n      \"content\": \"Parameter renamed from setup_futture_usage_intent to setup_future_usage_intent. Confirm all call sites of make_new_payment_attempt have been updated to use the new parameter name.\"\n    },\n    {\n      \"path\": \"crates/common_utils/src/macros.rs\",\n      \"start_line\": 557,\n      \"end_line\": 557,\n      \"content\": \"Macro parameter changed from tag_delimeter to tag_delimiter. This is a breaking change for any external crates using this macro. Since this is internal, verify all internal invocations (like in types.rs line 1362) have been updated.\"\n    }\n  ]\n}",
+  "stderr": null
+}

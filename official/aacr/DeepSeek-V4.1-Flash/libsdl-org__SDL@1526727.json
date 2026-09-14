@@ -1,0 +1,38 @@
+{
+  "instance_id": "libsdl-org__SDL@1526727",
+  "repo": "libsdl-org/SDL",
+  "base_commit": "71303b41bf89c4bb68dbe1bed12fd2ee1dc0dd41",
+  "head_commit": "15267271865f73c996719238425f1604fc2fa205",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:31:35.921169+00:00",
+  "duration_seconds": 3.44,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/joystick/hidapi/SDL_hidapi_8bitdo.c",
+        "start_line": 145,
+        "end_line": 157,
+        "content": "The new branch reads feature report 0x06 and unconditionally sets sensors_supported, rumble_supported, and powerstate_supported to true if the read succeeds. However, the existing Ultimate2 branch (above) only sets these flags based on the report contents. Reading a feature report successfully doesn't guarantee the device supports sensors/rumble/powerstate. Consider parsing the report to determine actual capabilities, or at least verify the report contents before enabling these features.",
+        "side": "right"
+      },
+      {
+        "path": "src/joystick/hidapi/SDL_hidapi_8bitdo.c",
+        "start_line": 259,
+        "end_line": 259,
+        "content": "Adding 0x04 to the accepted report IDs means state packets with report ID 0x04 will now be parsed by the same code path as 0x01/0x03. Verify that the packet layout for report 0x04 matches the layout expected by HIDAPI_Driver8BitDo_HandleStatePacket (button/axis offsets), otherwise this could produce incorrect input readings.",
+        "side": "right"
+      },
+      {
+        "path": "src/joystick/SDL_joystick.c",
+        "start_line": 3180,
+        "end_line": 3182,
+        "content": "Minor formatting: missing space after '||' before 'product_id == USB_PRODUCT_8BITDO_Pro_2'.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\"comments\": [{\"path\": \"src/joystick/hidapi/SDL_hidapi_8bitdo.c\", \"start_line\": 145, \"end_line\": 157, \"content\": \"The new branch reads feature report 0x06 and unconditionally sets sensors_supported, rumble_supported, and powerstate_supported to true if the read succeeds. However, the existing Ultimate2 branch (above) only sets these flags based on the report contents. Reading a feature report successfully doesn't guarantee the device supports sensors/rumble/powerstate. Consider parsing the report to determine actual capabilities, or at least verify the report contents before enabling these features.\"}, {\"path\": \"src/joystick/hidapi/SDL_hidapi_8bitdo.c\", \"start_line\": 259, \"end_line\": 259, \"content\": \"Adding 0x04 to the accepted report IDs means state packets with report ID 0x04 will now be parsed by the same code path as 0x01/0x03. Verify that the packet layout for report 0x04 matches the layout expected by HIDAPI_Driver8BitDo_HandleStatePacket (button/axis offsets), otherwise this could produce incorrect input readings.\"}, {\"path\": \"src/joystick/SDL_joystick.c\", \"start_line\": 3180, \"end_line\": 3182, \"content\": \"Minor formatting: missing space after '||' before 'product_id == USB_PRODUCT_8BITDO_Pro_2'.\"}]}",
+  "stderr": null
+}

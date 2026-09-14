@@ -1,0 +1,29 @@
+{
+  "instance_id": "comfyanonymous__ComfyUI@0bb6023",
+  "repo": "comfyanonymous/ComfyUI",
+  "base_commit": "6c0377f43e7b6ed58d48ae05cff9bc45b52ef5e0",
+  "head_commit": "0bb60235132cc72daea81427107a40ba1ccb5ddf",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:58.133529+00:00",
+  "duration_seconds": 45.41,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "notebooks/comfyui_colab.ipynb",
+        "start_line": 239,
+        "end_line": 239,
+        "content": "Restore the `subprocess`, `time`, `socket`, and `urllib.request` imports in this localtunnel cell. The function below still uses these modules, and the tunnel cells are alternatives, so users running only this cell cannot rely on imports from the preceding cloudflared cell and will get `NameError`."
+      },
+      {
+        "path": "notebooks/comfyui_colab.ipynb",
+        "start_line": 284,
+        "end_line": 284,
+        "content": "Restore the `time` and `socket` imports in this iframe cell. `iframe_thread` uses both modules, and this is another standalone launch option that should not require an earlier alternative tunnel cell to have been executed."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"notebooks/comfyui_colab.ipynb\",\"start_line\":239,\"end_line\":239,\"content\":\"Restore the `subprocess`, `time`, `socket`, and `urllib.request` imports in this localtunnel cell. The function below still uses these modules, and the tunnel cells are alternatives, so users running only this cell cannot rely on imports from the preceding cloudflared cell and will get `NameError`.\"},{\"path\":\"notebooks/comfyui_colab.ipynb\",\"start_line\":284,\"end_line\":284,\"content\":\"Restore the `time` and `socket` imports in this iframe cell. `iframe_thread` uses both modules, and this is another standalone launch option that should not require an earlier alternative tunnel cell to have been executed.\"}]}",
+  "stderr": null
+}

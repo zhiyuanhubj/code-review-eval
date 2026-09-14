@@ -1,0 +1,45 @@
+{
+  "instance_id": "browser-use__browser-use@72f1585",
+  "repo": "browser-use/browser-use",
+  "base_commit": "e85a547378b236c9788802d28e816f10940a7e53",
+  "head_commit": "72f1585f9add5b72e829eaee3b5bff684e0b08d3",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:33:34.027351+00:00",
+  "duration_seconds": 5.88,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "browser_use/llm/google/chat.py",
+        "start_line": 78,
+        "end_line": 78,
+        "content": "Changing the default `thinking_budget` from `None` to `0` is a behavior change: previously no `thinking_config` was sent (letting the model use its default), now `thinking_config={'thinking_budget': -1}` is always sent. Combined with the change below that hardcodes `-1` (dynamic thinking) regardless of the user-provided value, this makes the `thinking_budget` field effectively ignored. If the intent is to default to dynamic thinking, consider keeping `None` as the default and only sending `thinking_config` when explicitly set, or at least document the new default.",
+        "side": "right"
+      },
+      {
+        "path": "browser_use/llm/google/chat.py",
+        "start_line": 202,
+        "end_line": 202,
+        "content": "The user-supplied `self.thinking_budget` value is discarded here — `thinking_budget` is hardcoded to `-1` (dynamic). This means callers can no longer disable thinking (e.g. `thinking_budget=0`) or set a fixed budget. If the goal is to force dynamic thinking, remove the field; otherwise use `self.thinking_budget` here.",
+        "side": "right"
+      },
+      {
+        "path": "browser_use/llm/google/chat.py",
+        "start_line": 320,
+        "end_line": 330,
+        "content": "The manual retry loop with `_is_retryable_error` was removed and replaced with a comment claiming the Google client handles retries internally. The default `google-genai` client does not retry on 429/5xx by default unless `HttpOptions` with retry settings is configured. This is a regression in resilience for rate-limited or transient failures. Either configure retries on the client (e.g. via `HttpOptions`/`retry` in `_get_client_params`) or keep the manual retry loop.",
+        "side": "right"
+      },
+      {
+        "path": "browser_use/llm/google/chat.py",
+        "start_line": 340,
+        "end_line": 350,
+        "content": "`asyncio.CancelledError` is a `BaseException` in Python 3.8+, not an `Exception`, so it will not be caught by `except Exception as e` here. The `isinstance(e, asyncio.CancelledError)` branch is therefore dead code. If you want to handle cancellation, catch `asyncio.CancelledError` explicitly (and be aware that swallowing it can break task cancellation semantics).",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"browser_use/llm/google/chat.py\",\n      \"start_line\": 78,\n      \"end_line\": 78,\n      \"content\": \"Changing the default `thinking_budget` from `None` to `0` is a behavior change: previously no `thinking_config` was sent (letting the model use its default), now `thinking_config={'thinking_budget': -1}` is always sent. Combined with the change below that hardcodes `-1` (dynamic thinking) regardless of the user-provided value, this makes the `thinking_budget` field effectively ignored. If the intent is to default to dynamic thinking, consider keeping `None` as the default and only sending `thinking_config` when explicitly set, or at least document the new default.\"\n    },\n    {\n      \"path\": \"browser_use/llm/google/chat.py\",\n      \"start_line\": 202,\n      \"end_line\": 202,\n      \"content\": \"The user-supplied `self.thinking_budget` value is discarded here — `thinking_budget` is hardcoded to `-1` (dynamic). This means callers can no longer disable thinking (e.g. `thinking_budget=0`) or set a fixed budget. If the goal is to force dynamic thinking, remove the field; otherwise use `self.thinking_budget` here.\"\n    },\n    {\n      \"path\": \"browser_use/llm/google/chat.py\",\n      \"start_line\": 320,\n      \"end_line\": 330,\n      \"content\": \"The manual retry loop with `_is_retryable_error` was removed and replaced with a comment claiming the Google client handles retries internally. The default `google-genai` client does not retry on 429/5xx by default unless `HttpOptions` with retry settings is configured. This is a regression in resilience for rate-limited or transient failures. Either configure retries on the client (e.g. via `HttpOptions`/`retry` in `_get_client_params`) or keep the manual retry loop.\"\n    },\n    {\n      \"path\": \"browser_use/llm/google/chat.py\",\n      \"start_line\": 340,\n      \"end_line\": 350,\n      \"content\": \"`asyncio.CancelledError` is a `BaseException` in Python 3.8+, not an `Exception`, so it will not be caught by `except Exception as e` here. The `isinstance(e, asyncio.CancelledError)` branch is therefore dead code. If you want to handle cancellation, catch `asyncio.CancelledError` explicitly (and be aware that swallowing it can break task cancellation semantics).\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

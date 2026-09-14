@@ -1,0 +1,45 @@
+{
+  "instance_id": "mpv-player__mpv@0729afe",
+  "repo": "mpv-player/mpv",
+  "base_commit": "5809d4d1bc54c3a3a32b38c7cf8a6ed90e91f7db",
+  "head_commit": "0729afe8d7067f0e4d69000309ec6f3e24ac3926",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:11.368954+00:00",
+  "duration_seconds": 6.97,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "player/command.c",
+        "start_line": 7706,
+        "end_line": 7720,
+        "content": "The coalescing loop has a bug: when `drop` is set on the last element (i == num-1), the code overwrites the last slot with the new callback, but the loop then exits and `!drop` is false, so the new callback is correctly stored. However, when `drop` is set on a non-last element, the code shifts subsequent elements left but does not decrement `num_option_callbacks`, and the loop continues iterating with `i` incremented while the array has been shifted. This causes elements to be skipped and the array to be left in an inconsistent state (the last slot is duplicated). Additionally, the condition `flags && flags == mpctx->option_callbacks[i].flags` will drop any callback with matching flags even if it's for a different option, which may be intentional but combined with the shifting bug leads to lost callbacks. The loop should be rewritten to properly compact the array and update `num_option_callbacks`.",
+        "side": "right"
+      },
+      {
+        "path": "player/command.c",
+        "start_line": 7716,
+        "end_line": 7719,
+        "content": "When `drop` is true and `i == num_option_callbacks - 1`, the code sets the last element to the new callback but does not break out of the loop. Since `drop` remains true, the `if (!drop)` block is skipped, so the new callback is stored. But if `drop` was set earlier and the array was shifted, the last element may already contain a stale duplicate. This logic is fragile and should be replaced with a clear compaction pass.",
+        "side": "right"
+      },
+      {
+        "path": "player/main.c",
+        "start_line": 415,
+        "end_line": 415,
+        "content": "`mp_init_ipc` is now called unconditionally during initialization, but the previous code only initialized IPC when `init` was true or when `ipc_path`/`ipc_client` options changed. This means IPC will now always be initialized even if the user did not request it (e.g., no `--input-ipc-server`). This may create an unnecessary socket or resource. Verify that `mp_init_ipc` handles the no-IPC-configured case gracefully and does not create a socket when `ipc_path` is NULL/empty.",
+        "side": "right"
+      },
+      {
+        "path": "player/command.c",
+        "start_line": 7706,
+        "end_line": 7720,
+        "content": "The coalescing logic compares `opt_ptr == mpctx->option_callbacks[i].co->data` to drop duplicate option callbacks. However, `opt_ptr` is NULL when `co` is NULL (initial callback). If an existing entry also has `co == NULL`, then `mpctx->option_callbacks[i].co->data` would dereference NULL. The check `mpctx->option_callbacks[i].co &&` guards against this, but then the initial callback (co == NULL) will never be coalesced with another NULL callback, potentially leading to duplicate initial callbacks. More importantly, the initial callback (co == NULL) is now appended to the array and run later in `mp_option_run_callbacks`, but the original code ran it immediately. Ensure the initial callback is still executed exactly once and at the right time.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"player/command.c\",\n      \"start_line\": 7706,\n      \"end_line\": 7720,\n      \"content\": \"The coalescing loop has a bug: when `drop` is set on the last element (i == num-1), the code overwrites the last slot with the new callback, but the loop then exits and `!drop` is false, so the new callback is correctly stored. However, when `drop` is set on a non-last element, the code shifts subsequent elements left but does not decrement `num_option_callbacks`, and the loop continues iterating with `i` incremented while the array has been shifted. This causes elements to be skipped and the array to be left in an inconsistent state (the last slot is duplicated). Additionally, the condition `flags && flags == mpctx->option_callbacks[i].flags` will drop any callback with matching flags even if it's for a different option, which may be intentional but combined with the shifting bug leads to lost callbacks. The loop should be rewritten to properly compact the array and update `num_option_callbacks`.\"\n    },\n    {\n      \"path\": \"player/command.c\",\n      \"start_line\": 7716,\n      \"end_line\": 7719,\n      \"content\": \"When `drop` is true and `i == num_option_callbacks - 1`, the code sets the last element to the new callback but does not break out of the loop. Since `drop` remains true, the `if (!drop)` block is skipped, so the new callback is stored. But if `drop` was set earlier and the array was shifted, the last element may already contain a stale duplicate. This logic is fragile and should be replaced with a clear compaction pass.\"\n    },\n    {\n      \"path\": \"player/main.c\",\n      \"start_line\": 415,\n      \"end_line\": 415,\n      \"content\": \"`mp_init_ipc` is now called unconditionally during initialization, but the previous code only initialized IPC when `init` was true or when `ipc_path`/`ipc_client` options changed. This means IPC will now always be initialized even if the user did not request it (e.g., no `--input-ipc-server`). This may create an unnecessary socket or resource. Verify that `mp_init_ipc` handles the no-IPC-configured case gracefully and does not create a socket when `ipc_path` is NULL/empty.\"\n    },\n    {\n      \"path\": \"player/command.c\",\n      \"start_line\": 7706,\n      \"end_line\": 7720,\n      \"content\": \"The coalescing logic compares `opt_ptr == mpctx->option_callbacks[i].co->data` to drop duplicate option callbacks. However, `opt_ptr` is NULL when `co` is NULL (initial callback). If an existing entry also has `co == NULL`, then `mpctx->option_callbacks[i].co->data` would dereference NULL. The check `mpctx->option_callbacks[i].co &&` guards against this, but then the initial callback (co == NULL) will never be coalesced with another NULL callback, potentially leading to duplicate initial callbacks. More importantly, the initial callback (co == NULL) is now appended to the array and run later in `mp_option_run_callbacks`, but the original code ran it immediately. Ensure the initial callback is still executed exactly once and at the right time.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

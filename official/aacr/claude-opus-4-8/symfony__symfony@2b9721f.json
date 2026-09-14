@@ -1,0 +1,16 @@
+{
+  "instance_id": "symfony__symfony@2b9721f",
+  "repo": "symfony/symfony",
+  "base_commit": "0b4d21c3f91dd2cd2cc49739ab31a1457cf001ea",
+  "head_commit": "2b9721f04744fb213808f754ac98cd563384b3e5",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:39.981954+00:00",
+  "duration_seconds": 11.96,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

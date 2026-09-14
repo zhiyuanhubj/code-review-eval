@@ -1,0 +1,29 @@
+{
+  "instance_id": "mudler__LocalAI@e466450",
+  "repo": "mudler/LocalAI",
+  "base_commit": "78533d7230bdb5e352e325c15d0d53f38428b08e",
+  "head_commit": "e466450c007539a2b1e4d2951c6756ff004a2b52",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:37.550793+00:00",
+  "duration_seconds": 23.92,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "core/http/endpoints/openai/completion.go",
+        "start_line": 183,
+        "end_line": 184,
+        "content": "This change accidentally removes the accumulation of `totalTokenUsage.Prompt` and `totalTokenUsage.Completion`. The diff replaced these two lines with the timing accumulations instead of adding to them. As a result, `PromptTokens`, `CompletionTokens`, and `TotalTokens` in the non-streaming completion response will always be 0. Please restore:\n\n```go\ntotalTokenUsage.Prompt += tokenUsage.Prompt\ntotalTokenUsage.Completion += tokenUsage.Completion\ntotalTokenUsage.TimingTokenGeneration += tokenUsage.TimingTokenGeneration\ntotalTokenUsage.TimingPromptProcessing += tokenUsage.TimingPromptProcessing\n```"
+      },
+      {
+        "path": "core/cli/run.go",
+        "start_line": 74,
+        "end_line": 74,
+        "content": "The help string is a placeholder (`\"TODO: write a help string\"`). Please provide a meaningful description for the `LOCALAI_MACHINE_TAG` flag, e.g. explaining that it tags responses via the `LocalAI-Machine-Tag` header and defaults to the machine hostname when unset."
+      }
+    ]
+  },
+  "raw_output": "Looking at the diff, let me analyze for real bugs.\n\nIn `core/http/endpoints/openai/completion.go`, I notice a bug in the loop:\n\n```go\ntotalTokenUsage.TimingTokenGeneration += tokenUsage.TimingTokenGeneration\ntotalTokenUsage.TimingPromptProcessing += tokenUsage.TimingPromptProcessing\n\nresult = append(result, r...)\n```\n\nThe original code had `totalTokenUsage.Prompt += tokenUsage.Prompt` and `totalTokenUsage.Completion += tokenUsage.Completion`, but these lines were removed in the completion.go diff. Let me verify.\n\nThe diff shows:\n```\n-\t\t\ttotalTokenUsage.Prompt += tokenUsage.Prompt\n-\t\t\ttotalTokenUsage.Completion += tokenUsage.Completion\n+\t\t\ttotalTokenUsage.TimingTokenGeneration += tokenUsage.TimingTokenGeneration\n+\t\t\ttotalTokenUsage.TimingPromptProcessing += tokenUsage.TimingPromptProcessing\n```\n\nThe Prompt and Completion accumulation lines were removed. This is a bug—token counts will be zero.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"core/http/endpoints/openai/completion.go\",\n      \"start_line\": 183,\n      \"end_line\": 184,\n      \"content\": \"This change accidentally removes the accumulation of `totalTokenUsage.Prompt` and `totalTokenUsage.Completion`. The diff replaced these two lines with the timing accumulations instead of adding to them. As a result, `PromptTokens`, `CompletionTokens`, and `TotalTokens` in the non-streaming completion response will always be 0. Please restore:\\n\\n```go\\ntotalTokenUsage.Prompt += tokenUsage.Prompt\\ntotalTokenUsage.Completion += tokenUsage.Completion\\ntotalTokenUsage.TimingTokenGeneration += tokenUsage.TimingTokenGeneration\\ntotalTokenUsage.TimingPromptProcessing += tokenUsage.TimingPromptProcessing\\n```\"\n    },\n    {\n      \"path\": \"core/cli/run.go\",\n      \"start_line\": 74,\n      \"end_line\": 74,\n      \"content\": \"The help string is a placeholder (`\\\"TODO: write a help string\\\"`). Please provide a meaningful description for the `LOCALAI_MACHINE_TAG` flag, e.g. explaining that it tags responses via the `LocalAI-Machine-Tag` header and defaults to the machine hostname when unset.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

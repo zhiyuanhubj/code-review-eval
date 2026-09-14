@@ -1,0 +1,23 @@
+{
+  "instance_id": "elastic__elasticsearch@e355340",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "fdfe63eb372a01b91a5b43eb5555c52731a69687",
+  "head_commit": "e355340162f24705db5e48ea2cf0a867490ae001",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:44:17.442070+00:00",
+  "duration_seconds": 19.92,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/main/java/org/elasticsearch/snapshots/SnapshotsService.java",
+        "start_line": 1455,
+        "end_line": 1455,
+        "content": "The assert ThreadPool.assertCurrentThreadPool(ThreadPool.Names.SNAPSHOT) at line 1455 is redundant since the SnapshotFinalization class already asserts this at the start of doRun() (line 1415). Consider removing the duplicate assertion."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/snapshots/SnapshotsService.java\",\n      \"start_line\": 1455,\n      \"end_line\": 1455,\n      \"content\": \"The assert ThreadPool.assertCurrentThreadPool(ThreadPool.Names.SNAPSHOT) at line 1455 is redundant since the SnapshotFinalization class already asserts this at the start of doRun() (line 1415). Consider removing the duplicate assertion.\"\n    }\n  ]\n}",
+  "stderr": null
+}

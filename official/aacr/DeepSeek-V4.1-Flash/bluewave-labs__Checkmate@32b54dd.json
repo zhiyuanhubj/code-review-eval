@@ -1,0 +1,80 @@
+{
+  "instance_id": "bluewave-labs__Checkmate@32b54dd",
+  "repo": "bluewave-labs/Checkmate",
+  "base_commit": "05dd5f7de27ae7f2139714f0bc577484642e2c77",
+  "head_commit": "32b54ddf11ea27b8ed85d2139fe38e0dcb7f3d43",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:48.561392+00:00",
+  "duration_seconds": 10.76,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/service/infrastructure/networkService.js",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "Unused import `match` from `assert`. This appears to be leftover from debugging and should be removed.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/service/infrastructure/networkService.js",
+        "start_line": 152,
+        "end_line": 171,
+        "content": "The `matchMethod` handling silently treats unknown match methods as no-match (returns 500). Previously the code logged the match attempt. Consider logging when `matchMethod` is unrecognized, and also note that `payload.includes` will throw if `payload` is not a string (e.g., object/array from JSON).",
+        "side": "right"
+      },
+      {
+        "path": "server/src/service/infrastructure/networkService.js",
+        "start_line": 288,
+        "end_line": 302,
+        "content": "`dockerResponse.status` is assigned twice: first to `404` (a number) then to `false`. The first assignment is a bug — it should be `dockerResponse.code = 404`. As written, `status` briefly holds a number before being overwritten, and `code` is never set on the ambiguous-match path.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/db/mongo/migration/0001_migrateStatusWindowThreshold.js",
+        "start_line": 1,
+        "end_line": 18,
+        "content": "This migration is not idempotent in a safe way: it multiplies any value `< 1` by 100 on every startup. If a user intentionally sets a threshold below 1 (e.g., 0.5 meaning 0.5%), it will be silently rewritten. More importantly, if the migration partially fails and is re-run, already-migrated values (now >= 1) are skipped, but any value that was legitimately < 1 will be re-multiplied. Consider tracking migration completion in a dedicated collection, or using a sentinel/version field.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/db/mongo/migration/index.js",
+        "start_line": 1,
+        "end_line": 7,
+        "content": "`runMigrations` is awaited in `MongoDB.connect` but errors from individual migrations are swallowed (each returns true/false without throwing). If a migration fails, the app continues silently. Consider surfacing failures or at least logging at error level so operators notice.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/db/models/Monitor.js",
+        "start_line": 41,
+        "end_line": 41,
+        "content": "Changing the default from `0.6` to `60` is a breaking semantic change (fraction -> percent). Ensure all consumers of `statusWindowThreshold` (e.g., `statusService.js`) treat it as a percentage. The comparison in `statusService.js` was changed from `<=` to `<`, which combined with the new default may subtly alter recovery behavior — please confirm this is intentional.",
+        "side": "right"
+      },
+      {
+        "path": "client/src/Pages/Incidents/Components/IncidentTable/index.jsx",
+        "start_line": 24,
+        "end_line": 24,
+        "content": "`GetTooltip` is a React component that calls `useTheme()` but is invoked as a plain function inside `DataTable` (`config.tooltipContent(row)`). Calling a hook outside of a component render will violate the Rules of Hooks and can cause runtime errors or incorrect theme values. Either convert `GetTooltip` to a hook-free function that receives the theme, or render it as a component (e.g., `<GetTooltip row={row} />`) inside the Tooltip `title`.",
+        "side": "right"
+      },
+      {
+        "path": "client/src/Components/Table/index.jsx",
+        "start_line": 106,
+        "end_line": 152,
+        "content": "Wrapping every `TableRow` in a `Tooltip` will render a tooltip for every row even when `tooltipContent` is null/undefined, which adds unnecessary DOM/popper overhead and can interfere with row click handlers. Consider conditionally rendering the Tooltip only when `config.tooltipContent` is provided.",
+        "side": "right"
+      },
+      {
+        "path": "client/src/Validation/validation.js",
+        "start_line": 133,
+        "end_line": 137,
+        "content": "The new regex allows a leading `/` via `(\\/+)?` but the subsequent alternatives don't account for that slash being stripped before matching the name/ID portion. Also, the `[a-f0-9]{12,64}` branch only matches lowercase hex, while Docker short IDs are typically lowercase hex — that's fine — but the name branch `[a-zA-Z0-9][a-zA-Z0-9_.-]*[a-zA-Z0-9]` requires at least 2 characters, rejecting single-character container names. Verify this is intended.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"server/src/service/infrastructure/networkService.js\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"Unused import `match` from `assert`. This appears to be leftover from debugging and should be removed.\"\n    },\n    {\n      \"path\": \"server/src/service/infrastructure/networkService.js\",\n      \"start_line\": 152,\n      \"end_line\": 171,\n      \"content\": \"The `matchMethod` handling silently treats unknown match methods as no-match (returns 500). Previously the code logged the match attempt. Consider logging when `matchMethod` is unrecognized, and also note that `payload.includes` will throw if `payload` is not a string (e.g., object/array from JSON).\"\n    },\n    {\n      \"path\": \"server/src/service/infrastructure/networkService.js\",\n      \"start_line\": 288,\n      \"end_line\": 302,\n      \"content\": \"`dockerResponse.status` is assigned twice: first to `404` (a number) then to `false`. The first assignment is a bug — it should be `dockerResponse.code = 404`. As written, `status` briefly holds a number before being overwritten, and `code` is never set on the ambiguous-match path.\"\n    },\n    {\n      \"path\": \"server/src/db/mongo/migration/0001_migrateStatusWindowThreshold.js\",\n      \"start_line\": 1,\n      \"end_line\": 18,\n      \"content\": \"This migration is not idempotent in a safe way: it multiplies any value `< 1` by 100 on every startup. If a user intentionally sets a threshold below 1 (e.g., 0.5 meaning 0.5%), it will be silently rewritten. More importantly, if the migration partially fails and is re-run, already-migrated values (now >= 1) are skipped, but any value that was legitimately < 1 will be re-multiplied. Consider tracking migration completion in a dedicated collection, or using a sentinel/version field.\"\n    },\n    {\n      \"path\": \"server/src/db/mongo/migration/index.js\",\n      \"start_line\": 1,\n      \"end_line\": 7,\n      \"content\": \"`runMigrations` is awaited in `MongoDB.connect` but errors from individual migrations are swallowed (each returns true/false without throwing). If a migration fails, the app continues silently. Consider surfacing failures or at least logging at error level so operators notice.\"\n    },\n    {\n      \"path\": \"server/src/db/models/Monitor.js\",\n      \"start_line\": 41,\n      \"end_line\": 41,\n      \"content\": \"Changing the default from `0.6` to `60` is a breaking semantic change (fraction -> percent). Ensure all consumers of `statusWindowThreshold` (e.g., `statusService.js`) treat it as a percentage. The comparison in `statusService.js` was changed from `<=` to `<`, which combined with the new default may subtly alter recovery behavior — please confirm this is intentional.\"\n    },\n    {\n      \"path\": \"client/src/Pages/Incidents/Components/IncidentTable/index.jsx\",\n      \"start_line\": 24,\n      \"end_line\": 24,\n      \"content\": \"`GetTooltip` is a React component that calls `useTheme()` but is invoked as a plain function inside `DataTable` (`config.tooltipContent(row)`). Calling a hook outside of a component render will violate the Rules of Hooks and can cause runtime errors or incorrect theme values. Either convert `GetTooltip` to a hook-free function that receives the theme, or render it as a component (e.g., `<GetTooltip row={row} />`) inside the Tooltip `title`.\"\n    },\n    {\n      \"path\": \"client/src/Components/Table/index.jsx\",\n      \"start_line\": 106,\n      \"end_line\": 152,\n      \"content\": \"Wrapping every `TableRow` in a `Tooltip` will render a tooltip for every row even when `tooltipContent` is null/undefined, which adds unnecessary DOM/popper overhead and can interfere with row click handlers. Consider conditionally rendering the Tooltip only when `config.tooltipContent` is provided.\"\n    },\n    {\n      \"path\": \"client/src/Validation/validation.js\",\n      \"start_line\": 133,\n      \"end_line\": 137,\n      \"content\": \"The new regex allows a leading `/` via `(\\\\/+)?` but the subsequent alternatives don't account for that slash being stripped before matching the name/ID portion. Also, the `[a-f0-9]{12,64}` branch only matches lowercase hex, while Docker short IDs are typically lowercase hex — that's fine — but the name branch `[a-zA-Z0-9][a-zA-Z0-9_.-]*[a-zA-Z0-9]` requires at least 2 characters, rejecting single-character container names. Verify this is intended.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

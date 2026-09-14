@@ -1,0 +1,23 @@
+{
+  "instance_id": "linera-io__linera-protocol@3535ddb",
+  "repo": "linera-io/linera-protocol",
+  "base_commit": "c31634e52d719fdf60694f47812e2f007022ae26",
+  "head_commit": "3535ddb83de7dfae5db1732a7f1535031d31380a",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:34:05.782994+00:00",
+  "duration_seconds": 77.87,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "linera-core/src/client/mod.rs",
+        "start_line": 856,
+        "end_line": 858,
+        "content": "This EOF check assumes the remote validator uses the exact same pagination limit as this client. The limit is not part of the query or response, so a mixed-version validator with a smaller limit (especially once the TODO changes this value) will return a short, nonempty page and the client will silently omit the remaining log. Continue until an empty page is returned, or add an explicit continuation/total-count marker to the protocol."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"linera-core/src/client/mod.rs\",\"start_line\":856,\"end_line\":858,\"content\":\"This EOF check assumes the remote validator uses the exact same pagination limit as this client. The limit is not part of the query or response, so a mixed-version validator with a smaller limit (especially once the TODO changes this value) will return a short, nonempty page and the client will silently omit the remaining log. Continue until an empty page is returned, or add an explicit continuation/total-count marker to the protocol.\"}]}",
+  "stderr": null
+}

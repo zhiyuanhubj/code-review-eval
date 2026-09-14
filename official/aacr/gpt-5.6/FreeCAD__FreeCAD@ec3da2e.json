@@ -1,0 +1,23 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@ec3da2e",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "79008331b30d098b2c32e59752e24e0705b350bc",
+  "head_commit": "ec3da2e93e3fd8f69f113ca14abf892dfb86c11b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:09.846793+00:00",
+  "duration_seconds": 16.37,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Mod/TechDraw/App/DrawViewPart.h",
+        "start_line": 242,
+        "end_line": 244,
+        "content": "These declarations do not match the new definitions in DrawViewPart.cpp: they are declared static with `(App::DocumentObject*, std::string)`, while the definitions are non-static member functions taking only `std::string`. This will fail to compile with “no declaration matches.” Declare them as non-static one-argument methods (or change the definitions to match the static signatures)."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/Mod/TechDraw/App/DrawViewPart.h\",\"start_line\":242,\"end_line\":244,\"content\":\"These declarations do not match the new definitions in DrawViewPart.cpp: they are declared static with `(App::DocumentObject*, std::string)`, while the definitions are non-static member functions taking only `std::string`. This will fail to compile with “no declaration matches.” Declare them as non-static one-argument methods (or change the definitions to match the static signatures).\"}]}",
+  "stderr": null
+}

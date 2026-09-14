@@ -1,0 +1,16 @@
+{
+  "instance_id": "nextcloud__server@51b5ea9",
+  "repo": "nextcloud/server",
+  "base_commit": "4aa4972550bec08faf477113f223475f7fb3e5d2",
+  "head_commit": "51b5ea92ccb5f4683b0f52840a01031e1ed0baa3",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:42.311008+00:00",
+  "duration_seconds": 9.97,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

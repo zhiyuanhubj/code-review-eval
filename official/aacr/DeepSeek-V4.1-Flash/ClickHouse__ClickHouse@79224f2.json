@@ -1,0 +1,38 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@79224f2",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "cb7d649b965c4049bf97942db7125cce1154ca38",
+  "head_commit": "79224f240cf020f73a9f492ce293d046fc0b7949",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:38:28.411855+00:00",
+  "duration_seconds": 8.41,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp",
+        "start_line": 190,
+        "end_line": 240,
+        "content": "The `processing_lock` acquired in `prepareSetProcessingRequests` is a `std::unique_lock` local to that function, so it is released as soon as the function returns. This means the lock does not actually protect the file from being processed concurrently by another table on the same server during the subsequent Keeper request/response round-trip. The intent of the change (avoiding duplicate processing of the same file by multiple tables on the same server) is not achieved: between `prepareSetProcessingRequests` returning and the Keeper `Set` succeeding, another table can still acquire the lock and prepare the same file. The lock needs to be held until the Keeper response is processed (e.g. store it in `file_metadatas[i]` or in a member container) for the fix to be effective.",
+        "side": "right"
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp",
+        "start_line": 217,
+        "end_line": 240,
+        "content": "When `num_successful_objects != new_batch.size()`, `new_batch` is compacted to only contain the successfully-prepared objects. However, `result_indexes` and `file_metadatas` are not compacted correspondingly. In the success branch above, the loop iterates over `new_batch.size()` and indexes `result_indexes[i]` / `file_metadatas[i]` — after compaction these indices no longer line up with the original entries (the `nullptr` entries were removed but `result_indexes`/`file_metadatas` still have holes at those positions). This can cause reading stale/wrong response indexes or mismatched file metadata. Either compact `result_indexes` and `file_metadatas` in the same way, or keep the original `new_batch` for the response-handling loop and only filter afterwards.",
+        "side": "right"
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp",
+        "start_line": 220,
+        "end_line": 235,
+        "content": "`LOG_TEST(log, \"Successfully set {} files as processing\", new_batch.size())` is now misleading: `new_batch.size()` may include entries that were skipped (set to `nullptr`) because `prepareSetProcessingRequests` returned `std::nullopt`. The count should reflect only the objects actually set as processing (e.g. `num_successful_objects`).",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp\",\n      \"start_line\": 190,\n      \"end_line\": 240,\n      \"content\": \"The `processing_lock` acquired in `prepareSetProcessingRequests` is a `std::unique_lock` local to that function, so it is released as soon as the function returns. This means the lock does not actually protect the file from being processed concurrently by another table on the same server during the subsequent Keeper request/response round-trip. The intent of the change (avoiding duplicate processing of the same file by multiple tables on the same server) is not achieved: between `prepareSetProcessingRequests` returning and the Keeper `Set` succeeding, another table can still acquire the lock and prepare the same file. The lock needs to be held until the Keeper response is processed (e.g. store it in `file_metadatas[i]` or in a member container) for the fix to be effective.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp\",\n      \"start_line\": 217,\n      \"end_line\": 240,\n      \"content\": \"When `num_successful_objects != new_batch.size()`, `new_batch` is compacted to only contain the successfully-prepared objects. However, `result_indexes` and `file_metadatas` are not compacted correspondingly. In the success branch above, the loop iterates over `new_batch.size()` and indexes `result_indexes[i]` / `file_metadatas[i]` — after compaction these indices no longer line up with the original entries (the `nullptr` entries were removed but `result_indexes`/`file_metadatas` still have holes at those positions). This can cause reading stale/wrong response indexes or mismatched file metadata. Either compact `result_indexes` and `file_metadatas` in the same way, or keep the original `new_batch` for the response-handling loop and only filter afterwards.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp\",\n      \"start_line\": 220,\n      \"end_line\": 235,\n      \"content\": \"`LOG_TEST(log, \\\"Successfully set {} files as processing\\\", new_batch.size())` is now misleading: `new_batch.size()` may include entries that were skipped (set to `nullptr`) because `prepareSetProcessingRequests` returned `std::nullopt`. The count should reflect only the objects actually set as processing (e.g. `num_successful_objects`).\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

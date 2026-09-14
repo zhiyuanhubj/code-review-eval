@@ -1,0 +1,23 @@
+{
+  "instance_id": "keycloak__keycloak@805c204",
+  "repo": "keycloak/keycloak",
+  "base_commit": "8521b9952a989d0dac17697278610b053c613528",
+  "head_commit": "805c204a9dbfb5b8128de8f70c9f3fbd6d6583f9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:51:18.169543+00:00",
+  "duration_seconds": 18.32,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "docs/maven-plugin/src/main/java/org/keycloak/guides/maven/GuideParser.java",
+        "start_line": 78,
+        "end_line": 82,
+        "content": "The tileVisible attribute parsing uses Boolean.parseBoolean which returns false for any value other than \"true\" (case-insensitive). This means invalid values like \"yes\", \"1\", or typos will silently become false. Consider adding validation or using a stricter parser that throws on invalid values."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"docs/maven-plugin/src/main/java/org/keycloak/guides/maven/GuideParser.java\",\n      \"start_line\": 78,\n      \"end_line\": 82,\n      \"content\": \"The tileVisible attribute parsing uses Boolean.parseBoolean which returns false for any value other than \\\"true\\\" (case-insensitive). This means invalid values like \\\"yes\\\", \\\"1\\\", or typos will silently become false. Consider adding validation or using a stricter parser that throws on invalid values.\"\n    }\n  ]\n}",
+  "stderr": null
+}

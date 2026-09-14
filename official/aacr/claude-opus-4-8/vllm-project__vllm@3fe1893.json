@@ -1,0 +1,23 @@
+{
+  "instance_id": "vllm-project__vllm@3fe1893",
+  "repo": "vllm-project/vllm",
+  "base_commit": "c3bf9bad11193ee684ed6083b6692d0b5bf2bac7",
+  "head_commit": "3fe18934d7f33b98812d7402463fe171c24efc77",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:59.244666+00:00",
+  "duration_seconds": 18.57,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "vllm/multimodal/profiling.py",
+        "start_line": 256,
+        "end_line": 258,
+        "content": "When `get_max_tokens_per_item()` returns a value, it is returned directly without filtering by `mm_counts`. The original path via `_get_mm_num_tokens(mm_inputs)` only includes modalities actually present given `mm_counts`. Here the returned mapping may include modalities (e.g. \"video\") that have a limit of 0 in `mm_counts`, or omit ones expected by callers. Consider filtering the returned mapping to the modalities in `mm_counts` (falling back to the dummy-input path for any missing keys) to keep behavior consistent."
+      }
+    ]
+  },
+  "raw_output": "Looking at this PR, let me analyze the changes carefully.\n\nThe `get_max_tokens_per_item` override in the profiling logic bypasses `mm_counts`. Let me examine whether this could cause an issue when `mm_counts` restricts the modalities present.\n\nLet me check the potential mismatch between the returned dict keys and the expected modalities.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"vllm/multimodal/profiling.py\",\n      \"start_line\": 256,\n      \"end_line\": 258,\n      \"content\": \"When `get_max_tokens_per_item()` returns a value, it is returned directly without filtering by `mm_counts`. The original path via `_get_mm_num_tokens(mm_inputs)` only includes modalities actually present given `mm_counts`. Here the returned mapping may include modalities (e.g. \\\"video\\\") that have a limit of 0 in `mm_counts`, or omit ones expected by callers. Consider filtering the returned mapping to the modalities in `mm_counts` (falling back to the dummy-input path for any missing keys) to keep behavior consistent.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

@@ -1,0 +1,38 @@
+{
+  "instance_id": "infiniflow__ragflow@a63caa1",
+  "repo": "infiniflow/ragflow",
+  "base_commit": "0a42e5777eb966b26aaf8f2a7d593ae99a4aa87a",
+  "head_commit": "a63caa1087852ada98964678be26b7c4d8363af6",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:34:42.157678+00:00",
+  "duration_seconds": 3.12,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "graphrag/entity_resolution.py",
+        "start_line": 114,
+        "end_line": 114,
+        "content": "The lambda captures `merging_nodes` by reference, so all scheduled tasks will use the last value from the loop. Use a default argument to bind the current value: `lambda merging_nodes=merging_nodes: self._merge_graph_nodes(graph, merging_nodes, change)`.",
+        "side": "right"
+      },
+      {
+        "path": "graphrag/general/extractor.py",
+        "start_line": 204,
+        "end_line": 205,
+        "content": "The `keywords` attribute is no longer merged. Previously both `keywords` and `source_id` were combined; now only `source_id` is updated, causing loss of keyword information. Please restore the merging of `keywords` as well.",
+        "side": "right"
+      },
+      {
+        "path": "graphrag/utils.py",
+        "start_line": 442,
+        "end_line": 442,
+        "content": "The lambda captures `from_node` and `to_node` by reference, so all tasks will use the last values from the loop. Use default arguments to bind the current values: `lambda from_node=from_node, to_node=to_node: settings.docStoreConn.delete(...)`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"graphrag/entity_resolution.py\",\n      \"start_line\": 114,\n      \"end_line\": 114,\n      \"content\": \"The lambda captures `merging_nodes` by reference, so all scheduled tasks will use the last value from the loop. Use a default argument to bind the current value: `lambda merging_nodes=merging_nodes: self._merge_graph_nodes(graph, merging_nodes, change)`.\"\n    },\n    {\n      \"path\": \"graphrag/general/extractor.py\",\n      \"start_line\": 204,\n      \"end_line\": 205,\n      \"content\": \"The `keywords` attribute is no longer merged. Previously both `keywords` and `source_id` were combined; now only `source_id` is updated, causing loss of keyword information. Please restore the merging of `keywords` as well.\"\n    },\n    {\n      \"path\": \"graphrag/utils.py\",\n      \"start_line\": 442,\n      \"end_line\": 442,\n      \"content\": \"The lambda captures `from_node` and `to_node` by reference, so all tasks will use the last values from the loop. Use default arguments to bind the current values: `lambda from_node=from_node, to_node=to_node: settings.docStoreConn.delete(...)`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

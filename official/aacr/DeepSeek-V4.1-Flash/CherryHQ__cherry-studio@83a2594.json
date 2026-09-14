@@ -1,0 +1,73 @@
+{
+  "instance_id": "CherryHQ__cherry-studio@83a2594",
+  "repo": "CherryHQ/cherry-studio",
+  "base_commit": "f258f5b2cb4a4cf9012e106837aba409b383e367",
+  "head_commit": "83a25941859179b635105c9b4fd79d5542e3701e",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:32:26.035460+00:00",
+  "duration_seconds": 8.99,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/renderer/src/pages/agents/index.ts",
+        "start_line": 19,
+        "end_line": 30,
+        "content": "`useSystemAgents` conditionally calls `useLocalSystemAgents` or `useRemoteSystemAgents`, which violates the Rules of Hooks. If `defaultaides` changes between renders (e.g., user edits the setting), the number/order of hooks called changes, causing React errors. Refactor so the hook always calls the same hooks, and branch inside the effect/return value instead.",
+        "side": "right"
+      },
+      {
+        "path": "src/renderer/src/pages/agents/index.ts",
+        "start_line": 33,
+        "end_line": 37,
+        "content": "`useRemoteSystemAgents` reads `store.getState().settings.defaultaides` directly and returns `agents` early if it's null/undefined, before calling `useEffect`. This is another conditional hook call. Also, reading from the store via `getState()` won't trigger re-renders when the setting changes; use `useSelector` instead.",
+        "side": "right"
+      },
+      {
+        "path": "src/renderer/src/pages/agents/index.ts",
+        "start_line": 38,
+        "end_line": 55,
+        "content": "The artificial `await new Promise(resolve => setTimeout(resolve, 500))` delay before fetching is unnecessary and will slow down agent loading. Remove it.",
+        "side": "right"
+      },
+      {
+        "path": "src/renderer/src/store/settings.ts",
+        "start_line": 209,
+        "end_line": 209,
+        "content": "`defaultaides` is initialized to the literal string `'settings.defaultaides'`, which is not a URL and not a valid i18n key at this location. This will cause `useSystemAgents` to fall into the local branch (since it doesn't start with 'http'), but the value is meaningless. Initialize to `null` or an empty string.",
+        "side": "right"
+      },
+      {
+        "path": "src/renderer/src/store/settings.ts",
+        "start_line": 459,
+        "end_line": 461,
+        "content": "Action name `setefaultAides` is misspelled (missing 'D'). Rename to `setDefaultAides` for consistency and to avoid confusion.",
+        "side": "right"
+      },
+      {
+        "path": "src/renderer/src/i18n/locales/en-us.json",
+        "start_line": 1390,
+        "end_line": 1390,
+        "content": "Key `defaultaides` is added under `settings.data` but the component uses `settings.data.default_aides.title` / `.repo_url` / `.repo_url_placeholder`. The key names don't match, so translations will be missing. Also `defaultaides` is misspelled (should be `default_aides`).",
+        "side": "right"
+      },
+      {
+        "path": "src/renderer/src/i18n/locales/zh-cn.json",
+        "start_line": 970,
+        "end_line": 974,
+        "content": "The `default_aides` block is added only to `zh-cn.json`. Other locales (en-us, ja-jp, ru-ru, zh-tw) add a differently-named `defaultaides` key under `settings.data`, so `t('settings.data.default_aides.title')` will fall back to the key string in those languages. Align the key names across all locale files.",
+        "side": "right"
+      },
+      {
+        "path": "src/renderer/src/pages/settings/DataSettings/DefaultaidesSettings.tsx",
+        "start_line": 1,
+        "end_line": 46,
+        "content": "File mode is 100755 (executable). Source files should be 100644. Also there are stray blank lines and the component name `DefaultaidesSettings` is misspelled; consider `DefaultAidesSettings`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/renderer/src/pages/agents/index.ts\",\n      \"start_line\": 19,\n      \"end_line\": 30,\n      \"content\": \"`useSystemAgents` conditionally calls `useLocalSystemAgents` or `useRemoteSystemAgents`, which violates the Rules of Hooks. If `defaultaides` changes between renders (e.g., user edits the setting), the number/order of hooks called changes, causing React errors. Refactor so the hook always calls the same hooks, and branch inside the effect/return value instead.\"\n    },\n    {\n      \"path\": \"src/renderer/src/pages/agents/index.ts\",\n      \"start_line\": 33,\n      \"end_line\": 37,\n      \"content\": \"`useRemoteSystemAgents` reads `store.getState().settings.defaultaides` directly and returns `agents` early if it's null/undefined, before calling `useEffect`. This is another conditional hook call. Also, reading from the store via `getState()` won't trigger re-renders when the setting changes; use `useSelector` instead.\"\n    },\n    {\n      \"path\": \"src/renderer/src/pages/agents/index.ts\",\n      \"start_line\": 38,\n      \"end_line\": 55,\n      \"content\": \"The artificial `await new Promise(resolve => setTimeout(resolve, 500))` delay before fetching is unnecessary and will slow down agent loading. Remove it.\"\n    },\n    {\n      \"path\": \"src/renderer/src/store/settings.ts\",\n      \"start_line\": 209,\n      \"end_line\": 209,\n      \"content\": \"`defaultaides` is initialized to the literal string `'settings.defaultaides'`, which is not a URL and not a valid i18n key at this location. This will cause `useSystemAgents` to fall into the local branch (since it doesn't start with 'http'), but the value is meaningless. Initialize to `null` or an empty string.\"\n    },\n    {\n      \"path\": \"src/renderer/src/store/settings.ts\",\n      \"start_line\": 459,\n      \"end_line\": 461,\n      \"content\": \"Action name `setefaultAides` is misspelled (missing 'D'). Rename to `setDefaultAides` for consistency and to avoid confusion.\"\n    },\n    {\n      \"path\": \"src/renderer/src/i18n/locales/en-us.json\",\n      \"start_line\": 1390,\n      \"end_line\": 1390,\n      \"content\": \"Key `defaultaides` is added under `settings.data` but the component uses `settings.data.default_aides.title` / `.repo_url` / `.repo_url_placeholder`. The key names don't match, so translations will be missing. Also `defaultaides` is misspelled (should be `default_aides`).\"\n    },\n    {\n      \"path\": \"src/renderer/src/i18n/locales/zh-cn.json\",\n      \"start_line\": 970,\n      \"end_line\": 974,\n      \"content\": \"The `default_aides` block is added only to `zh-cn.json`. Other locales (en-us, ja-jp, ru-ru, zh-tw) add a differently-named `defaultaides` key under `settings.data`, so `t('settings.data.default_aides.title')` will fall back to the key string in those languages. Align the key names across all locale files.\"\n    },\n    {\n      \"path\": \"src/renderer/src/pages/settings/DataSettings/DefaultaidesSettings.tsx\",\n      \"start_line\": 1,\n      \"end_line\": 46,\n      \"content\": \"File mode is 100755 (executable). Source files should be 100644. Also there are stray blank lines and the component name `DefaultaidesSettings` is misspelled; consider `DefaultAidesSettings`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

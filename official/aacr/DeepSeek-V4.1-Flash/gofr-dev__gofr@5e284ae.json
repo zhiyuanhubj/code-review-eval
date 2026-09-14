@@ -1,0 +1,45 @@
+{
+  "instance_id": "gofr-dev__gofr@5e284ae",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "de79ab765d0d34d78a42ebdd50a21a6f26841b7f",
+  "head_commit": "5e284aec0447be34c96a252e959067c8bcd9cd4c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:31:55.011524+00:00",
+  "duration_seconds": 6.13,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/gofr/handler.go",
+        "start_line": 66,
+        "end_line": 74,
+        "content": "Mutating `h.container.Logger` on the shared container is not safe for concurrent requests. `ServeHTTP` can be invoked concurrently for different requests, so one request's `defer` can restore the original logger while another request is still executing, causing trace IDs to be lost or mixed between requests. Consider passing the context logger explicitly to `h.function`/`logError` instead of swapping the container's logger.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/logging/ctx_logger.go",
+        "start_line": 30,
+        "end_line": 37,
+        "content": "`withTraceInfo` appends the trace map to the end of `args`. For `*f` methods, the trace map is appended after the format arguments, which is fine for `fmt.Sprintf`, but for non-format methods the trace map ends up as the last argument. More importantly, `extractTraceIDAndFilterArgs` in logger.go only extracts the trace ID if it appears as a `map[string]any` in args; if a user legitimately logs a `map[string]any` containing a `__trace_id__` key, it will be silently stripped. Consider using a dedicated unexported type instead of a magic map key to avoid collisions.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/logging/logger.go",
+        "start_line": 72,
+        "end_line": 82,
+        "content": "When `format != \"\"` and `filteredArgs` is empty (e.g. `Infof(\"hello\")` with no args), `fmt.Sprintf(format, filteredArgs...)` is fine. However, when the trace map was the only arg and format is empty, `filteredArgs` becomes empty and `entry.Message` is left as nil, producing a log entry with no message. This is an edge case but worth handling.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/logging/logger.go",
+        "start_line": 247,
+        "end_line": 267,
+        "content": "`extractTraceIDAndFilterArgs` silently drops any user-supplied `map[string]any` that happens to contain a `__trace_id__` string key. This is a surprising side effect for callers who log arbitrary maps. Use a private sentinel type (e.g. `type traceIDArg struct{ id string }`) instead of a magic map key to make the intent explicit and avoid collisions.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/handler.go\",\n      \"start_line\": 66,\n      \"end_line\": 74,\n      \"content\": \"Mutating `h.container.Logger` on the shared container is not safe for concurrent requests. `ServeHTTP` can be invoked concurrently for different requests, so one request's `defer` can restore the original logger while another request is still executing, causing trace IDs to be lost or mixed between requests. Consider passing the context logger explicitly to `h.function`/`logError` instead of swapping the container's logger.\"\n    },\n    {\n      \"path\": \"pkg/gofr/logging/ctx_logger.go\",\n      \"start_line\": 30,\n      \"end_line\": 37,\n      \"content\": \"`withTraceInfo` appends the trace map to the end of `args`. For `*f` methods, the trace map is appended after the format arguments, which is fine for `fmt.Sprintf`, but for non-format methods the trace map ends up as the last argument. More importantly, `extractTraceIDAndFilterArgs` in logger.go only extracts the trace ID if it appears as a `map[string]any` in args; if a user legitimately logs a `map[string]any` containing a `__trace_id__` key, it will be silently stripped. Consider using a dedicated unexported type instead of a magic map key to avoid collisions.\"\n    },\n    {\n      \"path\": \"pkg/gofr/logging/logger.go\",\n      \"start_line\": 72,\n      \"end_line\": 82,\n      \"content\": \"When `format != \\\"\\\"` and `filteredArgs` is empty (e.g. `Infof(\\\"hello\\\")` with no args), `fmt.Sprintf(format, filteredArgs...)` is fine. However, when the trace map was the only arg and format is empty, `filteredArgs` becomes empty and `entry.Message` is left as nil, producing a log entry with no message. This is an edge case but worth handling.\"\n    },\n    {\n      \"path\": \"pkg/gofr/logging/logger.go\",\n      \"start_line\": 247,\n      \"end_line\": 267,\n      \"content\": \"`extractTraceIDAndFilterArgs` silently drops any user-supplied `map[string]any` that happens to contain a `__trace_id__` string key. This is a surprising side effect for callers who log arbitrary maps. Use a private sentinel type (e.g. `type traceIDArg struct{ id string }`) instead of a magic map key to make the intent explicit and avoid collisions.\"\n    }\n  ]\n}",
+  "stderr": null
+}

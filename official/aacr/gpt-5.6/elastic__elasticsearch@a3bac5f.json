@@ -1,0 +1,23 @@
+{
+  "instance_id": "elastic__elasticsearch@a3bac5f",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "4ac8d55ff7c5612413e4a45e14a2b39f3e85f3a9",
+  "head_commit": "a3bac5f2d4020183019a47d8d64c08123f7ec25d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:30:53.782226+00:00",
+  "duration_seconds": 15.7,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "x-pack/qa/repository-old-versions-compatibility/src/javaRestTest/java/org/elasticsearch/oldrepos/TestSnapshotCases.java",
+        "start_line": 20,
+        "end_line": 23,
+        "content": "Both version 6 constants point to the version 5 snapshot names, so the new version 6 tests duplicate the version 5 coverage and never load `snapshot_v6_custom_analyzer.zip` (and the existing basic v6 test now also loads v5). These values should be `\"6\"` and `\"6_custom_analyzer\"`, respectively."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"x-pack/qa/repository-old-versions-compatibility/src/javaRestTest/java/org/elasticsearch/oldrepos/TestSnapshotCases.java\",\"start_line\":20,\"end_line\":23,\"content\":\"Both version 6 constants point to the version 5 snapshot names, so the new version 6 tests duplicate the version 5 coverage and never load `snapshot_v6_custom_analyzer.zip` (and the existing basic v6 test now also loads v5). These values should be `\\\"6\\\"` and `\\\"6_custom_analyzer\\\"`, respectively.\"}]}",
+  "stderr": null
+}

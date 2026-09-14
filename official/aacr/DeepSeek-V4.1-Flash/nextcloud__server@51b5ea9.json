@@ -1,0 +1,16 @@
+{
+  "instance_id": "nextcloud__server@51b5ea9",
+  "repo": "nextcloud/server",
+  "base_commit": "4aa4972550bec08faf477113f223475f7fb3e5d2",
+  "head_commit": "51b5ea92ccb5f4683b0f52840a01031e1ed0baa3",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:32:41.801624+00:00",
+  "duration_seconds": 7.47,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"lib/public/AppFramework/ApiController.php\",\n      \"start_line\": 61,\n      \"end_line\": 64,\n      \"content\": \"`getHeader('origin')` returns an empty string when the header is absent, but the previous code used `isset($this->request->server['HTTP_ORIGIN'])`. If a client sends an empty `Origin:` header, the old code would set `$origin = ''` while the new code falls back to `'*'`. More importantly, `getHeader` may return `null` in some implementations; comparing with `=== ''` would then not match and `$origin` could be `null`. Consider using `if ($origin === '' || $origin === null)` or `if (!$origin)` to preserve the intended fallback behavior.\"\n    },\n    {\n      \"path\": \"lib/public/AppFramework/Http/Response.php\",\n      \"start_line\": 185,\n      \"end_line\": 185,\n      \"content\": \"The `/** @var IConfig $config */` docblock is now redundant since `\\\\OCP\\\\Server::get(IConfig::class)` already returns the correct type. Not a bug, but the leftover annotation is misleading. Same applies to the `@psalm-suppress UndefinedClass` on line 228 which is no longer needed after switching to `\\\\OCP\\\\Server::get`.\"\n    },\n    {\n      \"path\": \"lib/public/Diagnostics/IQueryLogger.php\",\n      \"start_line\": 34,\n      \"end_line\": 34,\n      \"content\": \"Changing the documented return type of `stopQuery()` from `mixed` to `void` is a breaking change for any third-party implementations that relied on the previous contract (even if only documented). Since this is a public interface (`OCP`), consider whether this warrants a deprecation cycle or at least a note in the changelog. The actual implementations should be verified to return nothing.\"\n    },\n    {\n      \"path\": \"lib/public/L10N/ILanguageIterator.php\",\n      \"start_line\": 39,\n      \"end_line\": 42,\n      \"content\": \"Changing `next()` from `#[\\ReturnTypeWillChange] public function next();` to `public function next(): void;` is a breaking change for any third-party implementations of `ILanguageIterator`. Adding a return type to an interface method forces all implementers to update. This should be documented as a breaking change, or the return type should be added in a major release with proper deprecation.\"\n    },\n    {\n      \"path\": \"lib/public/Util.php\",\n      \"start_line\": 585,\n      \"end_line\": 585,\n      \"content\": \"`\\\\OCP\\\\Server::get(\\\\OC\\\\SystemConfig::class)` references a private/internal class (`OC\\\\SystemConfig`) from the public `OCP` namespace. This couples the public API to an internal implementation detail. Consider using `\\\\OCP\\\\IConfig` or another public interface, or keep using `\\\\OC::$server->getSystemConfig()` if no public equivalent exists.\"\n    }\n  ]\n}",
+  "stderr": null
+}

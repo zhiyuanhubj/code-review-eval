@@ -1,0 +1,47 @@
+{
+  "instance_id": "gofr-dev__gofr@2c0c099",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "c2ab1eb3308afa4f29842f0a982751bf65c059d0",
+  "head_commit": "2c0c0997cad66a1ee1e47f95db6a830394157c00",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:36.799220+00:00",
+  "duration_seconds": 15.22,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "examples/using-cron-jobs/main_test.go",
+        "start_line": 4,
+        "end_line": 11,
+        "content": "Duplicate import of \"gofr.dev/pkg/gofr/testutil\": it now appears both at the top (line 4) and in the second import group. This will not compile (redundant import will be flagged by the compiler as \"testutil redeclared\"). Remove one of the duplicate entries. Also, the local package import was placed in the standard-library group, which violates import grouping conventions."
+      },
+      {
+        "path": "examples/http-server/main_test.go",
+        "start_line": 25,
+        "end_line": 27,
+        "content": "In TestRedisHandler, REDIS_PORT is now set to strconv.Itoa(configs.MetricsPort). Previously it was the fixed value \"2001\". Using the metrics port as the Redis port is semantically wrong and misleading—the mock client makes the actual port irrelevant, but this couples an unrelated config value. Use a fixed/arbitrary port (e.g. \"2001\") or configs-independent value instead of the metrics port."
+      },
+      {
+        "path": "pkg/gofr/context_test.go",
+        "start_line": 7,
+        "end_line": 7,
+        "content": "Local import \"gofr.dev/pkg/gofr/testutil\" is placed inside the standard-library import block (between \"fmt\" and \"net/http\"). Move it to the gofr.dev import group to satisfy goimports/gofmt grouping conventions."
+      },
+      {
+        "path": "pkg/gofr/websocket_test.go",
+        "start_line": 6,
+        "end_line": 6,
+        "content": "Local import \"gofr.dev/pkg/gofr/testutil\" is placed inside the standard-library import block (between \"fmt\" and \"net/http/httptest\"). Move it to the gofr.dev import group to satisfy goimports/gofmt grouping conventions."
+      },
+      {
+        "path": "pkg/gofr/testutil/port.go",
+        "start_line": 34,
+        "end_line": 36,
+        "content": "The doc comment starts with \"ServerConfigsProvider sets up...\" but the function is named NewServerConfigs. Go doc comments must begin with the function name. Update the comment to start with \"NewServerConfigs\"."
+      }
+    ]
+  },
+  "raw_output": "Looking at the diff, let me identify real issues.\n\nThe most significant issues are the import ordering problems that would fail `goimports`/`gofmt` linting, and a duplicate import.\n\nLet me check the `examples/using-cron-jobs/main_test.go` - it imports `testutil` twice.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"examples/using-cron-jobs/main_test.go\",\n      \"start_line\": 4,\n      \"end_line\": 11,\n      \"content\": \"Duplicate import of \\\"gofr.dev/pkg/gofr/testutil\\\": it now appears both at the top (line 4) and in the second import group. This will not compile (redundant import will be flagged by the compiler as \\\"testutil redeclared\\\"). Remove one of the duplicate entries. Also, the local package import was placed in the standard-library group, which violates import grouping conventions.\"\n    },\n    {\n      \"path\": \"examples/http-server/main_test.go\",\n      \"start_line\": 25,\n      \"end_line\": 27,\n      \"content\": \"In TestRedisHandler, REDIS_PORT is now set to strconv.Itoa(configs.MetricsPort). Previously it was the fixed value \\\"2001\\\". Using the metrics port as the Redis port is semantically wrong and misleading—the mock client makes the actual port irrelevant, but this couples an unrelated config value. Use a fixed/arbitrary port (e.g. \\\"2001\\\") or configs-independent value instead of the metrics port.\"\n    },\n    {\n      \"path\": \"pkg/gofr/context_test.go\",\n      \"start_line\": 7,\n      \"end_line\": 7,\n      \"content\": \"Local import \\\"gofr.dev/pkg/gofr/testutil\\\" is placed inside the standard-library import block (between \\\"fmt\\\" and \\\"net/http\\\"). Move it to the gofr.dev import group to satisfy goimports/gofmt grouping conventions.\"\n    },\n    {\n      \"path\": \"pkg/gofr/websocket_test.go\",\n      \"start_line\": 6,\n      \"end_line\": 6,\n      \"content\": \"Local import \\\"gofr.dev/pkg/gofr/testutil\\\" is placed inside the standard-library import block (between \\\"fmt\\\" and \\\"net/http/httptest\\\"). Move it to the gofr.dev import group to satisfy goimports/gofmt grouping conventions.\"\n    },\n    {\n      \"path\": \"pkg/gofr/testutil/port.go\",\n      \"start_line\": 34,\n      \"end_line\": 36,\n      \"content\": \"The doc comment starts with \\\"ServerConfigsProvider sets up...\\\" but the function is named NewServerConfigs. Go doc comments must begin with the function name. Update the comment to start with \\\"NewServerConfigs\\\".\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

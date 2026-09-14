@@ -1,0 +1,16 @@
+{
+  "instance_id": "astral-sh__uv@61b521f",
+  "repo": "astral-sh/uv",
+  "base_commit": "041c7a5e63d5559ce5571a30e177c072b1b357b2",
+  "head_commit": "61b521f4e9a1e8bdba760394740814f25cc108c2",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:54.429521+00:00",
+  "duration_seconds": 10.98,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

@@ -1,0 +1,29 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@290bdc7",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "16968aa3ee1bc7f2caf4ce592d13066aa8755a80",
+  "head_commit": "290bdc79d1ad92669431458a62205d694522586e",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:17.614002+00:00",
+  "duration_seconds": 24.13,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/App/PropertyLinks.cpp",
+        "start_line": 1958,
+        "end_line": 1958,
+        "content": "Changing `std::forward<Args>(args)...` to `args...` alters forwarding semantics. Inside `updateLinkSubs`, the args are used across multiple loop iterations, so if a caller passes an rvalue reference, `std::forward` on the first iteration could move-from it, leaving it invalid for subsequent iterations. Passing `args...` (lvalue) here is actually the safer choice for a loop. This looks intentional and correct — but please confirm the Args are cheap-to-copy or references, otherwise each iteration copies. If they are expensive-to-copy types, consider capturing as `const auto&` locals before the loop."
+      },
+      {
+        "path": "src/Mod/TechDraw/App/EdgeWalker.cpp",
+        "start_line": 453,
+        "end_line": 459,
+        "content": "The constructor initializes `ed.m_source` and `ed.m_target` but does not initialize the other members (`v1`, `v2`, `idx`). Since those are now given default member initializers in the header, this is fine, but note that `ed` is a Boost graph `edge_descriptor` — assigning `m_source`/`m_target` to `0` assumes those members are accessible and integral. Verify these fields exist and are public for the `edge_t` type; otherwise this won't compile across Boost versions. If `edge_t` already default-initializes safely, this manual assignment may be redundant."
+      }
+    ]
+  },
+  "raw_output": "I'll analyze this PR for potential issues.\n\nLet me look at the key change in `PropertyLinks.cpp` - the removal of `std::forward` in a variadic template context.\n\n{\n  \"comments\": [\n    {\n      \"path\": \"src/App/PropertyLinks.cpp\",\n      \"start_line\": 1958,\n      \"end_line\": 1958,\n      \"content\": \"Changing `std::forward<Args>(args)...` to `args...` alters forwarding semantics. Inside `updateLinkSubs`, the args are used across multiple loop iterations, so if a caller passes an rvalue reference, `std::forward` on the first iteration could move-from it, leaving it invalid for subsequent iterations. Passing `args...` (lvalue) here is actually the safer choice for a loop. This looks intentional and correct — but please confirm the Args are cheap-to-copy or references, otherwise each iteration copies. If they are expensive-to-copy types, consider capturing as `const auto&` locals before the loop.\"\n    },\n    {\n      \"path\": \"src/Mod/TechDraw/App/EdgeWalker.cpp\",\n      \"start_line\": 453,\n      \"end_line\": 459,\n      \"content\": \"The constructor initializes `ed.m_source` and `ed.m_target` but does not initialize the other members (`v1`, `v2`, `idx`). Since those are now given default member initializers in the header, this is fine, but note that `ed` is a Boost graph `edge_descriptor` — assigning `m_source`/`m_target` to `0` assumes those members are accessible and integral. Verify these fields exist and are public for the `edge_t` type; otherwise this won't compile across Boost versions. If `edge_t` already default-initializes safely, this manual assignment may be redundant.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,38 @@
+{
+  "instance_id": "immich-app__immich@b7a1255",
+  "repo": "immich-app/immich",
+  "base_commit": "b845184c80295603e3a02dfad84ff2755d417aff",
+  "head_commit": "b7a12558bc8e69c9c96b9a5b12f61f94689ea0e3",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:20.097593+00:00",
+  "duration_seconds": 3.57,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/services/notification.service.ts",
+        "start_line": 97,
+        "end_line": 97,
+        "content": "The `removeJob` call is now made unconditionally before queueing. Previously, the job was removed and its data merged. Now, since each recipient gets a unique jobId (`${id}/${recipientID}`), removing the existing job before queueing means the delay timer is reset every time a new asset is added to the album. This is a behavior change: previously the delay was preserved from the first job (via merging recipientIds), so a user wouldn't get spammed with repeated 5-minute delays. Now, if assets are added repeatedly, the notification may be perpetually delayed. Consider whether this is intended.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/repositories/job.repository.ts",
+        "start_line": 233,
+        "end_line": 240,
+        "content": "The `removeJob` method no longer catches the 'Missing key for job' error. In BullMQ v5, `job.remove()` can still throw if the job is in an active state or already removed. The previous error handling was there for a reason. Removing it may cause unhandled exceptions. Verify that this is safe with BullMQ v5 semantics.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/services/notification.service.ts",
+        "start_line": 305,
+        "end_line": 307,
+        "content": "The `handleAlbumUpdate` now returns `JobStatus.SKIPPED` if the user is not found. Previously, it would `continue` to the next recipient. Since each job now handles a single recipient, returning SKIPPED is fine, but note that the job will be marked as skipped rather than completed. This is a minor semantic change but acceptable.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"server/src/services/notification.service.ts\",\"start_line\":97,\"end_line\":97,\"content\":\"The `removeJob` call is now made unconditionally before queueing. Previously, the job was removed and its data merged. Now, since each recipient gets a unique jobId (`${id}/${recipientID}`), removing the existing job before queueing means the delay timer is reset every time a new asset is added to the album. This is a behavior change: previously the delay was preserved from the first job (via merging recipientIds), so a user wouldn't get spammed with repeated 5-minute delays. Now, if assets are added repeatedly, the notification may be perpetually delayed. Consider whether this is intended.\"},{\"path\":\"server/src/repositories/job.repository.ts\",\"start_line\":233,\"end_line\":240,\"content\":\"The `removeJob` method no longer catches the 'Missing key for job' error. In BullMQ v5, `job.remove()` can still throw if the job is in an active state or already removed. The previous error handling was there for a reason. Removing it may cause unhandled exceptions. Verify that this is safe with BullMQ v5 semantics.\"},{\"path\":\"server/src/services/notification.service.ts\",\"start_line\":305,\"end_line\":307,\"content\":\"The `handleAlbumUpdate` now returns `JobStatus.SKIPPED` if the user is not found. Previously, it would `continue` to the next recipient. Since each job now handles a single recipient, returning SKIPPED is fine, but note that the job will be marked as skipped rather than completed. This is a minor semantic change but acceptable.\"}]}",
+  "stderr": null
+}

@@ -1,0 +1,23 @@
+{
+  "instance_id": "langflow-ai__langflow@9513d15",
+  "repo": "langflow-ai/langflow",
+  "base_commit": "d035e41e631f0da97bdc0e93e7afdae78d5e94da",
+  "head_commit": "9513d152197e5336fbc00eb6b891f1ffb25ad62d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:33:22.344199+00:00",
+  "duration_seconds": 15.45,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/backend/base/langflow/graph/vertex/base.py",
+        "start_line": 634,
+        "end_line": 634,
+        "content": "This deadlocks when called from `get_result`: `get_result` already holds `self._lock` while awaiting `_get_result`, which now awaits this method and attempts to acquire the same non-reentrant lock. With a `flow_id`, result retrieval will hang indefinitely. Use a separate lock for transaction-task bookkeeping or avoid reacquiring `self._lock` here."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/backend/base/langflow/graph/vertex/base.py\",\"start_line\":634,\"end_line\":634,\"content\":\"This deadlocks when called from `get_result`: `get_result` already holds `self._lock` while awaiting `_get_result`, which now awaits this method and attempts to acquire the same non-reentrant lock. With a `flow_id`, result retrieval will hang indefinitely. Use a separate lock for transaction-task bookkeeping or avoid reacquiring `self._lock` here.\"}]}",
+  "stderr": null
+}

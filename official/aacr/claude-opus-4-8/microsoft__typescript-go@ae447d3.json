@@ -1,0 +1,29 @@
+{
+  "instance_id": "microsoft__typescript-go@ae447d3",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "15def0236938e25ec7822755444f4d58c68045be",
+  "head_commit": "ae447d3b2a6db00072941e1992a09981b6096061",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:11.204777+00:00",
+  "duration_seconds": 17.72,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "internal/execute/watch.go",
+        "start_line": 45,
+        "end_line": 45,
+        "content": "Switching from `fmt.Fprint` to `fmt.Fprintln` changes the spacing semantics. `Fprint` only inserts spaces between operands when neither is a string, so the original produced `build starting at <time>` (no space before time since the preceding operand is a string). `Fprintln` always inserts spaces between all operands, so this now produces `build starting at  <time>` (double space, since there was already a trailing space in the literal). Remove the trailing space in the string literal, e.g. `\"build starting at\"`, to preserve intended formatting."
+      },
+      {
+        "path": "internal/execute/watch.go",
+        "start_line": 48,
+        "end_line": 48,
+        "content": "Same spacing concern as above: `fmt.Fprintln(w.sys.Writer(), \"build finished in \", ...)` will now insert a space between the (already space-terminated) literal and the duration, yielding a double space. Drop the trailing space to `\"build finished in\"`."
+      }
+    ]
+  },
+  "raw_output": "Looking at the diff, I need to check for issues introduced by the refactoring.\n\nThe main concern is the change in `watch.go` where `fmt.Fprint` was changed to `fmt.Fprintln`, which alters spacing behavior between arguments.\n\nLet me analyze the specific behavior change:\n\nIn `fmt.Fprint`, spaces are added between operands only when neither is a string. In `fmt.Fprintln`, spaces are always added between all operands.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"internal/execute/watch.go\",\n      \"start_line\": 45,\n      \"end_line\": 45,\n      \"content\": \"Switching from `fmt.Fprint` to `fmt.Fprintln` changes the spacing semantics. `Fprint` only inserts spaces between operands when neither is a string, so the original produced `build starting at <time>` (no space before time since the preceding operand is a string). `Fprintln` always inserts spaces between all operands, so this now produces `build starting at  <time>` (double space, since there was already a trailing space in the literal). Remove the trailing space in the string literal, e.g. `\\\"build starting at\\\"`, to preserve intended formatting.\"\n    },\n    {\n      \"path\": \"internal/execute/watch.go\",\n      \"start_line\": 48,\n      \"end_line\": 48,\n      \"content\": \"Same spacing concern as above: `fmt.Fprintln(w.sys.Writer(), \\\"build finished in \\\", ...)` will now insert a space between the (already space-terminated) literal and the duration, yielding a double space. Drop the trailing space to `\\\"build finished in\\\"`.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

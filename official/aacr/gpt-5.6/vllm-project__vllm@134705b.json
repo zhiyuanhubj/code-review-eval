@@ -1,0 +1,23 @@
+{
+  "instance_id": "vllm-project__vllm@134705b",
+  "repo": "vllm-project/vllm",
+  "base_commit": "d8037867313eef09779b265ea4bace76d2d118ba",
+  "head_commit": "134705b1474ddcfac234a0a01313874f7c8b59bc",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:29:10.444070+00:00",
+  "duration_seconds": 47.32,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "vllm/logger.py",
+        "start_line": 54,
+        "end_line": 63,
+        "content": "The `lru_cache` now hashes every logging argument before entering these functions, so valid logging calls with unhashable values (for example, `logger.info_once(\"metadata: %s\", {\"a\": 1})`) raise `TypeError` instead of logging. Since these methods are documented as behaving like `Logger.info`/`warning`, they should accept arbitrary logging arguments. Please avoid using the raw `args` tuple as the cache key; cache a rendered or otherwise hash-safe message key instead."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"vllm/logger.py\",\"start_line\":54,\"end_line\":63,\"content\":\"The `lru_cache` now hashes every logging argument before entering these functions, so valid logging calls with unhashable values (for example, `logger.info_once(\\\"metadata: %s\\\", {\\\"a\\\": 1})`) raise `TypeError` instead of logging. Since these methods are documented as behaving like `Logger.info`/`warning`, they should accept arbitrary logging arguments. Please avoid using the raw `args` tuple as the cache key; cache a rendered or otherwise hash-safe message key instead.\"}]}",
+  "stderr": null
+}

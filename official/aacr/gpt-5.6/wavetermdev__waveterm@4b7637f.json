@@ -1,0 +1,16 @@
+{
+  "instance_id": "wavetermdev__waveterm@4b7637f",
+  "repo": "wavetermdev/waveterm",
+  "base_commit": "ce9775c00c36ba290c7a6f5134c0ff7759def6eb",
+  "head_commit": "4b7637fb17fb0f937d67f12a63f3f370a3343117",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:28:20.333639+00:00",
+  "duration_seconds": 71.3,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": null
+}

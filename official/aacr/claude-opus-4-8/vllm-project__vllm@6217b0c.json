@@ -1,0 +1,16 @@
+{
+  "instance_id": "vllm-project__vllm@6217b0c",
+  "repo": "vllm-project/vllm",
+  "base_commit": "f4962a6d55a340ebb569d377c842deff7611d8f7",
+  "head_commit": "6217b0c46176fa51196d862e02e1b3722eefa4de",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:51.175791+00:00",
+  "duration_seconds": 10.95,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

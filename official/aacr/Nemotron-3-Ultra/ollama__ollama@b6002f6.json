@@ -1,0 +1,23 @@
+{
+  "instance_id": "ollama__ollama@b6002f6",
+  "repo": "ollama/ollama",
+  "base_commit": "92b96d54efd6b49322b7cf046f9a0dc16b00cd0a",
+  "head_commit": "b6002f6b6c69370f8c18a9e6c1cafa8463273a6b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:49:06.300192+00:00",
+  "duration_seconds": 28.87,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "ml/backend/ggml/ggml.go",
+        "start_line": 1004,
+        "end_line": 1045,
+        "content": "The Ints() method implementation is missing a return statement for the case when t.sync != nil. The method declares 'data' inside the if block but doesn't return it, and there's no return after the if-else chain. This will cause a compilation error."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"ml/backend/ggml/ggml.go\",\n      \"start_line\": 1004,\n      \"end_line\": 1045,\n      \"content\": \"The Ints() method implementation is missing a return statement for the case when t.sync != nil. The method declares 'data' inside the if block but doesn't return it, and there's no return after the if-else chain. This will cause a compilation error.\"\n    }\n  ]\n}",
+  "stderr": null
+}

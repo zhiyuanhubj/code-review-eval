@@ -1,0 +1,52 @@
+{
+  "instance_id": "browser-use__browser-use@aab7b3b",
+  "repo": "browser-use/browser-use",
+  "base_commit": "515b94225aa86c40dc2c20034055ab8bcc88c6ae",
+  "head_commit": "aab7b3bb54e2b15ee3b32ad7de74c91fc8b22f52",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:33:28.266233+00:00",
+  "duration_seconds": 6.38,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "browser_use/browser/browser.py",
+        "start_line": 283,
+        "end_line": 283,
+        "content": "Hardcoding `channel='chrome'` forces the use of the system-installed Chrome, which will break for users who don't have Chrome installed (e.g., Linux CI, macOS without Chrome, or users relying on the bundled Chromium). This should be configurable (e.g., via `BrowserConfig`) or omitted by default. Also, `channel` is not a valid argument for Firefox/WebKit launches, so this will fail when `browser_class` is 'firefox' or 'webkit'.",
+        "side": "right"
+      },
+      {
+        "path": "browser_use/browser/context.py",
+        "start_line": 413,
+        "end_line": 421,
+        "content": "The viewport is now only set when `headless=True`. In headed mode, `no_viewport` is no longer passed, so Playwright will use its default viewport (1280x720) instead of the configured `browser_window_size`. This is a behavior change that may break existing users who relied on `browser_window_size` being applied in headed mode. Consider always passing `viewport=self.config.browser_window_size` (with `no_viewport=False`) or preserving the previous `no_viewport=True` behavior for headed mode.",
+        "side": "right"
+      },
+      {
+        "path": "browser_use/browser/context.py",
+        "start_line": 446,
+        "end_line": 456,
+        "content": "The anti-detection init script was significantly reduced: `navigator.webdriver`, `navigator.languages`, `navigator.plugins`, `window.chrome`, and the `attachShadow` override were all removed. If patchright handles these internally this is fine, but if not, this is a regression in stealth capabilities. Please confirm patchright covers these; otherwise keep the removed overrides.",
+        "side": "right"
+      },
+      {
+        "path": "browser_use/agent/service.py",
+        "start_line": 261,
+        "end_line": 261,
+        "content": "This mutates the caller-provided `browser.config.new_context_config` in place. If the same `Browser` instance is shared across multiple `Agent`s with different `disable_security` settings, or if the config is reused elsewhere, this side effect can cause surprising behavior. Prefer constructing a copy (e.g., `self.browser.config.new_context_config.model_copy(update={'disable_security': ...})`) or setting it on the context config passed to `BrowserContext`.",
+        "side": "right"
+      },
+      {
+        "path": "browser_use/browser/browser.py",
+        "start_line": 127,
+        "end_line": 127,
+        "content": "`Browser.new_context` now passes `self.config.new_context_config` instead of `self.config`. This is a behavioral change: previously `BrowserContext(config=self.config, ...)` was used, and `BrowserContextConfig` fields were presumably read off the browser config. Verify that all callers relying on the old behavior (e.g., passing a `BrowserConfig` with context-related fields) still work, and that `BrowserContextConfig` is the intended type here.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"browser_use/browser/browser.py\",\n      \"start_line\": 283,\n      \"end_line\": 283,\n      \"content\": \"Hardcoding `channel='chrome'` forces the use of the system-installed Chrome, which will break for users who don't have Chrome installed (e.g., Linux CI, macOS without Chrome, or users relying on the bundled Chromium). This should be configurable (e.g., via `BrowserConfig`) or omitted by default. Also, `channel` is not a valid argument for Firefox/WebKit launches, so this will fail when `browser_class` is 'firefox' or 'webkit'.\"\n    },\n    {\n      \"path\": \"browser_use/browser/context.py\",\n      \"start_line\": 413,\n      \"end_line\": 421,\n      \"content\": \"The viewport is now only set when `headless=True`. In headed mode, `no_viewport` is no longer passed, so Playwright will use its default viewport (1280x720) instead of the configured `browser_window_size`. This is a behavior change that may break existing users who relied on `browser_window_size` being applied in headed mode. Consider always passing `viewport=self.config.browser_window_size` (with `no_viewport=False`) or preserving the previous `no_viewport=True` behavior for headed mode.\"\n    },\n    {\n      \"path\": \"browser_use/browser/context.py\",\n      \"start_line\": 446,\n      \"end_line\": 456,\n      \"content\": \"The anti-detection init script was significantly reduced: `navigator.webdriver`, `navigator.languages`, `navigator.plugins`, `window.chrome`, and the `attachShadow` override were all removed. If patchright handles these internally this is fine, but if not, this is a regression in stealth capabilities. Please confirm patchright covers these; otherwise keep the removed overrides.\"\n    },\n    {\n      \"path\": \"browser_use/agent/service.py\",\n      \"start_line\": 261,\n      \"end_line\": 261,\n      \"content\": \"This mutates the caller-provided `browser.config.new_context_config` in place. If the same `Browser` instance is shared across multiple `Agent`s with different `disable_security` settings, or if the config is reused elsewhere, this side effect can cause surprising behavior. Prefer constructing a copy (e.g., `self.browser.config.new_context_config.model_copy(update={'disable_security': ...})`) or setting it on the context config passed to `BrowserContext`.\"\n    },\n    {\n      \"path\": \"browser_use/browser/browser.py\",\n      \"start_line\": 127,\n      \"end_line\": 127,\n      \"content\": \"`Browser.new_context` now passes `self.config.new_context_config` instead of `self.config`. This is a behavioral change: previously `BrowserContext(config=self.config, ...)` was used, and `BrowserContextConfig` fields were presumably read off the browser config. Verify that all callers relying on the old behavior (e.g., passing a `BrowserConfig` with context-related fields) still work, and that `BrowserContextConfig` is the intended type here.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

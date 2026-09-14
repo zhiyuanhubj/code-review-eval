@@ -1,0 +1,16 @@
+{
+  "instance_id": "comfyanonymous__ComfyUI@cfc3122",
+  "repo": "comfyanonymous/ComfyUI",
+  "base_commit": "a86aaa430183068e2a264495c802c81d05eb350a",
+  "head_commit": "cfc312296c0b9f255bba6b4b2789ac7bbc66a7cb",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:32:01.135305+00:00",
+  "duration_seconds": 0.83,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RepoError: commit cfc312296c0b9f255bba6b4b2789ac7bbc66a7cb unavailable after fetch: fatal: remote error: upload-pack: not our ref cfc312296c0b9f255bba6b4b2789ac7bbc66a7cb"
+}

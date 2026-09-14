@@ -1,0 +1,53 @@
+{
+  "instance_id": "kestra-io__kestra@06e7c6e",
+  "repo": "kestra-io/kestra",
+  "base_commit": "01a77aff0422884ed7b18ba8d00a0495d0bab88e",
+  "head_commit": "06e7c6e48e22420da5bb0bf3188bc00f73974c9a",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:18.893381+00:00",
+  "duration_seconds": 23.28,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/execution/Assert.java",
+        "start_line": 90,
+        "end_line": 91,
+        "content": "The logging statement passes two arguments (`s` and `renderer`) but the message `\"Assertion `{}` failed!\"` has only one placeholder. The `renderer` value will be silently ignored. Either add a placeholder (e.g. `\"Assertion `{}` failed! Rendered value: `{}`\"`) or remove the extra argument."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/execution/Assert.java",
+        "start_line": 85,
+        "end_line": 88,
+        "content": "Reading `this.conditions.getExpression()` bypasses the standard Property rendering pipeline and assumes the raw expression is always a JSON array literal. If `conditions` is provided as a Pebble expression that resolves to a list, `getExpression()` will return the unrendered template string and JSON parsing will fail. Prefer using `runContext.render(this.conditions).asList(String.class)` to properly resolve the property, then render each item."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/execution/Assert.java",
+        "start_line": 78,
+        "end_line": 80,
+        "content": "Using `isFalsy` instead of `!isTruthy` changes semantics: a rendered value that is `null` will be treated as neither falsy nor a success (since `isFalsy(null)` returns false, the else branch increments success). A null/empty render likely indicates an assertion problem and would be counted as a success here. Consider using `!TruthUtils.isTruthy(renderer)` so empty/null values are correctly treated as failures per the documented boolean coercion (`''` coerces to false)."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/execution/Assert.java",
+        "start_line": 46,
+        "end_line": 47,
+        "content": "The example YAML contains a malformed line: `\"  - id: fail\\\\n\\\" +\\n\" +` embeds a literal `\\n\" +` inside the flow definition. This will produce a broken example in the generated documentation. Fix to `\"  - id: fail\\n\" +`."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/output/OutputValues.java",
+        "start_line": 54,
+        "end_line": 54,
+        "content": "This appears to be an accidental edit that corrupted the example: `{{ outputs.output_values.²}}` replaced the previous valid expression `{{ outputs.output_values.values.taskrun_data }}`. The `²` character is clearly unintended. Please revert this line."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/execution/Assert.java",
+        "start_line": 116,
+        "end_line": 116,
+        "content": "Throwing a raw `java.lang.Exception` is discouraged. Consider throwing a more specific exception type (e.g., `IllegalStateException` or a Kestra-specific exception) to convey the assertion failure semantics more clearly."
+      }
+    ]
+  },
+  "raw_output": "I'll analyze this PR for issues.\n\n{\n  \"comments\": [\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/execution/Assert.java\",\n      \"start_line\": 90,\n      \"end_line\": 91,\n      \"content\": \"The logging statement passes two arguments (`s` and `renderer`) but the message `\\\"Assertion `{}` failed!\\\"` has only one placeholder. The `renderer` value will be silently ignored. Either add a placeholder (e.g. `\\\"Assertion `{}` failed! Rendered value: `{}`\\\"`) or remove the extra argument.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/execution/Assert.java\",\n      \"start_line\": 85,\n      \"end_line\": 88,\n      \"content\": \"Reading `this.conditions.getExpression()` bypasses the standard Property rendering pipeline and assumes the raw expression is always a JSON array literal. If `conditions` is provided as a Pebble expression that resolves to a list, `getExpression()` will return the unrendered template string and JSON parsing will fail. Prefer using `runContext.render(this.conditions).asList(String.class)` to properly resolve the property, then render each item.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/execution/Assert.java\",\n      \"start_line\": 78,\n      \"end_line\": 80,\n      \"content\": \"Using `isFalsy` instead of `!isTruthy` changes semantics: a rendered value that is `null` will be treated as neither falsy nor a success (since `isFalsy(null)` returns false, the else branch increments success). A null/empty render likely indicates an assertion problem and would be counted as a success here. Consider using `!TruthUtils.isTruthy(renderer)` so empty/null values are correctly treated as failures per the documented boolean coercion (`''` coerces to false).\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/execution/Assert.java\",\n      \"start_line\": 46,\n      \"end_line\": 47,\n      \"content\": \"The example YAML contains a malformed line: `\\\"  - id: fail\\\\\\\\n\\\\\\\" +\\\\n\\\" +` embeds a literal `\\\\n\\\" +` inside the flow definition. This will produce a broken example in the generated documentation. Fix to `\\\"  - id: fail\\\\n\\\" +`.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/output/OutputValues.java\",\n      \"start_line\": 54,\n      \"end_line\": 54,\n      \"content\": \"This appears to be an accidental edit that corrupted the example: `{{ outputs.output_values.²}}` replaced the previous valid expression `{{ outputs.output_values.values.taskrun_data }}`. The `²` character is clearly unintended. Please revert this line.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/execution/Assert.java\",\n      \"start_line\": 116,\n      \"end_line\": 116,\n      \"content\": \"Throwing a raw `java.lang.Exception` is discouraged. Consider throwing a more specific exception type (e.g., `IllegalStateException` or a Kestra-specific exception) to convey the assertion failure semantics more clearly.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,73 @@
+{
+  "instance_id": "kestra-io__kestra@06e7c6e",
+  "repo": "kestra-io/kestra",
+  "base_commit": "01a77aff0422884ed7b18ba8d00a0495d0bab88e",
+  "head_commit": "06e7c6e48e22420da5bb0bf3188bc00f73974c9a",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:37:16.795722+00:00",
+  "duration_seconds": 6.61,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/output/OutputValues.java",
+        "start_line": 54,
+        "end_line": 54,
+        "content": "This looks like an accidental corruption of the documentation example: `{{ outputs.output_values.²}}` is invalid Pebble syntax and will break the example. It should likely be `{{ outputs.output_values.values.taskrun_data }}`.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/execution/Assert.java",
+        "start_line": 63,
+        "end_line": 63,
+        "content": "The example code contains a stray `\\n\\\" +` inside the YAML string (`\"  - id: fail\\\\n\\\" +\\n\"`), which will produce invalid YAML in the rendered example. Remove the leftover concatenation artifact.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/execution/Assert.java",
+        "start_line": 92,
+        "end_line": 92,
+        "content": "`this.conditions.getExpression()` is used directly without rendering. If the conditions property itself contains Pebble expressions (e.g. built from inputs), they won't be resolved before parsing as JSON. Consider using `runContext.render(this.conditions).asList(String.class)` or rendering the expression first.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/execution/Assert.java",
+        "start_line": 99,
+        "end_line": 99,
+        "content": "The log message has two placeholders `{}` but only one argument is passed (`s`); `renderer` is silently ignored. Either remove the extra placeholder or pass `renderer` as an argument.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/execution/Assert.java",
+        "start_line": 113,
+        "end_line": 113,
+        "content": "`failed` is an `AtomicInteger`; string concatenation will print the object's toString (e.g. `java.util.concurrent.atomic.AtomicInteger@...`) rather than the count. Use `failed.get()`.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/execution/Assert.java",
+        "start_line": 114,
+        "end_line": 114,
+        "content": "`runContext.render(errorMessage)` will throw NPE when `errorMessage` is null (the common case). Guard with a null check or use `Optional.ofNullable(errorMessage).map(...)`.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/utils/TruthUtils.java",
+        "start_line": 12,
+        "end_line": 12,
+        "content": "`isFalsy` returns false for `null`, which is inconsistent with the semantics used by `Assert`: a null renderer should be treated as falsy (assertion failed). Consider `condition == null || FALSE_VALUES.contains(condition)`.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/test/resources/flows/valids/assert.yaml",
+        "start_line": 16,
+        "end_line": 16,
+        "content": "Missing trailing newline at end of file.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/output/OutputValues.java\",\n      \"start_line\": 54,\n      \"end_line\": 54,\n      \"content\": \"This looks like an accidental corruption of the documentation example: `{{ outputs.output_values.²}}` is invalid Pebble syntax and will break the example. It should likely be `{{ outputs.output_values.values.taskrun_data }}`.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/execution/Assert.java\",\n      \"start_line\": 63,\n      \"end_line\": 63,\n      \"content\": \"The example code contains a stray `\\\\n\\\\\\\" +` inside the YAML string (`\\\"  - id: fail\\\\\\\\n\\\\\\\" +\\\\n\\\"`), which will produce invalid YAML in the rendered example. Remove the leftover concatenation artifact.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/execution/Assert.java\",\n      \"start_line\": 92,\n      \"end_line\": 92,\n      \"content\": \"`this.conditions.getExpression()` is used directly without rendering. If the conditions property itself contains Pebble expressions (e.g. built from inputs), they won't be resolved before parsing as JSON. Consider using `runContext.render(this.conditions).asList(String.class)` or rendering the expression first.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/execution/Assert.java\",\n      \"start_line\": 99,\n      \"end_line\": 99,\n      \"content\": \"The log message has two placeholders `{}` but only one argument is passed (`s`); `renderer` is silently ignored. Either remove the extra placeholder or pass `renderer` as an argument.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/execution/Assert.java\",\n      \"start_line\": 113,\n      \"end_line\": 113,\n      \"content\": \"`failed` is an `AtomicInteger`; string concatenation will print the object's toString (e.g. `java.util.concurrent.atomic.AtomicInteger@...`) rather than the count. Use `failed.get()`.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/execution/Assert.java\",\n      \"start_line\": 114,\n      \"end_line\": 114,\n      \"content\": \"`runContext.render(errorMessage)` will throw NPE when `errorMessage` is null (the common case). Guard with a null check or use `Optional.ofNullable(errorMessage).map(...)`.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/utils/TruthUtils.java\",\n      \"start_line\": 12,\n      \"end_line\": 12,\n      \"content\": \"`isFalsy` returns false for `null`, which is inconsistent with the semantics used by `Assert`: a null renderer should be treated as falsy (assertion failed). Consider `condition == null || FALSE_VALUES.contains(condition)`.\"\n    },\n    {\n      \"path\": \"core/src/test/resources/flows/valids/assert.yaml\",\n      \"start_line\": 16,\n      \"end_line\": 16,\n      \"content\": \"Missing trailing newline at end of file.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,16 @@
+{
+  "instance_id": "timescale__timescaledb@f84194c",
+  "repo": "timescale/timescaledb",
+  "base_commit": "09513b064bc823c5525d82c242d9affe0a308e17",
+  "head_commit": "f84194cb231ad14a2f03b5ead75e99d64826972f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:40.671393+00:00",
+  "duration_seconds": 10.64,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

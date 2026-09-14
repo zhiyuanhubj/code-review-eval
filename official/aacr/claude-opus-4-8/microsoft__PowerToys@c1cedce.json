@@ -1,0 +1,23 @@
+{
+  "instance_id": "microsoft__PowerToys@c1cedce",
+  "repo": "microsoft/PowerToys",
+  "base_commit": "e1474c1f3020e2615c438d82b29f48626f456a9f",
+  "head_commit": "c1cedce10cfe7436da12580ea231d5837520ef69",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:40.179296+00:00",
+  "duration_seconds": 10.14,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/modules/cmdpal/Microsoft.CmdPal.UI.ViewModels/TopLevelViewModel.cs",
+        "start_line": 66,
+        "end_line": 72,
+        "content": "The lambda can now return null for unknown item types. Ensure the subsequent `.ToArray()` result and its consumers handle null entries, or filter them out with `.Where(x => x != null)` before `.ToArray()` to avoid NullReferenceExceptions downstream."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/modules/cmdpal/Microsoft.CmdPal.UI.ViewModels/TopLevelViewModel.cs\",\n      \"start_line\": 66,\n      \"end_line\": 72,\n      \"content\": \"The lambda can now return null for unknown item types. Ensure the subsequent `.ToArray()` result and its consumers handle null entries, or filter them out with `.Where(x => x != null)` before `.ToArray()` to avoid NullReferenceExceptions downstream.\"\n    }\n  ]\n}",
+  "stderr": null
+}

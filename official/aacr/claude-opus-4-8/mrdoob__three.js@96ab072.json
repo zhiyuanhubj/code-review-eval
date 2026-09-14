@@ -1,0 +1,29 @@
+{
+  "instance_id": "mrdoob__three.js@96ab072",
+  "repo": "mrdoob/three.js",
+  "base_commit": "bf4e6fcb64a1d6bdbaf975528595ac6873051641",
+  "head_commit": "96ab0720fc65368e32ee3f2389cb192f96d8adff",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:39.053610+00:00",
+  "duration_seconds": 11.03,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/geometries/ExtrudeGeometry.js",
+        "start_line": 167,
+        "end_line": 187,
+        "content": "The `cleanPoints` loop can crash or misbehave when many points are removed. `prevPos` is initialized to `points[0]`, but if `points[0]` itself gets spliced out (when the wrap-around iteration at `i == points.length` finds `points[0]` too close to the previous point and does `points.splice(0, 1)` then `break`), `prevPos` may reference a removed vertex during earlier iterations. More importantly, if the shape degenerates to fewer than 3 points after cleaning, `triangulateShape` will receive a degenerate contour. Consider guarding against reducing below 3 points and verifying `prevPos` tracking after the wrap-around splice."
+      },
+      {
+        "path": "src/geometries/ExtrudeGeometry.js",
+        "start_line": 404,
+        "end_line": 434,
+        "content": "The triangulation now uses `contractedContourVertices` / `expandedHoleVertices` which are only populated when `t == 0` inside the bevel loop. If `bevelEnabled` is false or `bevelSegments` causes the `t == 0` branch not to execute in the expected path, these arrays will be empty and `triangulateShape` will produce no faces. Please confirm the `t == 0` branch is always reached (i.e., the bevel loop always includes t=0) for both beveled and non-beveled geometry, otherwise faces will be missing."
+      }
+    ]
+  },
+  "raw_output": "Looking at this PR, let me analyze the key changes.\n\nThe main concern is in the `cleanPoints` function logic and the reordering of triangulation.\n\nLet me examine the `cleanPoints` loop carefully:\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/geometries/ExtrudeGeometry.js\",\n      \"start_line\": 167,\n      \"end_line\": 187,\n      \"content\": \"The `cleanPoints` loop can crash or misbehave when many points are removed. `prevPos` is initialized to `points[0]`, but if `points[0]` itself gets spliced out (when the wrap-around iteration at `i == points.length` finds `points[0]` too close to the previous point and does `points.splice(0, 1)` then `break`), `prevPos` may reference a removed vertex during earlier iterations. More importantly, if the shape degenerates to fewer than 3 points after cleaning, `triangulateShape` will receive a degenerate contour. Consider guarding against reducing below 3 points and verifying `prevPos` tracking after the wrap-around splice.\"\n    },\n    {\n      \"path\": \"src/geometries/ExtrudeGeometry.js\",\n      \"start_line\": 404,\n      \"end_line\": 434,\n      \"content\": \"The triangulation now uses `contractedContourVertices` / `expandedHoleVertices` which are only populated when `t == 0` inside the bevel loop. If `bevelEnabled` is false or `bevelSegments` causes the `t == 0` branch not to execute in the expected path, these arrays will be empty and `triangulateShape` will produce no faces. Please confirm the `t == 0` branch is always reached (i.e., the bevel loop always includes t=0) for both beveled and non-beveled geometry, otherwise faces will be missing.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

@@ -1,0 +1,66 @@
+{
+  "instance_id": "dbeaver__dbeaver@dc67ca7",
+  "repo": "dbeaver/dbeaver",
+  "base_commit": "469e4265a58af95a6d5f4069515e029fc2891374",
+  "head_commit": "dc67ca7cf486ceaf45559318cdcbca193847188d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:45.774835+00:00",
+  "duration_seconds": 7.72,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANAPartition.java",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "HANAPartition extends HANATable, which means it inherits the partitionCache from HANATable. This could cause infinite recursion or unexpected behavior when calling getPartitions() on a partition. Consider not extending HANATable or overriding getPartitions() to return an empty collection.",
+        "side": "right"
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANATable.java",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The SQL query in PartitionCache.prepareObjectsStatement uses table.getContainer().getName() for schema name. This may not be correct if the container is not a schema. Use table.getSchema().getName() instead.",
+        "side": "right"
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANATable.java",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The SQL query selects tp.* and additional columns from M_CS_TABLES, but the join condition uses mcs.PART_ID=tp.PART_ID. Ensure that the columns from M_CS_TABLES are correctly aliased or that there are no ambiguous column names. Also, the query might return duplicate rows if there are multiple entries in M_CS_TABLES for the same partition.",
+        "side": "right"
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANAPartition.java",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The constructor of HANAPartition calls super(table.getContainer(), String.valueOf(partId), table.getTableType(), dbResult). This passes the partition ID as the table name, which might be confusing. Also, the dbResult is used to initialize the parent HANATable, which may not be appropriate since the result set contains partition-specific data, not table data.",
+        "side": "right"
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANAPartition.java",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The getPartitionParent() method returns null, but according to DBSTablePartition interface, it should return the parent partition if this is a sub-partition. Since isSubPartition() returns false, returning null is correct, but consider if sub-partitions are supported in HANA.",
+        "side": "right"
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANATable.java",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The getPartitions method is annotated with @NotNull but the partitionCache.getAllObjects might return null if there's an error. Ensure that the cache always returns a non-null collection.",
+        "side": "right"
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANATable.java",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The PartitionCache.fetchObject method checks if (dbResult == null) after already using dbResult to get PART_ID. This check is redundant and should be removed or moved before the usage.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANAPartition.java\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"HANAPartition extends HANATable, which means it inherits the partitionCache from HANATable. This could cause infinite recursion or unexpected behavior when calling getPartitions() on a partition. Consider not extending HANATable or overriding getPartitions() to return an empty collection.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANATable.java\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The SQL query in PartitionCache.prepareObjectsStatement uses table.getContainer().getName() for schema name. This may not be correct if the container is not a schema. Use table.getSchema().getName() instead.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANATable.java\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The SQL query selects tp.* and additional columns from M_CS_TABLES, but the join condition uses mcs.PART_ID=tp.PART_ID. Ensure that the columns from M_CS_TABLES are correctly aliased or that there are no ambiguous column names. Also, the query might return duplicate rows if there are multiple entries in M_CS_TABLES for the same partition.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANAPartition.java\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The constructor of HANAPartition calls super(table.getContainer(), String.valueOf(partId), table.getTableType(), dbResult). This passes the partition ID as the table name, which might be confusing. Also, the dbResult is used to initialize the parent HANATable, which may not be appropriate since the result set contains partition-specific data, not table data.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANAPartition.java\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The getPartitionParent() method returns null, but according to DBSTablePartition interface, it should return the parent partition if this is a sub-partition. Since isSubPartition() returns false, returning null is correct, but consider if sub-partitions are supported in HANA.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANATable.java\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The getPartitions method is annotated with @NotNull but the partitionCache.getAllObjects might return null if there's an error. Ensure that the cache always returns a non-null collection.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANATable.java\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The PartitionCache.fetchObject method checks if (dbResult == null) after already using dbResult to get PART_ID. This check is redundant and should be removed or moved before the usage.\"\n    }\n  ]\n}",
+  "stderr": null
+}

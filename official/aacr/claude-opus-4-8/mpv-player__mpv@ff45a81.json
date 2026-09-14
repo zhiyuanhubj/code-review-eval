@@ -1,0 +1,35 @@
+{
+  "instance_id": "mpv-player__mpv@ff45a81",
+  "repo": "mpv-player/mpv",
+  "base_commit": "5ba7ee513751dd005379a06fb627303e6fe1b3dd",
+  "head_commit": "ff45a8103e3c5ec3e786b950b4852c2750de936f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:36.178748+00:00",
+  "duration_seconds": 19.28,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "video/out/vo_gpu_next.c",
+        "start_line": 923,
+        "end_line": 925,
+        "content": "The distort_params transform matrix is only set when params.vflip is true, but pars->distort_params is not reset/reinitialized when vflip is false on a subsequent frame. If distort_params retains state from a prior configuration (e.g. other distort options), a frame without vflip could still apply the stale transform since params.distort_params is only assigned inside this branch. Verify that params.distort_params defaults to NULL each draw_frame call so a non-vflip frame doesn't inadvertently reuse a previously-set pointer."
+      },
+      {
+        "path": "video/out/gpu/video.c",
+        "start_line": 3754,
+        "end_line": 3756,
+        "content": "mp_image_vflip(mpi) is called unconditionally on the input mpi when params.vflip is set, mutating the frame in place. Since pass_upload_image may be called with a cached/reference-counted mpi (and the earlier hwdec branch already set plane .flipped from layout.params.vflip), flipping the software image here could double-apply or conflict with the hwdec .flipped path. Confirm the mpi is exclusively owned/writable here and that this doesn't run for the hwdec path where .flipped was already set."
+      },
+      {
+        "path": "video/mp_image.c",
+        "start_line": 1098,
+        "end_line": 1103,
+        "content": "vflip is computed from the display matrix determinant before checking isnan(r). If av_display_rotation_get returns NaN (invalid matrix), vflip is computed but not applied — that's fine. However, the determinant sign only detects a vertical flip combined with rotation; a pure horizontal flip yields the same negative determinant and will be interpreted as vflip too. Consider documenting that only the flip component is captured and horizontal flips are represented as vflip+180° rotation, or verify av_display_rotation_get already folds the 180° into r so vflip alone is correct."
+      }
+    ]
+  },
+  "raw_output": "Looking at this PR, let me analyze the key logic areas.\n\nLet me examine the `vflip_process` and `mp_image_from_av_frame` for potential issues.\n\nIn `vflip_process`, when the format/vflip matches the cached values, it sets `img->params.vflip = p->target_vflip`. But when a vflip filter was successfully created, `p->target_vflip = 0`, so subsequent frames get `vflip = 0`, which is correct. When no filter (VO handles it or vflip==0), `target_vflip = vflip`, preserving it. This looks consistent.\n\nLet me check the gpu-next distort logic and the mp_image.c side data handling more carefully.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"video/out/vo_gpu_next.c\",\n      \"start_line\": 923,\n      \"end_line\": 925,\n      \"content\": \"The distort_params transform matrix is only set when params.vflip is true, but pars->distort_params is not reset/reinitialized when vflip is false on a subsequent frame. If distort_params retains state from a prior configuration (e.g. other distort options), a frame without vflip could still apply the stale transform since params.distort_params is only assigned inside this branch. Verify that params.distort_params defaults to NULL each draw_frame call so a non-vflip frame doesn't inadvertently reuse a previously-set pointer.\"\n    },\n    {\n      \"path\": \"video/out/gpu/video.c\",\n      \"start_line\": 3754,\n      \"end_line\": 3756,\n      \"content\": \"mp_image_vflip(mpi) is called unconditionally on the input mpi when params.vflip is set, mutating the frame in place. Since pass_upload_image may be called with a cached/reference-counted mpi (and the earlier hwdec branch already set plane .flipped from layout.params.vflip), flipping the software image here could double-apply or conflict with the hwdec .flipped path. Confirm the mpi is exclusively owned/writable here and that this doesn't run for the hwdec path where .flipped was already set.\"\n    },\n    {\n      \"path\": \"video/mp_image.c\",\n      \"start_line\": 1098,\n      \"end_line\": 1103,\n      \"content\": \"vflip is computed from the display matrix determinant before checking isnan(r). If av_display_rotation_get returns NaN (invalid matrix), vflip is computed but not applied — that's fine. However, the determinant sign only detects a vertical flip combined with rotation; a pure horizontal flip yields the same negative determinant and will be interpreted as vflip too. Consider documenting that only the flip component is captured and horizontal flips are represented as vflip+180° rotation, or verify av_display_rotation_get already folds the 180° into r so vflip alone is correct.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

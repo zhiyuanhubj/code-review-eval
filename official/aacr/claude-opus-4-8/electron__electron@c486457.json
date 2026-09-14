@@ -1,0 +1,29 @@
+{
+  "instance_id": "electron__electron@c486457",
+  "repo": "electron/electron",
+  "base_commit": "9f8a629126a31224f6b1aa90d650cdc61f7568f2",
+  "head_commit": "c4864570586f4c2f019797d3b0a9c4c76e93396b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:08.438005+00:00",
+  "duration_seconds": 22.61,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "shell/browser/net/electron_url_loader_factory.cc",
+        "start_line": 127,
+        "end_line": 128,
+        "content": "Behavior change: the original called `dict.Get(\"statusCode\", &status_code)` which, if the JS `statusCode` value is present but of a non-int type, would leave `status_code` at its initialized value `net::HTTP_OK` (Get returns false, but status_code was pre-set). With `ValueOrDefault`, the internal `value` starts at `T{}` (0), and if `Get` fails it returns `default_value` (net::HTTP_OK). This is functionally equivalent here. No issue — but note the `static_cast<int>` is required since `net::HTTP_OK` is an enum; template arg deduction now yields `T=int`, so this is correct."
+      },
+      {
+        "path": "shell/browser/ui/cocoa/electron_touch_bar.mm",
+        "start_line": 503,
+        "end_line": 505,
+        "content": "`item.slider.minValue`/`maxValue`/`doubleValue` are `double` (CGFloat). Previously the code read into `int` locals then assigned. `ValueOrDefault(\"value\", 50)` deduces `T=int`, so a JS float value (e.g. 50.5) would now fail to convert into an `int` and fall back to the default, silently truncating/discarding fractional slider values. If floats were previously accepted (unlikely given the old int locals), behavior is unchanged; but if the API intends to accept fractional values consider using a double default (e.g. `50.0`). Please verify the documented type for slider min/max/value."
+      }
+    ]
+  },
+  "raw_output": "I'll review this refactoring PR that replaces `Get` + default pattern with a new `ValueOrDefault` helper.\n\nLet me analyze the changes carefully for behavioral differences.\n\n{\n  \"comments\": [\n    {\n      \"path\": \"shell/browser/net/electron_url_loader_factory.cc\",\n      \"start_line\": 127,\n      \"end_line\": 128,\n      \"content\": \"Behavior change: the original called `dict.Get(\\\"statusCode\\\", &status_code)` which, if the JS `statusCode` value is present but of a non-int type, would leave `status_code` at its initialized value `net::HTTP_OK` (Get returns false, but status_code was pre-set). With `ValueOrDefault`, the internal `value` starts at `T{}` (0), and if `Get` fails it returns `default_value` (net::HTTP_OK). This is functionally equivalent here. No issue — but note the `static_cast<int>` is required since `net::HTTP_OK` is an enum; template arg deduction now yields `T=int`, so this is correct.\"\n    },\n    {\n      \"path\": \"shell/browser/ui/cocoa/electron_touch_bar.mm\",\n      \"start_line\": 503,\n      \"end_line\": 505,\n      \"content\": \"`item.slider.minValue`/`maxValue`/`doubleValue` are `double` (CGFloat). Previously the code read into `int` locals then assigned. `ValueOrDefault(\\\"value\\\", 50)` deduces `T=int`, so a JS float value (e.g. 50.5) would now fail to convert into an `int` and fall back to the default, silently truncating/discarding fractional slider values. If floats were previously accepted (unlikely given the old int locals), behavior is unchanged; but if the API intends to accept fractional values consider using a double default (e.g. `50.0`). Please verify the documented type for slider min/max/value.\"\n    }\n  ]\n}",
+  "stderr": null
+}

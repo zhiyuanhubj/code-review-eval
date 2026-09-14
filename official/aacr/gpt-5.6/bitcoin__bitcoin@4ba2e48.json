@@ -1,0 +1,16 @@
+{
+  "instance_id": "bitcoin__bitcoin@4ba2e48",
+  "repo": "bitcoin/bitcoin",
+  "base_commit": "ae024137bda9fe189f4e7ccf26dbaffd44cbbeb6",
+  "head_commit": "4ba2e480ffa0b77113953bee4ff5c9349e277e7e",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:28:22.177732+00:00",
+  "duration_seconds": 88.02,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": null
+}

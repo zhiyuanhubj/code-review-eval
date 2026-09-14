@@ -1,0 +1,52 @@
+{
+  "instance_id": "juspay__hyperswitch@5e0fa17",
+  "repo": "juspay/hyperswitch",
+  "base_commit": "8e9bad6457449ef2a435be03a9f97acc2dd2108a",
+  "head_commit": "5e0fa17a5e9e977daa4b896e1dfc2de61f526113",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:37:22.850934+00:00",
+  "duration_seconds": 6.97,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "crates/hyperswitch_connectors/src/connectors/braintree/transformers.rs",
+        "start_line": 2041,
+        "end_line": 2041,
+        "content": "Changing the match arm from `\"PRE_ARBITATION\"` to `\"PRE_ARBITRATION\"` alters the accepted webhook value. If Braintree actually sends `PRE_ARBITATION` (as the original code suggests), this will now fall through to `WebhookBodyDecodingFailed`. Please confirm the actual value Braintree sends; if both are possible, handle both.",
+        "side": "right"
+      },
+      {
+        "path": "crates/hyperswitch_connectors/src/connectors/worldpay/response.rs",
+        "start_line": 202,
+        "end_line": 202,
+        "content": "Renaming `partiall_refund_payment` to `partially_refund_payment` changes the serde field name used for deserialization. If Worldpay's JSON response uses the original key `partiall_refund_payment`, this field will silently become `None`. Add `#[serde(rename = \"partiall_refund_payment\")]` (or `alias`) if the upstream key is unchanged.",
+        "side": "right"
+      },
+      {
+        "path": "crates/api_models/src/payments.rs",
+        "start_line": 1182,
+        "end_line": 1182,
+        "content": "Renaming the public field `encypted_payload` to `encrypted_payload` is a breaking API change for any client deserializing this struct. If backward compatibility is required, add `#[serde(alias = \"encypted_payload\")]` to accept the old key.",
+        "side": "right"
+      },
+      {
+        "path": "crates/hyperswitch_domain_models/src/router_request_types/unified_authentication_service.rs",
+        "start_line": 24,
+        "end_line": 24,
+        "content": "Renaming `encypted_payload` to `encrypted_payload` changes the serialized field name. If any persisted data or external payloads still use the old key, deserialization will fail. Consider adding `#[serde(alias = \"encypted_payload\")]` for backward compatibility.",
+        "side": "right"
+      },
+      {
+        "path": "config/dashboard.toml",
+        "start_line": 69,
+        "end_line": 69,
+        "content": "Renaming the config key `maintainence_alert` to `maintenance_alert` will break any existing deployments that still set the old key. Ensure the config loader supports the old key as an alias, or coordinate the rename with a migration.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"crates/hyperswitch_connectors/src/connectors/braintree/transformers.rs\",\n      \"start_line\": 2041,\n      \"end_line\": 2041,\n      \"content\": \"Changing the match arm from `\\\"PRE_ARBITATION\\\"` to `\\\"PRE_ARBITRATION\\\"` alters the accepted webhook value. If Braintree actually sends `PRE_ARBITATION` (as the original code suggests), this will now fall through to `WebhookBodyDecodingFailed`. Please confirm the actual value Braintree sends; if both are possible, handle both.\"\n    },\n    {\n      \"path\": \"crates/hyperswitch_connectors/src/connectors/worldpay/response.rs\",\n      \"start_line\": 202,\n      \"end_line\": 202,\n      \"content\": \"Renaming `partiall_refund_payment` to `partially_refund_payment` changes the serde field name used for deserialization. If Worldpay's JSON response uses the original key `partiall_refund_payment`, this field will silently become `None`. Add `#[serde(rename = \\\"partiall_refund_payment\\\")]` (or `alias`) if the upstream key is unchanged.\"\n    },\n    {\n      \"path\": \"crates/api_models/src/payments.rs\",\n      \"start_line\": 1182,\n      \"end_line\": 1182,\n      \"content\": \"Renaming the public field `encypted_payload` to `encrypted_payload` is a breaking API change for any client deserializing this struct. If backward compatibility is required, add `#[serde(alias = \\\"encypted_payload\\\")]` to accept the old key.\"\n    },\n    {\n      \"path\": \"crates/hyperswitch_domain_models/src/router_request_types/unified_authentication_service.rs\",\n      \"start_line\": 24,\n      \"end_line\": 24,\n      \"content\": \"Renaming `encypted_payload` to `encrypted_payload` changes the serialized field name. If any persisted data or external payloads still use the old key, deserialization will fail. Consider adding `#[serde(alias = \\\"encypted_payload\\\")]` for backward compatibility.\"\n    },\n    {\n      \"path\": \"config/dashboard.toml\",\n      \"start_line\": 69,\n      \"end_line\": 69,\n      \"content\": \"Renaming the config key `maintainence_alert` to `maintenance_alert` will break any existing deployments that still set the old key. Ensure the config loader supports the old key as an alias, or coordinate the rename with a migration.\"\n    }\n  ]\n}",
+  "stderr": null
+}

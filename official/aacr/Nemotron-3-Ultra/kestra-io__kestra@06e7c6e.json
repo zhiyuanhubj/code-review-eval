@@ -1,0 +1,41 @@
+{
+  "instance_id": "kestra-io__kestra@06e7c6e",
+  "repo": "kestra-io/kestra",
+  "base_commit": "01a77aff0422884ed7b18ba8d00a0495d0bab88e",
+  "head_commit": "06e7c6e48e22420da5bb0bf3188bc00f73974c9a",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:29:47.879245+00:00",
+  "duration_seconds": 37.97,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/execution/Assert.java",
+        "start_line": 79,
+        "end_line": 79,
+        "content": "The error log message uses two placeholders but only provides one argument (s). The 'renderer' variable is not included in the log call. Should be: runContext.logger().error(\"Assertion `{}` failed with value `{}`!\", s, renderer);"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/execution/Assert.java",
+        "start_line": 83,
+        "end_line": 83,
+        "content": "The error log message uses two placeholders but only provides one argument (s). The exception message (e.getMessage()) is not included. Should be: runContext.logger().error(\"Assertion `{}` failed, failed to render `{}`\", s, e.getMessage());"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/execution/Assert.java",
+        "start_line": 90,
+        "end_line": 90,
+        "content": "The errorMessage property is rendered without checking if it's null first. If errorMessage is null, runContext.render(null) may throw an exception or behave unexpectedly. Add a null check: runContext.render(errorMessage).as(String.class).orElse(\"\") should be guarded with if (errorMessage != null)."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/plugin/core/execution/Assert.java",
+        "start_line": 64,
+        "end_line": 64,
+        "content": "The conditions property is parsed using MAPPER.readValue on getExpression() every run. Since conditions is a Property<List<String>>, consider using getValue() directly if the value is already a List<String> (after rendering), avoiding JSON parsing overhead and potential parsing errors."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/execution/Assert.java\",\n      \"start_line\": 79,\n      \"end_line\": 79,\n      \"content\": \"The error log message uses two placeholders but only provides one argument (s). The 'renderer' variable is not included in the log call. Should be: runContext.logger().error(\\\"Assertion `{}` failed with value `{}`!\\\", s, renderer);\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/execution/Assert.java\",\n      \"start_line\": 83,\n      \"end_line\": 83,\n      \"content\": \"The error log message uses two placeholders but only provides one argument (s). The exception message (e.getMessage()) is not included. Should be: runContext.logger().error(\\\"Assertion `{}` failed, failed to render `{}`\\\", s, e.getMessage());\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/execution/Assert.java\",\n      \"start_line\": 90,\n      \"end_line\": 90,\n      \"content\": \"The errorMessage property is rendered without checking if it's null first. If errorMessage is null, runContext.render(null) may throw an exception or behave unexpectedly. Add a null check: runContext.render(errorMessage).as(String.class).orElse(\\\"\\\") should be guarded with if (errorMessage != null).\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/plugin/core/execution/Assert.java\",\n      \"start_line\": 64,\n      \"end_line\": 64,\n      \"content\": \"The conditions property is parsed using MAPPER.readValue on getExpression() every run. Since conditions is a Property<List<String>>, consider using getValue() directly if the value is already a List<String> (after rendering), avoiding JSON parsing overhead and potential parsing errors.\"\n    }\n  ]\n}",
+  "stderr": null
+}

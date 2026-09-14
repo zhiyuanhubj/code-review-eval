@@ -1,0 +1,31 @@
+{
+  "instance_id": "bitcoin__bitcoin@724546e",
+  "repo": "bitcoin/bitcoin",
+  "base_commit": "d1b583181dcc31613cd586d63329cb4c4a586972",
+  "head_commit": "724546e28a5778e1c3f5100406ed7237f76aab55",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:35:18.279755+00:00",
+  "duration_seconds": 2.29,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/bitcoin-cli.cpp",
+        "start_line": 484,
+        "end_line": 491,
+        "content": "`ServicesList` is defined but never used; the code calls `FormatServices` instead. Remove the dead function to avoid compiler warnings and confusion.",
+        "side": "right"
+      },
+      {
+        "path": "src/bitcoin-cli.cpp",
+        "start_line": 585,
+        "end_line": 585,
+        "content": "`FormatServices` is called here but is not defined in this file or included from a header. This will fail to compile. Either define it (e.g., using the `ServicesList` logic) or include the appropriate header.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/bitcoin-cli.cpp\",\n      \"start_line\": 484,\n      \"end_line\": 491,\n      \"content\": \"`ServicesList` is defined but never used; the code calls `FormatServices` instead. Remove the dead function to avoid compiler warnings and confusion.\"\n    },\n    {\n      \"path\": \"src/bitcoin-cli.cpp\",\n      \"start_line\": 585,\n      \"end_line\": 585,\n      \"content\": \"`FormatServices` is called here but is not defined in this file or included from a header. This will fail to compile. Either define it (e.g., using the `ServicesList` logic) or include the appropriate header.\"\n    }\n  ]\n}",
+  "stderr": null
+}

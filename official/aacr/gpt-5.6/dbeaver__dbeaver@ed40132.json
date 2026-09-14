@@ -1,0 +1,23 @@
+{
+  "instance_id": "dbeaver__dbeaver@ed40132",
+  "repo": "dbeaver/dbeaver",
+  "base_commit": "1df2fe97207fe1346ca92ea9c41dd3fd13303001",
+  "head_commit": "ed40132dcb3c6ab5502056b7de0e47c0858ec016",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:28:46.982109+00:00",
+  "duration_seconds": 20.11,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "plugins/org.jkiss.dbeaver.model/src/org/jkiss/dbeaver/model/struct/DBSObjectFilter.java",
+        "start_line": 153,
+        "end_line": 153,
+        "content": "Changing `matches(String)` to `matches(String...)` changes its JVM descriptor from `(String)Z` to `(String[])Z`. Previously compiled external DBeaver plugins calling this public API will fail with `NoSuchMethodError`. Please retain `matches(String)` as a delegating overload and add the varargs/multi-name overload separately."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"plugins/org.jkiss.dbeaver.model/src/org/jkiss/dbeaver/model/struct/DBSObjectFilter.java\",\"start_line\":153,\"end_line\":153,\"content\":\"Changing `matches(String)` to `matches(String...)` changes its JVM descriptor from `(String)Z` to `(String[])Z`. Previously compiled external DBeaver plugins calling this public API will fail with `NoSuchMethodError`. Please retain `matches(String)` as a delegating overload and add the varargs/multi-name overload separately.\"}]}",
+  "stderr": null
+}

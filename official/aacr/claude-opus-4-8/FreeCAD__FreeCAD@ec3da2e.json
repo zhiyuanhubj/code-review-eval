@@ -1,0 +1,23 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@ec3da2e",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "79008331b30d098b2c32e59752e24e0705b350bc",
+  "head_commit": "ec3da2e93e3fd8f69f113ca14abf892dfb86c11b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:07.445300+00:00",
+  "duration_seconds": 13.96,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Mod/TechDraw/App/DrawViewPart.h",
+        "start_line": 242,
+        "end_line": 244,
+        "content": "The declarations here don't match the definitions in DrawViewPart.cpp. The .cpp defines these as non-static member functions taking only `std::string element` (e.g. `bool DrawViewPart::isCosmeticVertex(std::string element)`), but the header declares them as `static` functions taking `App::DocumentObject* owner, std::string element`. This mismatch will cause a compile/link error. Update the header declarations to `bool isCosmeticVertex(std::string element);` etc. (non-static, single parameter) to match the implementation."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Mod/TechDraw/App/DrawViewPart.h\",\n      \"start_line\": 242,\n      \"end_line\": 244,\n      \"content\": \"The declarations here don't match the definitions in DrawViewPart.cpp. The .cpp defines these as non-static member functions taking only `std::string element` (e.g. `bool DrawViewPart::isCosmeticVertex(std::string element)`), but the header declares them as `static` functions taking `App::DocumentObject* owner, std::string element`. This mismatch will cause a compile/link error. Update the header declarations to `bool isCosmeticVertex(std::string element);` etc. (non-static, single parameter) to match the implementation.\"\n    }\n  ]\n}",
+  "stderr": null
+}

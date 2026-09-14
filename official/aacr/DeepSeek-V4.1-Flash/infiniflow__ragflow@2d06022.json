@@ -1,0 +1,38 @@
+{
+  "instance_id": "infiniflow__ragflow@2d06022",
+  "repo": "infiniflow/ragflow",
+  "base_commit": "469460483665000f522b6c9a6583bb34f17a954b",
+  "head_commit": "2d06022b78536bd22a0fd83f38804f39aa34cce8",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:34:50.366689+00:00",
+  "duration_seconds": 5.16,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "web/src/components/api-service/embed-modal/index.tsx",
+        "start_line": 42,
+        "end_line": 52,
+        "content": "`generateIframeSrc` is called on every render and `iframeSrc` is recomputed each time. More importantly, the `text` template literal is also recomputed on every render, so the displayed iframe snippet will update correctly. However, `location.origin` is accessed during render, which is fine in the browser but will break SSR. Consider guarding with `typeof window !== 'undefined'` if this component may be server-rendered.",
+        "side": "right"
+      },
+      {
+        "path": "web/src/components/api-service/embed-modal/index.tsx",
+        "start_line": 79,
+        "end_line": 96,
+        "content": "The label `t('avatarHidden')` is used for a checkbox that controls `visibleAvatar`. The semantics are inverted: when the checkbox is checked, `visibleAvatar` is true and `&visible_avatar=1` is appended, which presumably makes the avatar visible, not hidden. Either the translation key or the state variable name is misleading. Verify the intended behavior and rename accordingly (e.g., `showAvatar` / `avatarVisible`).",
+        "side": "right"
+      },
+      {
+        "path": "agent/component/rewrite.py",
+        "start_line": 41,
+        "end_line": 52,
+        "content": "The prompt construction now conditionally appends the language requirement. When `language` is falsy, the fallback text is appended with trailing whitespace and indentation that may produce odd formatting in the final prompt. Also, the original prompt had the language requirement before the 'If the user's latest question...' line; the new order places the language requirement first only in the `if` branch, but in the `else` branch it is also placed before the other requirements, so ordering is consistent. However, the trailing newline/indentation in the `else` branch (`\"\"\"\\n    - Text generated MUST be in the same language of the original user's question.\\n            \"\"\"`) introduces extra spaces before the closing triple quote, which will be included in the prompt. Clean up the whitespace.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"web/src/components/api-service/embed-modal/index.tsx\",\n      \"start_line\": 42,\n      \"end_line\": 52,\n      \"content\": \"`generateIframeSrc` is called on every render and `iframeSrc` is recomputed each time. More importantly, the `text` template literal is also recomputed on every render, so the displayed iframe snippet will update correctly. However, `location.origin` is accessed during render, which is fine in the browser but will break SSR. Consider guarding with `typeof window !== 'undefined'` if this component may be server-rendered.\"\n    },\n    {\n      \"path\": \"web/src/components/api-service/embed-modal/index.tsx\",\n      \"start_line\": 79,\n      \"end_line\": 96,\n      \"content\": \"The label `t('avatarHidden')` is used for a checkbox that controls `visibleAvatar`. The semantics are inverted: when the checkbox is checked, `visibleAvatar` is true and `&visible_avatar=1` is appended, which presumably makes the avatar visible, not hidden. Either the translation key or the state variable name is misleading. Verify the intended behavior and rename accordingly (e.g., `showAvatar` / `avatarVisible`).\"\n    },\n    {\n      \"path\": \"agent/component/rewrite.py\",\n      \"start_line\": 41,\n      \"end_line\": 52,\n      \"content\": \"The prompt construction now conditionally appends the language requirement. When `language` is falsy, the fallback text is appended with trailing whitespace and indentation that may produce odd formatting in the final prompt. Also, the original prompt had the language requirement before the 'If the user's latest question...' line; the new order places the language requirement first only in the `if` branch, but in the `else` branch it is also placed before the other requirements, so ordering is consistent. However, the trailing newline/indentation in the `else` branch (`\\\"\\\"\\\"\\\\n    - Text generated MUST be in the same language of the original user's question.\\\\n            \\\"\\\"\\\"`) introduces extra spaces before the closing triple quote, which will be included in the prompt. Clean up the whitespace.\"\n    }\n  ]\n}",
+  "stderr": null
+}

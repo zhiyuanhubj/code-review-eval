@@ -1,0 +1,29 @@
+{
+  "instance_id": "langflow-ai__langflow@9513d15",
+  "repo": "langflow-ai/langflow",
+  "base_commit": "d035e41e631f0da97bdc0e93e7afdae78d5e94da",
+  "head_commit": "9513d152197e5336fbc00eb6b891f1ffb25ad62d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:52.978241+00:00",
+  "duration_seconds": 15.25,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/backend/base/langflow/graph/vertex/base.py",
+        "start_line": 634,
+        "end_line": 645,
+        "content": "Deadlock risk: `_log_transaction_async` now acquires `self._lock`, but it is called from `_get_result`, which is itself invoked from `get_result` while already holding `self._lock` (`async with self._lock: return await self._get_result(...)`). `asyncio.Lock` is not reentrant, so this will deadlock on every result retrieval when `flow_id` is set. Remove the inner `async with self._lock` here, or refactor so the lock is not held when `_log_transaction_async` runs."
+      },
+      {
+        "path": "src/backend/base/langflow/graph/vertex/base.py",
+        "start_line": 636,
+        "end_line": 640,
+        "content": "This awaits all previously created log-transaction tasks before proceeding. That turns the intended fire-and-forget background logging into a synchronous, serialized operation that now blocks result retrieval (and the vertex lock). Consider keeping the original create_task/discard pattern and only awaiting/cancelling at shutdown, rather than gathering prior tasks on every log call."
+      }
+    ]
+  },
+  "raw_output": "I'll analyze this PR for potential issues.\n\nThe key change makes `_log_transaction_async` an async method that awaits previous tasks and acquires a lock. Let me look for bugs.\n\nCritical issue: `_get_result` in `base.py` acquires `self._lock` before calling `_get_result` (via `get_result`), and now `_log_transaction_async` also tries to acquire `self._lock`. This is a deadlock with a non-reentrant `asyncio.Lock`.\n\nLet me verify the call chain:\n- `get_result` does `async with self._lock: return await self._get_result(...)`\n- `_get_result` calls `await self._log_transaction_async(...)`\n- `_log_transaction_async` does `async with self._lock:` → deadlock.\n\nThis is a real, serious bug.\n\nAlso, the method's logic is questionable: it awaits all previously-created log tasks before creating the new one, which serializes what was designed to be fire-and-forget background logging. This defeats the purpose and could block result retrieval. But the deadlock is the definitive bug.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/backend/base/langflow/graph/vertex/base.py\",\n      \"start_line\": 634,\n      \"end_line\": 645,\n      \"content\": \"Deadlock risk: `_log_transaction_async` now acquires `self._lock`, but it is called from `_get_result`, which is itself invoked from `get_result` while already holding `self._lock` (`async with self._lock: return await self._get_result(...)`). `asyncio.Lock` is not reentrant, so this will deadlock on every result retrieval when `flow_id` is set. Remove the inner `async with self._lock` here, or refactor so the lock is not held when `_log_transaction_async` runs.\"\n    },\n    {\n      \"path\": \"src/backend/base/langflow/graph/vertex/base.py\",\n      \"start_line\": 636,\n      \"end_line\": 640,\n      \"content\": \"This awaits all previously created log-transaction tasks before proceeding. That turns the intended fire-and-forget background logging into a synchronous, serialized operation that now blocks result retrieval (and the vertex lock). Consider keeping the original create_task/discard pattern and only awaiting/cancelling at shutdown, rather than gathering prior tasks on every log call.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

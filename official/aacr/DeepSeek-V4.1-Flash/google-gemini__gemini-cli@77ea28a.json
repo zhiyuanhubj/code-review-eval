@@ -1,0 +1,87 @@
+{
+  "instance_id": "google-gemini__gemini-cli@77ea28a",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "de968877895a8ae5f0edb83a43b37fa190cc8ec9",
+  "head_commit": "77ea28a234023019ddda3f4a5f7a81b3514d3eb8",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:34:10.630308+00:00",
+  "duration_seconds": 11.22,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/cli/src/ui/commands/promptCommands.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "`createPromptCommands` is called once at startup (in `BuiltinCommandLoader.loadCommands`), but MCP prompts are discovered asynchronously after the client connects. This means prompt commands will not be registered if the loader runs before discovery completes, and newly discovered prompts (or reconnects) won't be reflected. Consider making prompt commands dynamic (e.g., a single `/prompt` command that resolves prompts at invocation time) or re-running the loader after MCP discovery.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/ui/commands/promptCommands.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "Prompt command names are derived directly from `prompt.name` without namespacing by server. If two MCP servers expose a prompt with the same name, one will silently shadow the other (and may collide with existing builtin commands). Prefix with the server name or otherwise disambiguate.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/ui/commands/promptCommands.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The `completion` function returns `${partialArg}--${arg.name}=\"\"` for every unused argument, which will produce duplicated prefixes when multiple suggestions are returned (e.g. `--a=\"\"--b=\"\"`). It should return just `--${arg.name}=\"\"` (or the appropriate suffix) so the shell can append it correctly.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/ui/commands/promptCommands.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The argument parser regex `/--([^=]+)=(?:\"((?:\\\\.|[^\"\\\\])*)\"|([^ ]*))/g` does not handle escaped quotes in the unquoted branch and does not strip escape sequences from quoted values (e.g. `\\\"` stays as `\\\"`). Also, values containing spaces must be quoted, which is not documented in the generated help. Consider using a proper shell-args parser (the repo already depends on `shell-quote`) or at least unescape quoted values.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/ui/commands/promptCommands.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "`connectToMcpServer(serverName, mcpServer, false)` opens a brand-new MCP client on every prompt invocation and closes it in `finally`. This is expensive (spawns a new process/connection per call) and may not share auth/session state with the already-connected client. Prefer reusing the existing connected client from the MCP client manager.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/ui/commands/promptCommands.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "Only `result.messages[0].content.text` is used; other content types (images, resources, multiple messages) are silently dropped, and only the first message is submitted. Consider concatenating all text messages or handling non-text content explicitly.",
+        "side": "right"
+      },
+      {
+        "path": "packages/core/src/tools/mcp-client.ts",
+        "start_line": 487,
+        "end_line": 495,
+        "content": "Removing the `if (discoveredTools.length === 0) throw Error('No enabled tools found')` check changes behavior: servers that expose only prompts (no tools) will now be treated as successfully connected. Verify this is intentional and that downstream code (e.g. status reporting, tool registry) handles zero-tool servers correctly. The existing test `should throw an error if no tools are discovered` may now fail.",
+        "side": "right"
+      },
+      {
+        "path": "packages/core/src/tools/mcp-client.ts",
+        "start_line": 406,
+        "end_line": 408,
+        "content": "`mcpServerPromptsInternal.delete(mcpServerName)` is only called on `onerror`. On normal disconnect/close (e.g. `mcpClient.onclose` or explicit shutdown), the prompts map is not cleared, so stale prompts may persist. Clear the map in the close handler as well.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/ui/commands/mcpCommand.ts",
+        "start_line": 163,
+        "end_line": 186,
+        "content": "When a connected server has 0 tools and 0 prompts, the message becomes `(0 tools)` — but the subsequent block also appends `No tools or prompts available`. The `(0 tools)` suffix is misleading; consider omitting the parenthetical entirely when there are no tools and no prompts.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/ui/commands/mcpCommand.ts",
+        "start_line": 243,
+        "end_line": 280,
+        "content": "The `else if (serverTools.length === 0)` branch appends `No tools available` even when prompts exist (since the earlier `if (serverTools.length === 0 && serverPrompts.length === 0)` is false). This produces a contradictory message like `Prompts: ...` followed by `No tools available`. The condition should be `serverTools.length === 0 && serverPrompts.length === 0` for the 'No tools available' text, or the message should be reworded.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/cli/src/ui/commands/promptCommands.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"`createPromptCommands` is called once at startup (in `BuiltinCommandLoader.loadCommands`), but MCP prompts are discovered asynchronously after the client connects. This means prompt commands will not be registered if the loader runs before discovery completes, and newly discovered prompts (or reconnects) won't be reflected. Consider making prompt commands dynamic (e.g., a single `/prompt` command that resolves prompts at invocation time) or re-running the loader after MCP discovery.\"\n    },\n    {\n      \"path\": \"packages/cli/src/ui/commands/promptCommands.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"Prompt command names are derived directly from `prompt.name` without namespacing by server. If two MCP servers expose a prompt with the same name, one will silently shadow the other (and may collide with existing builtin commands). Prefix with the server name or otherwise disambiguate.\"\n    },\n    {\n      \"path\": \"packages/cli/src/ui/commands/promptCommands.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The `completion` function returns `${partialArg}--${arg.name}=\\\"\\\"` for every unused argument, which will produce duplicated prefixes when multiple suggestions are returned (e.g. `--a=\\\"\\\"--b=\\\"\\\"`). It should return just `--${arg.name}=\\\"\\\"` (or the appropriate suffix) so the shell can append it correctly.\"\n    },\n    {\n      \"path\": \"packages/cli/src/ui/commands/promptCommands.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The argument parser regex `/--([^=]+)=(?:\\\"((?:\\\\\\\\.|[^\\\"\\\\\\\\])*)\\\"|([^ ]*))/g` does not handle escaped quotes in the unquoted branch and does not strip escape sequences from quoted values (e.g. `\\\\\\\"` stays as `\\\\\\\"`). Also, values containing spaces must be quoted, which is not documented in the generated help. Consider using a proper shell-args parser (the repo already depends on `shell-quote`) or at least unescape quoted values.\"\n    },\n    {\n      \"path\": \"packages/cli/src/ui/commands/promptCommands.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"`connectToMcpServer(serverName, mcpServer, false)` opens a brand-new MCP client on every prompt invocation and closes it in `finally`. This is expensive (spawns a new process/connection per call) and may not share auth/session state with the already-connected client. Prefer reusing the existing connected client from the MCP client manager.\"\n    },\n    {\n      \"path\": \"packages/cli/src/ui/commands/promptCommands.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"Only `result.messages[0].content.text` is used; other content types (images, resources, multiple messages) are silently dropped, and only the first message is submitted. Consider concatenating all text messages or handling non-text content explicitly.\"\n    },\n    {\n      \"path\": \"packages/core/src/tools/mcp-client.ts\",\n      \"start_line\": 487,\n      \"end_line\": 495,\n      \"content\": \"Removing the `if (discoveredTools.length === 0) throw Error('No enabled tools found')` check changes behavior: servers that expose only prompts (no tools) will now be treated as successfully connected. Verify this is intentional and that downstream code (e.g. status reporting, tool registry) handles zero-tool servers correctly. The existing test `should throw an error if no tools are discovered` may now fail.\"\n    },\n    {\n      \"path\": \"packages/core/src/tools/mcp-client.ts\",\n      \"start_line\": 406,\n      \"end_line\": 408,\n      \"content\": \"`mcpServerPromptsInternal.delete(mcpServerName)` is only called on `onerror`. On normal disconnect/close (e.g. `mcpClient.onclose` or explicit shutdown), the prompts map is not cleared, so stale prompts may persist. Clear the map in the close handler as well.\"\n    },\n    {\n      \"path\": \"packages/cli/src/ui/commands/mcpCommand.ts\",\n      \"start_line\": 163,\n      \"end_line\": 186,\n      \"content\": \"When a connected server has 0 tools and 0 prompts, the message becomes `(0 tools)` — but the subsequent block also appends `No tools or prompts available`. The `(0 tools)` suffix is misleading; consider omitting the parenthetical entirely when there are no tools and no prompts.\"\n    },\n    {\n      \"path\": \"packages/cli/src/ui/commands/mcpCommand.ts\",\n      \"start_line\": 243,\n      \"end_line\": 280,\n      \"content\": \"The `else if (serverTools.length === 0)` branch appends `No tools available` even when prompts exist (since the earlier `if (serverTools.length === 0 && serverPrompts.length === 0)` is false). This produces a contradictory message like `Prompts: ...` followed by `No tools available`. The condition should be `serverTools.length === 0 && serverPrompts.length === 0` for the 'No tools available' text, or the message should be reworded.\"\n    }\n  ]\n}",
+  "stderr": null
+}

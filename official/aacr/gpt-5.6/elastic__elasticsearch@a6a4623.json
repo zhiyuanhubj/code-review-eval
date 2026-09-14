@@ -1,0 +1,23 @@
+{
+  "instance_id": "elastic__elasticsearch@a6a4623",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "cc0e53e883ee7e0b136e58a0105103c1a7ffddf9",
+  "head_commit": "a6a4623f4a0216b515a8cb323110305504431459",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:31:37.376538+00:00",
+  "duration_seconds": 35.36,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/test/java/org/elasticsearch/search/fetch/subphase/highlight/HighlightBuilderTests.java",
+        "start_line": 580,
+        "end_line": 580,
+        "content": "`-1` and `0` are now valid values, so `randomIntBetween(-100, 0)` can make this `expectThrows` assertion fail intermittently because no exception is thrown. Restrict the generated invalid values to `randomIntBetween(-100, -2)`."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"server/src/test/java/org/elasticsearch/search/fetch/subphase/highlight/HighlightBuilderTests.java\",\"start_line\":580,\"end_line\":580,\"content\":\"`-1` and `0` are now valid values, so `randomIntBetween(-100, 0)` can make this `expectThrows` assertion fail intermittently because no exception is thrown. Restrict the generated invalid values to `randomIntBetween(-100, -2)`.\"}]}",
+  "stderr": null
+}

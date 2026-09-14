@@ -1,0 +1,38 @@
+{
+  "instance_id": "immich-app__immich@7e2009f",
+  "repo": "immich-app/immich",
+  "base_commit": "4d6d5537b713ca80bb2a670fdc7be66882b12d5c",
+  "head_commit": "7e2009f038cbf3f26403af6582af3cf8ba91672f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:16.355785+00:00",
+  "duration_seconds": 3.09,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/services/metadata.service.ts",
+        "start_line": 453,
+        "end_line": 453,
+        "content": "`getDates` is called here but I don't see it defined in the diff. Please confirm the method exists and returns `{ dateTimeOriginal, modifyDate, localDateTime }`. If `getDates` internally calls `getExifTags`/`getDate` again, this may also re-read tags unnecessarily.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/services/metadata.service.ts",
+        "start_line": 453,
+        "end_line": 453,
+        "content": "The motion asset's `fileModifiedAt` is now set from `dates.modifyDate` instead of `asset.fileModifiedAt`. Verify `getDates` returns the actual file modification date for the motion asset (not the parent asset's), otherwise the motion video's modification date will be wrong.",
+        "side": "right"
+      },
+      {
+        "path": "server/src/services/metadata.service.ts",
+        "start_line": 600,
+        "end_line": 601,
+        "content": "`asset.fileModifiedAt` and `asset.fileCreatedAt` may be null/undefined for some assets. Comparing them with `<` when either is undefined will yield `false` and silently pick `fileCreatedAt` (possibly undefined), which then propagates as an invalid date. Consider guarding for missing values before comparing.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"server/src/services/metadata.service.ts\",\"start_line\":453,\"end_line\":453,\"content\":\"`getDates` is called here but I don't see it defined in the diff. Please confirm the method exists and returns `{ dateTimeOriginal, modifyDate, localDateTime }`. If `getDates` internally calls `getExifTags`/`getDate` again, this may also re-read tags unnecessarily.\"},{\"path\":\"server/src/services/metadata.service.ts\",\"start_line\":453,\"end_line\":453,\"content\":\"The motion asset's `fileModifiedAt` is now set from `dates.modifyDate` instead of `asset.fileModifiedAt`. Verify `getDates` returns the actual file modification date for the motion asset (not the parent asset's), otherwise the motion video's modification date will be wrong.\"},{\"path\":\"server/src/services/metadata.service.ts\",\"start_line\":600,\"end_line\":601,\"content\":\"`asset.fileModifiedAt` and `asset.fileCreatedAt` may be null/undefined for some assets. Comparing them with `<` when either is undefined will yield `false` and silently pick `fileCreatedAt` (possibly undefined), which then propagates as an invalid date. Consider guarding for missing values before comparing.\"}]}",
+  "stderr": null
+}

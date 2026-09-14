@@ -1,0 +1,59 @@
+{
+  "instance_id": "mpv-player__mpv@ff45a81",
+  "repo": "mpv-player/mpv",
+  "base_commit": "5ba7ee513751dd005379a06fb627303e6fe1b3dd",
+  "head_commit": "ff45a8103e3c5ec3e786b950b4852c2750de936f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:22.770489+00:00",
+  "duration_seconds": 9.62,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "video/out/gpu/video.c",
+        "start_line": 3754,
+        "end_line": 3755,
+        "content": "This mutates the input `mpi` in place via `mp_image_vflip(mpi)`. `mpi` may be a reference to a frame owned by the decoder or another filter, and flipping it in place corrupts the shared image data (and its params) for any other consumer. It also permanently clears `params.vflip` on the shared image. Consider flipping a copy (e.g. `mp_image_new_ref` + flip, or flipping only the upload path) instead of modifying the caller's frame.",
+        "side": "right"
+      },
+      {
+        "path": "video/out/gpu/video.c",
+        "start_line": 3737,
+        "end_line": 3740,
+        "content": "`layout.params.vflip` is used to set `.flipped` on the plane, but `layout` is derived from the image before the in-place `mp_image_vflip()` below. Since the flip is applied later in the same function, the plane `flipped` flag and the actual flipped data may be inconsistent (double-flip or no flip). Verify the ordering: either set `.flipped` based on the post-flip state, or don't flip the image and rely solely on `.flipped`.",
+        "side": "right"
+      },
+      {
+        "path": "filters/f_auto_filters.c",
+        "start_line": 373,
+        "end_line": 375,
+        "content": "`p->target_vflip` is set to `vflip` (the current image's vflip) before the early-return checks. If the VO supports vflip (`info->vflip`), the code returns without inserting a filter, but `p->target_vflip` remains equal to the input vflip. On the next frame with the same vflip/imgfmt, the fast path sets `img->params.vflip = p->target_vflip` (unchanged), which is fine, but if the VO capability changes or the filter is later inserted, the stale `target_vflip` may not reflect the intended output. More importantly, when a vflip filter *is* inserted, `target_vflip` is set to 0, but `prev_vflip` still holds the original value; the fast-path condition compares `img->params.vflip == p->prev_vflip`, so a subsequent frame with the same input vflip will take the fast path and set `vflip = 0` — correct. However, if the input vflip toggles back, the drain/destroy path re-runs and re-inserts the filter. This logic appears intentional but is fragile; consider documenting the invariant or resetting `prev_vflip`/`prev_imgfmt` when the filter is destroyed.",
+        "side": "right"
+      },
+      {
+        "path": "video/out/vo_dmabuf_wayland.c",
+        "start_line": 713,
+        "end_line": 713,
+        "content": "`img->params.rotate / 90 + 4 * !!img->params.vflip` — the `wl_surface_set_buffer_transform` enum values are 0..7 (WL_OUTPUT_TRANSFORM_NORMAL..FLIPPED_ROTATED_270). Adding 4 maps rotate 0/90/180/270 to flipped variants 4/5/6/7, which is correct for the Wayland enum ordering. However, `img->params.rotate` is not guaranteed to be a multiple of 90 here (the autorotate filter normally normalizes it, but this VO may receive unnormalized values). Consider masking with `% 360` and asserting the multiple-of-90 invariant.",
+        "side": "right"
+      },
+      {
+        "path": "video/mp_image.c",
+        "start_line": 1098,
+        "end_line": 1105,
+        "content": "The determinant is computed from `matrix[0..4]` as a 3x3 display matrix (indices 0,1,3,4). This is correct for the AV_FRAME_DATA_DISPLAYMATRIX layout, but `sd->data` size is not validated. If the side data is malformed/short, reading `matrix[4]` is out of bounds. Consider checking `sd->size >= 9 * sizeof(int32_t)` before dereferencing.",
+        "side": "right"
+      },
+      {
+        "path": "video/out/vo_gpu_next.c",
+        "start_line": 923,
+        "end_line": 927,
+        "content": "`pars->distort_params.transform.mat` is set only when `vflip` is true, but `params.distort_params` is not reset to NULL when `vflip` is false on a subsequent frame. If `pars` persists across frames, a previously-set transform will leak into frames that should not be flipped. Ensure `params.distort_params = NULL` (or reset the matrix) in the else branch.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"video/out/gpu/video.c\",\n      \"start_line\": 3754,\n      \"end_line\": 3755,\n      \"content\": \"This mutates the input `mpi` in place via `mp_image_vflip(mpi)`. `mpi` may be a reference to a frame owned by the decoder or another filter, and flipping it in place corrupts the shared image data (and its params) for any other consumer. It also permanently clears `params.vflip` on the shared image. Consider flipping a copy (e.g. `mp_image_new_ref` + flip, or flipping only the upload path) instead of modifying the caller's frame.\"\n    },\n    {\n      \"path\": \"video/out/gpu/video.c\",\n      \"start_line\": 3737,\n      \"end_line\": 3740,\n      \"content\": \"`layout.params.vflip` is used to set `.flipped` on the plane, but `layout` is derived from the image before the in-place `mp_image_vflip()` below. Since the flip is applied later in the same function, the plane `flipped` flag and the actual flipped data may be inconsistent (double-flip or no flip). Verify the ordering: either set `.flipped` based on the post-flip state, or don't flip the image and rely solely on `.flipped`.\"\n    },\n    {\n      \"path\": \"filters/f_auto_filters.c\",\n      \"start_line\": 373,\n      \"end_line\": 375,\n      \"content\": \"`p->target_vflip` is set to `vflip` (the current image's vflip) before the early-return checks. If the VO supports vflip (`info->vflip`), the code returns without inserting a filter, but `p->target_vflip` remains equal to the input vflip. On the next frame with the same vflip/imgfmt, the fast path sets `img->params.vflip = p->target_vflip` (unchanged), which is fine, but if the VO capability changes or the filter is later inserted, the stale `target_vflip` may not reflect the intended output. More importantly, when a vflip filter *is* inserted, `target_vflip` is set to 0, but `prev_vflip` still holds the original value; the fast-path condition compares `img->params.vflip == p->prev_vflip`, so a subsequent frame with the same input vflip will take the fast path and set `vflip = 0` — correct. However, if the input vflip toggles back, the drain/destroy path re-runs and re-inserts the filter. This logic appears intentional but is fragile; consider documenting the invariant or resetting `prev_vflip`/`prev_imgfmt` when the filter is destroyed.\"\n    },\n    {\n      \"path\": \"video/out/vo_dmabuf_wayland.c\",\n      \"start_line\": 713,\n      \"end_line\": 713,\n      \"content\": \"`img->params.rotate / 90 + 4 * !!img->params.vflip` — the `wl_surface_set_buffer_transform` enum values are 0..7 (WL_OUTPUT_TRANSFORM_NORMAL..FLIPPED_ROTATED_270). Adding 4 maps rotate 0/90/180/270 to flipped variants 4/5/6/7, which is correct for the Wayland enum ordering. However, `img->params.rotate` is not guaranteed to be a multiple of 90 here (the autorotate filter normally normalizes it, but this VO may receive unnormalized values). Consider masking with `% 360` and asserting the multiple-of-90 invariant.\"\n    },\n    {\n      \"path\": \"video/mp_image.c\",\n      \"start_line\": 1098,\n      \"end_line\": 1105,\n      \"content\": \"The determinant is computed from `matrix[0..4]` as a 3x3 display matrix (indices 0,1,3,4). This is correct for the AV_FRAME_DATA_DISPLAYMATRIX layout, but `sd->data` size is not validated. If the side data is malformed/short, reading `matrix[4]` is out of bounds. Consider checking `sd->size >= 9 * sizeof(int32_t)` before dereferencing.\"\n    },\n    {\n      \"path\": \"video/out/vo_gpu_next.c\",\n      \"start_line\": 923,\n      \"end_line\": 927,\n      \"content\": \"`pars->distort_params.transform.mat` is set only when `vflip` is true, but `params.distort_params` is not reset to NULL when `vflip` is false on a subsequent frame. If `pars` persists across frames, a previously-set transform will leak into frames that should not be flipped. Ensure `params.distort_params = NULL` (or reset the matrix) in the else branch.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

@@ -1,0 +1,16 @@
+{
+  "instance_id": "linera-io__linera-protocol@8fb32bb",
+  "repo": "linera-io/linera-protocol",
+  "base_commit": "ad508025a9d05552a1c8ac1ba4e71a0062ebb556",
+  "head_commit": "8fb32bb8a463a3b19e291426f83833027739f868",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T19:49:19.177950+00:00",
+  "duration_seconds": 4.51,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "to=selfYou are reviewing a GitHub pull request with full repository context.\nReturn ONLY JSON:\n{\n  \"comments\": [\n    {\n      \"path\": \"repo-relative file path\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"actionable review comment\"\n    }\n  ]\n}\nIf PR looks good, return {\"comments\": []}.\nDo not invent issues. Prefer precision over recall for nits; still report real bugs.\n\nPR: linera-io/linera-protocol linera-io__linera-protocol@8fb32bb\nBase: ad508025a9d05552a1c8ac1ba4e71a0062ebb556\nHead: 8fb32bb8a463a3b19e291426f83833027739f868\n\nDiff truncated:\n...\nWe need review. Diff shows typo fixes:\n- examples/matching-engine/tests/transaction.rs: exhanged -> exchanged\n- linera-base/src/prometheus_util.rs: arount -> around (twice)\n- linera-core/src/chain_worker/state/mod.rs: ClonableView -> CloneableView\n- linera-core/src/client/mod.rs: asychronous -> asynchronous, comittee -> committee\n- linera-sdk/src/abis/fungible.rs: initilization -> initialization\n\nThese are typo fixes. Also ClonableView -> CloneableView is a real code change, not just typo? Might be fixing import. Let's check: ClonableView vs CloneableView. Could be a rename in linera_views. Might be correct.\n\nWe need to return comments if issues. Looks like just typo fixes. Possibly the ClonableView change is a real bug fix. Could be correct.\n\nCheck if any other issues: The diff shows import change from ClonableView to CloneableView. That's likely correct.\n\nNo real bugs. Possibly ensure that the typo fix in comment doesn't break tests? No.\n\nThe PR looks good. Return empty comments.\n\nBut maybe we should note that the import change ClonableView -> CloneableView might need to be checked if used elsewhere? The diff only shows import. Might be okay.\n\nThe instruction: Do not invent issues. Prefer precision over recall for nits; still report real bugs.\n\nSeems fine.\n\nReturn {\"comments\": []}\n\nCheck format: JSON with comments array.\n\nReturn exactly.\n\nassistant to=user{\"comments\": []}",
+  "stderr": null
+}

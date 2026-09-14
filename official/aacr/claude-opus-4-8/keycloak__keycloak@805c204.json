@@ -1,0 +1,16 @@
+{
+  "instance_id": "keycloak__keycloak@805c204",
+  "repo": "keycloak/keycloak",
+  "base_commit": "8521b9952a989d0dac17697278610b053c613528",
+  "head_commit": "805c204a9dbfb5b8128de8f70c9f3fbd6d6583f9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:38.681059+00:00",
+  "duration_seconds": 12.98,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

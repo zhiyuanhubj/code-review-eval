@@ -1,0 +1,45 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@d67628c",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "8a04621f436a36b35346ff474fb980469b61647d",
+  "head_commit": "d67628cd7e7aeeba2a60bea273c5cfc08714120c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:38:41.455230+00:00",
+  "duration_seconds": 8.19,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Processors/Executors/ExecutorTasks.cpp",
+        "start_line": 43,
+        "end_line": 43,
+        "content": "`idle_threads--` is executed unconditionally after popping from `threads_queue`, but the pop may return an invalid value (e.g., `ThreadsQueue::popAny()` can return `-1` when the queue is empty). In that case `idle_threads` is decremented without a corresponding idle thread, causing the counter to drift and eventually underflow (wrapping to a huge value), which would make `shouldSpawn()` always return false and permanently stop spawning threads. Guard the decrement with a check that a valid thread was actually popped.",
+        "side": "right"
+      },
+      {
+        "path": "src/Processors/Executors/PipelineExecutor.cpp",
+        "start_line": 381,
+        "end_line": 387,
+        "content": "`spawnThreads()` now returns early if `spawn_lock` is already held. However, `spawnThreads()` is also called from the main execution path (e.g., `execute()`/`executeStep()`), where the caller expects threads to be spawned. If another thread is concurrently spawning, the early return silently skips spawning, potentially leaving the pipeline without enough threads to make progress. Consider waiting on the lock or re-checking after acquiring it rather than returning immediately.",
+        "side": "right"
+      },
+      {
+        "path": "src/Processors/Executors/PipelineExecutor.cpp",
+        "start_line": 364,
+        "end_line": 371,
+        "content": "`tasks.init(num_threads, 1, ...)` hardcodes `use_threads = 1` instead of using the actual granted slot count. This changes the initial `use_threads` value and may affect logic that relies on it (e.g., `tryWakeUpAnyOtherThreadWithTasks` checks `thread_to_wake >= use_threads` and throws `LOGICAL_ERROR`). Verify that `use_threads` is correctly updated as threads are spawned; otherwise this can trigger spurious logical errors or incorrect thread wakeups.",
+        "side": "right"
+      },
+      {
+        "path": "src/Processors/Executors/ExecutorTasks.h",
+        "start_line": 41,
+        "end_line": 41,
+        "content": "The comment says `idle_threads` is changed with `threads_queue.size()`, but the code updates it manually at each push/pop site. This is error-prone (as evidenced by the unconditional decrement issue). Consider deriving `idle_threads` from `threads_queue.size()` or centralizing the counter updates to avoid drift.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Processors/Executors/ExecutorTasks.cpp\",\n      \"start_line\": 43,\n      \"end_line\": 43,\n      \"content\": \"`idle_threads--` is executed unconditionally after popping from `threads_queue`, but the pop may return an invalid value (e.g., `ThreadsQueue::popAny()` can return `-1` when the queue is empty). In that case `idle_threads` is decremented without a corresponding idle thread, causing the counter to drift and eventually underflow (wrapping to a huge value), which would make `shouldSpawn()` always return false and permanently stop spawning threads. Guard the decrement with a check that a valid thread was actually popped.\"\n    },\n    {\n      \"path\": \"src/Processors/Executors/PipelineExecutor.cpp\",\n      \"start_line\": 381,\n      \"end_line\": 387,\n      \"content\": \"`spawnThreads()` now returns early if `spawn_lock` is already held. However, `spawnThreads()` is also called from the main execution path (e.g., `execute()`/`executeStep()`), where the caller expects threads to be spawned. If another thread is concurrently spawning, the early return silently skips spawning, potentially leaving the pipeline without enough threads to make progress. Consider waiting on the lock or re-checking after acquiring it rather than returning immediately.\"\n    },\n    {\n      \"path\": \"src/Processors/Executors/PipelineExecutor.cpp\",\n      \"start_line\": 364,\n      \"end_line\": 371,\n      \"content\": \"`tasks.init(num_threads, 1, ...)` hardcodes `use_threads = 1` instead of using the actual granted slot count. This changes the initial `use_threads` value and may affect logic that relies on it (e.g., `tryWakeUpAnyOtherThreadWithTasks` checks `thread_to_wake >= use_threads` and throws `LOGICAL_ERROR`). Verify that `use_threads` is correctly updated as threads are spawned; otherwise this can trigger spurious logical errors or incorrect thread wakeups.\"\n    },\n    {\n      \"path\": \"src/Processors/Executors/ExecutorTasks.h\",\n      \"start_line\": 41,\n      \"end_line\": 41,\n      \"content\": \"The comment says `idle_threads` is changed with `threads_queue.size()`, but the code updates it manually at each push/pop site. This is error-prone (as evidenced by the unconditional decrement issue). Consider deriving `idle_threads` from `threads_queue.size()` or centralizing the counter updates to avoid drift.\"\n    }\n  ]\n}",
+  "stderr": null
+}

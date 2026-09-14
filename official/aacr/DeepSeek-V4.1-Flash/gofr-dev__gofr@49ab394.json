@@ -1,0 +1,59 @@
+{
+  "instance_id": "gofr-dev__gofr@49ab394",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "ba0316277a22f508ed645951705f53d151552916",
+  "head_commit": "49ab39432cf4892ee84569099b8065dfe45fae92",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:31:43.818563+00:00",
+  "duration_seconds": 6.48,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/gofr/datasource/pubsub/nats/client.go",
+        "start_line": 71,
+        "end_line": 99,
+        "content": "The retryConnect goroutine can leak and cause data races. If Connect() is called multiple times (e.g., on reconnect), each call spawns a new retryConnect goroutine that runs forever until success. There is no synchronization on c.connManager, c.streamManager, c.subManager, so concurrent writes from multiple retry goroutines and reads from Publish/Subscribe are racy. Consider guarding with a mutex/atomic flag to ensure only one retry loop runs, and protect field assignments.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/datasource/pubsub/nats/client.go",
+        "start_line": 71,
+        "end_line": 99,
+        "content": "retryConnect never exits if the client is closed or the context is cancelled. There is no way to stop the goroutine, so it will keep retrying forever even after Close() is called. Add a done/stop channel or context to allow cancellation.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/datasource/pubsub/nats/client.go",
+        "start_line": 71,
+        "end_line": 99,
+        "content": "On JetStream creation failure, the newly created connection is not closed before retrying. In the old ConnectionManager.retryConnect, connInterface.Close() was called when jetStreamCreator.New failed. Here, the connManager is discarded without closing its underlying connection, leaking connections on each retry. Close the connection before continuing.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/datasource/pubsub/nats/client.go",
+        "start_line": 71,
+        "end_line": 99,
+        "content": "The retry loop uses a fixed sleep of nats.DefaultTimeout (2s) with no backoff or max attempts. Combined with the goroutine leak above, this can hammer the server indefinitely. Consider exponential backoff and a maximum retry count or context cancellation.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/datasource/pubsub/nats/client.go",
+        "start_line": 140,
+        "end_line": 145,
+        "content": "Publish now returns errClientNotConnected when the client is not connected, but the retry goroutine may connect later. Callers that previously relied on the connection manager's internal retry/queueing behavior may now see immediate failures. Confirm this behavior change is intended and documented.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/datasource/pubsub/nats/connection_manager.go",
+        "start_line": 114,
+        "end_line": 120,
+        "content": "Publish increments the total publish counter before checking isConnected(). If the client is not connected, the total counter is incremented but no success/failure counter is, which may skew metrics. Consider moving the counter increment after the connection check, or also increment a failure counter.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/client.go\",\n      \"start_line\": 71,\n      \"end_line\": 99,\n      \"content\": \"The retryConnect goroutine can leak and cause data races. If Connect() is called multiple times (e.g., on reconnect), each call spawns a new retryConnect goroutine that runs forever until success. There is no synchronization on c.connManager, c.streamManager, c.subManager, so concurrent writes from multiple retry goroutines and reads from Publish/Subscribe are racy. Consider guarding with a mutex/atomic flag to ensure only one retry loop runs, and protect field assignments.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/client.go\",\n      \"start_line\": 71,\n      \"end_line\": 99,\n      \"content\": \"retryConnect never exits if the client is closed or the context is cancelled. There is no way to stop the goroutine, so it will keep retrying forever even after Close() is called. Add a done/stop channel or context to allow cancellation.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/client.go\",\n      \"start_line\": 71,\n      \"end_line\": 99,\n      \"content\": \"On JetStream creation failure, the newly created connection is not closed before retrying. In the old ConnectionManager.retryConnect, connInterface.Close() was called when jetStreamCreator.New failed. Here, the connManager is discarded without closing its underlying connection, leaking connections on each retry. Close the connection before continuing.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/client.go\",\n      \"start_line\": 71,\n      \"end_line\": 99,\n      \"content\": \"The retry loop uses a fixed sleep of nats.DefaultTimeout (2s) with no backoff or max attempts. Combined with the goroutine leak above, this can hammer the server indefinitely. Consider exponential backoff and a maximum retry count or context cancellation.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/client.go\",\n      \"start_line\": 140,\n      \"end_line\": 145,\n      \"content\": \"Publish now returns errClientNotConnected when the client is not connected, but the retry goroutine may connect later. Callers that previously relied on the connection manager's internal retry/queueing behavior may now see immediate failures. Confirm this behavior change is intended and documented.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/connection_manager.go\",\n      \"start_line\": 114,\n      \"end_line\": 120,\n      \"content\": \"Publish increments the total publish counter before checking isConnected(). If the client is not connected, the total counter is incremented but no success/failure counter is, which may skew metrics. Consider moving the counter increment after the connection check, or also increment a failure counter.\"\n    }\n  ]\n}",
+  "stderr": null
+}

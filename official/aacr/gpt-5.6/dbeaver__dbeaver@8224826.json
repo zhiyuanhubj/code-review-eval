@@ -1,0 +1,29 @@
+{
+  "instance_id": "dbeaver__dbeaver@8224826",
+  "repo": "dbeaver/dbeaver",
+  "base_commit": "8793ec7a6c71aa503b1dc492ddb4e982a8f3e9d9",
+  "head_commit": "8224826969254a49e68e025cae82d3cf1574de38",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:29:21.022419+00:00",
+  "duration_seconds": 47.9,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksDataSource.java",
+        "start_line": 90,
+        "end_line": 94,
+        "content": "When initializing from another context, this drops that context's default schema and explicitly passes `null` to `setDefaultCatalog`; it also does nothing when only a schema is available. Consequently, auxiliary/new execution contexts can run unqualified SQL against the driver's default schema rather than the schema selected in the source context. Preserve `executionMetaContext.getDefaultSchema()` when setting the catalog (and handle the schema-only case), or delegate the state copying to the superclass."
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksExecutionContext.java",
+        "start_line": 68,
+        "end_line": 69,
+        "content": "Do not swallow this `DBCException`. Callers of `setDefaultCatalog` will treat a failed catalog switch as successful, while `activeCatalogName` remains unchanged, leaving the UI/context state inconsistent without reporting the failure. Remove the catch or rethrow after logging."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksDataSource.java\",\"start_line\":90,\"end_line\":94,\"content\":\"When initializing from another context, this drops that context's default schema and explicitly passes `null` to `setDefaultCatalog`; it also does nothing when only a schema is available. Consequently, auxiliary/new execution contexts can run unqualified SQL against the driver's default schema rather than the schema selected in the source context. Preserve `executionMetaContext.getDefaultSchema()` when setting the catalog (and handle the schema-only case), or delegate the state copying to the superclass.\"},{\"path\":\"plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksExecutionContext.java\",\"start_line\":68,\"end_line\":69,\"content\":\"Do not swallow this `DBCException`. Callers of `setDefaultCatalog` will treat a failed catalog switch as successful, while `activeCatalogName` remains unchanged, leaving the UI/context state inconsistent without reporting the failure. Remove the catch or rethrow after logging.\"}]}",
+  "stderr": null
+}

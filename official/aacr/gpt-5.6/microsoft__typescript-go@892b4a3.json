@@ -1,0 +1,23 @@
+{
+  "instance_id": "microsoft__typescript-go@892b4a3",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "a9efe52c52001ea5b49d2ae8d7b0fa32ec8339f3",
+  "head_commit": "892b4a3f6b701352047ceb019fc0683ab1146bb3",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:39.284858+00:00",
+  "duration_seconds": 45.8,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "internal/fourslash/_scripts/makeManual.mts",
+        "start_line": 39,
+        "end_line": 41,
+        "content": "The argument must be the generated filename (for example, `foo_test.go`) because it is used verbatim in `genTestFile`, but `convertFourslash` checks `manualTests.txt` against the capitalized test name (`Foo`). As written, the next conversion will regenerate the test in `gen`, causing duplicate Go test declarations. Store the normalized test name (strip `_test.go` and capitalize it), or change both scripts to consistently use filenames."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"internal/fourslash/_scripts/makeManual.mts\",\"start_line\":39,\"end_line\":41,\"content\":\"The argument must be the generated filename (for example, `foo_test.go`) because it is used verbatim in `genTestFile`, but `convertFourslash` checks `manualTests.txt` against the capitalized test name (`Foo`). As written, the next conversion will regenerate the test in `gen`, causing duplicate Go test declarations. Store the normalized test name (strip `_test.go` and capitalize it), or change both scripts to consistently use filenames.\"}]}",
+  "stderr": null
+}

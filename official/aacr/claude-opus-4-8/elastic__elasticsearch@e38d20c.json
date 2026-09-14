@@ -1,0 +1,35 @@
+{
+  "instance_id": "elastic__elasticsearch@e38d20c",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "078f7ff9f7134a9c3011106e7b742a9fd8f04d56",
+  "head_commit": "e38d20c726cffb1ef9563d3146951a5356596464",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:20.919627+00:00",
+  "duration_seconds": 20.2,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "x-pack/plugin/async-search/src/internalClusterTest/java/org/elasticsearch/xpack/search/AsyncSearchErrorTraceIT.java",
+        "start_line": 153,
+        "end_line": 180,
+        "content": "The log capture and expectation assertion happen AFTER the async search has already completed (the `while (isRunning)` loop finishes before `MockLog.capture` is opened). The subsequent `getRestClient().performRequest(searchRequest)` re-POSTs the original `_async_search` submit request, which starts a NEW async search whose shard failures produce the log lines you're asserting on. That is a very different (and confusing) request than what the test name implies it is validating, and the polling/completion block above is dead work whose result is discarded. Please capture logs before triggering the search you actually intend to assert on (or drop the redundant polling block)."
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/test/MockLog.java",
+        "start_line": 340,
+        "end_line": 351,
+        "content": "`event.getThrown().getMessage()` can be null (e.g. an exception constructed without a message), which would NPE here. Since `exceptionMessage` is always non-null in current callers this is latent, but consider guarding: `exceptionMessage.equals(event.getThrown().getMessage())` to avoid the NPE and reverse the null-safety."
+      },
+      {
+        "path": "server/src/main/java/org/elasticsearch/search/SearchService.java",
+        "start_line": 558,
+        "end_line": 562,
+        "content": "`clusterService.localNode()` can return null early in the node lifecycle (before the local node is set), which would NPE inside this lambda when a failure is logged. Given this runs on the data node during query execution it's likely always set, but consider null-guarding or documenting the assumption to avoid a surprising NPE in the error path."
+      }
+    ]
+  },
+  "raw_output": "Looking at the diff carefully for real bugs.\n\nLet me analyze the async search tests. They set up an async search, poll until complete, then capture logs and re-execute `searchRequest`. But there's a subtle issue in the async tests.\n\nLet me examine the key logic and the MockLog change.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"x-pack/plugin/async-search/src/internalClusterTest/java/org/elasticsearch/xpack/search/AsyncSearchErrorTraceIT.java\",\n      \"start_line\": 153,\n      \"end_line\": 180,\n      \"content\": \"The log capture and expectation assertion happen AFTER the async search has already completed (the `while (isRunning)` loop finishes before `MockLog.capture` is opened). The subsequent `getRestClient().performRequest(searchRequest)` re-POSTs the original `_async_search` submit request, which starts a NEW async search whose shard failures produce the log lines you're asserting on. That is a very different (and confusing) request than what the test name implies it is validating, and the polling/completion block above is dead work whose result is discarded. Please capture logs before triggering the search you actually intend to assert on (or drop the redundant polling block).\",\n      \"start_side\": \"RIGHT\",\n      \"end_side\": \"RIGHT\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/test/MockLog.java\",\n      \"start_line\": 340,\n      \"end_line\": 351,\n      \"content\": \"`event.getThrown().getMessage()` can be null (e.g. an exception constructed without a message), which would NPE here. Since `exceptionMessage` is always non-null in current callers this is latent, but consider guarding: `exceptionMessage.equals(event.getThrown().getMessage())` to avoid the NPE and reverse the null-safety.\"\n    },\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/search/SearchService.java\",\n      \"start_line\": 558,\n      \"end_line\": 562,\n      \"content\": \"`clusterService.localNode()` can return null early in the node lifecycle (before the local node is set), which would NPE inside this lambda when a failure is logged. Given this runs on the data node during query execution it's likely always set, but consider null-guarding or documenting the assumption to avoid a surprising NPE in the error path.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

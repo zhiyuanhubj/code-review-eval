@@ -1,0 +1,87 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@3eee886",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "1ac5c4a6a23b4742624d64db210f10ca95133b11",
+  "head_commit": "3eee8866fb55acab61eaba6dc9eebd847f483913",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:38:46.730160+00:00",
+  "duration_seconds": 17.77,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Common/ThreadStatus.h",
+        "start_line": 155,
+        "end_line": 155,
+        "content": "The `ThreadGroupSwitcher` constructor is declared `noexcept` but internally calls `CurrentThread::attachToGroup`, `setThreadName`, and `CurrentThread::detachFromGroupIfNotDetached`, which can throw. The implementation wraps these in try/catch and logs, so it's technically safe, but the `noexcept` on the constructor combined with the `throw Exception(...)` inside the try block is a bit misleading. More importantly, when an exception is caught, the switcher silently becomes a no-op (`thread_group = nullptr`), which means the caller's thread will not be attached to the intended group and the destructor will not restore anything. This can lead to subtle bugs where memory accounting is silently wrong. Consider at least asserting or making the failure more visible in debug builds.",
+        "side": "right"
+      },
+      {
+        "path": "src/Interpreters/ThreadStatusExt.cpp",
+        "start_line": 173,
+        "end_line": 243,
+        "content": "In the destructor, `thread_group.reset()` is called before `CurrentThread::detachFromGroupIfNotDetached()`. If `detachFromGroupIfNotDetached` throws (it's inside the try block), the `thread_group` member is already reset, so a subsequent call to the destructor (not possible here since it's a destructor) or any logic depending on `thread_group` would see it as null. More importantly, if `attachToGroup(prev_thread_group)` throws, the thread is left detached from any group, which may violate invariants. Since this is a destructor, exceptions are swallowed, but the resulting state may be inconsistent. Consider restoring `prev_thread_group` in a way that is more robust, or at least ensure the thread ends up in a well-defined state.",
+        "side": "right"
+      },
+      {
+        "path": "src/Interpreters/ThreadStatusExt.cpp",
+        "start_line": 186,
+        "end_line": 186,
+        "content": "The error message uses `thread_name` which may be an empty string (e.g., callers pass `\"\"`). The message would then read `Thread () is already attached to a group ...` which is not very informative. Consider including the thread id or a fallback name.",
+        "side": "right"
+      },
+      {
+        "path": "src/Common/ThreadPool.cpp",
+        "start_line": 774,
+        "end_line": 800,
+        "content": "The debug check compares `DB::current_thread` and `DB::CurrentThread::getGroup()` before and after the job. However, `ThreadGroupSwitcher` with `allow_existing_group = false` (the default) is designed to attach to a group and detach on destruction, so after the job the thread should be back to its initial state. But note that `ThreadGroupSwitcher`'s destructor swallows exceptions and may leave the thread in an inconsistent state (e.g., if `attachToGroup(prev_thread_group)` fails). In that case this check would fire with a confusing message. Also, the check uses `throw` inside the worker loop, which will terminate the thread pool thread — is that the intended behavior? Consider whether this should be a `chassert` or `LOGICAL_ERROR` that doesn't kill the worker.",
+        "side": "right"
+      },
+      {
+        "path": "src/Interpreters/ProfileEventsExt.cpp",
+        "start_line": 132,
+        "end_line": 137,
+        "content": "Adding hard `LOGICAL_ERROR` throws when `CurrentThread` is not initialized or not attached to a group changes behavior for callers that previously worked with a null group. This function is used by `system.events` / `system.metrics` style queries. If any code path legitimately calls this without a thread group (e.g., during startup or in a background thread without a group), it will now throw. Please verify all call sites are guaranteed to have a thread group, or downgrade to a warning / handle null gracefully.",
+        "side": "right"
+      },
+      {
+        "path": "src/Common/threadPoolCallbackRunner.h",
+        "start_line": 71,
+        "end_line": 71,
+        "content": "The `static_assert` forbids `GlobalThreadPool` as `PoolT`. This is a good safety measure, but it's a breaking change for any existing code that used `ThreadPoolCallbackRunnerLocal<..., GlobalThreadPool>`. The PR updates `PolygonDictionaryUtils.h` to use a local `ThreadPool`, but please double-check there are no other usages in the codebase that would now fail to compile.",
+        "side": "right"
+      },
+      {
+        "path": "src/Processors/Transforms/AggregatingTransform.h",
+        "start_line": 109,
+        "end_line": 116,
+        "content": "The lambda is now `mutable` and explicitly calls `my_variant.reset()` inside the `ThreadGroupSwitcher` scope. Previously the variant was destroyed when the lambda was destroyed (after the SCOPE_EXIT detached the group). Now the reset happens before the switcher's destructor, which is the intended behavior (destroy under the correct memory tracker). However, note that `my_variant` is captured by move and the lambda is `mutable`; if `scheduleOrThrowOnError` throws before the lambda runs, `my_variant` is destroyed in the caller's context — same as before. This looks correct, but worth confirming that `reset()` on the variant actually triggers the aggregator destruction synchronously (it should, since it's a `unique_ptr`-like holder).",
+        "side": "right"
+      },
+      {
+        "path": "src/Dictionaries/PolygonDictionaryUtils.h",
+        "start_line": 261,
+        "end_line": 262,
+        "content": "A new `ThreadPool` is created per `DividedCell` construction. If `DividedCell` is constructed many times (e.g., recursively for each cell), this could create a large number of thread pools. Consider whether the pool should be shared or whether the recursion depth is bounded. Also, the pool size is hardcoded to 128; consider making it configurable or at least documenting why 128.",
+        "side": "right"
+      },
+      {
+        "path": "src/Storages/Distributed/DistributedSink.cpp",
+        "start_line": 334,
+        "end_line": 334,
+        "content": "The `ThreadGroupSwitcher` is now constructed before `OpenTelemetry::SpanHolder span(__PRETTY_FUNCTION__)`. Previously the span was created first. If `ThreadGroupSwitcher` construction logs or throws (it catches internally), the span ordering may matter for tracing. Minor, but worth confirming the order is intentional.",
+        "side": "right"
+      },
+      {
+        "path": "src/Processors/Formats/Impl/DWARFBlockInputFormat.cpp",
+        "start_line": 246,
+        "end_line": 246,
+        "content": "The `ThreadGroupSwitcher` is now inside the `try` block, whereas previously `attachToGroupIfDetached` was outside the try. If `ThreadGroupSwitcher` construction fails (it catches internally and becomes a no-op), the code will proceed without a thread group. This is probably fine, but the previous code would have attached before entering the try. Ensure the behavior change is acceptable.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Common/ThreadStatus.h\",\n      \"start_line\": 155,\n      \"end_line\": 155,\n      \"content\": \"The `ThreadGroupSwitcher` constructor is declared `noexcept` but internally calls `CurrentThread::attachToGroup`, `setThreadName`, and `CurrentThread::detachFromGroupIfNotDetached`, which can throw. The implementation wraps these in try/catch and logs, so it's technically safe, but the `noexcept` on the constructor combined with the `throw Exception(...)` inside the try block is a bit misleading. More importantly, when an exception is caught, the switcher silently becomes a no-op (`thread_group = nullptr`), which means the caller's thread will not be attached to the intended group and the destructor will not restore anything. This can lead to subtle bugs where memory accounting is silently wrong. Consider at least asserting or making the failure more visible in debug builds.\"\n    },\n    {\n      \"path\": \"src/Interpreters/ThreadStatusExt.cpp\",\n      \"start_line\": 173,\n      \"end_line\": 243,\n      \"content\": \"In the destructor, `thread_group.reset()` is called before `CurrentThread::detachFromGroupIfNotDetached()`. If `detachFromGroupIfNotDetached` throws (it's inside the try block), the `thread_group` member is already reset, so a subsequent call to the destructor (not possible here since it's a destructor) or any logic depending on `thread_group` would see it as null. More importantly, if `attachToGroup(prev_thread_group)` throws, the thread is left detached from any group, which may violate invariants. Since this is a destructor, exceptions are swallowed, but the resulting state may be inconsistent. Consider restoring `prev_thread_group` in a way that is more robust, or at least ensure the thread ends up in a well-defined state.\"\n    },\n    {\n      \"path\": \"src/Interpreters/ThreadStatusExt.cpp\",\n      \"start_line\": 186,\n      \"end_line\": 186,\n      \"content\": \"The error message uses `thread_name` which may be an empty string (e.g., callers pass `\\\"\\\"`). The message would then read `Thread () is already attached to a group ...` which is not very informative. Consider including the thread id or a fallback name.\"\n    },\n    {\n      \"path\": \"src/Common/ThreadPool.cpp\",\n      \"start_line\": 774,\n      \"end_line\": 800,\n      \"content\": \"The debug check compares `DB::current_thread` and `DB::CurrentThread::getGroup()` before and after the job. However, `ThreadGroupSwitcher` with `allow_existing_group = false` (the default) is designed to attach to a group and detach on destruction, so after the job the thread should be back to its initial state. But note that `ThreadGroupSwitcher`'s destructor swallows exceptions and may leave the thread in an inconsistent state (e.g., if `attachToGroup(prev_thread_group)` fails). In that case this check would fire with a confusing message. Also, the check uses `throw` inside the worker loop, which will terminate the thread pool thread — is that the intended behavior? Consider whether this should be a `chassert` or `LOGICAL_ERROR` that doesn't kill the worker.\"\n    },\n    {\n      \"path\": \"src/Interpreters/ProfileEventsExt.cpp\",\n      \"start_line\": 132,\n      \"end_line\": 137,\n      \"content\": \"Adding hard `LOGICAL_ERROR` throws when `CurrentThread` is not initialized or not attached to a group changes behavior for callers that previously worked with a null group. This function is used by `system.events` / `system.metrics` style queries. If any code path legitimately calls this without a thread group (e.g., during startup or in a background thread without a group), it will now throw. Please verify all call sites are guaranteed to have a thread group, or downgrade to a warning / handle null gracefully.\"\n    },\n    {\n      \"path\": \"src/Common/threadPoolCallbackRunner.h\",\n      \"start_line\": 71,\n      \"end_line\": 71,\n      \"content\": \"The `static_assert` forbids `GlobalThreadPool` as `PoolT`. This is a good safety measure, but it's a breaking change for any existing code that used `ThreadPoolCallbackRunnerLocal<..., GlobalThreadPool>`. The PR updates `PolygonDictionaryUtils.h` to use a local `ThreadPool`, but please double-check there are no other usages in the codebase that would now fail to compile.\"\n    },\n    {\n      \"path\": \"src/Processors/Transforms/AggregatingTransform.h\",\n      \"start_line\": 109,\n      \"end_line\": 116,\n      \"content\": \"The lambda is now `mutable` and explicitly calls `my_variant.reset()` inside the `ThreadGroupSwitcher` scope. Previously the variant was destroyed when the lambda was destroyed (after the SCOPE_EXIT detached the group). Now the reset happens before the switcher's destructor, which is the intended behavior (destroy under the correct memory tracker). However, note that `my_variant` is captured by move and the lambda is `mutable`; if `scheduleOrThrowOnError` throws before the lambda runs, `my_variant` is destroyed in the caller's context — same as before. This looks correct, but worth confirming that `reset()` on the variant actually triggers the aggregator destruction synchronously (it should, since it's a `unique_ptr`-like holder).\"\n    },\n    {\n      \"path\": \"src/Dictionaries/PolygonDictionaryUtils.h\",\n      \"start_line\": 261,\n      \"end_line\": 262,\n      \"content\": \"A new `ThreadPool` is created per `DividedCell` construction. If `DividedCell` is constructed many times (e.g., recursively for each cell), this could create a large number of thread pools. Consider whether the pool should be shared or whether the recursion depth is bounded. Also, the pool size is hardcoded to 128; consider making it configurable or at least documenting why 128.\"\n    },\n    {\n      \"path\": \"src/Storages/Distributed/DistributedSink.cpp\",\n      \"start_line\": 334,\n      \"end_line\": 334,\n      \"content\": \"The `ThreadGroupSwitcher` is now constructed before `OpenTelemetry::SpanHolder span(__PRETTY_FUNCTION__)`. Previously the span was created first. If `ThreadGroupSwitcher` construction logs or throws (it catches internally), the span ordering may matter for tracing. Minor, but worth confirming the order is intentional.\"\n    },\n    {\n      \"path\": \"src/Processors/Formats/Impl/DWARFBlockInputFormat.cpp\",\n      \"start_line\": 246,\n      \"end_line\": 246,\n      \"content\": \"The `ThreadGroupSwitcher` is now inside the `try` block, whereas previously `attachToGroupIfDetached` was outside the try. If `ThreadGroupSwitcher` construction fails (it catches internally and becomes a no-op), the code will proceed without a thread group. This is probably fine, but the previous code would have attached before entering the try. Ensure the behavior change is acceptable.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

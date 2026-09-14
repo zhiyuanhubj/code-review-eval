@@ -1,0 +1,80 @@
+{
+  "instance_id": "google-gemini__gemini-cli@6fd8269",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "4e49ee4c734f53a705df72efda2d076cb0acf44e",
+  "head_commit": "6fd82699700fc19ea30a7b29a059f392ccfbb2cc",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:34:38.340570+00:00",
+  "duration_seconds": 10.83,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/core/src/tools/planning-tool.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The `PLANNING_SYSTEM_PROMPT` uses `\\${user_request}` (escaped) inside a template literal, which will render the literal string `${user_request}` instead of interpolating the user's request. The prompt is never actually populated with the user request. Either use `${user_request}` (unescaped) and pass the request into the prompt, or rely on the ContextState variable substitution mechanism (if the subagent supports it) — but as written, the model will see the literal placeholder text.",
+        "side": "right"
+      },
+      {
+        "path": "packages/core/src/tools/planning-tool.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The system prompt instructs the model to produce a plan shaped as `{ \"plan\": [ ... ] }`, but the test `should correctly process a successful plan generation` expects `result.llmContent` to contain `plan: mockPlan` where `mockPlan = { task, description }`. This mismatch suggests the prompt/schema and the tests are inconsistent. Please align the documented JSON schema with what the tool actually returns and what downstream consumers expect.",
+        "side": "right"
+      },
+      {
+        "path": "packages/core/src/tools/planning-tool.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "`PlanningTool.execute` accepts an `AbortSignal` but never passes it to `createPlan` or `SubAgentScope.create`/`runNonInteractive`. Cancellation from the caller will not propagate to the subagent, so the planning subagent can keep running after the parent has aborted. Thread the signal through to the subagent (or at least check `signal.aborted` before/after running).",
+        "side": "right"
+      },
+      {
+        "path": "packages/core/src/tools/planning-tool.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "`createPlan` swallows all errors and returns `null`, and `execute` then reports a generic 'Failed to create a plan.' This makes debugging failures (e.g., model errors, tool errors) very difficult. Consider logging the error with more context or including the error message in the returned `llmContent` so the calling agent can react appropriately.",
+        "side": "right"
+      },
+      {
+        "path": "packages/core/src/core/subagent.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "In `SubAgentScope.create`, when a tool entry is a `FunctionDeclaration` (not a string and not a `BaseTool`), the code silently skips it with a comment saying 'We'll rely on the validation below to catch any issues.' But the validation loop only iterates over `subagentToolRegistry.getAllTools()`, which will not include the skipped `FunctionDeclaration`. So a `FunctionDeclaration` passed in `toolConfig.tools` is silently dropped from the registry and never validated. Either register it properly or throw an explicit error.",
+        "side": "right"
+      },
+      {
+        "path": "packages/core/src/core/subagent.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "`runNonInteractive` now accumulates `textResponse` across all streamed responses and calls `this.onMessage(textResponse)` once per turn. If the model streams partial text across multiple chunks, this is fine, but note that `resp.text` may be undefined for function-call-only responses — that's handled. However, the accumulated text is never added to `currentMessages`, so the model's own text output is not preserved in conversation history for subsequent turns. If that's intentional, fine; otherwise the subagent may lose context between turns.",
+        "side": "right"
+      },
+      {
+        "path": "packages/core/src/core/subagent.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The `onMessage` callback is invoked with `Executing tool: ${functionCall.name} with args ${args}` inside `processFunctionCalls`. This mixes tool-execution notifications with model text output on the same channel. Consumers (e.g., the planning tool's `updateOutput`) may not expect tool-execution strings interleaved with model text. Consider a separate callback or a structured message type.",
+        "side": "right"
+      },
+      {
+        "path": "packages/core/src/tools/planning-tool.test.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The test mocks `SubAgentScope.create` but the `PlanningTool` also constructs real tool instances (`ReadFileTool`, `GrepTool`, etc.) with `mockConfig = {} as Config`. If any of those constructors access `runtimeContext` fields at construction time, the tests will fail or behave unexpectedly. Consider mocking those tool constructors or providing a more complete mock config.",
+        "side": "right"
+      },
+      {
+        "path": "packages/core/src/tools/planning-tool.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The `signal` parameter in `execute` is unused (see `noUnusedParameters` if enabled). Even if you don't propagate it, prefix with `_` or actually use it to avoid lint failures.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"packages/core/src/tools/planning-tool.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The `PLANNING_SYSTEM_PROMPT` uses `\\\\${user_request}` (escaped) inside a template literal, which will render the literal string `${user_request}` instead of interpolating the user's request. The prompt is never actually populated with the user request. Either use `${user_request}` (unescaped) and pass the request into the prompt, or rely on the ContextState variable substitution mechanism (if the subagent supports it) — but as written, the model will see the literal placeholder text.\"\n    },\n    {\n      \"path\": \"packages/core/src/tools/planning-tool.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The system prompt instructs the model to produce a plan shaped as `{ \\\"plan\\\": [ ... ] }`, but the test `should correctly process a successful plan generation` expects `result.llmContent` to contain `plan: mockPlan` where `mockPlan = { task, description }`. This mismatch suggests the prompt/schema and the tests are inconsistent. Please align the documented JSON schema with what the tool actually returns and what downstream consumers expect.\"\n    },\n    {\n      \"path\": \"packages/core/src/tools/planning-tool.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"`PlanningTool.execute` accepts an `AbortSignal` but never passes it to `createPlan` or `SubAgentScope.create`/`runNonInteractive`. Cancellation from the caller will not propagate to the subagent, so the planning subagent can keep running after the parent has aborted. Thread the signal through to the subagent (or at least check `signal.aborted` before/after running).\"\n    },\n    {\n      \"path\": \"packages/core/src/tools/planning-tool.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"`createPlan` swallows all errors and returns `null`, and `execute` then reports a generic 'Failed to create a plan.' This makes debugging failures (e.g., model errors, tool errors) very difficult. Consider logging the error with more context or including the error message in the returned `llmContent` so the calling agent can react appropriately.\"\n    },\n    {\n      \"path\": \"packages/core/src/core/subagent.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"In `SubAgentScope.create`, when a tool entry is a `FunctionDeclaration` (not a string and not a `BaseTool`), the code silently skips it with a comment saying 'We'll rely on the validation below to catch any issues.' But the validation loop only iterates over `subagentToolRegistry.getAllTools()`, which will not include the skipped `FunctionDeclaration`. So a `FunctionDeclaration` passed in `toolConfig.tools` is silently dropped from the registry and never validated. Either register it properly or throw an explicit error.\"\n    },\n    {\n      \"path\": \"packages/core/src/core/subagent.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"`runNonInteractive` now accumulates `textResponse` across all streamed responses and calls `this.onMessage(textResponse)` once per turn. If the model streams partial text across multiple chunks, this is fine, but note that `resp.text` may be undefined for function-call-only responses — that's handled. However, the accumulated text is never added to `currentMessages`, so the model's own text output is not preserved in conversation history for subsequent turns. If that's intentional, fine; otherwise the subagent may lose context between turns.\"\n    },\n    {\n      \"path\": \"packages/core/src/core/subagent.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The `onMessage` callback is invoked with `Executing tool: ${functionCall.name} with args ${args}` inside `processFunctionCalls`. This mixes tool-execution notifications with model text output on the same channel. Consumers (e.g., the planning tool's `updateOutput`) may not expect tool-execution strings interleaved with model text. Consider a separate callback or a structured message type.\"\n    },\n    {\n      \"path\": \"packages/core/src/tools/planning-tool.test.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The test mocks `SubAgentScope.create` but the `PlanningTool` also constructs real tool instances (`ReadFileTool`, `GrepTool`, etc.) with `mockConfig = {} as Config`. If any of those constructors access `runtimeContext` fields at construction time, the tests will fail or behave unexpectedly. Consider mocking those tool constructors or providing a more complete mock config.\"\n    },\n    {\n      \"path\": \"packages/core/src/tools/planning-tool.ts\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The `signal` parameter in `execute` is unused (see `noUnusedParameters` if enabled). Even if you don't propagate it, prefix with `_` or actually use it to avoid lint failures.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

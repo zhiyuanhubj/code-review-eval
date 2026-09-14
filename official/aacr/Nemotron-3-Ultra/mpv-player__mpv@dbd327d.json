@@ -1,0 +1,41 @@
+{
+  "instance_id": "mpv-player__mpv@dbd327d",
+  "repo": "mpv-player/mpv",
+  "base_commit": "30869ddb904f800ad1b858ac99c5fb81690f0cb7",
+  "head_commit": "dbd327d36fd0dc80ebd6e5517c102a92e31a0836",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:50:11.818897+00:00",
+  "duration_seconds": 33.56,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "misc/random.c",
+        "start_line": 55,
+        "end_line": 55,
+        "content": "The fallback seed uses `seed ^= (uintptr_t)&mp_rand_seed; seed += (uintptr_t)&ret;` but `ret` is a local struct variable. Taking the address of a local variable for entropy is problematic: it may be optimized away or have predictable values depending on compiler/optimization level. Consider using a more robust entropy source or at least volatile access."
+      },
+      {
+        "path": "misc/random.c",
+        "start_line": 55,
+        "end_line": 55,
+        "content": "The fallback seed derivation uses `seed` (which is 0 at this point) XORed with function address and stack address. Since `seed` is 0, this reduces to just the addresses. If ASLR is disabled or stack position is predictable, entropy is low. Consider incorporating `mp_raw_time_ns()` again or other sources."
+      },
+      {
+        "path": "common/playlist.c",
+        "start_line": 175,
+        "end_line": 175,
+        "content": "The shuffle algorithm uses `mp_rand_in_range32(&s, n, pl->num_entries)` which returns a value in [n, num_entries). This is correct for Fisher-Yates (selecting from remaining elements including current). However, the old code used `n + j` where j was in [0, num_entries-n). The new code is equivalent and correct."
+      },
+      {
+        "path": "misc/io_utils.c",
+        "start_line": 44,
+        "end_line": 44,
+        "content": "Variable names `fuckshit` and `fuckmess` are unprofessional and violate typical coding standards. Consider renaming to something descriptive like `attempt` and `rand_val`."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"misc/random.c\",\n      \"start_line\": 55,\n      \"end_line\": 55,\n      \"content\": \"The fallback seed uses `seed ^= (uintptr_t)&mp_rand_seed; seed += (uintptr_t)&ret;` but `ret` is a local struct variable. Taking the address of a local variable for entropy is problematic: it may be optimized away or have predictable values depending on compiler/optimization level. Consider using a more robust entropy source or at least volatile access.\"\n    },\n    {\n      \"path\": \"misc/random.c\",\n      \"start_line\": 55,\n      \"end_line\": 55,\n      \"content\": \"The fallback seed derivation uses `seed` (which is 0 at this point) XORed with function address and stack address. Since `seed` is 0, this reduces to just the addresses. If ASLR is disabled or stack position is predictable, entropy is low. Consider incorporating `mp_raw_time_ns()` again or other sources.\"\n    },\n    {\n      \"path\": \"common/playlist.c\",\n      \"start_line\": 175,\n      \"end_line\": 175,\n      \"content\": \"The shuffle algorithm uses `mp_rand_in_range32(&s, n, pl->num_entries)` which returns a value in [n, num_entries). This is correct for Fisher-Yates (selecting from remaining elements including current). However, the old code used `n + j` where j was in [0, num_entries-n). The new code is equivalent and correct.\"\n    },\n    {\n      \"path\": \"misc/io_utils.c\",\n      \"start_line\": 44,\n      \"end_line\": 44,\n      \"content\": \"Variable names `fuckshit` and `fuckmess` are unprofessional and violate typical coding standards. Consider renaming to something descriptive like `attempt` and `rand_val`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

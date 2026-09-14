@@ -1,0 +1,35 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@d67628c",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "8a04621f436a36b35346ff474fb980469b61647d",
+  "head_commit": "d67628cd7e7aeeba2a60bea273c5cfc08714120c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:36.847647+00:00",
+  "duration_seconds": 85.3,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Processors/Executors/ExecutorTasks.cpp",
+        "start_line": 43,
+        "end_line": 43,
+        "content": "The decrement `idle_threads--` here in `tryWakeUpAnyOtherThreadWithTasks` is only executed on the code path that pops a thread from `threads_queue`. Please verify that every branch that removes a thread from `threads_queue` (including the branch selecting a specific thread vs. `popAny()`) is covered, and that `idle_threads` cannot go negative if a thread is woken up but was not counted as idle. Since `idle_threads` is `std::atomic_size_t`, an underflow would wrap to a huge value and make `shouldSpawn()` permanently return false, effectively stalling thread spawning for the query."
+      },
+      {
+        "path": "src/Processors/Executors/ExecutorTasks.h",
+        "start_line": 42,
+        "end_line": 42,
+        "content": "`idle_threads` is a `std::atomic_size_t` but the increments/decrements in ExecutorTasks.cpp all happen under the tasks mutex (same lock guarding `threads_queue`). If it is always mutated under the lock, an atomic is unnecessary; if it is intended to be read via `shouldSpawn()` without the lock, then the increment/decrement/read sequences are not consistent (e.g. push+increment vs. the read in shouldSpawn can race). Clarify the intended synchronization: either keep it under the lock as a plain size_t, or ensure all mutations are lock-free-safe. As written, `shouldSpawn()` reads without the lock while other threads mutate, which is fine for atomics but the value can be stale/inconsistent with `threads_queue.size()`."
+      },
+      {
+        "path": "src/Processors/Executors/PipelineExecutor.cpp",
+        "start_line": 381,
+        "end_line": 390,
+        "content": "With the `try_to_lock` short-circuit, if thread A holds `spawn_lock` and is mid-spawn while thread B calls `spawnThreads()` and returns early, there is a risk that newly-arrived tasks needing more threads never trigger another spawn. Confirm that `spawnThreads()` is re-invoked after tasks are pushed (e.g. on every wakeup / task enqueue) so that a skipped spawn attempt is eventually retried; otherwise the pipeline could under-spawn and stall when `shouldSpawn()` briefly returned false or the lock was contended."
+      }
+    ]
+  },
+  "raw_output": "I'll analyze this PR which introduces lazy thread spawning based on idle thread count.\n\nLet me focus on the concurrency correctness of `idle_threads` tracking.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Processors/Executors/ExecutorTasks.cpp\",\n      \"start_line\": 43,\n      \"end_line\": 43,\n      \"content\": \"The decrement `idle_threads--` here in `tryWakeUpAnyOtherThreadWithTasks` is only executed on the code path that pops a thread from `threads_queue`. Please verify that every branch that removes a thread from `threads_queue` (including the branch selecting a specific thread vs. `popAny()`) is covered, and that `idle_threads` cannot go negative if a thread is woken up but was not counted as idle. Since `idle_threads` is `std::atomic_size_t`, an underflow would wrap to a huge value and make `shouldSpawn()` permanently return false, effectively stalling thread spawning for the query.\"\n    },\n    {\n      \"path\": \"src/Processors/Executors/ExecutorTasks.h\",\n      \"start_line\": 42,\n      \"end_line\": 42,\n      \"content\": \"`idle_threads` is a `std::atomic_size_t` but the increments/decrements in ExecutorTasks.cpp all happen under the tasks mutex (same lock guarding `threads_queue`). If it is always mutated under the lock, an atomic is unnecessary; if it is intended to be read via `shouldSpawn()` without the lock, then the increment/decrement/read sequences are not consistent (e.g. push+increment vs. the read in shouldSpawn can race). Clarify the intended synchronization: either keep it under the lock as a plain size_t, or ensure all mutations are lock-free-safe. As written, `shouldSpawn()` reads without the lock while other threads mutate, which is fine for atomics but the value can be stale/inconsistent with `threads_queue.size()`.\"\n    },\n    {\n      \"path\": \"src/Processors/Executors/PipelineExecutor.cpp\",\n      \"start_line\": 381,\n      \"end_line\": 390,\n      \"content\": \"With the `try_to_lock` short-circuit, if thread A holds `spawn_lock` and is mid-spawn while thread B calls `spawnThreads()` and returns early, there is a risk that newly-arrived tasks needing more threads never trigger another spawn. Confirm that `spawnThreads()` is re-invoked after tasks are pushed (e.g. on every wakeup / task enqueue) so that a skipped spawn attempt is eventually retried; otherwise the pipeline could under-spawn and stall when `shouldSpawn()` briefly returned false or the lock was contended.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

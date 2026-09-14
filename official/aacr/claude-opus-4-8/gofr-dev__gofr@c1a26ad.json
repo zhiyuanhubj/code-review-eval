@@ -1,0 +1,23 @@
+{
+  "instance_id": "gofr-dev__gofr@c1a26ad",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "d0300073f685bb1154f7437f3172799d31bfddbe",
+  "head_commit": "c1a26ade6db7da96622c9bdca7674ef7094c122f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:23.310359+00:00",
+  "duration_seconds": 7.03,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/gofr/http_server.go",
+        "start_line": 37,
+        "end_line": 46,
+        "content": "The logging middleware is now registered after the Tracer, CORS, and Metrics middleware, whereas previously it was registered second (right after Tracer). Since middleware ordering affects wrapping order, this changes the behavior so that logging now runs innermost among these. If logging should capture the full request timing including CORS/Metrics processing, register it earlier in the chain (e.g., inside the initial r.Use call) rather than after."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/http_server.go\",\n      \"start_line\": 37,\n      \"end_line\": 46,\n      \"content\": \"The logging middleware is now registered after the Tracer, CORS, and Metrics middleware, whereas previously it was registered second (right after Tracer). Since middleware ordering affects wrapping order, this changes the behavior so that logging now runs innermost among these. If logging should capture the full request timing including CORS/Metrics processing, register it earlier in the chain (e.g., inside the initial r.Use call) rather than after.\"\n    }\n  ]\n}",
+  "stderr": null
+}

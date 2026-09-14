@@ -1,0 +1,16 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@870d7f5",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "01241245a1d92a8db69fab0db4c2053b5e1227c1",
+  "head_commit": "870d7f5385af5d377994479ce6ad017465bdad3d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:21.296653+00:00",
+  "duration_seconds": 87.81,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": null
+}

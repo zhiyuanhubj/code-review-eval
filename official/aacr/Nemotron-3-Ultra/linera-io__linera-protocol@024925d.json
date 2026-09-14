@@ -1,0 +1,41 @@
+{
+  "instance_id": "linera-io__linera-protocol@024925d",
+  "repo": "linera-io/linera-protocol",
+  "base_commit": "c4a8ac301274ccdfc8d0fc87871d557534a8405f",
+  "head_commit": "024925dfbeff5daaecdd2cd733cda2825eff1bb7",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:53:12.337657+00:00",
+  "duration_seconds": 44.25,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "linera-core/src/updater.rs",
+        "start_line": 167,
+        "end_line": 180,
+        "content": "The logic change here is significant: previously, a grace period was started both when a quorum was reached AND when it became impossible to reach quorum. Now it only starts when quorum is reached, and breaks immediately when quorum becomes impossible. This changes the behavior for the 'no quorum possible' case - previously it would wait for a grace period to collect more error information, now it returns immediately. Is this intentional? If so, consider adding a comment explaining why we no longer wait for additional error information when quorum is impossible."
+      },
+      {
+        "path": "linera-core/src/updater.rs",
+        "start_line": 136,
+        "end_line": 136,
+        "content": "The label 'vote_wait' is only used once for the break statement. Consider if this label adds clarity or if a simple 'break' with a comment would suffice. The label is fine but slightly unusual for a single-level loop."
+      },
+      {
+        "path": "linera-core/src/client/mod.rs",
+        "start_line": 1111,
+        "end_line": 1118,
+        "content": "Four separate calls to `communicate_with_quorum` now pass `None` as the grace_period argument. Since the default is now 0.1 (down from 0.2), this changes behavior for all four call sites. Was this intentional? If the intent is to use the default grace period, consider passing `Some(DEFAULT_GRACE_PERIOD)` explicitly for clarity, or update the call sites to use a named constant if they should have different values."
+      },
+      {
+        "path": "linera-core/src/node.rs",
+        "start_line": 205,
+        "end_line": 205,
+        "content": "Typo fix: 'Reponse' -> 'Response', but 'ceritifcates' is still misspelled (should be 'certificates'). Consider fixing both typos in the same error message."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"linera-core/src/updater.rs\",\n      \"start_line\": 167,\n      \"end_line\": 180,\n      \"content\": \"The logic change here is significant: previously, a grace period was started both when a quorum was reached AND when it became impossible to reach quorum. Now it only starts when quorum is reached, and breaks immediately when quorum becomes impossible. This changes the behavior for the 'no quorum possible' case - previously it would wait for a grace period to collect more error information, now it returns immediately. Is this intentional? If so, consider adding a comment explaining why we no longer wait for additional error information when quorum is impossible.\"\n    },\n    {\n      \"path\": \"linera-core/src/updater.rs\",\n      \"start_line\": 136,\n      \"end_line\": 136,\n      \"content\": \"The label 'vote_wait' is only used once for the break statement. Consider if this label adds clarity or if a simple 'break' with a comment would suffice. The label is fine but slightly unusual for a single-level loop.\"\n    },\n    {\n      \"path\": \"linera-core/src/client/mod.rs\",\n      \"start_line\": 1111,\n      \"end_line\": 1118,\n      \"content\": \"Four separate calls to `communicate_with_quorum` now pass `None` as the grace_period argument. Since the default is now 0.1 (down from 0.2), this changes behavior for all four call sites. Was this intentional? If the intent is to use the default grace period, consider passing `Some(DEFAULT_GRACE_PERIOD)` explicitly for clarity, or update the call sites to use a named constant if they should have different values.\"\n    },\n    {\n      \"path\": \"linera-core/src/node.rs\",\n      \"start_line\": 205,\n      \"end_line\": 205,\n      \"content\": \"Typo fix: 'Reponse' -> 'Response', but 'ceritifcates' is still misspelled (should be 'certificates'). Consider fixing both typos in the same error message.\"\n    }\n  ]\n}",
+  "stderr": null
+}

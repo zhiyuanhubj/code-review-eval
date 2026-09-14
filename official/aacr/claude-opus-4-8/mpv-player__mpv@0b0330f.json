@@ -1,0 +1,16 @@
+{
+  "instance_id": "mpv-player__mpv@0b0330f",
+  "repo": "mpv-player/mpv",
+  "base_commit": "5ba7ee513751dd005379a06fb627303e6fe1b3dd",
+  "head_commit": "0b0330fa9d5d70c78f36e1010a3b826fa7046387",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:26.190169+00:00",
+  "duration_seconds": 13.28,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "Looking at the diff, I need to analyze the change in `misc/language.c` carefully.\n\nThe key logic change: previously `checked_hi` was set only for hi/sdh/cc suffixes, and after that check, if `*hi` was true, it would skip the tag and continue looking for the language. Now with `checked_tag`, both hi and forced tags are handled in a single pass.\n\nThe issue: the code now only allows **one** tag to be checked (`checked_tag` becomes true after first delimiter). So a filename like `foo.en-US.forced.hi.srt` would only detect one tag. But this may be acceptable behavior. Let me look for actual bugs.\n\nLet me examine the tag-length matching. The `tag` bstr uses `lang_length`. For \"forced\" (6 chars) vs \"hi\"/\"sdh\"/\"cc\", these have different lengths. The `bstrcasecmp0(tag, \"forced\")` requires tag length to be exactly 6. This works since `tag` is built from `lang_length`.\n\nThe offset adjustment `i -= (delimiter != '.') ? 2 : 1;` handles bracket delimiters. This appears correct for both cases.\n\nLet me verify there are no real bugs in the diff. The changes look consistent and well-tested. The code correctly handles the single-tag limitation which matches original behavior (only one hi tag was checked before too).\n\n```json\n{\n  \"comments\": []\n}\n```",
+  "stderr": null
+}

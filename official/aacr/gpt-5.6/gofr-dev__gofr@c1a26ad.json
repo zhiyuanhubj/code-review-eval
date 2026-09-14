@@ -1,0 +1,29 @@
+{
+  "instance_id": "gofr-dev__gofr@c1a26ad",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "d0300073f685bb1154f7437f3172799d31bfddbe",
+  "head_commit": "c1a26ade6db7da96622c9bdca7674ef7094c122f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:25.654900+00:00",
+  "duration_seconds": 45.66,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/gofr/http/middleware/logger.go",
+        "start_line": 112,
+        "end_line": 115,
+        "content": "Bypassing the middleware entirely also bypasses its panic-recovery behavior, which the existing panic-handling tests rely on. A panic while serving either probe will therefore escape to net/http instead of receiving the framework's recovered response. Keep the recovery/writer path active and conditionally suppress only the normal request log."
+      },
+      {
+        "path": "pkg/gofr/http_server.go",
+        "start_line": 36,
+        "end_line": 47,
+        "content": "Registering logging in a second `Use` call moves it after CORS and Metrics, whereas it was previously between Tracer and CORS. This means short-circuited CORS requests are no longer logged and panics from CORS/Metrics are outside logging's recovery path, even with the default configuration. Select `Logging` or `LoggingWithoutProbes` first, then register it in the original position in the same middleware chain."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"pkg/gofr/http/middleware/logger.go\",\"start_line\":112,\"end_line\":115,\"content\":\"Bypassing the middleware entirely also bypasses its panic-recovery behavior, which the existing panic-handling tests rely on. A panic while serving either probe will therefore escape to net/http instead of receiving the framework's recovered response. Keep the recovery/writer path active and conditionally suppress only the normal request log.\"},{\"path\":\"pkg/gofr/http_server.go\",\"start_line\":36,\"end_line\":47,\"content\":\"Registering logging in a second `Use` call moves it after CORS and Metrics, whereas it was previously between Tracer and CORS. This means short-circuited CORS requests are no longer logged and panics from CORS/Metrics are outside logging's recovery path, even with the default configuration. Select `Logging` or `LoggingWithoutProbes` first, then register it in the original position in the same middleware chain.\"}]}",
+  "stderr": null
+}

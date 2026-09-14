@@ -1,0 +1,23 @@
+{
+  "instance_id": "elastic__elasticsearch@dc8943f",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "3c264cff967750ff7cb581defa42b0d69bb31fc6",
+  "head_commit": "dc8943ff2d735c9cd71adef644378ca2850db34f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:10.625343+00:00",
+  "duration_seconds": 17.67,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/main/java/org/elasticsearch/index/codec/vectors/DefaultIVFVectorsReader.java",
+        "start_line": 197,
+        "end_line": 197,
+        "content": "The buffer size formula `visitRatio * numCentroids * CENTROID_OVERSAMPLING` will produce a small `bufferSize` when `visitRatio` is very small, but note that `NeighborQueue` is created with `maxChildrenSize` for `currentParentQueue` while `neighborQueue` uses `bufferSize`. Please confirm that `bufferSize` (used as the NeighborQueue capacity) is intended to cap the total scored centroids at `min(..., numCentroids)`; previously it was `numCentroids * 0.2` unconditionally. If `visitRatio` can be 0 (e.g., no results requested or edge cases), the `Math.max(..., 1)` guard yields 1, which may under-sample and hurt recall relative to the old fixed 20%. Verify the expected `visitRatio` range and that recall parity is maintained."
+      }
+    ]
+  },
+  "raw_output": "Looking at the diff, I need to understand how `visitRatio` is computed and passed. Let me analyze what's shown.\n\nThe diff shows the plumbing of `visitRatio` and a change in buffer sizing logic. The truncated portion doesn't show where `visitRatio` originates, so I can't verify correctness of that computation. But I can check the visible logic.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/index/codec/vectors/DefaultIVFVectorsReader.java\",\n      \"start_line\": 197,\n      \"end_line\": 197,\n      \"content\": \"The buffer size formula `visitRatio * numCentroids * CENTROID_OVERSAMPLING` will produce a small `bufferSize` when `visitRatio` is very small, but note that `NeighborQueue` is created with `maxChildrenSize` for `currentParentQueue` while `neighborQueue` uses `bufferSize`. Please confirm that `bufferSize` (used as the NeighborQueue capacity) is intended to cap the total scored centroids at `min(..., numCentroids)`; previously it was `numCentroids * 0.2` unconditionally. If `visitRatio` can be 0 (e.g., no results requested or edge cases), the `Math.max(..., 1)` guard yields 1, which may under-sample and hurt recall relative to the old fixed 20%. Verify the expected `visitRatio` range and that recall parity is maintained.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

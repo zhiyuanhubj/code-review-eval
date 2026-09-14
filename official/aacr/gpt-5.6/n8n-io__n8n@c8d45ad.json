@@ -1,0 +1,29 @@
+{
+  "instance_id": "n8n-io__n8n@c8d45ad",
+  "repo": "n8n-io/n8n",
+  "base_commit": "9627409d223cbff5d8b8a90e796c39b6124a736d",
+  "head_commit": "c8d45ad42aebf937a8347aa32a84ca63416bfdd4",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:28:11.535042+00:00",
+  "duration_seconds": 48.41,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/nodes-base/nodes/N8n/WorkflowDescription.ts",
+        "start_line": 127,
+        "end_line": 127,
+        "content": "The OpenAPI tag is named `Workflow`, and URL fragments are case-sensitive. Lowercasing this to `#tag/workflow` breaks the endpoint deep link. Please preserve `#tag/Workflow`; the update-operation link below needs the same correction."
+      },
+      {
+        "path": "packages/nodes-base/nodes/Code/descriptions/JavascriptCodeDescription.ts",
+        "start_line": 66,
+        "end_line": 66,
+        "content": "`Debug` starts a new sentence here, so lowercasing it introduces a user-visible grammar error. Please keep it capitalized and revisit the equivalent bulk changes that produce sentence starts such as `. we`, `. choose`, and `. use`."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/nodes-base/nodes/N8n/WorkflowDescription.ts\",\n      \"start_line\": 127,\n      \"end_line\": 127,\n      \"content\": \"The OpenAPI tag is named `Workflow`, and URL fragments are case-sensitive. Lowercasing this to `#tag/workflow` breaks the endpoint deep link. Please preserve `#tag/Workflow`; the update-operation link below needs the same correction.\"\n    },\n    {\n      \"path\": \"packages/nodes-base/nodes/Code/descriptions/JavascriptCodeDescription.ts\",\n      \"start_line\": 66,\n      \"end_line\": 66,\n      \"content\": \"`Debug` starts a new sentence here, so lowercasing it introduces a user-visible grammar error. Please keep it capitalized and revisit the equivalent bulk changes that produce sentence starts such as `. we`, `. choose`, and `. use`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

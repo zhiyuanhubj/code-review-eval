@@ -1,0 +1,53 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@5fb6ee3",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "e29021aed71bfebb76c0305f554375061adb8bf9",
+  "head_commit": "5fb6ee38d2d7d2fc6e1a67005b12d3b9aaac418f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:46.441713+00:00",
+  "duration_seconds": 49.02,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Functions/array/arrayFirstLastIndex.cpp",
+        "start_line": 164,
+        "end_line": 165,
+        "content": "`documentation_last` is built but never passed: `arrayLastIndex` is registered without documentation (`factory.registerFunction<FunctionArrayLastIndex>();`). This is confirmed by `arrayLastIndex` still appearing in the two `02415_all_new_functions_*` reference files. Change to `factory.registerFunction<FunctionArrayLastIndex>(documentation_last);`."
+      },
+      {
+        "path": "src/Functions/array/arrayAggregation.cpp",
+        "start_line": 476,
+        "end_line": 476,
+        "content": "Copy/paste error: the returned_value for arrayMax says \"or the minimum element of the lambda results if provided\". It should say \"maximum\"."
+      },
+      {
+        "path": "src/Functions/array/arrayAggregation.cpp",
+        "start_line": 493,
+        "end_line": 493,
+        "content": "Copy/paste error: `syntax_sum` uses \"arrayMax(...)\" instead of \"arraySum(...)\"."
+      },
+      {
+        "path": "src/Functions/array/arrayFirstLast.cpp",
+        "start_line": 209,
+        "end_line": 209,
+        "content": "Syntax string uses a non-ASCII lambda symbol `λ` (`arrayFirst(λ(x[, ...]), ...)`) which is inconsistent with the actual function syntax and other entries; use `func(x[, y1, ..., yN])` for consistency."
+      },
+      {
+        "path": "src/Functions/array/arrayFirstLast.cpp",
+        "start_line": 240,
+        "end_line": 240,
+        "content": "The arrayLast syntax string `arrayLast(λ=func(x[, ...]), ...)` contains a malformed `λ=func` expression; use `arrayLast(func(x[, y1, ..., yN]), source[, cond1, ... , condN])`."
+      },
+      {
+        "path": "src/Functions/array/arrayFirstLast.cpp",
+        "start_line": 250,
+        "end_line": 254,
+        "content": "The arrayLast \"No match\" example calls `arrayFirst(...)` instead of `arrayLast(...)`. Copy/paste error in the example query."
+      }
+    ]
+  },
+  "raw_output": "Looking at the diff carefully for real bugs.\n\nThe key issue: in `arrayFirstLastIndex.cpp`, `arrayLastIndex` documentation is built but never used, and the function is still registered without docs. This means `arrayLastIndex` won't have documentation, which is why it remains in the \"must be documented\" reference file (it's still listed there).\n\nLet me verify: the reference files still list `arrayLastIndex`, confirming it's not documented. The code creates `documentation_last` but calls `factory.registerFunction<FunctionArrayLastIndex>();` without passing it.\n\nAlso there's a wrong returned_value in arrayMax (\"minimum element\") and syntax issues.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Functions/array/arrayFirstLastIndex.cpp\",\n      \"start_line\": 164,\n      \"end_line\": 165,\n      \"content\": \"`documentation_last` is built but never passed: `arrayLastIndex` is registered without documentation (`factory.registerFunction<FunctionArrayLastIndex>();`). This is confirmed by `arrayLastIndex` still appearing in the two `02415_all_new_functions_*` reference files. Change to `factory.registerFunction<FunctionArrayLastIndex>(documentation_last);`.\"\n    },\n    {\n      \"path\": \"src/Functions/array/arrayAggregation.cpp\",\n      \"start_line\": 476,\n      \"end_line\": 476,\n      \"content\": \"Copy/paste error: the returned_value for arrayMax says \\\"or the minimum element of the lambda results if provided\\\". It should say \\\"maximum\\\".\"\n    },\n    {\n      \"path\": \"src/Functions/array/arrayAggregation.cpp\",\n      \"start_line\": 493,\n      \"end_line\": 493,\n      \"content\": \"Copy/paste error: `syntax_sum` uses \\\"arrayMax(...)\\\" instead of \\\"arraySum(...)\\\".\"\n    },\n    {\n      \"path\": \"src/Functions/array/arrayFirstLast.cpp\",\n      \"start_line\": 209,\n      \"end_line\": 209,\n      \"content\": \"Syntax string uses a non-ASCII lambda symbol `λ` (`arrayFirst(λ(x[, ...]), ...)`) which is inconsistent with the actual function syntax and other entries; use `func(x[, y1, ..., yN])` for consistency.\"\n    },\n    {\n      \"path\": \"src/Functions/array/arrayFirstLast.cpp\",\n      \"start_line\": 240,\n      \"end_line\": 240,\n      \"content\": \"The arrayLast syntax string `arrayLast(λ=func(x[, ...]), ...)` contains a malformed `λ=func` expression; use `arrayLast(func(x[, y1, ..., yN]), source[, cond1, ... , condN])`.\"\n    },\n    {\n      \"path\": \"src/Functions/array/arrayFirstLast.cpp\",\n      \"start_line\": 250,\n      \"end_line\": 254,\n      \"content\": \"The arrayLast \\\"No match\\\" example calls `arrayFirst(...)` instead of `arrayLast(...)`. Copy/paste error in the example query.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

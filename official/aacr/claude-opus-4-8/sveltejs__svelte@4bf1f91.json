@@ -1,0 +1,16 @@
+{
+  "instance_id": "sveltejs__svelte@4bf1f91",
+  "repo": "sveltejs/svelte",
+  "base_commit": "e4987d2a9f36b33f3934725723f9c4cc998ef278",
+  "head_commit": "4bf1f915d3374721f8a1655b1a151c1c423b1a3c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:59.224095+00:00",
+  "duration_seconds": 6.17,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

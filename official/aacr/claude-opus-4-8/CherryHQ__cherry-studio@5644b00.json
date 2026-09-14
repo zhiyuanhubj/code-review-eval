@@ -1,0 +1,16 @@
+{
+  "instance_id": "CherryHQ__cherry-studio@5644b00",
+  "repo": "CherryHQ/cherry-studio",
+  "base_commit": "636c788e2ba413d21a5fd385c3ea4cc7e134e1be",
+  "head_commit": "5644b00b87e07fa1acd84d4ec93f9f2fb1205090",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:45.823934+00:00",
+  "duration_seconds": 14.25,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

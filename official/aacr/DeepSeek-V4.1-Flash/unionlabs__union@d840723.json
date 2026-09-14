@@ -1,0 +1,59 @@
+{
+  "instance_id": "unionlabs__union@d840723",
+  "repo": "unionlabs/union",
+  "base_commit": "efab2bedc6beb4e1bb01906cba9e0dabd3072f13",
+  "head_commit": "d840723278f1d4cecc02ac540385725a1c54ca84",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:41:07.102999+00:00",
+  "duration_seconds": 6.32,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "voyager/modules/consensus/ethereum/src/main.rs",
+        "start_line": 161,
+        "end_line": 200,
+        "content": "The `finalized` branch wraps the execution timestamp (which is in seconds) with `Timestamp::from_nanos`, but the non-finalized branch wraps the header timestamp (also in seconds) with `Timestamp::from_nanos` after a `try_into()` to u64. Both branches are treating seconds as nanoseconds. The finalized branch should use `Timestamp::from_secs(...)` and the non-finalized branch should drop the `try_into()` and use `Timestamp::from_secs(...)` directly. As written, the returned timestamps will be ~1e9x too small (interpreted as nanoseconds), which will break `WaitForTimestamp` comparisons.",
+        "side": "right"
+      },
+      {
+        "path": "voyager/modules/consensus/movement/src/main.rs",
+        "start_line": 162,
+        "end_line": 165,
+        "content": "`timestamp` here is in seconds (from the movement RPC), but it's being wrapped with `Timestamp::from_nanos`. This should be `Timestamp::from_secs(timestamp)`. Same issue in `voyager/modules/state/movement/src/main.rs`.",
+        "side": "right"
+      },
+      {
+        "path": "voyager/modules/state/movement/src/main.rs",
+        "start_line": 145,
+        "end_line": 148,
+        "content": "`timestamp` is in seconds but wrapped with `Timestamp::from_nanos`. Should be `Timestamp::from_secs(timestamp)`.",
+        "side": "right"
+      },
+      {
+        "path": "voyager/modules/consensus/cometbls/src/main.rs",
+        "start_line": 168,
+        "end_line": 172,
+        "content": "`Timestamp::from_nanos(...).try_into()` is a no-op conversion (Timestamp -> Timestamp). The `try_into().expect(...)` is dead code and can be removed. Same pattern in `voyager/modules/consensus/tendermint/src/main.rs`.",
+        "side": "right"
+      },
+      {
+        "path": "voyager/modules/consensus/tendermint/src/main.rs",
+        "start_line": 161,
+        "end_line": 165,
+        "content": "`Timestamp::from_nanos(...).try_into()` is a no-op conversion (Timestamp -> Timestamp). The `try_into().expect(...)` is dead code and can be removed.",
+        "side": "right"
+      },
+      {
+        "path": "lib/voyager-core/src/lib.rs",
+        "start_line": 328,
+        "end_line": 344,
+        "content": "`Timestamp::from_secs` will silently overflow for large `secs` values (u64 multiplication). Consider using `checked_mul` or documenting the precondition. Also, `Timestamp` is serialized as a bare u64 via derive; if the previous wire format was `i64` nanos, this is wire-compatible for positive values, but any negative timestamps (previously representable as i64) are no longer representable. Confirm no callers relied on negative timestamps.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"voyager/modules/consensus/ethereum/src/main.rs\",\n      \"start_line\": 161,\n      \"end_line\": 200,\n      \"content\": \"The `finalized` branch wraps the execution timestamp (which is in seconds) with `Timestamp::from_nanos`, but the non-finalized branch wraps the header timestamp (also in seconds) with `Timestamp::from_nanos` after a `try_into()` to u64. Both branches are treating seconds as nanoseconds. The finalized branch should use `Timestamp::from_secs(...)` and the non-finalized branch should drop the `try_into()` and use `Timestamp::from_secs(...)` directly. As written, the returned timestamps will be ~1e9x too small (interpreted as nanoseconds), which will break `WaitForTimestamp` comparisons.\"\n    },\n    {\n      \"path\": \"voyager/modules/consensus/movement/src/main.rs\",\n      \"start_line\": 162,\n      \"end_line\": 165,\n      \"content\": \"`timestamp` here is in seconds (from the movement RPC), but it's being wrapped with `Timestamp::from_nanos`. This should be `Timestamp::from_secs(timestamp)`. Same issue in `voyager/modules/state/movement/src/main.rs`.\"\n    },\n    {\n      \"path\": \"voyager/modules/state/movement/src/main.rs\",\n      \"start_line\": 145,\n      \"end_line\": 148,\n      \"content\": \"`timestamp` is in seconds but wrapped with `Timestamp::from_nanos`. Should be `Timestamp::from_secs(timestamp)`.\"\n    },\n    {\n      \"path\": \"voyager/modules/consensus/cometbls/src/main.rs\",\n      \"start_line\": 168,\n      \"end_line\": 172,\n      \"content\": \"`Timestamp::from_nanos(...).try_into()` is a no-op conversion (Timestamp -> Timestamp). The `try_into().expect(...)` is dead code and can be removed. Same pattern in `voyager/modules/consensus/tendermint/src/main.rs`.\"\n    },\n    {\n      \"path\": \"voyager/modules/consensus/tendermint/src/main.rs\",\n      \"start_line\": 161,\n      \"end_line\": 165,\n      \"content\": \"`Timestamp::from_nanos(...).try_into()` is a no-op conversion (Timestamp -> Timestamp). The `try_into().expect(...)` is dead code and can be removed.\"\n    },\n    {\n      \"path\": \"lib/voyager-core/src/lib.rs\",\n      \"start_line\": 328,\n      \"end_line\": 344,\n      \"content\": \"`Timestamp::from_secs` will silently overflow for large `secs` values (u64 multiplication). Consider using `checked_mul` or documenting the precondition. Also, `Timestamp` is serialized as a bare u64 via derive; if the previous wire format was `i64` nanos, this is wire-compatible for positive values, but any negative timestamps (previously representable as i64) are no longer representable. Confirm no callers relied on negative timestamps.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

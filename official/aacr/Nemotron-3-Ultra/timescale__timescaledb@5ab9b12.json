@@ -1,0 +1,23 @@
+{
+  "instance_id": "timescale__timescaledb@5ab9b12",
+  "repo": "timescale/timescaledb",
+  "base_commit": "9382a90adac7a889c1df0d821a12ba1d29c8dcba",
+  "head_commit": "5ab9b1295e6bdce4834005e3738074b3a844eeb4",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:53:58.660078+00:00",
+  "duration_seconds": 19.84,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "tsl/src/compression/recompress.c",
+        "start_line": 171,
+        "end_line": 173,
+        "content": "The log message uses INFO level when ts_guc_debug_compression_path_info is enabled, but DEBUG1 otherwise. This is inconsistent with the pattern used elsewhere in the codebase where DEBUG1 is typically used for verbose debug logging. Consider using DEBUG1 for both cases or adding a comment explaining why INFO is used here."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"tsl/src/compression/recompress.c\",\n      \"start_line\": 171,\n      \"end_line\": 173,\n      \"content\": \"The log message uses INFO level when ts_guc_debug_compression_path_info is enabled, but DEBUG1 otherwise. This is inconsistent with the pattern used elsewhere in the codebase where DEBUG1 is typically used for verbose debug logging. Consider using DEBUG1 for both cases or adding a comment explaining why INFO is used here.\"\n    }\n  ]\n}",
+  "stderr": null
+}

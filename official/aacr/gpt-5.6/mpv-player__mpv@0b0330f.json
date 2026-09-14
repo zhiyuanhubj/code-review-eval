@@ -1,0 +1,23 @@
+{
+  "instance_id": "mpv-player__mpv@0b0330f",
+  "repo": "mpv-player/mpv",
+  "base_commit": "5ba7ee513751dd005379a06fb627303e6fe1b3dd",
+  "head_commit": "0b0330fa9d5d70c78f36e1010a3b826fa7046387",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:32:14.492343+00:00",
+  "duration_seconds": 27.38,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "player/command.c",
+        "start_line": 6321,
+        "end_line": 6324,
+        "content": "Passing `&nt->forced_track` here clears an explicitly supplied `forced` flag because `mp_guess_lang_from_filename()` initializes its output to false. Thus `sub-add foo.srt forced` loses the flag whenever the demuxer provides no language and the filename lacks a `.forced` suffix. Parse into temporary booleans and OR the inferred values into the existing track flags (likewise preserving `hearing_impaired_track`)."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"player/command.c\",\"start_line\":6321,\"end_line\":6324,\"content\":\"Passing `&nt->forced_track` here clears an explicitly supplied `forced` flag because `mp_guess_lang_from_filename()` initializes its output to false. Thus `sub-add foo.srt forced` loses the flag whenever the demuxer provides no language and the filename lacks a `.forced` suffix. Parse into temporary booleans and OR the inferred values into the existing track flags (likewise preserving `hearing_impaired_track`).\"}]}",
+  "stderr": null
+}

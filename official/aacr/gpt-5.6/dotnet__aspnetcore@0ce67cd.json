@@ -1,0 +1,23 @@
+{
+  "instance_id": "dotnet__aspnetcore@0ce67cd",
+  "repo": "dotnet/aspnetcore",
+  "base_commit": "f83c97fa0b91f83bd20511d1abf235dc48b596e2",
+  "head_commit": "0ce67cdee87e9fee014ba95c11e8e36b8913041c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:29:13.273758+00:00",
+  "duration_seconds": 25.24,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Shared/HttpSys/NativeInterop/SocketAddress.cs",
+        "start_line": 40,
+        "end_line": 40,
+        "content": "`NetworkToHostOrder(short)` returns a signed `short`, so ports above 32767 are sign-extended to negative `int` values. Cast the converted result to `ushort` before returning (for example, `(ushort)IPAddress.NetworkToHostOrder((short)_sockaddr.sin_port)`). The IPv6 implementation on line 62 needs the same fix."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/Shared/HttpSys/NativeInterop/SocketAddress.cs\",\"start_line\":40,\"end_line\":40,\"content\":\"`NetworkToHostOrder(short)` returns a signed `short`, so ports above 32767 are sign-extended to negative `int` values. Cast the converted result to `ushort` before returning (for example, `(ushort)IPAddress.NetworkToHostOrder((short)_sockaddr.sin_port)`). The IPv6 implementation on line 62 needs the same fix.\"}]}",
+  "stderr": null
+}

@@ -1,0 +1,59 @@
+{
+  "instance_id": "bluewave-labs__Checkmate@29e03a6",
+  "repo": "bluewave-labs/Checkmate",
+  "base_commit": "7c369e84052aaee15a6dedf8928b5af4c869037b",
+  "head_commit": "29e03a6294edfe43b49eba20fe49099cef601d34",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:51:53.047951+00:00",
+  "duration_seconds": 34.28,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": ".github/scripts/download-translations.js",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "Missing newline at end of file. Add a trailing newline to comply with POSIX standards and avoid git warnings."
+      },
+      {
+        "path": ".github/scripts/download-translations.js",
+        "start_line": 11,
+        "end_line": 11,
+        "content": "API_TOKEN and PROJECT_ID are read from env but not validated. If either is missing/empty, the script will send undefined to POEditor and fail with a confusing error. Add early validation with a clear error message."
+      },
+      {
+        "path": ".github/scripts/download-translations.js",
+        "start_line": 35,
+        "end_line": 45,
+        "content": "The array-to-object conversion assumes each item has `term` and `definition` properties. POEditor's JSON export format may differ (e.g., `key`/`value` or nested contexts). Add a fallback or log the structure when conversion fails to aid debugging."
+      },
+      {
+        "path": ".github/workflows/poeditor-sync.yml",
+        "start_line": 32,
+        "end_line": 32,
+        "content": "The default language in the workflow is 'tr,gb' but the script defaults to 'tr,en'. Align them (likely 'en' not 'gb' for English)."
+      },
+      {
+        "path": ".github/workflows/poeditor-sync.yml",
+        "start_line": 58,
+        "end_line": 58,
+        "content": "The workflow creates a package.json in .github/scripts on every run. This is fragile and slow. Instead, commit a package.json and package-lock.json in .github/scripts/ and use `npm ci` for reproducible, faster installs."
+      },
+      {
+        "path": ".github/workflows/poeditor-sync.yml",
+        "start_line": 75,
+        "end_line": 75,
+        "content": "The commit step uses `git push` without a remote/branch. In GitHub Actions, this works only if the checkout includes full history and the token has push rights. Safer to use `git push origin HEAD:${{ github.ref }}` or the `git push` with explicit refspec. Also consider using `actions/checkout` with `fetch-depth: 0` if history is needed."
+      },
+      {
+        "path": ".github/workflows/poeditor-sync.yml",
+        "start_line": 75,
+        "end_line": 75,
+        "content": "The commit step will fail silently if there are no changes (git diff --staged --quiet exits 0, so no commit, but git push still runs and may error). Wrap push in the same conditional or use `git push` only after a commit was made."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \".github/scripts/download-translations.js\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"Missing newline at end of file. Add a trailing newline to comply with POSIX standards and avoid git warnings.\"\n    },\n    {\n      \"path\": \".github/scripts/download-translations.js\",\n      \"start_line\": 11,\n      \"end_line\": 11,\n      \"content\": \"API_TOKEN and PROJECT_ID are read from env but not validated. If either is missing/empty, the script will send undefined to POEditor and fail with a confusing error. Add early validation with a clear error message.\"\n    },\n    {\n      \"path\": \".github/scripts/download-translations.js\",\n      \"start_line\": 35,\n      \"end_line\": 45,\n      \"content\": \"The array-to-object conversion assumes each item has `term` and `definition` properties. POEditor's JSON export format may differ (e.g., `key`/`value` or nested contexts). Add a fallback or log the structure when conversion fails to aid debugging.\"\n    },\n    {\n      \"path\": \".github/workflows/poeditor-sync.yml\",\n      \"start_line\": 32,\n      \"end_line\": 32,\n      \"content\": \"The default language in the workflow is 'tr,gb' but the script defaults to 'tr,en'. Align them (likely 'en' not 'gb' for English).\"\n    },\n    {\n      \"path\": \".github/workflows/poeditor-sync.yml\",\n      \"start_line\": 58,\n      \"end_line\": 58,\n      \"content\": \"The workflow creates a package.json in .github/scripts on every run. This is fragile and slow. Instead, commit a package.json and package-lock.json in .github/scripts/ and use `npm ci` for reproducible, faster installs.\"\n    },\n    {\n      \"path\": \".github/workflows/poeditor-sync.yml\",\n      \"start_line\": 75,\n      \"end_line\": 75,\n      \"content\": \"The commit step uses `git push` without a remote/branch. In GitHub Actions, this works only if the checkout includes full history and the token has push rights. Safer to use `git push origin HEAD:${{ github.ref }}` or the `git push` with explicit refspec. Also consider using `actions/checkout` with `fetch-depth: 0` if history is needed.\"\n    },\n    {\n      \"path\": \".github/workflows/poeditor-sync.yml\",\n      \"start_line\": 75,\n      \"end_line\": 75,\n      \"content\": \"The commit step will fail silently if there are no changes (git diff --staged --quiet exits 0, so no commit, but git push still runs and may error). Wrap push in the same conditional or use `git push` only after a commit was made.\"\n    }\n  ]\n}",
+  "stderr": null
+}

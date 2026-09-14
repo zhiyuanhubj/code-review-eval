@@ -1,0 +1,24 @@
+{
+  "instance_id": "sveltejs__svelte@44bec4c",
+  "repo": "sveltejs/svelte",
+  "base_commit": "2af7ba21563f1b7f011ffa9f0c08e4acb473eef3",
+  "head_commit": "44bec4c8b172a47ff300f754463555bbb694bb05",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:33:48.418790+00:00",
+  "duration_seconds": 2.37,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/svelte/src/compiler/phases/2-analyze/index.js",
+        "start_line": 434,
+        "end_line": 452,
+        "content": "The `maybe_runes` detection only checks `instance.ast.body` for `export let` declarations, but `export let` can also appear inside nested blocks (e.g. `{#if}`) or be declared via `export { x }` where `x` is a `let` in a nested scope. More importantly, the check for `$$props`/`$$restProps` only inspects `module.scope.references`, but these can also be referenced in the instance script. Consider checking `instance.scope.references` as well, otherwise a component using `$$props` in the instance script could be incorrectly classified as `maybe_runes`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/svelte/src/compiler/phases/2-analyze/index.js\",\n      \"start_line\": 434,\n      \"end_line\": 452,\n      \"content\": \"The `maybe_runes` detection only checks `instance.ast.body` for `export let` declarations, but `export let` can also appear inside nested blocks (e.g. `{#if}`) or be declared via `export { x }` where `x` is a `let` in a nested scope. More importantly, the check for `$$props`/`$$restProps` only inspects `module.scope.references`, but these can also be referenced in the instance script. Consider checking `instance.scope.references` as well, otherwise a component using `$$props` in the instance script could be incorrectly classified as `maybe_runes`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

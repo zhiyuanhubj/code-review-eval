@@ -1,0 +1,35 @@
+{
+  "instance_id": "alibaba__spring-ai-alibaba@4bc7305",
+  "repo": "alibaba/spring-ai-alibaba",
+  "base_commit": "71e7eeb27dfe42c5a805da413ef6e9faf84fe9d0",
+  "head_commit": "4bc73055c7b33f53433d9725eab5010b85a59632",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:05.796957+00:00",
+  "duration_seconds": 11.34,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "spring-ai-alibaba-jmanus/src/main/java/com/alibaba/cloud/ai/example/manus/tool/browser/actions/InputTextAction.java",
+        "start_line": 22,
+        "end_line": 22,
+        "content": "The imports `com.microsoft.playwright.ElementHandle`, `com.microsoft.playwright.options.WaitForSelectorState`, and `java.util.Random` are now unused after refactoring away from ElementHandle/typeWithHumanDelay. Please remove them to avoid unused-import warnings/build failures under strict checkstyle."
+      },
+      {
+        "path": "spring-ai-alibaba-jmanus/src/main/java/com/alibaba/cloud/ai/example/manus/tool/browser/actions/MoveToAndClickAction.java",
+        "start_line": 45,
+        "end_line": 48,
+        "content": "`x` and `y` passed to `window.scrollTo` and the debug marker are treated as page (document) coordinates here, but they are then passed to `page.mouse().move(x, y)` / `click(x, y)` which expect viewport coordinates. After scrolling, the mouse coordinates should be adjusted (e.g. x - scrollX, y - scrollY) or the marker should use viewport-relative positioning; otherwise the click and the red dot will target the wrong location on scrolled pages."
+      },
+      {
+        "path": "spring-ai-alibaba-jmanus/src/main/java/com/alibaba/cloud/ai/example/manus/tool/browser/actions/NavigateAction.java",
+        "start_line": 42,
+        "end_line": 44,
+        "content": "URL prefix auto-completion only handles http/https. Other valid schemes like `file://`, `about:`, or `data:` will be incorrectly prefixed with `https://`. Consider checking for a generic scheme (e.g. presence of `://` or a leading scheme pattern) before prepending https://."
+      }
+    ]
+  },
+  "raw_output": "Looking at the diff, let me analyze the changes for real issues.\n\n{\n  \"comments\": [\n    {\n      \"path\": \"spring-ai-alibaba-jmanus/src/main/java/com/alibaba/cloud/ai/example/manus/tool/browser/actions/InputTextAction.java\",\n      \"start_line\": 22,\n      \"end_line\": 22,\n      \"content\": \"The imports `com.microsoft.playwright.ElementHandle`, `com.microsoft.playwright.options.WaitForSelectorState`, and `java.util.Random` are now unused after refactoring away from ElementHandle/typeWithHumanDelay. Please remove them to avoid unused-import warnings/build failures under strict checkstyle.\"\n    },\n    {\n      \"path\": \"spring-ai-alibaba-jmanus/src/main/java/com/alibaba/cloud/ai/example/manus/tool/browser/actions/MoveToAndClickAction.java\",\n      \"start_line\": 45,\n      \"end_line\": 48,\n      \"content\": \"`x` and `y` passed to `window.scrollTo` and the debug marker are treated as page (document) coordinates here, but they are then passed to `page.mouse().move(x, y)` / `click(x, y)` which expect viewport coordinates. After scrolling, the mouse coordinates should be adjusted (e.g. x - scrollX, y - scrollY) or the marker should use viewport-relative positioning; otherwise the click and the red dot will target the wrong location on scrolled pages.\"\n    },\n    {\n      \"path\": \"spring-ai-alibaba-jmanus/src/main/java/com/alibaba/cloud/ai/example/manus/tool/browser/actions/NavigateAction.java\",\n      \"start_line\": 42,\n      \"end_line\": 44,\n      \"content\": \"URL prefix auto-completion only handles http/https. Other valid schemes like `file://`, `about:`, or `data:` will be incorrectly prefixed with `https://`. Consider checking for a generic scheme (e.g. presence of `://` or a leading scheme pattern) before prepending https://.\"\n    }\n  ]\n}",
+  "stderr": null
+}

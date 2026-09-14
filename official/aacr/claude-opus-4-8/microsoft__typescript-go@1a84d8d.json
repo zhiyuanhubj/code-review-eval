@@ -1,0 +1,23 @@
+{
+  "instance_id": "microsoft__typescript-go@1a84d8d",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "da4e121142cd3f891785b573a194b9caaaa01d55",
+  "head_commit": "1a84d8d5705df98fd1e1f81d9d3115a7a203509d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:30.213429+00:00",
+  "duration_seconds": 36.73,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "internal/checker/checker.go",
+        "start_line": 10829,
+        "end_line": 10829,
+        "content": "The lib check `slices.Contains(c.compilerOptions.Lib, \"lib.dom.d.ts\")` may not match the actual stored form of lib entries. In TypeScript, the `lib` option is stored as lowercased library keys (e.g. \"dom\") which are later resolved to file names like \"lib.dom.d.ts\". Please confirm what form `compilerOptions.Lib` actually holds here—if it contains entries like \"dom\" rather than \"lib.dom.d.ts\", this comparison will never match and the DOM suppression logic will always fire (or never fire). Consider matching the resolved lib file names or the normalized key consistently."
+      }
+    ]
+  },
+  "raw_output": "Looking at the code, let me analyze the potential issues.\n\nThe key concern is the slice operation `t.symbol.Name[4 : len(t.symbol.Name)-7]`. Since the name is verified to have prefix \"HTML\" (4 chars) and suffix \"Element\" (7 chars), the minimum valid length would be 11 characters (e.g., \"HTMLElement\"). But \"HTMLElement\" itself has length 11, and `Name[4:4]` is an empty slice — that's fine. However, if a name were exactly both \"HTML\"+\"Element\" the middle is empty and loop returns `isMiddleAlpha=true`. That matches TypeScript behavior.\n\nLet me check the lib comparison string. TypeScript checks against lib names case-insensitively normalized.\n\nLet me verify the lib check logic against the original TypeScript implementation.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"internal/checker/checker.go\",\n      \"start_line\": 10829,\n      \"end_line\": 10829,\n      \"content\": \"The lib check `slices.Contains(c.compilerOptions.Lib, \\\"lib.dom.d.ts\\\")` may not match the actual stored form of lib entries. In TypeScript, the `lib` option is stored as lowercased library keys (e.g. \\\"dom\\\") which are later resolved to file names like \\\"lib.dom.d.ts\\\". Please confirm what form `compilerOptions.Lib` actually holds here—if it contains entries like \\\"dom\\\" rather than \\\"lib.dom.d.ts\\\", this comparison will never match and the DOM suppression logic will always fire (or never fire). Consider matching the resolved lib file names or the normalized key consistently.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

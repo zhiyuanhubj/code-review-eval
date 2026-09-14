@@ -1,0 +1,29 @@
+{
+  "instance_id": "immich-app__immich@b7a1255",
+  "repo": "immich-app/immich",
+  "base_commit": "b845184c80295603e3a02dfad84ff2755d417aff",
+  "head_commit": "b7a12558bc8e69c9c96b9a5b12f61f94689ea0e3",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:29:22.860572+00:00",
+  "duration_seconds": 62.52,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/services/notification.service.ts",
+        "start_line": 290,
+        "end_line": 290,
+        "content": "Please preserve compatibility with already-persisted delayed jobs. Jobs queued before this deployment contain `recipientIds`, so the new worker will receive `recipientID === undefined` and skip or fail them. Handle both payload shapes during the transition, or explicitly migrate/drain the old jobs."
+      },
+      {
+        "path": "server/src/services/notification.service.ts",
+        "start_line": 306,
+        "end_line": 306,
+        "content": "Revalidate that `recipientID` is still the owner or a current `albumUser` before sending. This job runs after a five-minute delay, during which the recipient can be removed from the album; unlike the previous membership intersection, this now sends the former member an email and thumbnail attachment after access has been revoked."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"server/src/services/notification.service.ts\",\n      \"start_line\": 290,\n      \"end_line\": 290,\n      \"content\": \"Please preserve compatibility with already-persisted delayed jobs. Jobs queued before this deployment contain `recipientIds`, so the new worker will receive `recipientID === undefined` and skip or fail them. Handle both payload shapes during the transition, or explicitly migrate/drain the old jobs.\"\n    },\n    {\n      \"path\": \"server/src/services/notification.service.ts\",\n      \"start_line\": 306,\n      \"end_line\": 306,\n      \"content\": \"Revalidate that `recipientID` is still the owner or a current `albumUser` before sending. This job runs after a five-minute delay, during which the recipient can be removed from the album; unlike the previous membership intersection, this now sends the former member an email and thumbnail attachment after access has been revoked.\"\n    }\n  ]\n}",
+  "stderr": null
+}

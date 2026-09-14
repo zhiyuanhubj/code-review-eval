@@ -1,0 +1,47 @@
+{
+  "instance_id": "elastic__elasticsearch@5e318eb",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "fcf040857f04ef064a06d80191fca112d0ba8f04",
+  "head_commit": "5e318eba16c2327289af2e96b9c099ec7469acfa",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:44:08.534865+00:00",
+  "duration_seconds": 113.72,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/entitlement/bootstrap/TestEntitlementsRule.java",
+        "start_line": 162,
+        "end_line": 162,
+        "content": "The close() method in NodeGrant has a commented-out call to onClose.accept(this) with a comment about ES-10920. This means node grants are never actually revoked when the Closeable is closed, only when revokeNodeGrants() is explicitly called. This could lead to resource leaks or incorrect entitlement state if tests rely on the Closeable being closed. Consider either implementing the close logic properly or removing the Closeable interface and using a different pattern if revocation is only meant to happen at suite level."
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/entitlement/bootstrap/TestEntitlementsRule.java",
+        "start_line": 186,
+        "end_line": 186,
+        "content": "The baseDirModifier method uses ArrayList which allows duplicates, but the comment says 'This must allow for duplicate paths between nodes'. However, the remove operation in revokeGrant will only remove the first occurrence of a path. If multiple nodes share the same path (e.g., config dir), revoking one node's grant will remove the path entirely, breaking entitlements for other nodes still using it. Consider using a reference counting mechanism or a Multiset to track path usage across nodes."
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/test/ESIntegTestCase.java",
+        "start_line": 552,
+        "end_line": 552,
+        "content": "TEST_ENTITLEMENTS.revokeNodeGrants() is called after closing the test cluster, but the TestEntitlementsRule.apply() method also clears BASE_DIR_PATHS in its finally block. This could lead to double-clearing or inconsistent state if the suite-level cleanup runs after individual test cleanup. Ensure the lifecycle is well-defined: either suite-level rule manages all grants, or test-level code manages them, but not both."
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/node/MockNode.java",
+        "start_line": 296,
+        "end_line": 296,
+        "content": "IOUtils.closeWhileHandlingException(entitlementGrant) is called in awaitClose(), but as noted in TestEntitlementsRule.NodeGrant.close(), the close() method is a no-op due to ES-10920. This means the entitlement grant is never actually revoked when a node closes. The comment in NodeGrant.close() says grants cannot be removed until test suite completes, but this close() is called per-node. This inconsistency should be resolved: either make close() work properly, or don't pass the grant to MockNode if it's not going to be used."
+      },
+      {
+        "path": "test/framework/src/main/java/org/elasticsearch/entitlement/runtime/policy/TestPolicyManager.java",
+        "start_line": 33,
+        "end_line": 33,
+        "content": "The fields isActive and isTriviallyAllowingTestCode are now initialized with default values (false and true respectively), but the constructor no longer calls resetAfterTest(). This is fine since the defaults match what resetAfterTest() would set, but the comment '// resetAfterTest()' was removed. Consider adding a comment explaining that the initial state is intentionally set to inactive/trivially-allowing, and the @ClassRule will activate as needed."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/entitlement/bootstrap/TestEntitlementsRule.java\",\n      \"start_line\": 162,\n      \"end_line\": 162,\n      \"content\": \"The close() method in NodeGrant has a commented-out call to onClose.accept(this) with a comment about ES-10920. This means node grants are never actually revoked when the Closeable is closed, only when revokeNodeGrants() is explicitly called. This could lead to resource leaks or incorrect entitlement state if tests rely on the Closeable being closed. Consider either implementing the close logic properly or removing the Closeable interface and using a different pattern if revocation is only meant to happen at suite level.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/entitlement/bootstrap/TestEntitlementsRule.java\",\n      \"start_line\": 186,\n      \"end_line\": 186,\n      \"content\": \"The baseDirModifier method uses ArrayList which allows duplicates, but the comment says 'This must allow for duplicate paths between nodes'. However, the remove operation in revokeGrant will only remove the first occurrence of a path. If multiple nodes share the same path (e.g., config dir), revoking one node's grant will remove the path entirely, breaking entitlements for other nodes still using it. Consider using a reference counting mechanism or a Multiset to track path usage across nodes.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/test/ESIntegTestCase.java\",\n      \"start_line\": 552,\n      \"end_line\": 552,\n      \"content\": \"TEST_ENTITLEMENTS.revokeNodeGrants() is called after closing the test cluster, but the TestEntitlementsRule.apply() method also clears BASE_DIR_PATHS in its finally block. This could lead to double-clearing or inconsistent state if the suite-level cleanup runs after individual test cleanup. Ensure the lifecycle is well-defined: either suite-level rule manages all grants, or test-level code manages them, but not both.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/node/MockNode.java\",\n      \"start_line\": 296,\n      \"end_line\": 296,\n      \"content\": \"IOUtils.closeWhileHandlingException(entitlementGrant) is called in awaitClose(), but as noted in TestEntitlementsRule.NodeGrant.close(), the close() method is a no-op due to ES-10920. This means the entitlement grant is never actually revoked when a node closes. The comment in NodeGrant.close() says grants cannot be removed until test suite completes, but this close() is called per-node. This inconsistency should be resolved: either make close() work properly, or don't pass the grant to MockNode if it's not going to be used.\"\n    },\n    {\n      \"path\": \"test/framework/src/main/java/org/elasticsearch/entitlement/runtime/policy/TestPolicyManager.java\",\n      \"start_line\": 33,\n      \"end_line\": 33,\n      \"content\": \"The fields isActive and isTriviallyAllowingTestCode are now initialized with default values (false and true respectively), but the constructor no longer calls resetAfterTest(). This is fine since the defaults match what resetAfterTest() would set, but the comment '// resetAfterTest()' was removed. Consider adding a comment explaining that the initial state is intentionally set to inactive/trivially-allowing, and the @ClassRule will activate as needed.\"\n    }\n  ]\n}",
+  "stderr": null
+}

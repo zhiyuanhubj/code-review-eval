@@ -1,0 +1,38 @@
+{
+  "instance_id": "gofr-dev__gofr@b9cdcbb",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "7f1760b083ea23ffd95fdf83467bdfa21735df81",
+  "head_commit": "b9cdcbb2b9fc78499d15d51ffbb7c861592b0efe",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:31:41.957452+00:00",
+  "duration_seconds": 3.52,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/gofr/http/responder.go",
+        "start_line": 31,
+        "end_line": 32,
+        "content": "When `data` is a `resTypes.Response` with no metadata, `v.Metadata` is nil, so the JSON output becomes `{\"metadata\":null,\"data\":...}`. The documentation and the `omitempty` tag on `Response.Metadata` imply metadata should be omitted when absent. Consider only setting `Metadata` when non-nil, or use a pointer/omitempty-aware wrapper.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/http/responder_test.go",
+        "start_line": 55,
+        "end_line": 62,
+        "content": "This test asserts the buggy behavior: a response without metadata serializes as `{\"metadata\":null,...}`. The expected body should be `{\"data\":\"Hello World from new Server\"}` to match the documented behavior and the `omitempty` tag.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/gofr/handler.go",
+        "start_line": 99,
+        "end_line": 103,
+        "content": "Removing `result = resp.Data` changes behavior for `response.Response` values: previously only `Data` was passed to the responder, now the whole `Response` is passed. This is intentional for metadata support, but it means any code path that relied on the responder receiving the unwrapped data (e.g. custom responders or middleware) may break. Ensure this is covered by tests and documented as a behavior change.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/http/responder.go\",\n      \"start_line\": 31,\n      \"end_line\": 32,\n      \"content\": \"When `data` is a `resTypes.Response` with no metadata, `v.Metadata` is nil, so the JSON output becomes `{\\\"metadata\\\":null,\\\"data\\\":...}`. The documentation and the `omitempty` tag on `Response.Metadata` imply metadata should be omitted when absent. Consider only setting `Metadata` when non-nil, or use a pointer/omitempty-aware wrapper.\"\n    },\n    {\n      \"path\": \"pkg/gofr/http/responder_test.go\",\n      \"start_line\": 55,\n      \"end_line\": 62,\n      \"content\": \"This test asserts the buggy behavior: a response without metadata serializes as `{\\\"metadata\\\":null,...}`. The expected body should be `{\\\"data\\\":\\\"Hello World from new Server\\\"}` to match the documented behavior and the `omitempty` tag.\"\n    },\n    {\n      \"path\": \"pkg/gofr/handler.go\",\n      \"start_line\": 99,\n      \"end_line\": 103,\n      \"content\": \"Removing `result = resp.Data` changes behavior for `response.Response` values: previously only `Data` was passed to the responder, now the whole `Response` is passed. This is intentional for metadata support, but it means any code path that relied on the responder receiving the unwrapped data (e.g. custom responders or middleware) may break. Ensure this is covered by tests and documented as a behavior change.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,16 @@
+{
+  "instance_id": "microsoft__typescript-go@100dbc5",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "3a3ff237cf7ad91bcdb604271f6135762aed9365",
+  "head_commit": "100dbc5127e723c4108efc02a179d9aec5fce32a",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:37.400688+00:00",
+  "duration_seconds": 25.58,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit exceeded for api_key: ae216d0793f98a0b4884105df8b57205bdef6cc20ec0d8440c48851cbb4f4d7d. Limit type: requests. Current limit: 50, Remaining: 0. Limit resets at: 2026-09-14 04:24:37 UTC', 'type': 'throttling_error', 'param': None, 'code': '429'}}"
+}

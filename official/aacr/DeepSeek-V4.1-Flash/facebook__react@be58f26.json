@@ -1,0 +1,24 @@
+{
+  "instance_id": "facebook__react@be58f26",
+  "repo": "facebook/react",
+  "base_commit": "88b976740467f9dfabae03c79a8eff9033c35050",
+  "head_commit": "be58f26f9a6e579d8df36d901a59249d9ac1393f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:35:15.146155+00:00",
+  "duration_seconds": 1.83,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/react-dom/src/__tests__/ReactDOMForm-test.js",
+        "start_line": 1673,
+        "end_line": 1673,
+        "content": "Remove `.only` before merging; it will cause the test suite to skip all other tests in this file.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/react-dom/src/__tests__/ReactDOMForm-test.js\",\n      \"start_line\": 1673,\n      \"end_line\": 1673,\n      \"content\": \"Remove `.only` before merging; it will cause the test suite to skip all other tests in this file.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,273 +1,165 @@
 # Code Review Eval Trajectories
 
-Official-protocol rerun is **in progress**. Live trajectories are under [`official/`](official/). Headline tables below the fold are the **old unofficial proxy** (single-shot chat, truncated payloads, decision-vs-`gold_clean` only). Do not cite those numbers as SWR / AACR / SWE-Review / Martian scores.
+Official-protocol rerun of **SWR-Bench**, **AACR-Bench**, **Martian offline**, and **SWE-Review-Bench (`glm5_500`)** for:
 
-Snapshot: [`official/STATUS.json`](official/STATUS.json) (2026-09-13 18:26 UTC). Official **judges have not finished**, so there is no new leaderboard yet.
+- DeepSeek-V4.1-Flash
+- gpt-5.6
+- Claude Opus 4.8 (`claude-opus-4-8`)
+- Muse-Glimmer
+- Nemotron-3-Ultra
 
-## Official protocol (running now)
+We call the **upstream harnesses**, not the old single-shot proxy in `run_openai_reviews.py`. Headline numbers are in [`official/SCORES.json`](official/SCORES.json) (snapshot **2026-09-14 17:15 UTC**). The jsonl under `results/` is the earlier unofficial proxy; **do not cite it**.
 
-We now call the upstream harnesses, not the old `run_openai_reviews.py` proxy.
-
-| Bench | Official setting | Progress (this snapshot) |
-|---|---|---|
-| **SWR-Bench** | Upstream `swrbench/generation.py` **base_review** on `swr_datasets_d5c5.jsonl` (full `pr_commits[].diff[].patch`, `max_tokens=8192`, temperature **0.2**). Claude/GPT-5 APIs reject 0.2 and only accept **1.0**; we pass 1.0 for those two and keep the official prompt. Judge is `evaluation_struct.py` (not started). | Nemotron 396/1000, Opus 235/1000, Glimmer 99/1000, GPT-5.6 118/1000, V4.1-Flash 81/1000 |
-| **AACR-Bench** | Official dump is **196 PRs** (`dataset/positive_samples.json`). Clone + checkout `source_commit..target_commit`, emit OCR-schema comments, score later with `evaluation/evaluate.py`. This is an LLM reviewer in OCR schema, not the `@alibaba-group/open-code-review` CLI. | Nemotron 117/196, Glimmer 14/196, V4.1 8/196. Opus/GPT AACR not started yet (rate-limit). |
-| **Martian offline** | Real GitHub PR file diffs; model returns `{path,line,body}`. Official judge is `step3_judge_comments.py` vs golden comments (not started). | Opus 50/50, Nemotron 50/50, V4.1 38/50, GPT 20/50, Glimmer 18/50 |
-| **SWE-Review-Bench** | Harbor + OpenHands-SDK on split **`glm5_500`** (500 PRs). `OPENHANDS_LLM_NATIVE_TOOL_CALLING=true`, `max_iterations=100`. Official default concurrency is 32; we run **n=2**. DA first (`--skip-revision`). **Not** SWE-Review-Traj. | Nemotron: 2 running / 498 pending / 0 completed |
-
-Glimmer is served as `Muse-Glimmer` (vLLM TP=8). It still prefixes a short `to=self` chain, but on official SWR it then reviews the **actual patch** (unlike the unofficial proxy, which was 100% prompt echo).
-
-After generations finish we will run the official judges and replace this section with PR-level / finding-match / DA numbers.
+Judge for SWR / AACR / Martian: **gpt-5.6**. SWE-Review DA is the official `compute_da.py` (no extra LLM judge).
 
 ---
 
-## Legacy unofficial proxy (do not cite)
+## Headline scores (official)
 
-Single-shot code-review rollouts and scores for **Muse-Glimmer**, **Nemotron-3-Ultra**, **claude-opus-4-8**, and **gpt-5.6** on SWR-Bench, AACR-Bench, SWE-Review-Traj, and Martian.
+| Bench | DeepSeek-V4.1-Flash | gpt-5.6 | Claude Opus 4.8 | Muse-Glimmer | Nemotron-3-Ultra |
+|---|---|---|---|---|---|
+| **SWR** overall F1 (n=1000; Glimmer 990) | **0.666** | 0.654 | 0.576 | 0.542 | 0.422 |
+| **AACR** semantic / line F1 (n=196) | **0.105 / 0.292** | 0.041 / 0.077 | 0.066 / 0.129 | 0.046 / 0.096 | 0.060 / 0.184 |
+| **Martian** F1 (50 PRs) | 0 * | 21.4% | **37.8%** | 0 * | 21.9% |
+| **SWE-Review** DA (`glm5_500`) | 0 * | 52.0% | **74.9%** | 0 * | 70.9% |
 
-This was **not** an agent / Harbor harness. Each model saw a truncated PR payload and returned JSON `{decision, findings}`. We scored **decision vs `gold_clean` only**. That is a proxy, not official finding-match.
-
-Dataset dumps are **not** in this repo (upstream licenses / size). Trajectories and scoring code are.
+\* V4.1 Martian/SWE-Review and Glimmer Martian/SWE-Review are **not usable as model quality scores** yet (empty or failed generations). See below.
 
 ---
 
-## Legacy takeaways (unofficial proxy only)
+## How we follow each benchmark
 
-1. **SWE-Review is the only relatively clean leaderboard.** The payload includes a patch. Claude Opus 4.8 F1 is **0.768** and GPT-5.6 is **0.737**, both above the trivial always-`request_changes` baseline of **0.676**. Nemotron (**0.609**) and Glimmer (**0.396**) are not.
-2. **No model beats that trivial baseline on SWR or AACR.** Always requesting changes scores 0.667 F1 on SWR; the best model (Nemotron) is **0.570**. On AACR the dummy scores 0.825; Nemotron is **0.787**. This is not because the models cannot review. **SWR often has no usable diff**, and AACR was rewritten into an awkward binary task.
-3. **Do not treat Glimmer numbers as reviewer scores.** 100% of its trajectories echo the scoring prompt (`to=selfYou are a senior code reviewer...`). The parser then picks `"decision": "approve"` out of the schema example, so Glimmer looks artificially conservative.
-4. **Martian is invalid.** There is no local diff. All four models approved all 50 rows (F1 = 0). The files are kept only to document that.
-5. The style split is stable: Glimmer / Opus lean `approve` on SWR+AACR; Nemotron over-flags; on SWE-Review, Opus/GPT flip into high-recall reviewers.
+Datasets are **not** in this repo. Trajectories and scores are.
+
+### SWR-Bench
+
+Upstream: [`swrbench/generation.py`](https://github.com) `base_review` on `swr_datasets_d5c5.jsonl`, then `evaluation_struct.py`.
+
+- Input is the official PR payload, including `pr_commits[].diff[].patch` (not a truncated title-only prompt).
+- `max_tokens=8192`. Temperature **0.2** for local vLLM models.
+- Claude / GPT-5.x chat APIs reject 0.2; we use **1.0** there (API constraint, not a protocol change of the prompt).
+- gpt-5.6 also sends `reasoning_effort=high`.
+- Glimmer is served with `vllm/vllm-openai:muse-glimmer` (`--tool-call-parser muse_glimmer --reasoning-parser muse_glimmer`).
+- Metric reported here is **overall P/R/F1** from `evaluation_struct.py` (change-vs-clean plus finding match). Files: [`official/swrbench/<model>/generation.jsonl`](official/swrbench/) and [`metrics.json`](official/swrbench/DeepSeek-V4.1-Flash/metrics.json).
+
+### AACR-Bench
+
+Official dump used here is **196 PRs** (`dataset/positive_samples.json`), not the 2145-comment proxy task.
+
+- Clone the repo, checkout `source_commit..target_commit`, ask the model for OCR-schema comments (`path`, `start_line`, `end_line`, `content`).
+- Score with official `evaluation/evaluate.py --reviewer ocr` against human notes.
+- Metrics: **semantic F1** and **line F1** (line match with `k=1`).
+- This is an LLM reviewer in OCR schema, **not** the `@alibaba-group/open-code-review` CLI.
+- DeepSeek-V4.1-Flash needed **thinking off**; otherwise the 4096-token budget was all hidden reasoning and the OCR file was empty.
+- The official `judge.py` template had been hardcoded to Nemotron `chat_template_kwargs`; gpt-5.6 then returned HTTP 400 and F1 collapsed to 0. We removed that so every model is judged the same way.
+
+Files: [`official/aacr/<model>/`](official/aacr/).
+
+### Martian (offline)
+
+Upstream: real GitHub PR file diffs, model comments `{path, line, body}`, then `step3_judge_comments.py` vs golden comments.
+
+- We fetch PR files (`gh api …/pulls/{n}/files`) and give the model the diff, not a title-only prompt.
+- Judge is gpt-5.6 at **temperature 1.0**. Temperature 0.0 is rejected by that API (HTTP 400), which previously zeroed every F1.
+- `--no-dedup`, 50 PRs × 5 tools = 250 judge calls.
+- **Valid scores:** Opus 37.8 F1, Nemotron 21.9, gpt-5.6 21.4 (high precision, low recall).
+- **DeepSeek-V4.1-Flash F1=0:** first generation wrote no comments (thinking ate the budget). Not rerun.
+- **Muse-Glimmer F1=0 at judge time:** many answers were prompt-echo / hidden-channel CoT, and the first parser only accepted a single `json.loads` slice, so comments were dropped. We now use the AACR-style decoder (`to=user` split, raw_decode, truncated arrays). Reparse recovered 4 PRs; empty PRs are being regenerated. **Do not cite Glimmer Martian F1 until that rejudge finishes.**
+
+Files: [`official/martian/<model>/candidates.json`](official/martian/) and [`official/martian/judge_input/results/gpt-5.6/evaluations.json`](official/martian/judge_input/results/gpt-5.6/evaluations.json).
+
+### SWE-Review-Bench (`glm5_500`)
+
+This is **SWE-Review-Bench**, not SWE-Review-Traj.
+
+- Harbor + **OpenHands-SDK**, `OPENHANDS_LLM_NATIVE_TOOL_CALLING=true`.
+- Split `glm5_500` (500 PRs). Decision-accuracy first (skip revision).
+- Official metric is `compute_da.py`:
+  - **DA** = correct approve/request_changes among trials that produced a parseable `review_report`
+  - **CR** = produced / 500
+  - **DA(total,50)** treats model failures as 0.5
+- Opus: DA **74.9%**, CR 65.4% (327 produced). Nemotron: DA 70.9% but CR only 15.8% (79 produced, many docker failures). gpt-5.6: DA 52.0%, CR 25.0% (125 produced).
+- V4.1 and Glimmer first Harbor runs produced **0** reports (agent/env failures). V4.1 is not being rerun. Glimmer is rerunning; that DA is still 0 in `SCORES.json`.
+
+Uploaded here: `da_metrics.json` plus `produced_reviews.jsonl` for the three models that actually wrote reports. Full Harbor docker trees are not in git.
+
+---
+
+## SWR detail
+
+| Model | P | R | F1 | Acc | TP / FP / FN / TN |
+|---|---:|---:|---:|---:|---|
+| DeepSeek-V4.1-Flash | 0.547 | 0.852 | **0.666** | 0.573 | 426 / 353 / 74 / 147 |
+| gpt-5.6 | 0.551 | 0.804 | 0.654 | 0.575 | 402 / 327 / 98 / 173 |
+| Claude Opus 4.8 | 0.570 | 0.582 | 0.576 | 0.571 | 291 / 220 / 209 / 280 |
+| Muse-Glimmer | 0.555 | 0.529 | 0.542 | 0.551 | 263 / 211 / 234 / 282 |
+| Nemotron-3-Ultra | 0.618 | 0.320 | 0.422 | 0.561 | 160 / 99 / 340 / 401 |
+
+## AACR detail (196 PRs, 1506 gold notes)
+
+| Model | semantic F1 | line F1 | generated notes | semantic hits | line hits |
+|---|---:|---:|---:|---:|---:|
+| DeepSeek-V4.1-Flash | **0.105** | **0.292** | 679 | 115 | 320 |
+| Nemotron-3-Ultra | 0.060 | 0.184 | 458 | 58 | 181 |
+| Claude Opus 4.8 | 0.066 | 0.129 | 221 | 57 | 112 |
+| Muse-Glimmer | 0.046 | 0.096 | 124 | 37 | 79 |
+| gpt-5.6 | 0.041 | 0.077 | 94 | 33 | 62 |
+
+## Martian detail (50 PRs)
+
+| Model | P | R | F1 | Status |
+|---|---:|---:|---:|---|
+| Claude Opus 4.8 | 32.2% | 45.7% | **37.8%** | valid |
+| Nemotron-3-Ultra | 16.9% | 31.2% | 21.9% | valid |
+| gpt-5.6 | 66.7% | 12.7% | 21.4% | valid |
+| DeepSeek-V4.1-Flash | 0 | 0 | 0 | empty generation; not rerun |
+| Muse-Glimmer | 0 | 0 | 0 | judged empty; parser + empty-PR retry in progress |
+
+## SWE-Review detail (`glm5_500`)
+
+| Model | DA | DA(total,50) | CR | produced / 500 | TP / FP / TN / FN |
+|---|---:|---:|---:|---:|---|
+| Claude Opus 4.8 | **74.9%** | 66.3% | 65.4% | 327 | 216 / 65 / 29 / 17 |
+| Nemotron-3-Ultra | 70.9% | 53.3% | 15.8% | 79 | 55 / 21 / 1 / 2 |
+| gpt-5.6 | 52.0% | 50.5% | 25.0% | 125 | 39 / 11 / 26 / 49 |
+| DeepSeek-V4.1-Flash | 0 | 50.0% | 0 | 0 | — |
+| Muse-Glimmer | 0 | 50.0% | 0 | 0 | rerun in progress |
 
 ---
 
 ## Repo layout
 
 ```
-run_openai_reviews.py   # OpenAI-compatible client; writes jsonl
-score_cr_results.py     # recompute P/R/F1 from jsonl
-results/scores.json     # snapshot used by this README
-results/diagnostics.json
-results/<model>_<bench>.jsonl
-results/retries/        # extra calls that filled empty outputs
+official/                 # official-harness trajectories and scores
+official_martian_llm_review.py
+official_aacr_llm_reviewer.py
+launch_official_swr.sh
+continue_official_cr.sh
+results/                  # LEGACY unofficial proxy jsonl — do not cite
+run_openai_reviews.py     # that proxy runner
+score_cr_results.py
 ```
 
-Each trajectory is one JSON object:
-
-| Field | Meaning |
-|---|---|
-| `instance_id` | example id |
-| `bench` | `swrbench` / `aacr` / `swe-review` / `martian` |
-| `gold_clean` | `true` = label says clean / should not request changes |
-| `model` | model name |
-| `latency_s` | wall clock per example |
-| `output` | raw model text (including reasoning, if any) |
-| `error` | short exception if the request failed |
-
-Positive class = `decision == request_changes`. `gold_clean=true` is the negative class.
-
-- TP: buggy / unresolved item, model requested changes
-- FN / **false approve (miss)**: should have requested changes, approved instead
-- FP / **false reject (noise)**: clean item, requested changes
-- TN: clean and approved
-
----
-
-## Main table (decision vs `gold_clean`)
-
-The dummy baseline is always `request_changes` (gold positive rates: SWR 50.0%, AACR 70.2%, SWE-Review 51.1%).
-
-### SWR-Bench (n=1000, balanced)
-
-| Model | P | R | F1 | miss | noise | request rate | vs baseline 0.667 |
-|---|---:|---:|---:|---:|---:|---:|---|
-| always `request_changes` | 0.50 | 1.00 | **0.667** | 0% | 100% | 100% | — |
-| Nemotron-3-Ultra | 0.53 | 0.62 | 0.570 | 38.0% | 55.4% | 58.7% | below |
-| gpt-5.6 | 0.56 | 0.35 | 0.432 | 64.8% | 27.8% | 31.5% | below |
-| claude-opus-4-8 | 0.57 | 0.29 | 0.387 | 70.8% | 21.8% | 25.5% | below |
-| Muse-Glimmer | 0.52 | 0.14 | 0.226 | 85.6% | 13.2% | 13.8% | not comparable |
-
-Confusion matrices (TP/FP/TN/FN): Nemotron 310/277/223/190; Opus 146/109/391/354; GPT 176/139/361/324; Glimmer 72/66/434/428.
-
-### AACR-Bench (n=2145, 70.2% positive)
-
-The underlying items are “is this review comment valid?”. We mapped valid → `request_changes` and noise → `approve`. **This is not official AACR finding-match.**
-
-| Model | P | R | F1 | miss | noise | request rate | vs baseline 0.825 |
-|---|---:|---:|---:|---:|---:|---:|---|
-| always `request_changes` | 0.70 | 1.00 | **0.825** | 0% | 100% | 100% | — |
-| Nemotron-3-Ultra | 0.72 | 0.87 | 0.787 | 12.8% | **80.8%** | 85.3% | near dummy (almost always flags) |
-| gpt-5.6 | 0.77 | 0.40 | 0.522 | 60.5% | 28.0% | 36.1% | below |
-| Muse-Glimmer | 0.72 | 0.29 | 0.411 | 71.2% | 26.6% | 28.1% | not comparable |
-| claude-opus-4-8 | 0.80 | 0.19 | 0.304 | 81.2% | 11.4% | 16.6% | most conservative |
-
-Nemotron requested changes on 1830/2145 AACR rows. Precision matches the base rate; recall is high; noise is high. It behaves like “assume the comment is real,” not a careful judge. Opus agrees that the comment is a real issue on only 16.6% of rows and misses 81% of positives.
-
-### SWE-Review-Traj (n=8914, 51.1% positive)
-
-`gold_clean = patch_resolved`. The payload includes `patch` (truncated to 12k chars). This is the closest of the four to “read a diff and review it.”
-
-| Model | P | R | F1 | miss | noise | request rate | vs baseline 0.676 |
-|---|---:|---:|---:|---:|---:|---:|---|
-| claude-opus-4-8 | 0.66 | 0.91 | **0.768** | 9.0% | 48.3% | 70.2% | **above** |
-| gpt-5.6 | 0.62 | 0.92 | **0.737** | 8.4% | 59.5% | 75.9% | **above** |
-| always `request_changes` | 0.51 | 1.00 | 0.676 | 0% | 100% | 100% | — |
-| Nemotron-3-Ultra | 0.83 | 0.48 | 0.609 | 52.0% | 10.0% | 29.3% | below |
-| Muse-Glimmer | 0.83 | 0.26 | 0.396 | 74.0% | 5.6% | 16.0% | not comparable |
-
-Opus TP/FP/TN/FN = 4150/2105/2251/408. GPT = 4175/2591/1764/383. Both barely miss unresolved patches (~9% miss) and bounce about half of the clean ones. Nemotron becomes conservative here (29% request rate): highest precision of the four (0.83), but it misses half of the real issues.
-
-### Martian (n=50, invalid)
-
-All four models approved every row, F1 = 0. The prompt only had a PR title and URL and said there was no local diff. Gold is hardcoded `clean=False`. Files: `*_martian.jsonl`. Do not plot this bench.
-
----
-
-## What the numbers actually say
-
-### 1. Models switch “personality” with the input
-
-Request-change rate:
-
-| Model | SWR | AACR | SWE-Review |
-|---|---:|---:|---:|
-| Glimmer | 14% | 28% | 16% |
-| Opus 4.8 | 26% | 17% | **70%** |
-| GPT-5.6 | 32% | 36% | **76%** |
-| Nemotron | **59%** | **85%** | 29% |
-
-Open Nemotron nitpicks when the input is a short comment or a missing diff, then holds back when a full patch is present. Closed Opus/GPT do the opposite: restrained on SWR/AACR, high-recall reviewers on SWE-Review. That looks like **whether there is reviewable code in the prompt**, not a fixed strict/lenient personality.
-
-### 2. SWR diffs are often missing
-
-SWR payloads are built from `pr_commits[*].diffs|files`, 2000 chars each. On many rows those fields do not match, so the model only sees title/description.
-
-Share of outputs that talk about a missing diff / inability to review:
-
-| Model | SWR | AACR | SWE-Review |
-|---|---:|---:|---:|
-| Nemotron | **42.4%** | 0.2% | 0.6% |
-| Opus 4.8 | 26.2% | 1.0% | 2.1% |
-| GPT-5.6 | 17.8% | 0.1% | 0.3% |
-
-A Nemotron SWR true positive (`astropy__astropy-187`, gold dirty):
-
-```json
-{"decision":"request_changes","findings":[{"title":"Missing PR diff for review",
-  "body":"The pull request description was provided but no code changes were included."}]}
-```
-
-False positives on gold-clean rows say the same thing. A large slice of SWR F1 is **rewarding or punishing “complained about a missing diff”**, not finding real bugs. GPT complains less (17.8%) and scores lower F1 because it more often just approves.
-
-Under this input, always-`request_changes` is a strong baseline. No model beating it is expected. Do not read it as “Nemotron is better at code review than Opus.”
-
-### 3. Glimmer trajectories are prompt echoes
-
-Every `Muse-Glimmer_*` `output` starts with `to=selfYou are a senior code reviewer...` and dumps the scoring prompt plus the PR. Mean output length: SWR 3428 chars, AACR 8490, SWE-Review 8341 (Nemotron: 298 / 500 / 575).
-
-`score_cr_results.py` takes the **last** `"decision": "approve"|"request_changes"` match. The schema example contains `"decision": "approve"`, so an echo is scored as approve. That matches Glimmer’s 13–28% request rate and 74–86% miss.
-
-The Glimmer jsonl is still here so the failure is reproducible. **Do not compare its F1 to the other three.**
-
-### 4. AACR is the wrong task
-
-Official AACR scores model-written comments against human valid/invalid labels. Here we stuffed an existing comment into the prompt and asked the model to use `request_changes` for “this is a real issue.” Nemotron says yes 85% of the time, near the 70% base rate, so F1 looks good. Opus treats most comments as noise (17% request rate) and gets the worst F1. Which is “better” depends on whether you want a high-recall filter or a high-precision filter. This proxy **cannot** answer “who writes better reviews.”
-
-### 5. Pairwise decision agreement
-
-Same `instance_id`, same binary decision:
-
-| Pair | SWR | AACR | SWE-Review |
-|---|---:|---:|---:|
-| Opus vs GPT-5.6 | 0.69 | 0.70 | **0.80** |
-| Glimmer vs Opus | 0.75 | 0.72 | 0.44 |
-| Nemotron vs Opus | 0.50 | **0.31** | 0.57 |
-| Nemotron vs GPT | 0.57 | 0.47 | 0.51 |
-| Glimmer vs Nemotron | 0.48 | 0.41 | 0.75 |
-
-Opus and GPT are most aligned on SWE-Review (both high recall). Nemotron and Opus almost invert on AACR (0.31): one defaults to “the comment is valid,” the other to “it is not.” Glimmer vs Opus looks high on SWR/AACR only because both approve a lot; they diverge on SWE-Review.
-
-### 6. Latency (wall clock, including network)
-
-| Model | SWR p50 | AACR p50 | SWE-Review p50 | SWE-Review mean |
-|---|---:|---:|---:|---:|
-| Opus 4.8 | 3.7s | 3.3s | 10.9s | 12.0s |
-| Glimmer | 4.8s | 13.3s | 12.7s | 11.9s |
-| Nemotron | 14.3s | 17.5s | 11.8s | 13.8s |
-| GPT-5.6 (`reasoning_effort=high`) | 18.0s | 22.0s | 29.0s | **40.8s** |
-
-GPT is clearly slower (SWE-Review p90 = 86s, max = 382s), consistent with high reasoning. Nemotron often spends the token budget on think and leaves `content` empty; the runner concatenates `reasoning_content` + `content`, so it is slower than the short final JSON suggests. Parse rates: ~100% on SWR/AACR for all four; on SWE-Review, Glimmer 99.6%, Nemotron 99.7%, GPT one empty row, Opus fully parsed.
-
----
-
-## Protocol
-
-- API: OpenAI-compatible `chat.completions`, **stream=true**.
-- Output: JSON only. `decision` ∈ {`approve`, `request_changes`} plus a findings list (`severity` / `category` / `path` / `line` / `title` / `body`).
-- Truncation: full payload **24000** chars. SWR: up to 8 commits × 20 files × 2000 chars. SWE-Review patch: 12000 chars.
-- Temperature: Glimmer/Nemotron 0.2; Claude / GPT-5.x 1.0. GPT-5.6 also uses `reasoning_effort=high`.
-- `max_tokens=8192`. With Nemotron `--reasoning-parser`, the budget is spent on thinking first; the runner concatenates `reasoning_content` and `content` before parsing.
-- Empty outputs were retried by `instance_id`. `results/retries/` holds the raw retry files; the main jsonl files are already merged.
-- **Not** Harbor, not a multi-turn agent, no tests executed, no gold-finding text match.
-
-Datasets (download yourself; they are not in this repo):
-
-- SWR: `swr_datasets_d5c5.jsonl`, gold `change_introduced` (introduced a change/bug → not clean)
-- AACR: `dataset.json`, gold `label` (truthy → not clean)
-- SWE-Review-Traj: HF parquet, gold `patch_resolved` / `resolved` (resolved → clean)
-- Martian offline: title only; gold is meaningless in this harness
-
----
-
-## Recompute scores
-
-```bash
-python3 score_cr_results.py --results ./results
-```
-
-No GPU. Prints a table and writes `results/updated_scores.json`.
-
-Rerun a model (needs your own OpenAI-compatible endpoint):
-
-```bash
-pip install openai
-export OPENAI_API_KEY=dummy   # EMPTY is fine for local vLLM
-python3 run_openai_reviews.py \
-  --base-url http://127.0.0.1:8000/v1 \
-  --model Nemotron-3-Ultra \
-  --bench swe-review \
-  --data /path/to/swe-review-traj \
-  --out results/Nemotron-3-Ultra_swe-review.jsonl \
-  --workers 8 --max-tokens 8192
-```
-
-`--bench` ∈ `swrbench|aacr|swe-review|martian`. Successful `instance_id`s are skipped, so runs are resume-safe.
+Each SWR `generation.jsonl` row is one official `base_review` call (`instance_id`, prompt, response). AACR files are one OCR review per PR. Martian `candidates.json` is keyed by PR URL. SWE-Review `produced_reviews.jsonl` has `instance_id`, `decision`, and the `review_report` for trials that produced one.
 
 ---
 
 ## Limitations
 
-1. Binary decision proxy ≠ code-review quality. Finding correctness is not scored.
-2. SWR payloads often have no diff; that column’s F1 is contaminated by “complained about missing diff.”
-3. AACR was rewritten; do not compare to the official leaderboard.
-4. Glimmer is prompt echo, not a reviewer.
-5. Martian has no diff.
-6. 24k / 12k truncation cuts large PRs.
-7. An unresolved SWE-Review patch is not the same as “this patch contains a bug worth flagging.” High recall may just mean the model bounces incomplete fixes.
-8. Single sample. Claude/GPT temperature is 1.0, so there is variance.
-9. DeepSeek-V4.1-Flash was incomplete and is not in the table.
+1. Martian Glimmer / V4.1 and SWE-Review Glimmer / V4.1 are **not** comparable to the other three until generations actually produce comments / `review_report`s.
+2. Nemotron SWE-Review DA is computed on only 79 produced reviews; CR is 15.8%.
+3. AACR F1 is low for every model; this matches the official finding-match task, not the old binary proxy.
+4. Claude/GPT temperature is 1.0 because those APIs reject 0.2.
+5. We never put dataset dumps or Harbor sandbox trees in this repo.
 
 ---
 
-## How to use these trajectories
+## Legacy unofficial proxy
 
-- To compare “can this model review a patch”: use **SWE-Review only**, and add your own finding-level eval. F1 here is only a gate.
-- For failure modes: search SWR for `Missing PR diff` / `No implementation diff`; search Glimmer for `to=self`.
-- Do not average the four benches into one score. Input quality differs by an order of magnitude.
-- If you rerun SWR, fix the diff fields in `load_swr()` before ranking models.
+`results/*.jsonl` is a previous single-shot `{decision, findings}` proxy (truncated payloads, decision vs `gold_clean` only). It is kept so that failure mode is reproducible. **It is not SWR / AACR / Martian / SWE-Review-Bench.** The old README claimed Glimmer was 100% prompt-echo on that proxy; official SWR/AACR Glimmer numbers above are from the real harness.
 
 ---
 
 ## License
 
-Scoring scripts are MIT. jsonl files are model outputs, intended for research. Upstream benchmark text/diffs are **not** in this repo; follow the original project licenses.
+Scoring scripts are MIT. jsonl/json files are model outputs, intended for research. Upstream benchmark text/diffs are **not** in this repo; follow the original project licenses.

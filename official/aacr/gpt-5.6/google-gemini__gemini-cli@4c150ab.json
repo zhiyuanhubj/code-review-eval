@@ -1,0 +1,16 @@
+{
+  "instance_id": "google-gemini__gemini-cli@4c150ab",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "53f8617b249c9f0443f5082a293a30504a118030",
+  "head_commit": "4c150ab4befb2a727b493d732d8d3d01f388e492",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:27:09.023175+00:00",
+  "duration_seconds": 79.03,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": null
+}

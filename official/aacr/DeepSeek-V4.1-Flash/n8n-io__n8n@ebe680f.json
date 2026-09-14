@@ -1,0 +1,80 @@
+{
+  "instance_id": "n8n-io__n8n@ebe680f",
+  "repo": "n8n-io/n8n",
+  "base_commit": "291a39c87eb2bc228816d02c55a1f6857822006f",
+  "head_commit": "ebe680fbcacd9210aa219ab01d98012ac1d6faae",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:35:46.053495+00:00",
+  "duration_seconds": 11.98,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/testing/playwright/tests/ui/user-service.spec.ts",
+        "start_line": 7,
+        "end_line": 12,
+        "content": "`user.lastName` is generated as `User${nanoid()}` (e.g. `Userabc12345`), so `expect(user.lastName).toBe('User')` will always fail. Either assert with `toContain('User')` or use a regex like `/^User/`.",
+        "side": "right"
+      },
+      {
+        "path": "packages/testing/playwright/tests/ui/18-user-management.spec.ts",
+        "start_line": 20,
+        "end_line": 25,
+        "content": "This test claims to verify that non-owners cannot access UM settings, but it never asserts that the user is denied. It creates a user (which logs the browser in as that new member via cookie refresh), navigates to `/settings/users`, and then only asserts that the project name is visible — which would also pass if the member could access the page. Add an assertion that the URL is not `/settings/users` or that the users list is not rendered.",
+        "side": "right"
+      },
+      {
+        "path": "packages/testing/playwright/tests/ui/18-user-management.spec.ts",
+        "start_line": 47,
+        "end_line": 56,
+        "content": "`await n8n.settingsUsers.getRow(user.email).isVisible();` returns a promise that is never awaited or asserted, so it has no effect. Use `await expect(n8n.settingsUsers.getRow(user.email)).toBeVisible();` instead.",
+        "side": "right"
+      },
+      {
+        "path": "packages/testing/playwright/tests/ui/18-user-management.spec.ts",
+        "start_line": 58,
+        "end_line": 70,
+        "content": "Same issue as the delete-data test: `await n8n.settingsUsers.getRow(user.email).isVisible();` is a no-op. Replace with `await expect(...).toBeVisible()`.",
+        "side": "right"
+      },
+      {
+        "path": "packages/testing/playwright/tests/ui/18-user-management.spec.ts",
+        "start_line": 1,
+        "end_line": 158,
+        "content": "The original Cypress test covered changing the user role back to Admin and verifying the role change from the perspective of the promoted user. The new Playwright test only toggles Admin→Member and never verifies the promoted user can actually access UM settings. Consider restoring that coverage to avoid regressing the permission flow.",
+        "side": "right"
+      },
+      {
+        "path": "packages/testing/playwright/services/user-api-helper.ts",
+        "start_line": 26,
+        "end_line": 30,
+        "content": "`options.email?.toLowerCase()` lowercases the email but the returned `user.email` uses the lowercased value, while the invitation is also sent with the lowercased value — that's fine. However, `user.lastName` is generated with `nanoid()` but the returned object spreads `...user` which includes the generated lastName — good. Just note that the `id` returned from the invite response is the invitee id, not necessarily the final user id after acceptance. Verify this matches what `/rest/users/:id` expects for `delete()`.",
+        "side": "right"
+      },
+      {
+        "path": "packages/testing/playwright/composables/TestEntryComposer.ts",
+        "start_line": 100,
+        "end_line": 108,
+        "content": "`withUser` creates a new browser context but never closes it. Tests that call this (e.g. `should change user email`, `should maintain separate sessions for multiple users`) will leak contexts across the test run. Consider registering cleanup via `context.close()` on test teardown, or expose the context so callers can close it.",
+        "side": "right"
+      },
+      {
+        "path": "packages/testing/playwright/pages/SettingsUsersPage.ts",
+        "start_line": 30,
+        "end_line": 45,
+        "content": "`transferData` clicks the radio with `force: true` and then clicks the project-sharing-info filtered by the target email. If the target user is the owner (as in the test), the owner may not appear in the project-sharing-info list (only projects/users with sharing entries). Confirm the selector matches the owner entry; otherwise the test will be flaky.",
+        "side": "right"
+      },
+      {
+        "path": "packages/testing/playwright/pages/SettingsUsersPage.ts",
+        "start_line": 60,
+        "end_line": 63,
+        "content": "`getByTestId('action-delete').filter({ visible: true })` — `filter({ visible: true })` is not a valid Playwright filter option. Playwright's `filter` accepts `has`, `hasNot`, `hasText`, `hasNotText`. Use `getByTestId('action-delete').locator('visible=true')` or `getByTestId('action-delete').filter({ hasText: ... })` / `.first()` depending on intent.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"packages/testing/playwright/tests/ui/user-service.spec.ts\",\n      \"start_line\": 7,\n      \"end_line\": 12,\n      \"content\": \"`user.lastName` is generated as `User${nanoid()}` (e.g. `Userabc12345`), so `expect(user.lastName).toBe('User')` will always fail. Either assert with `toContain('User')` or use a regex like `/^User/`.\"\n    },\n    {\n      \"path\": \"packages/testing/playwright/tests/ui/18-user-management.spec.ts\",\n      \"start_line\": 20,\n      \"end_line\": 25,\n      \"content\": \"This test claims to verify that non-owners cannot access UM settings, but it never asserts that the user is denied. It creates a user (which logs the browser in as that new member via cookie refresh), navigates to `/settings/users`, and then only asserts that the project name is visible — which would also pass if the member could access the page. Add an assertion that the URL is not `/settings/users` or that the users list is not rendered.\"\n    },\n    {\n      \"path\": \"packages/testing/playwright/tests/ui/18-user-management.spec.ts\",\n      \"start_line\": 47,\n      \"end_line\": 56,\n      \"content\": \"`await n8n.settingsUsers.getRow(user.email).isVisible();` returns a promise that is never awaited or asserted, so it has no effect. Use `await expect(n8n.settingsUsers.getRow(user.email)).toBeVisible();` instead.\"\n    },\n    {\n      \"path\": \"packages/testing/playwright/tests/ui/18-user-management.spec.ts\",\n      \"start_line\": 58,\n      \"end_line\": 70,\n      \"content\": \"Same issue as the delete-data test: `await n8n.settingsUsers.getRow(user.email).isVisible();` is a no-op. Replace with `await expect(...).toBeVisible()`.\"\n    },\n    {\n      \"path\": \"packages/testing/playwright/tests/ui/18-user-management.spec.ts\",\n      \"start_line\": 1,\n      \"end_line\": 158,\n      \"content\": \"The original Cypress test covered changing the user role back to Admin and verifying the role change from the perspective of the promoted user. The new Playwright test only toggles Admin→Member and never verifies the promoted user can actually access UM settings. Consider restoring that coverage to avoid regressing the permission flow.\"\n    },\n    {\n      \"path\": \"packages/testing/playwright/services/user-api-helper.ts\",\n      \"start_line\": 26,\n      \"end_line\": 30,\n      \"content\": \"`options.email?.toLowerCase()` lowercases the email but the returned `user.email` uses the lowercased value, while the invitation is also sent with the lowercased value — that's fine. However, `user.lastName` is generated with `nanoid()` but the returned object spreads `...user` which includes the generated lastName — good. Just note that the `id` returned from the invite response is the invitee id, not necessarily the final user id after acceptance. Verify this matches what `/rest/users/:id` expects for `delete()`.\"\n    },\n    {\n      \"path\": \"packages/testing/playwright/composables/TestEntryComposer.ts\",\n      \"start_line\": 100,\n      \"end_line\": 108,\n      \"content\": \"`withUser` creates a new browser context but never closes it. Tests that call this (e.g. `should change user email`, `should maintain separate sessions for multiple users`) will leak contexts across the test run. Consider registering cleanup via `context.close()` on test teardown, or expose the context so callers can close it.\"\n    },\n    {\n      \"path\": \"packages/testing/playwright/pages/SettingsUsersPage.ts\",\n      \"start_line\": 30,\n      \"end_line\": 45,\n      \"content\": \"`transferData` clicks the radio with `force: true` and then clicks the project-sharing-info filtered by the target email. If the target user is the owner (as in the test), the owner may not appear in the project-sharing-info list (only projects/users with sharing entries). Confirm the selector matches the owner entry; otherwise the test will be flaky.\"\n    },\n    {\n      \"path\": \"packages/testing/playwright/pages/SettingsUsersPage.ts\",\n      \"start_line\": 60,\n      \"end_line\": 63,\n      \"content\": \"`getByTestId('action-delete').filter({ visible: true })` — `filter({ visible: true })` is not a valid Playwright filter option. Playwright's `filter` accepts `has`, `hasNot`, `hasText`, `hasNotText`. Use `getByTestId('action-delete').locator('visible=true')` or `getByTestId('action-delete').filter({ hasText: ... })` / `.first()` depending on intent.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

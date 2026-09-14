@@ -1,0 +1,16 @@
+{
+  "instance_id": "mpv-player__mpv@0729afe",
+  "repo": "mpv-player/mpv",
+  "base_commit": "5809d4d1bc54c3a3a32b38c7cf8a6ed90e91f7db",
+  "head_commit": "0729afe8d7067f0e4d69000309ec6f3e24ac3926",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:33:00.918044+00:00",
+  "duration_seconds": 74.1,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": null
+}

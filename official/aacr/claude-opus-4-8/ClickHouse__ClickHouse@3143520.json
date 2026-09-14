@@ -1,0 +1,41 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@3143520",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "1c01feef2757648e0b1b801cf1f81c59de527bb6",
+  "head_commit": "314352043db0170026d11475bcaf67c7bb4fc311",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:26.221607+00:00",
+  "duration_seconds": 81.83,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Common/JemallocNodumpAllocatorImpl.cpp",
+        "start_line": 34,
+        "end_line": 51,
+        "content": "`alloc` is registered as a jemalloc extent hook, which is invoked from jemalloc's C code. Throwing a C++ exception (`std::runtime_error`) across this C boundary on `madvise` failure is undefined behavior and can corrupt the allocator state / crash. On failure you should not throw here — instead log the error (or increment a metric) and still return `result`, since the extent was allocated successfully and only the MADV_DONTDUMP hint failed."
+      },
+      {
+        "path": "src/Common/JemallocNodumpAllocatorImpl.cpp",
+        "start_line": 23,
+        "end_line": 26,
+        "content": "`dallocx(p, flags)` has undefined behavior if `p` is null. `AwsNodumpMemoryManager::FreeMemory` forwards directly here and the AWS SDK does not always guarantee a non-null pointer. Consider guarding with `if (p) dallocx(...)`."
+      },
+      {
+        "path": "src/configure_config.cmake",
+        "start_line": 84,
+        "end_line": 91,
+        "content": "`USE_AWS_MEMORY_MANAGEMENT` is defined here but is not referenced anywhere in this PR (the actual guards use `USE_AWS_S3` and `USE_JEMALLOC`). Either wire it into the relevant `#if` checks (e.g. in Client.cpp / AwsNodumpMemoryManager) or drop it to avoid dead configuration."
+      },
+      {
+        "path": "src/Common/JemallocNodumpSTLAllocator.h",
+        "start_line": 91,
+        "end_line": 97,
+        "content": "`toNoDumpString` takes the std::string by value and copies it, but the source key still resides in normal (dumpable) heap memory (e.g. the `config.getString(...)` result). The sensitive bytes therefore live in a core-dumpable buffer before/after this copy, weakening the guarantee. Consider passing by const-ref plus explicitly scrubbing the temporary, or documenting this limitation."
+      }
+    ]
+  },
+  "raw_output": "<think>\nLet me analyze this PR for potential issues.\n\nThe PR introduces a jemalloc-based no-dump allocator for sensitive data (encryption keys). Let me look for bugs.\n\n1. In `JemallocNodumpAllocatorImpl::alloc` - this is a static extent hook that calls `original_alloc_`. But `original_alloc_` is set up in `setupArena()`. There's a potential issue: the extent hook `alloc` is a static function and throws exceptions. jemalloc extent hooks are C functions and throwing exceptions through them is undefined behavior. This is a real bug - throwing from a C callback.\n\n2. In `Client.cpp`, the memory manager is set based on `USE_JEMALLOC` but the config introduces `USE_AWS_MEMORY_MANAGEMENT`. Actually the code uses `#if USE_JEMALLOC` in Client.cpp but the AwsNodumpMemoryManager is guarded by `#if USE_AWS_S3 && #if USE_JEMALLOC`. Client.cpp uses `#if USE_JEMALLOC` only. If USE_AWS_S3 is not defined but USE_JEMALLOC is... but Client.cpp is only compiled when AWS S3 is enabled. So that's probably fine.\n\n3. The `alloc` extent hook throwing `std::runtime_error` through jemalloc - this is a serious issue. Extent hooks should not throw. If madvise fails, throwing an exception across jemalloc's C code is UB.\n\n4. Memory ordering / static initialization: `original_alloc_` is `inline static` and set in constructor via `setupArena`. Since it's a singleton, that's fine.\n\n5. In `configure_config.cmake` - `USE_AWS_MEMORY_MANAGEMENT` is set but never used anywhere in the diff. The code uses `USE_JEMALLOC` and `USE_AWS_S3`. So `USE_AWS_MEMORY_MANAGEMENT` seems to be dead/unused. This might be intended for future but currently unused.\n\n6. `toNoDumpString` copies the std::string `s` (passed by value) into NoDumpString. But the original std::string still contains the sensitive data and will be in dumpable memory. When `config.getString()` returns a std::string, that data lives in normal heap. So the sensitive key data does pass through regular memory before being copied. This is a partial mitigation concern but perhaps acceptable.\n\n7. In `allocate`, the overflow check: `n > max / element_size`. For `element_size == 1` (char), `max / 1 == max`, so `too_large_size = max` won't trigger throw... wait the test `ThrowsOnTooLargeAllocation` uses `JemallocNodumpSTLAllocator<int>`, element_size 4, max/4 < max, so it throws. Good.\n\n8. The `alloc` function - when madvise fails and throws, `result` memory is leaked and jemalloc state is corrupted. Better to log and continue rather than throw.\n\nLet me focus on the most concrete real bugs:\n\n- Throwing exceptions from jemalloc extent hook (`alloc`) is UB. This is the main real bug.\n\nLet me also check the `deallocate` handling null. `dallocx(nullptr, ...)` - jemalloc dallocx with null is undefined per docs. But allocate returns null->throws bad_alloc, so deallocate wouldn't get null in normal STL usage. AwsNodumpMemoryManager::FreeMemory could be called with null? AWS might call FreeMemory(nullptr). `dallocx(nullptr)` is UB. Worth a note.\n\nActually AWS SDK typically does check for null before calling FreeMemory... not always guaranteed. Let me note it as lower priority.\n\nLet me prioritize:\n1. Extent hook throwing exceptions - real bug (high confidence).\n2. USE_AWS_MEMORY_MANAGEMENT unused - minor.\n\nLet me write these up.\n</think>\n\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Common/JemallocNodumpAllocatorImpl.cpp\",\n      \"start_line\": 34,\n      \"end_line\": 51,\n      \"content\": \"`alloc` is registered as a jemalloc extent hook, which is invoked from jemalloc's C code. Throwing a C++ exception (`std::runtime_error`) across this C boundary on `madvise` failure is undefined behavior and can corrupt the allocator state / crash. On failure you should not throw here — instead log the error (or increment a metric) and still return `result`, since the extent was allocated successfully and only the MADV_DONTDUMP hint failed.\"\n    },\n    {\n      \"path\": \"src/Common/JemallocNodumpAllocatorImpl.cpp\",\n      \"start_line\": 23,\n      \"end_line\": 26,\n      \"content\": \"`dallocx(p, flags)` has undefined behavior if `p` is null. `AwsNodumpMemoryManager::FreeMemory` forwards directly here and the AWS SDK does not always guarantee a non-null pointer. Consider guarding with `if (p) dallocx(...)`.\"\n    },\n    {\n      \"path\": \"src/configure_config.cmake\",\n      \"start_line\": 84,\n      \"end_line\": 91,\n      \"content\": \"`USE_AWS_MEMORY_MANAGEMENT` is defined here but is not referenced anywhere in this PR (the actual guards use `USE_AWS_S3` and `USE_JEMALLOC`). Either wire it into the relevant `#if` checks (e.g. in Client.cpp / AwsNodumpMemoryManager) or drop it to avoid dead configuration.\"\n    },\n    {\n      \"path\": \"src/Common/JemallocNodumpSTLAllocator.h\",\n      \"start_line\": 91,\n      \"end_line\": 97,\n      \"content\": \"`toNoDumpString` takes the std::string by value and copies it, but the source key still resides in normal (dumpable) heap memory (e.g. the `config.getString(...)` result). The sensitive bytes therefore live in a core-dumpable buffer before/after this copy, weakening the guarantee. Consider passing by const-ref plus explicitly scrubbing the temporary, or documenting this limitation.\"\n    }\n  ]\n}",
+  "stderr": null
+}

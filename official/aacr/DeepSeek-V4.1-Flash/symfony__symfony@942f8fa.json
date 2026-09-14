@@ -1,0 +1,16 @@
+{
+  "instance_id": "symfony__symfony@942f8fa",
+  "repo": "symfony/symfony",
+  "base_commit": "a57c946d3b8d477964da5303fa693a9b7c4e6227",
+  "head_commit": "942f8fa5384d34f2b5c9bd1b73a169d8fd049fd5",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:49.475624+00:00",
+  "duration_seconds": 3.31,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Symfony/Component/DependencyInjection/Tests/Loader/XmlFileLoaderTest.php\",\n      \"start_line\": 1300,\n      \"end_line\": 1310,\n      \"content\": \"The test only asserts that the exception message contains the filename, error details, and line/column info, but it doesn't verify the actual behavior of the loader. Since the fixture `services31.xml` contains an unexpected `<bogusTag />` element, the loader should throw an exception. However, the test doesn't check that the exception is thrown for the correct reason (e.g., the XML validation error). It might be better to assert the exact exception message or at least ensure that the exception is thrown due to the invalid XML structure. Additionally, the test uses `$this->fail()` inside the try block, which is correct, but the catch block only catches `\\InvalidArgumentException`. If the loader throws a different exception type (e.g., `\\RuntimeException`), the test would fail with an uncaught exception, which is acceptable but could be more explicit. Consider using `$this->expectException()` and `$this->expectExceptionMessageMatches()` for cleaner test code.\"\n    }\n  ]\n}",
+  "stderr": null
+}

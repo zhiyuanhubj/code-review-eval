@@ -1,0 +1,35 @@
+{
+  "instance_id": "dotnet__aspnetcore@8ac940f",
+  "repo": "dotnet/aspnetcore",
+  "base_commit": "7ba02e8ac71eeba562476953d5ff6030b8eda765",
+  "head_commit": "8ac940ff581aa344ab8f859874f6d4c0ecaec6b6",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:29:03.074361+00:00",
+  "duration_seconds": 33.87,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs",
+        "start_line": 383,
+        "end_line": 383,
+        "content": "The `purposeLengthsPool` array is rented from `ArrayPool<int>.Shared` but never returned if an exception occurs during the loop (e.g., `GetByteCount` throws). Wrap the loop in a try/finally or use a `using` pattern with a custom struct to ensure the array is always returned to the pool."
+      },
+      {
+        "path": "src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs",
+        "start_line": 405,
+        "end_line": 405,
+        "content": "The `Write7BitEncodedInt` method writes to `targetSpan.Slice(index)` but does not validate that the slice has sufficient remaining space. While the caller pre-calculates the total length, adding a `Debug.Assert(target.Length >= index + maxEncodedLength)` would improve robustness and document the assumption."
+      },
+      {
+        "path": "src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs",
+        "start_line": 395,
+        "end_line": 395,
+        "content": "The `GetBytes` call uses `purpose.AsSpan()` which creates a `ReadOnlySpan<char>` from the string. This is correct, but consider adding a comment clarifying that `EncodingUtil.SecureUtf8Encoding.GetBytes` handles the conversion safely without intermediate allocations."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs\",\n      \"start_line\": 383,\n      \"end_line\": 383,\n      \"content\": \"The `purposeLengthsPool` array is rented from `ArrayPool<int>.Shared` but never returned if an exception occurs during the loop (e.g., `GetByteCount` throws). Wrap the loop in a try/finally or use a `using` pattern with a custom struct to ensure the array is always returned to the pool.\"\n    },\n    {\n      \"path\": \"src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs\",\n      \"start_line\": 405,\n      \"end_line\": 405,\n      \"content\": \"The `Write7BitEncodedInt` method writes to `targetSpan.Slice(index)` but does not validate that the slice has sufficient remaining space. While the caller pre-calculates the total length, adding a `Debug.Assert(target.Length >= index + maxEncodedLength)` would improve robustness and document the assumption.\"\n    },\n    {\n      \"path\": \"src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs\",\n      \"start_line\": 395,\n      \"end_line\": 395,\n      \"content\": \"The `GetBytes` call uses `purpose.AsSpan()` which creates a `ReadOnlySpan<char>` from the string. This is correct, but consider adding a comment clarifying that `EncodingUtil.SecureUtf8Encoding.GetBytes` handles the conversion safely without intermediate allocations.\"\n    }\n  ]\n}",
+  "stderr": null
+}

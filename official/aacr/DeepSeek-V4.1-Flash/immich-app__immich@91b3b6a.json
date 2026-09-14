@@ -1,0 +1,16 @@
+{
+  "instance_id": "immich-app__immich@91b3b6a",
+  "repo": "immich-app/immich",
+  "base_commit": "10e569cc1c563ece2eb7e2581cef943829a72440",
+  "head_commit": "91b3b6aebd3a02a4ac158b21ce469138df893178",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:05.584063+00:00",
+  "duration_seconds": 1.48,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\"comments\": []}",
+  "stderr": null
+}

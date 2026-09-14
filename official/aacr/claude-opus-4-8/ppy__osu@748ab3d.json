@@ -1,0 +1,35 @@
+{
+  "instance_id": "ppy__osu@748ab3d",
+  "repo": "ppy/osu",
+  "base_commit": "19e9bffc11f026ebff2dc2831668e606c701f71f",
+  "head_commit": "748ab3d4863f6ea4bf6a3fffccb50e5cd616937b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:36.642645+00:00",
+  "duration_seconds": 15.44,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "osu.Game/Rulesets/Difficulty/Utils/DifficultyCalculationUtils.cs",
+        "start_line": 70,
+        "end_line": 70,
+        "content": "Typo in doc comment: \"returns returns\" is duplicated, and \"it's value\" should be \"its value\"."
+      },
+      {
+        "path": "osu.Game/Rulesets/Difficulty/Utils/DifficultyCalculationUtils.cs",
+        "start_line": 75,
+        "end_line": 80,
+        "content": "The doc comment describes the curve as symmetric around `mean` over `[mean - width, mean + width]`, but the implementation only maps `x` back to `[0, width]` and calls `Smoothstep(x, 0, width)`. For the default (mean=0.5, width=0.5), an input outside [0, 1] (e.g. x < 0 or x > 1) produces `x` values outside [0, width], which Smoothstep will clamp — but the resulting behavior differs from a true bell curve for out-of-range inputs. Please confirm callers always pass x in [mean-width, mean+width] (here deltaDifferenceFraction is in [0,1), so it's fine), or document/clamp the domain explicitly to avoid misuse."
+      },
+      {
+        "path": "osu.Game.Rulesets.Osu/Difficulty/Evaluators/RhythmEvaluator.cs",
+        "start_line": 71,
+        "end_line": 74,
+        "content": "`reverseDeltaDifferenceRatio - (long)reverseDeltaDifferenceRatio` will throw an OverflowException (or produce undefined behavior) if `reverseDeltaDifferenceRatio` exceeds long.MaxValue, and more importantly can be negative/incorrect for very large ratios. While prevDelta/currDelta are unlikely to produce such extremes, consider using `reverseDeltaDifferenceRatio % 1.0` (or Math.Floor) instead of casting to long to make the fractional-part extraction robust and clearer in intent."
+      }
+    ]
+  },
+  "raw_output": "Looking at this PR, let me analyze the logic change carefully.\n\nThe original code used `Math.Sin(Math.PI / deltaDifferenceRatio)` where `deltaDifferenceRatio = min/max` (range [0,1]). The new code computes `reverseDeltaDifferenceRatio = max/min` (range [1, ∞)) and takes the fractional part.\n\nLet me check the edge cases in `SmoothstepBellCurve`.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"osu.Game/Rulesets/Difficulty/Utils/DifficultyCalculationUtils.cs\",\n      \"start_line\": 70,\n      \"end_line\": 70,\n      \"content\": \"Typo in doc comment: \\\"returns returns\\\" is duplicated, and \\\"it's value\\\" should be \\\"its value\\\".\"\n    },\n    {\n      \"path\": \"osu.Game/Rulesets/Difficulty/Utils/DifficultyCalculationUtils.cs\",\n      \"start_line\": 75,\n      \"end_line\": 80,\n      \"content\": \"The doc comment describes the curve as symmetric around `mean` over `[mean - width, mean + width]`, but the implementation only maps `x` back to `[0, width]` and calls `Smoothstep(x, 0, width)`. For the default (mean=0.5, width=0.5), an input outside [0, 1] (e.g. x < 0 or x > 1) produces `x` values outside [0, width], which Smoothstep will clamp — but the resulting behavior differs from a true bell curve for out-of-range inputs. Please confirm callers always pass x in [mean-width, mean+width] (here deltaDifferenceFraction is in [0,1), so it's fine), or document/clamp the domain explicitly to avoid misuse.\"\n    },\n    {\n      \"path\": \"osu.Game.Rulesets.Osu/Difficulty/Evaluators/RhythmEvaluator.cs\",\n      \"start_line\": 71,\n      \"end_line\": 74,\n      \"content\": \"`reverseDeltaDifferenceRatio - (long)reverseDeltaDifferenceRatio` will throw an OverflowException (or produce undefined behavior) if `reverseDeltaDifferenceRatio` exceeds long.MaxValue, and more importantly can be negative/incorrect for very large ratios. While prevDelta/currDelta are unlikely to produce such extremes, consider using `reverseDeltaDifferenceRatio % 1.0` (or Math.Floor) instead of casting to long to make the fractional-part extraction robust and clearer in intent.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

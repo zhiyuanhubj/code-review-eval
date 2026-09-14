@@ -1,0 +1,24 @@
+{
+  "instance_id": "ppy__osu@87697a7",
+  "repo": "ppy/osu",
+  "base_commit": "605979e790eb0aabdf5e8d6c8a182974697bc3a9",
+  "head_commit": "87697a72e333d1468a35d4a3fec388319cc16e2a",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:22.755228+00:00",
+  "duration_seconds": 3.14,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "osu.Game.Rulesets.Osu/Mods/OsuModSuddenDeath.cs",
+        "start_line": 22,
+        "end_line": 30,
+        "content": "The override of `FailCondition` changes the base behaviour. The base `ModSuddenDeath.FailCondition` likely checks `result.Type.AffectsCombo() && !result.IsHit` (or similar), but by overriding it here you may be dropping additional base logic (e.g. handling of `HitResult.Miss` vs `IgnoreMiss`, or the `healthProcessor` parameter). Please verify the base implementation and call `base.FailCondition(...)` where appropriate, or replicate all necessary checks. Also, `HitResult.IgnoreMiss` is typically used for slider tails that are not required for combo; failing on it when `SliderTailMiss` is enabled is the intent, but ensure this doesn't also trigger on other `IgnoreMiss` results (e.g. from spinners or other objects) — the `SliderTailCircle` type check handles that, but confirm `SliderTailCircle` is the correct type for all slider tail misses in this ruleset.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"osu.Game.Rulesets.Osu/Mods/OsuModSuddenDeath.cs\",\n      \"start_line\": 22,\n      \"end_line\": 30,\n      \"content\": \"The override of `FailCondition` changes the base behaviour. The base `ModSuddenDeath.FailCondition` likely checks `result.Type.AffectsCombo() && !result.IsHit` (or similar), but by overriding it here you may be dropping additional base logic (e.g. handling of `HitResult.Miss` vs `IgnoreMiss`, or the `healthProcessor` parameter). Please verify the base implementation and call `base.FailCondition(...)` where appropriate, or replicate all necessary checks. Also, `HitResult.IgnoreMiss` is typically used for slider tails that are not required for combo; failing on it when `SliderTailMiss` is enabled is the intent, but ensure this doesn't also trigger on other `IgnoreMiss` results (e.g. from spinners or other objects) — the `SliderTailCircle` type check handles that, but confirm `SliderTailCircle` is the correct type for all slider tail misses in this ruleset.\"\n    }\n  ]\n}",
+  "stderr": null
+}

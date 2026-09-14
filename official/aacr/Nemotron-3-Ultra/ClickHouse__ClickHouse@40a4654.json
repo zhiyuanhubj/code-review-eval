@@ -1,0 +1,59 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@40a4654",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "83afa5c6704737ed4afc5a178f96bf49c39e5e4c",
+  "head_commit": "40a4654d7b114f1d42f48680d57007ae80897cd1",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:39:30.654257+00:00",
+  "duration_seconds": 516.82,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueIFileMetadata.cpp",
+        "start_line": 278,
+        "end_line": 278,
+        "content": "The SCOPE_EXIT guard calls file_status->reset() unconditionally. However, if the ZooKeeper multi-operation fails with an unexpected error, the function throws an exception before reaching the end of the scope. This means file_status->reset() will still be called (due to SCOPE_EXIT), but the file metadata state in ZooKeeper may be inconsistent (e.g., processing_id node removed but processing_node not removed, or vice versa). Consider whether resetting the local file_status is appropriate when the ZooKeeper operation failed unexpectedly."
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueIFileMetadata.cpp",
+        "start_line": 300,
+        "end_line": 300,
+        "content": "The condition `file_status->retries && file_status->retries >= max_loading_retries` treats retries=0 as not exceeding max retries. However, if max_loading_retries is 0 (meaning no retries allowed), then retries=0 would satisfy `retries >= max_loading_retries` (0 >= 0), but the `file_status->retries` check makes it false. This seems intentional to allow at least one attempt, but should be documented or clarified."
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp",
+        "start_line": 475,
+        "end_line": 475,
+        "content": "When query is cancelled and there's an unfinished file with processed_rows > 0, the code marks it as Cancelled and throws QUERY_WAS_CANCELLED. However, the commit() function will later be called with insert_succeeded=false (since an exception was thrown). In commit(), the Cancelled file will be set as failed with reduce_retry_count=false. This means the file will be retried indefinitely on restart, which may not be desired for cancelled queries. Consider using reduce_retry_count=true for cancelled files."
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp",
+        "start_line": 505,
+        "end_line": 505,
+        "content": "When shutdown_called is true and table_is_being_dropped is true, the code marks the file as Cancelled and throws QUERY_WAS_CANCELLED. Similar to the cancellation case, this will result in the file being retried on restart (reduce_retry_count=false). Since the table is being dropped, retries don't matter, but if the drop is cancelled or fails, this could cause unexpected retries."
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp",
+        "start_line": 520,
+        "end_line": 520,
+        "content": "The chassert `started_file->getFileStatus()->processed_rows > 0` assumes that if a file is in Processing state, it must have processed some rows. However, a file could be marked as Processing but fail before processing any rows (e.g., format error on first row). This assertion could fire incorrectly. Consider changing to >= 0 or removing the assertion."
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueOrderedFileMetadata.cpp",
+        "start_line": 255,
+        "end_line": 255,
+        "content": "The code uses `zk_client->isFeatureEnabled(DB::KeeperFeatureFlag::MULTI_READ)` to decide whether to use multi-read. However, the fallback path (else branch) calls `getMaxProcessedFile` which reads the processed_node, then separately calls `zk_client->exists(failed_node_path)`. This introduces a race condition where the failed node could be created between the two calls. The multi-read path is atomic and should be preferred. Consider making multi-read mandatory or handling the race in the fallback."
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueUnorderedFileMetadata.cpp",
+        "start_line": 135,
+        "end_line": 135,
+        "content": "The code removed the check request for processing_node_id_path before removing it. The comment in the ordered metadata says 'This is normal in case of expired session with keeper' for version mismatch. By removing the check, the remove request will fail with ZBADVERSION if the version changed, which will be treated as an unexpected error. This could cause spurious LOGICAL_ERROR exceptions during session expiration. Consider keeping the check request or handling ZBADVERSION gracefully."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueIFileMetadata.cpp\",\n      \"start_line\": 278,\n      \"end_line\": 278,\n      \"content\": \"The SCOPE_EXIT guard calls file_status->reset() unconditionally. However, if the ZooKeeper multi-operation fails with an unexpected error, the function throws an exception before reaching the end of the scope. This means file_status->reset() will still be called (due to SCOPE_EXIT), but the file metadata state in ZooKeeper may be inconsistent (e.g., processing_id node removed but processing_node not removed, or vice versa). Consider whether resetting the local file_status is appropriate when the ZooKeeper operation failed unexpectedly.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueIFileMetadata.cpp\",\n      \"start_line\": 300,\n      \"end_line\": 300,\n      \"content\": \"The condition `file_status->retries && file_status->retries >= max_loading_retries` treats retries=0 as not exceeding max retries. However, if max_loading_retries is 0 (meaning no retries allowed), then retries=0 would satisfy `retries >= max_loading_retries` (0 >= 0), but the `file_status->retries` check makes it false. This seems intentional to allow at least one attempt, but should be documented or clarified.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp\",\n      \"start_line\": 475,\n      \"end_line\": 475,\n      \"content\": \"When query is cancelled and there's an unfinished file with processed_rows > 0, the code marks it as Cancelled and throws QUERY_WAS_CANCELLED. However, the commit() function will later be called with insert_succeeded=false (since an exception was thrown). In commit(), the Cancelled file will be set as failed with reduce_retry_count=false. This means the file will be retried indefinitely on restart, which may not be desired for cancelled queries. Consider using reduce_retry_count=true for cancelled files.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp\",\n      \"start_line\": 505,\n      \"end_line\": 505,\n      \"content\": \"When shutdown_called is true and table_is_being_dropped is true, the code marks the file as Cancelled and throws QUERY_WAS_CANCELLED. Similar to the cancellation case, this will result in the file being retried on restart (reduce_retry_count=false). Since the table is being dropped, retries don't matter, but if the drop is cancelled or fails, this could cause unexpected retries.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp\",\n      \"start_line\": 520,\n      \"end_line\": 520,\n      \"content\": \"The chassert `started_file->getFileStatus()->processed_rows > 0` assumes that if a file is in Processing state, it must have processed some rows. However, a file could be marked as Processing but fail before processing any rows (e.g., format error on first row). This assertion could fire incorrectly. Consider changing to >= 0 or removing the assertion.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueOrderedFileMetadata.cpp\",\n      \"start_line\": 255,\n      \"end_line\": 255,\n      \"content\": \"The code uses `zk_client->isFeatureEnabled(DB::KeeperFeatureFlag::MULTI_READ)` to decide whether to use multi-read. However, the fallback path (else branch) calls `getMaxProcessedFile` which reads the processed_node, then separately calls `zk_client->exists(failed_node_path)`. This introduces a race condition where the failed node could be created between the two calls. The multi-read path is atomic and should be preferred. Consider making multi-read mandatory or handling the race in the fallback.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueUnorderedFileMetadata.cpp\",\n      \"start_line\": 135,\n      \"end_line\": 135,\n      \"content\": \"The code removed the check request for processing_node_id_path before removing it. The comment in the ordered metadata says 'This is normal in case of expired session with keeper' for version mismatch. By removing the check, the remove request will fail with ZBADVERSION if the version changed, which will be treated as an unexpected error. This could cause spurious LOGICAL_ERROR exceptions during session expiration. Consider keeping the check request or handling ZBADVERSION gracefully.\"\n    }\n  ]\n}",
+  "stderr": null
+}

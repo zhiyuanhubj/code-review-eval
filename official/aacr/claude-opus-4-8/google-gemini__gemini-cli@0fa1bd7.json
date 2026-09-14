@@ -1,0 +1,41 @@
+{
+  "instance_id": "google-gemini__gemini-cli@0fa1bd7",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "5a05fb0dd002481343aaab7736a871904bb07c6f",
+  "head_commit": "0fa1bd7ac417366f321ed2554caeaef550321959",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:18.359252+00:00",
+  "duration_seconds": 20.52,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/cli/src/utils/commentJson.ts",
+        "start_line": 108,
+        "end_line": 121,
+        "content": "restoreEnvVarReferences/restoreEnvVarsRecursive only match env vars by their full path. However, trackEnvVarMappings only records a mapping when the resolved value differs from the original (`value !== originalValue`). If a user sets a setting to a partial env var like `\"prefix-${VAR}-suffix\"`, trackEnvVarMappings will not record it because the regex requires the whole string to be an env var reference (`^\\$(?:(\\w+)|{([^}]+)})$`). As a result, such partially-interpolated values will be persisted with the resolved secret leaking into the file. Consider supporting embedded/partial env var references to avoid leaking secrets."
+      },
+      {
+        "path": "packages/cli/src/utils/commentJson.ts",
+        "start_line": 89,
+        "end_line": 92,
+        "content": "restoreEnvVarReferences guards existing values with `typeof value === 'string'` before restoring, but if an env-var-backed field's resolved value happens to be a non-string (e.g. a number resolved from an env var, or the mapping path now points at an object after an update), the original `$VAR` reference will NOT be restored and the resolved secret can leak. Since originalValue is always a string here, consider restoring regardless of the current value's type when the path matches a tracked mapping."
+      },
+      {
+        "path": "packages/cli/src/utils/commentJson.ts",
+        "start_line": 47,
+        "end_line": 47,
+        "content": "applyUpdates mutates `current` in place (`const result = current`) which is the object returned by comment-json's parse. This is generally fine here, but note that arrays in `updates` fully replace existing arrays rather than merging—verify this matches the merge semantics used elsewhere (customDeepMerge) so save/load round-trips are consistent."
+      },
+      {
+        "path": "packages/cli/src/utils/commentJson.ts",
+        "start_line": 44,
+        "end_line": 45,
+        "content": "When the file does not exist, this writes with plain JSON.stringify and ignores `envVarMappings`. If envVarMappings are provided but the file is newly created, resolved env var values could be written to disk. For consistency, apply restoreEnvVarReferences before writing here as well."
+      }
+    ]
+  },
+  "raw_output": "Looking at the code carefully.\n\n{\n  \"comments\": [\n    {\n      \"path\": \"packages/cli/src/utils/commentJson.ts\",\n      \"start_line\": 108,\n      \"end_line\": 121,\n      \"content\": \"restoreEnvVarReferences/restoreEnvVarsRecursive only match env vars by their full path. However, trackEnvVarMappings only records a mapping when the resolved value differs from the original (`value !== originalValue`). If a user sets a setting to a partial env var like `\\\"prefix-${VAR}-suffix\\\"`, trackEnvVarMappings will not record it because the regex requires the whole string to be an env var reference (`^\\\\$(?:(\\\\w+)|{([^}]+)})$`). As a result, such partially-interpolated values will be persisted with the resolved secret leaking into the file. Consider supporting embedded/partial env var references to avoid leaking secrets.\"\n    },\n    {\n      \"path\": \"packages/cli/src/utils/commentJson.ts\",\n      \"start_line\": 89,\n      \"end_line\": 92,\n      \"content\": \"restoreEnvVarReferences guards existing values with `typeof value === 'string'` before restoring, but if an env-var-backed field's resolved value happens to be a non-string (e.g. a number resolved from an env var, or the mapping path now points at an object after an update), the original `$VAR` reference will NOT be restored and the resolved secret can leak. Since originalValue is always a string here, consider restoring regardless of the current value's type when the path matches a tracked mapping.\"\n    },\n    {\n      \"path\": \"packages/cli/src/utils/commentJson.ts\",\n      \"start_line\": 47,\n      \"end_line\": 47,\n      \"content\": \"applyUpdates mutates `current` in place (`const result = current`) which is the object returned by comment-json's parse. This is generally fine here, but note that arrays in `updates` fully replace existing arrays rather than merging—verify this matches the merge semantics used elsewhere (customDeepMerge) so save/load round-trips are consistent.\"\n    },\n    {\n      \"path\": \"packages/cli/src/utils/commentJson.ts\",\n      \"start_line\": 44,\n      \"end_line\": 45,\n      \"content\": \"When the file does not exist, this writes with plain JSON.stringify and ignores `envVarMappings`. If envVarMappings are provided but the file is newly created, resolved env var values could be written to disk. For consistency, apply restoreEnvVarReferences before writing here as well.\"\n    }\n  ]\n}",
+  "stderr": null
+}

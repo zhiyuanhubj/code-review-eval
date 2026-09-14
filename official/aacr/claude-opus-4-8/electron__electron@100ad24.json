@@ -1,0 +1,16 @@
+{
+  "instance_id": "electron__electron@100ad24",
+  "repo": "electron/electron",
+  "base_commit": "7083419361385dfcd762656f0227581aedc4f514",
+  "head_commit": "100ad244b742d221ad129e96bef934e8128403a9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:56.034190+00:00",
+  "duration_seconds": 6.43,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

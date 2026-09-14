@@ -1,0 +1,41 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@a440ff7",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "abb50a4daa43abee9e6b263dd82e5e876c978c6a",
+  "head_commit": "a440ff7e4138c20ed2ac66977a199ebbf295e493",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:39.937583+00:00",
+  "duration_seconds": 46.46,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/App/FeaturePython.h",
+        "start_line": 165,
+        "end_line": 165,
+        "content": "This replacement is still ungrammatical because “behave” is not transitive here. Please use: “Generic Python feature class which allows every DocumentObject-derived class to behave as a Python feature...”"
+      },
+      {
+        "path": "src/Gui/ViewProviderExtensionPython.h",
+        "start_line": 33,
+        "end_line": 33,
+        "content": "This has the same transitive use of “behave” problem. Please write that the class “allows every derived extension class to behave as a Python extension.”"
+      },
+      {
+        "path": "src/Mod/Draft/Resources/ui/preferences-draft.ui",
+        "start_line": 172,
+        "end_line": 172,
+        "content": "The coordinated verbs no longer have parallel forms: “allows indicating ... and then type”. Since this is user-visible, please use “This allows you to indicate a direction and then type a distance.”"
+      },
+      {
+        "path": "src/Base/ConsoleObserver.h",
+        "start_line": 98,
+        "end_line": 98,
+        "content": "“Temporary” is an adjective and cannot modify “block” here. Please change this to “allows one to temporarily block and then automatically restore...”"
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/App/FeaturePython.h\",\"start_line\":165,\"end_line\":165,\"content\":\"This replacement is still ungrammatical because “behave” is not transitive here. Please use: “Generic Python feature class which allows every DocumentObject-derived class to behave as a Python feature...”\"},{\"path\":\"src/Gui/ViewProviderExtensionPython.h\",\"start_line\":33,\"end_line\":33,\"content\":\"This has the same transitive use of “behave” problem. Please write that the class “allows every derived extension class to behave as a Python extension.”\"},{\"path\":\"src/Mod/Draft/Resources/ui/preferences-draft.ui\",\"start_line\":172,\"end_line\":172,\"content\":\"The coordinated verbs no longer have parallel forms: “allows indicating ... and then type”. Since this is user-visible, please use “This allows you to indicate a direction and then type a distance.”\"},{\"path\":\"src/Base/ConsoleObserver.h\",\"start_line\":98,\"end_line\":98,\"content\":\"“Temporary” is an adjective and cannot modify “block” here. Please change this to “allows one to temporarily block and then automatically restore...”\"}]}",
+  "stderr": null
+}

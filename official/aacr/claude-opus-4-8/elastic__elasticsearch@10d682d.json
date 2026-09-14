@@ -1,0 +1,16 @@
+{
+  "instance_id": "elastic__elasticsearch@10d682d",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "47e352fda0567a682687fe926927cee3f631ea24",
+  "head_commit": "10d682d9aa4b1c2976e1db769ba04cb15256da9e",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:10.023391+00:00",
+  "duration_seconds": 16.03,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "Looking at the diff, let me analyze the code for potential issues.\n\nThe `KEY_USAGE_MAPPINGS` uses `Map.of()` with 9 entries which is fine. `KEY_USAGE_BITS` also. The `buildKeyUsage`, `isValidKeyUsage` methods look correct. The CSR generation and certificate generation add keyUsage properly.\n\nLet me check the CSR test assertion carefully - it now expects 3 extensions.\n\nLet me look for any real bugs in the key usage bit handling. The `encipherOnly` (bit 7) and `decipherOnly` (bit 8) - BouncyCastle's `KeyUsage` uses values where bit 8 (decipherOnly) is `0x0080` shifted. The mappings use `KeyUsage.decipherOnly` constants directly which is correct.\n\n```json\n{\n  \"comments\": []\n}\n```",
+  "stderr": null
+}

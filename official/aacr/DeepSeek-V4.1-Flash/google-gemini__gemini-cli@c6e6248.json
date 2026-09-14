@@ -1,0 +1,38 @@
+{
+  "instance_id": "google-gemini__gemini-cli@c6e6248",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "809b933d8150c29154062e4d596cd916258022fc",
+  "head_commit": "c6e624883852318b71baa2a060c933bb5de591ef",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:34:27.363109+00:00",
+  "duration_seconds": 3.94,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "integration-tests/extensions-install.test.ts",
+        "start_line": 17,
+        "end_line": 53,
+        "content": "The test creates a `gemini-extension.json` inside `rig.testDir` and then installs the extension from that same directory. Since `rig.testDir` is also the cwd for the spawned CLI process, the extension's manifest will be picked up as part of the working directory. More importantly, `rig.cleanup()` is only called at the end of the test body; if any assertion fails (e.g. `expect(result).toContain('test-extension')`), cleanup and `rmSync` will be skipped, leaving the installed extension registered globally and polluting subsequent test runs. Wrap the body in try/finally (or use afterEach) so uninstall/cleanup always runs.",
+        "side": "right"
+      },
+      {
+        "path": "integration-tests/test-helper.ts",
+        "start_line": 309,
+        "end_line": 356,
+        "content": "`runCommand` writes to `child.stdin` only when `options.stdin` is provided, but never closes stdin otherwise. If the spawned CLI waits on stdin (e.g. prompts for confirmation), the process will hang indefinitely. Consider always calling `child.stdin!.end()` after optionally writing, so the child sees EOF when no input is supplied.",
+        "side": "right"
+      },
+      {
+        "path": "integration-tests/test-helper.ts",
+        "start_line": 309,
+        "end_line": 356,
+        "content": "`runCommand` rejects with only `stderr` in the error message. When the CLI exits non-zero but writes diagnostics to stdout (common for CLI tools), the failure message will be empty and hard to debug. Include `stdout` in the rejection message as well.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"integration-tests/extensions-install.test.ts\",\n      \"start_line\": 17,\n      \"end_line\": 53,\n      \"content\": \"The test creates a `gemini-extension.json` inside `rig.testDir` and then installs the extension from that same directory. Since `rig.testDir` is also the cwd for the spawned CLI process, the extension's manifest will be picked up as part of the working directory. More importantly, `rig.cleanup()` is only called at the end of the test body; if any assertion fails (e.g. `expect(result).toContain('test-extension')`), cleanup and `rmSync` will be skipped, leaving the installed extension registered globally and polluting subsequent test runs. Wrap the body in try/finally (or use afterEach) so uninstall/cleanup always runs.\"\n    },\n    {\n      \"path\": \"integration-tests/test-helper.ts\",\n      \"start_line\": 309,\n      \"end_line\": 356,\n      \"content\": \"`runCommand` writes to `child.stdin` only when `options.stdin` is provided, but never closes stdin otherwise. If the spawned CLI waits on stdin (e.g. prompts for confirmation), the process will hang indefinitely. Consider always calling `child.stdin!.end()` after optionally writing, so the child sees EOF when no input is supplied.\"\n    },\n    {\n      \"path\": \"integration-tests/test-helper.ts\",\n      \"start_line\": 309,\n      \"end_line\": 356,\n      \"content\": \"`runCommand` rejects with only `stderr` in the error message. When the CLI exits non-zero but writes diagnostics to stdout (common for CLI tools), the failure message will be empty and hard to debug. Include `stdout` in the rejection message as well.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

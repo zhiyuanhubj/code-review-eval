@@ -1,0 +1,24 @@
+{
+  "instance_id": "gofr-dev__gofr@c1a26ad",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "d0300073f685bb1154f7437f3172799d31bfddbe",
+  "head_commit": "c1a26ade6db7da96622c9bdca7674ef7094c122f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:31:38.415505+00:00",
+  "duration_seconds": 2.42,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/gofr/http_server.go",
+        "start_line": 36,
+        "end_line": 46,
+        "content": "The logging middleware is now registered after CORS and Metrics, whereas previously it was registered before them. This changes the middleware execution order: previously Logging wrapped CORS and Metrics, so it would log requests even if CORS or Metrics short-circuited. Now CORS and Metrics run first, and if either does not call the next handler, the request will not be logged. This is a behavioral change that may be unintended. Consider preserving the original order by conditionally selecting the logging middleware before the other middlewares, e.g., build the middleware list dynamically.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/http_server.go\",\n      \"start_line\": 36,\n      \"end_line\": 46,\n      \"content\": \"The logging middleware is now registered after CORS and Metrics, whereas previously it was registered before them. This changes the middleware execution order: previously Logging wrapped CORS and Metrics, so it would log requests even if CORS or Metrics short-circuited. Now CORS and Metrics run first, and if either does not call the next handler, the request will not be logged. This is a behavioral change that may be unintended. Consider preserving the original order by conditionally selecting the logging middleware before the other middlewares, e.g., build the middleware list dynamically.\"\n    }\n  ]\n}",
+  "stderr": null
+}

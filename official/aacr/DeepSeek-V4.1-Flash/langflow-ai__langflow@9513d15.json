@@ -1,0 +1,38 @@
+{
+  "instance_id": "langflow-ai__langflow@9513d15",
+  "repo": "langflow-ai/langflow",
+  "base_commit": "d035e41e631f0da97bdc0e93e7afdae78d5e94da",
+  "head_commit": "9513d152197e5336fbc00eb6b891f1ffb25ad62d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:41:23.945758+00:00",
+  "duration_seconds": 4.62,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/backend/base/langflow/graph/vertex/base.py",
+        "start_line": 624,
+        "end_line": 660,
+        "content": "The new `_log_transaction_async` implementation acquires `self._lock` and then awaits `asyncio.gather(*tasks)`. This can cause a deadlock if any of the awaited `log_transaction` tasks need to acquire the same lock (directly or indirectly). More importantly, `_get_result` already holds `self._lock` when it calls `await self._log_transaction_async(...)`, so this method will try to re-acquire a non-reentrant `asyncio.Lock` and deadlock. The lock acquisition should be removed from `_log_transaction_async`, or the callers should not hold the lock when invoking it.",
+        "side": "right"
+      },
+      {
+        "path": "src/backend/base/langflow/graph/vertex/base.py",
+        "start_line": 635,
+        "end_line": 641,
+        "content": "`asyncio.gather(*tasks)` without `return_exceptions=True` will propagate the first exception raised by any completed logging task. Since these are background logging tasks, a logging failure should not break the main result retrieval path. Consider using `return_exceptions=True` or wrapping the gather in a try/except to prevent logging errors from propagating.",
+        "side": "right"
+      },
+      {
+        "path": "src/backend/base/langflow/graph/vertex/base.py",
+        "start_line": 642,
+        "end_line": 648,
+        "content": "The `except asyncio.CancelledError` block cancels pending tasks and re-raises, but the tasks were already removed from `self.log_transaction_tasks` by `self.log_transaction_tasks.clear()` before the gather. The subsequent loop over `self.log_transaction_tasks` in the outer `except asyncio.CancelledError` (lines 654-659) will therefore not see those tasks. This is inconsistent with the intent of cleaning up pending tasks on cancellation.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/backend/base/langflow/graph/vertex/base.py\",\n      \"start_line\": 624,\n      \"end_line\": 660,\n      \"content\": \"The new `_log_transaction_async` implementation acquires `self._lock` and then awaits `asyncio.gather(*tasks)`. This can cause a deadlock if any of the awaited `log_transaction` tasks need to acquire the same lock (directly or indirectly). More importantly, `_get_result` already holds `self._lock` when it calls `await self._log_transaction_async(...)`, so this method will try to re-acquire a non-reentrant `asyncio.Lock` and deadlock. The lock acquisition should be removed from `_log_transaction_async`, or the callers should not hold the lock when invoking it.\"\n    },\n    {\n      \"path\": \"src/backend/base/langflow/graph/vertex/base.py\",\n      \"start_line\": 635,\n      \"end_line\": 641,\n      \"content\": \"`asyncio.gather(*tasks)` without `return_exceptions=True` will propagate the first exception raised by any completed logging task. Since these are background logging tasks, a logging failure should not break the main result retrieval path. Consider using `return_exceptions=True` or wrapping the gather in a try/except to prevent logging errors from propagating.\"\n    },\n    {\n      \"path\": \"src/backend/base/langflow/graph/vertex/base.py\",\n      \"start_line\": 642,\n      \"end_line\": 648,\n      \"content\": \"The `except asyncio.CancelledError` block cancels pending tasks and re-raises, but the tasks were already removed from `self.log_transaction_tasks` by `self.log_transaction_tasks.clear()` before the gather. The subsequent loop over `self.log_transaction_tasks` in the outer `except asyncio.CancelledError` (lines 654-659) will therefore not see those tasks. This is inconsistent with the intent of cleaning up pending tasks on cancellation.\"\n    }\n  ]\n}",
+  "stderr": null
+}

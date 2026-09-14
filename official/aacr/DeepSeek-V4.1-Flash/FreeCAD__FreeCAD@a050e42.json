@@ -1,0 +1,73 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@a050e42",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "0c65673a6fd2421be8fbe613116077120adea068",
+  "head_commit": "a050e422e23ce3eaee960b75ceff236b34f369b9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:30:20.713245+00:00",
+  "duration_seconds": 9.46,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Mod/TechDraw/App/DrawViewPart.cpp",
+        "start_line": 1349,
+        "end_line": 1352,
+        "content": "Bug: the `isVertical` branch returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`. This was likely introduced during the enum class conversion. Same issue appears in `isValidSingleEdge3d`, `isValidVertexes`, and `isValidVertexes3d` in DimensionValidators.cpp.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/TechDraw/Gui/DimensionValidators.cpp",
+        "start_line": 388,
+        "end_line": 390,
+        "content": "Bug: `isVertical` branch returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`. This causes vertical edges to be misclassified as horizontal, breaking DistanceY dimensions.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/TechDraw/Gui/DimensionValidators.cpp",
+        "start_line": 436,
+        "end_line": 438,
+        "content": "Bug: `isVertical` branch returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/TechDraw/Gui/DimensionValidators.cpp",
+        "start_line": 637,
+        "end_line": 639,
+        "content": "Bug: `isVertical` branch returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/TechDraw/Gui/DimensionValidators.cpp",
+        "start_line": 676,
+        "end_line": 678,
+        "content": "Bug: `isVertical` branch returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/TechDraw/App/DrawProjGroup.cpp",
+        "start_line": 1130,
+        "end_line": 1135,
+        "content": "The previous `default` case logged an error for invalid projection types. With the enum class conversion, an out-of-range value cast to `ProjDirection` will silently fall through to `getDirsFromFront(t)`, which no longer has a fallback branch (the else was commented out in DrawViewPart.cpp). Consider validating `t` against the known enum values before use, or restoring a default/error path.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/TechDraw/App/DrawViewPart.cpp",
+        "start_line": 1368,
+        "end_line": 1374,
+        "content": "The fallback `else` branch that handled unknown projection types was commented out rather than removed. Since `ProjDirection` is now an enum class, an invalid cast (e.g. from a corrupted property value) will leave `projDir`/`rotVec` uninitialized and return garbage. Either restore a default branch or initialize `projDir`/`rotVec` to safe values.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/TechDraw/App/DrawProjGroup.cpp",
+        "start_line": 1120,
+        "end_line": 1124,
+        "content": "The commented-out `default` block should be removed rather than left as dead code. If the intent is to keep error reporting for invalid projection types, restore it as an active check (e.g. validate `t` against known enum values).",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Mod/TechDraw/App/DrawViewPart.cpp\",\n      \"start_line\": 1349,\n      \"end_line\": 1352,\n      \"content\": \"Bug: the `isVertical` branch returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`. This was likely introduced during the enum class conversion. Same issue appears in `isValidSingleEdge3d`, `isValidVertexes`, and `isValidVertexes3d` in DimensionValidators.cpp.\"\n    },\n    {\n      \"path\": \"src/Mod/TechDraw/Gui/DimensionValidators.cpp\",\n      \"start_line\": 388,\n      \"end_line\": 390,\n      \"content\": \"Bug: `isVertical` branch returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`. This causes vertical edges to be misclassified as horizontal, breaking DistanceY dimensions.\"\n    },\n    {\n      \"path\": \"src/Mod/TechDraw/Gui/DimensionValidators.cpp\",\n      \"start_line\": 436,\n      \"end_line\": 438,\n      \"content\": \"Bug: `isVertical` branch returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`.\"\n    },\n    {\n      \"path\": \"src/Mod/TechDraw/Gui/DimensionValidators.cpp\",\n      \"start_line\": 637,\n      \"end_line\": 639,\n      \"content\": \"Bug: `isVertical` branch returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`.\"\n    },\n    {\n      \"path\": \"src/Mod/TechDraw/Gui/DimensionValidators.cpp\",\n      \"start_line\": 676,\n      \"end_line\": 678,\n      \"content\": \"Bug: `isVertical` branch returns `DimensionGeometry::isHorizontal` instead of `DimensionGeometry::isVertical`.\"\n    },\n    {\n      \"path\": \"src/Mod/TechDraw/App/DrawProjGroup.cpp\",\n      \"start_line\": 1130,\n      \"end_line\": 1135,\n      \"content\": \"The previous `default` case logged an error for invalid projection types. With the enum class conversion, an out-of-range value cast to `ProjDirection` will silently fall through to `getDirsFromFront(t)`, which no longer has a fallback branch (the else was commented out in DrawViewPart.cpp). Consider validating `t` against the known enum values before use, or restoring a default/error path.\"\n    },\n    {\n      \"path\": \"src/Mod/TechDraw/App/DrawViewPart.cpp\",\n      \"start_line\": 1368,\n      \"end_line\": 1374,\n      \"content\": \"The fallback `else` branch that handled unknown projection types was commented out rather than removed. Since `ProjDirection` is now an enum class, an invalid cast (e.g. from a corrupted property value) will leave `projDir`/`rotVec` uninitialized and return garbage. Either restore a default branch or initialize `projDir`/`rotVec` to safe values.\"\n    },\n    {\n      \"path\": \"src/Mod/TechDraw/App/DrawProjGroup.cpp\",\n      \"start_line\": 1120,\n      \"end_line\": 1124,\n      \"content\": \"The commented-out `default` block should be removed rather than left as dead code. If the intent is to keep error reporting for invalid projection types, restore it as an active check (e.g. validate `t` against known enum values).\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

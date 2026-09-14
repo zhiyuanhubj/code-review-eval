@@ -1,0 +1,53 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@3143520",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "1c01feef2757648e0b1b801cf1f81c59de527bb6",
+  "head_commit": "314352043db0170026d11475bcaf67c7bb4fc311",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:41:14.605124+00:00",
+  "duration_seconds": 48.68,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Common/JemallocNodumpAllocatorImpl.cpp",
+        "start_line": 33,
+        "end_line": 33,
+        "content": "The `madvise` call uses `ret` as the return value, but `madvise` returns 0 on success and -1 on error (with errno set). The check `if (auto ret = madvise(...))` treats any non-zero return as error, which is correct, but the error message uses `errnoToString(ret)` where `ret` is -1, not the actual errno. Should use `errnoToString(errno)` instead."
+      },
+      {
+        "path": "src/Common/JemallocNodumpAllocatorImpl.cpp",
+        "start_line": 37,
+        "end_line": 37,
+        "content": "Same issue: `madvise` returns -1 on error, but `errnoToString(ret)` is called with -1 instead of `errno`."
+      },
+      {
+        "path": "src/Common/JemallocNodumpSTLAllocator.h",
+        "start_line": 45,
+        "end_line": 45,
+        "content": "The `allocate` method calls `JemallocNodumpAllocatorImpl::instance().allocate(bytes)` but doesn't pass alignment. For types with alignment requirements > 1 (e.g., SIMD types), this could cause misaligned allocations. Should pass `alignof(T)` as the alignment parameter."
+      },
+      {
+        "path": "src/Common/JemallocNodumpSTLAllocator.h",
+        "start_line": 55,
+        "end_line": 55,
+        "content": "The `deallocate` method ignores the `n` parameter (number of elements). While `dallocx` doesn't need the size, the STL allocator concept expects `deallocate(p, n)` where `n` is the number of elements. This is fine functionally but could be confusing; consider adding a comment explaining why `n` is unused."
+      },
+      {
+        "path": "src/IO/S3/Client.cpp",
+        "start_line": 990,
+        "end_line": 994,
+        "content": "The `memory_manager` is created and assigned to `aws_options.memoryManagementOptions.memoryManager`, but `AwsNodumpMemoryManager` inherits from `Aws::Utils::Memory::MemorySystemInterface` which has a virtual destructor. However, `memory_manager` is a `unique_ptr<AwsNodumpMemoryManager>`, not `unique_ptr<MemorySystemInterface>`. This works because of implicit conversion, but it's cleaner to declare it as `std::unique_ptr<Aws::Utils::Memory::MemorySystemInterface>` to match the AWS SDK's expected type."
+      },
+      {
+        "path": "src/configure_config.cmake",
+        "start_line": 88,
+        "end_line": 91,
+        "content": "Setting `USE_AWS_MEMORY_MANAGEMENT` when `USE_GOOGLE_CLOUD` is enabled seems incorrect. The AWS memory manager is only used for AWS S3 (see Client.cpp where it's guarded by `USE_JEMALLOC` and used in `ClientFactory`). Google Cloud doesn't use AWS SDK. This define might be unused or misnamed; verify if it's actually needed for Google Cloud."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Common/JemallocNodumpAllocatorImpl.cpp\",\n      \"start_line\": 33,\n      \"end_line\": 33,\n      \"content\": \"The `madvise` call uses `ret` as the return value, but `madvise` returns 0 on success and -1 on error (with errno set). The check `if (auto ret = madvise(...))` treats any non-zero return as error, which is correct, but the error message uses `errnoToString(ret)` where `ret` is -1, not the actual errno. Should use `errnoToString(errno)` instead.\"\n    },\n    {\n      \"path\": \"src/Common/JemallocNodumpAllocatorImpl.cpp\",\n      \"start_line\": 37,\n      \"end_line\": 37,\n      \"content\": \"Same issue: `madvise` returns -1 on error, but `errnoToString(ret)` is called with -1 instead of `errno`.\"\n    },\n    {\n      \"path\": \"src/Common/JemallocNodumpSTLAllocator.h\",\n      \"start_line\": 45,\n      \"end_line\": 45,\n      \"content\": \"The `allocate` method calls `JemallocNodumpAllocatorImpl::instance().allocate(bytes)` but doesn't pass alignment. For types with alignment requirements > 1 (e.g., SIMD types), this could cause misaligned allocations. Should pass `alignof(T)` as the alignment parameter.\"\n    },\n    {\n      \"path\": \"src/Common/JemallocNodumpSTLAllocator.h\",\n      \"start_line\": 55,\n      \"end_line\": 55,\n      \"content\": \"The `deallocate` method ignores the `n` parameter (number of elements). While `dallocx` doesn't need the size, the STL allocator concept expects `deallocate(p, n)` where `n` is the number of elements. This is fine functionally but could be confusing; consider adding a comment explaining why `n` is unused.\"\n    },\n    {\n      \"path\": \"src/IO/S3/Client.cpp\",\n      \"start_line\": 990,\n      \"end_line\": 994,\n      \"content\": \"The `memory_manager` is created and assigned to `aws_options.memoryManagementOptions.memoryManager`, but `AwsNodumpMemoryManager` inherits from `Aws::Utils::Memory::MemorySystemInterface` which has a virtual destructor. However, `memory_manager` is a `unique_ptr<AwsNodumpMemoryManager>`, not `unique_ptr<MemorySystemInterface>`. This works because of implicit conversion, but it's cleaner to declare it as `std::unique_ptr<Aws::Utils::Memory::MemorySystemInterface>` to match the AWS SDK's expected type.\"\n    },\n    {\n      \"path\": \"src/configure_config.cmake\",\n      \"start_line\": 88,\n      \"end_line\": 91,\n      \"content\": \"Setting `USE_AWS_MEMORY_MANAGEMENT` when `USE_GOOGLE_CLOUD` is enabled seems incorrect. The AWS memory manager is only used for AWS S3 (see Client.cpp where it's guarded by `USE_JEMALLOC` and used in `ClientFactory`). Google Cloud doesn't use AWS SDK. This define might be unused or misnamed; verify if it's actually needed for Google Cloud.\"\n    }\n  ]\n}",
+  "stderr": null
+}

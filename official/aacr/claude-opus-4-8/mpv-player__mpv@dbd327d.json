@@ -1,0 +1,23 @@
+{
+  "instance_id": "mpv-player__mpv@dbd327d",
+  "repo": "mpv-player/mpv",
+  "base_commit": "30869ddb904f800ad1b858ac99c5fb81690f0cb7",
+  "head_commit": "dbd327d36fd0dc80ebd6e5517c102a92e31a0836",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:28.343750+00:00",
+  "duration_seconds": 13.84,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "misc/random.c",
+        "start_line": 95,
+        "end_line": 98,
+        "content": "If `range` is already a power of 2 (e.g. `max - min == 8`), `mp_round_next_power_of_2(range)` returns `range` itself, so `mask = range - 1` covers exactly `[0, range)` and the rejection loop is fine. However, if `range` exceeds `INT32_MAX`/is very large such that `mp_round_next_power_of_2` returns 0 (overflow when range > 2^31), `mask` becomes `UINT32_MAX` — verify `mp_round_next_power_of_2` handles the full uint32 range without overflow. For the playlist use case (num_entries) this is safe, but the API contract accepts arbitrary uint32 max, so please confirm/document the upper bound."
+      }
+    ]
+  },
+  "raw_output": "Let me analyze the key logic changes carefully.\n\nThe main concern is `mp_round_next_power_of_2(range)` when `range` is already a power of 2 or when it overflows.\n\nAlso, the `mp_rand_seed` early return case: when `av_random_bytes` succeeds, it returns `ret` directly with the random bytes as-is (not passed through splitmix64). This differs from the original behavior but is likely acceptable.\n\nLet me look at the bias concern in `mp_rand_in_range32` for edge cases.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"misc/random.c\",\n      \"start_line\": 95,\n      \"end_line\": 98,\n      \"content\": \"If `range` is already a power of 2 (e.g. `max - min == 8`), `mp_round_next_power_of_2(range)` returns `range` itself, so `mask = range - 1` covers exactly `[0, range)` and the rejection loop is fine. However, if `range` exceeds `INT32_MAX`/is very large such that `mp_round_next_power_of_2` returns 0 (overflow when range > 2^31), `mask` becomes `UINT32_MAX` — verify `mp_round_next_power_of_2` handles the full uint32 range without overflow. For the playlist use case (num_entries) this is safe, but the API contract accepts arbitrary uint32 max, so please confirm/document the upper bound.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

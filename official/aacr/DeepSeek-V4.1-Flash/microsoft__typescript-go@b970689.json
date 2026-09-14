@@ -1,0 +1,59 @@
+{
+  "instance_id": "microsoft__typescript-go@b970689",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "bc3195e0f2727d11a48ed9fc61f37a90c9b7deb4",
+  "head_commit": "b970689fe86e0b6ef4f5285b18343ddf16b294eb",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:31:09.398339+00:00",
+  "duration_seconds": 12.41,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "internal/checker/checker.go",
+        "start_line": 29386,
+        "end_line": 29386,
+        "content": "This condition now includes `ast.KindJSImportDeclaration`, but the right-hand side still calls `parent.AsImportDeclaration()`. While `AsImportDeclaration` happens to work for `KindJSImportDeclaration` because both share the `ImportDeclaration` data struct, this is fragile and inconsistent with the rest of the PR. More importantly, the `parent.Kind == ast.KindExportDeclaration` branch also calls `parent.AsImportDeclaration()`, which is a pre-existing bug (should be `AsExportDeclaration()`), but the new condition makes the intent less clear. Consider splitting the cases or using a helper like `ast.GetExternalModuleName(parent)` to avoid the incorrect cast.",
+        "side": "right"
+      },
+      {
+        "path": "internal/transformers/commonjsmodule.go",
+        "start_line": 66,
+        "end_line": 67,
+        "content": "Setting `node = nil` for `KindJSImportDeclaration` silently drops the node. Since `@import` tags are type-only imports, they should be elided in JS output, but returning `nil` here without going through the normal elision path may skip necessary bookkeeping (e.g., import elision tracking, external module info). Verify this matches the behavior of the ES module transformer and that the import is still recorded for module resolution/type checking purposes.",
+        "side": "right"
+      },
+      {
+        "path": "internal/transformers/esmodule.go",
+        "start_line": 42,
+        "end_line": 43,
+        "content": "Same concern as in commonjsmodule.go: returning `nil` for `KindJSImportDeclaration` bypasses the normal import elision logic. Since `@import` tags are type-only, they should be elided, but ensure this doesn't skip side-effect tracking or other transformer state updates that `visitImportDeclaration` would perform.",
+        "side": "right"
+      },
+      {
+        "path": "internal/ast/utilities.go",
+        "start_line": 2365,
+        "end_line": 2371,
+        "content": "The refactored `IsDefaultImport` now returns `false` for `KindImportEqualsDeclaration` and `KindExportDeclaration`, which were previously handled by the original function (the original only set `importClause` for `KindImportDeclaration` and `KindJSDocImportTag`, so behavior is preserved). However, the comment on the function signature still lists `ImportEqualsDeclaration | ExportDeclaration` as accepted node kinds even though they always return `false`. Consider updating the comment or removing those kinds from the documented signature to avoid confusion.",
+        "side": "right"
+      },
+      {
+        "path": "internal/ast/utilities.go",
+        "start_line": 2553,
+        "end_line": 2560,
+        "content": "The removal of the `KindJSDocImportTag` handling in `ForEachDynamicImportOrRequireCall` means `@import` tags will no longer be visited by this function. Since `@import` tags are now represented as `KindJSImportDeclaration` nodes in the reparse list, verify that these new nodes are actually reachable via the traversal in this function. If `KindJSImportDeclaration` nodes are not visited (e.g., because they're only in `reparseList` and not in the main AST traversal), this could regress behavior for `includeTypeSpaceImports`.",
+        "side": "right"
+      },
+      {
+        "path": "internal/parser/reparser.go",
+        "start_line": 118,
+        "end_line": 125,
+        "content": "The `importClause` is cloned and `IsTypeOnly` is forced to `true`, but the original `importTag.ImportClause` may be `nil` (e.g., for `@import \"mod\"` side-effect-only imports). Calling `.Clone()` on a nil node or accessing `.AsImportClause()` on nil will panic. Add a nil check before cloning, or verify that `ImportClause` is always non-nil for `KindJSDocImportTag`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"internal/checker/checker.go\",\n      \"start_line\": 29386,\n      \"end_line\": 29386,\n      \"content\": \"This condition now includes `ast.KindJSImportDeclaration`, but the right-hand side still calls `parent.AsImportDeclaration()`. While `AsImportDeclaration` happens to work for `KindJSImportDeclaration` because both share the `ImportDeclaration` data struct, this is fragile and inconsistent with the rest of the PR. More importantly, the `parent.Kind == ast.KindExportDeclaration` branch also calls `parent.AsImportDeclaration()`, which is a pre-existing bug (should be `AsExportDeclaration()`), but the new condition makes the intent less clear. Consider splitting the cases or using a helper like `ast.GetExternalModuleName(parent)` to avoid the incorrect cast.\"\n    },\n    {\n      \"path\": \"internal/transformers/commonjsmodule.go\",\n      \"start_line\": 66,\n      \"end_line\": 67,\n      \"content\": \"Setting `node = nil` for `KindJSImportDeclaration` silently drops the node. Since `@import` tags are type-only imports, they should be elided in JS output, but returning `nil` here without going through the normal elision path may skip necessary bookkeeping (e.g., import elision tracking, external module info). Verify this matches the behavior of the ES module transformer and that the import is still recorded for module resolution/type checking purposes.\"\n    },\n    {\n      \"path\": \"internal/transformers/esmodule.go\",\n      \"start_line\": 42,\n      \"end_line\": 43,\n      \"content\": \"Same concern as in commonjsmodule.go: returning `nil` for `KindJSImportDeclaration` bypasses the normal import elision logic. Since `@import` tags are type-only, they should be elided, but ensure this doesn't skip side-effect tracking or other transformer state updates that `visitImportDeclaration` would perform.\"\n    },\n    {\n      \"path\": \"internal/ast/utilities.go\",\n      \"start_line\": 2365,\n      \"end_line\": 2371,\n      \"content\": \"The refactored `IsDefaultImport` now returns `false` for `KindImportEqualsDeclaration` and `KindExportDeclaration`, which were previously handled by the original function (the original only set `importClause` for `KindImportDeclaration` and `KindJSDocImportTag`, so behavior is preserved). However, the comment on the function signature still lists `ImportEqualsDeclaration | ExportDeclaration` as accepted node kinds even though they always return `false`. Consider updating the comment or removing those kinds from the documented signature to avoid confusion.\"\n    },\n    {\n      \"path\": \"internal/ast/utilities.go\",\n      \"start_line\": 2553,\n      \"end_line\": 2560,\n      \"content\": \"The removal of the `KindJSDocImportTag` handling in `ForEachDynamicImportOrRequireCall` means `@import` tags will no longer be visited by this function. Since `@import` tags are now represented as `KindJSImportDeclaration` nodes in the reparse list, verify that these new nodes are actually reachable via the traversal in this function. If `KindJSImportDeclaration` nodes are not visited (e.g., because they're only in `reparseList` and not in the main AST traversal), this could regress behavior for `includeTypeSpaceImports`.\"\n    },\n    {\n      \"path\": \"internal/parser/reparser.go\",\n      \"start_line\": 118,\n      \"end_line\": 125,\n      \"content\": \"The `importClause` is cloned and `IsTypeOnly` is forced to `true`, but the original `importTag.ImportClause` may be `nil` (e.g., for `@import \\\"mod\\\"` side-effect-only imports). Calling `.Clone()` on a nil node or accessing `.AsImportClause()` on nil will panic. Add a nil check before cloning, or verify that `ImportClause` is always non-nil for `KindJSDocImportTag`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

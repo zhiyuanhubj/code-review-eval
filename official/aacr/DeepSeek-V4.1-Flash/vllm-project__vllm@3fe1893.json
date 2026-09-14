@@ -1,0 +1,24 @@
+{
+  "instance_id": "vllm-project__vllm@3fe1893",
+  "repo": "vllm-project/vllm",
+  "base_commit": "c3bf9bad11193ee684ed6083b6692d0b5bf2bac7",
+  "head_commit": "3fe18934d7f33b98812d7402463fe171c24efc77",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:32.196217+00:00",
+  "duration_seconds": 2.39,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "vllm/multimodal/profiling.py",
+        "start_line": 256,
+        "end_line": 258,
+        "content": "`get_max_tokens_per_item` returns a mapping for all modalities, but this early return ignores `mm_counts`. If a modality is not requested (e.g., `mm_counts` excludes `video`), the returned mapping still includes its token count, which can overestimate the maximum number of tokens and lead to incorrect profiling. Filter the returned mapping to only include modalities present in `mm_counts` (or intersect with the keys of `mm_counts`).",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"vllm/multimodal/profiling.py\",\n      \"start_line\": 256,\n      \"end_line\": 258,\n      \"content\": \"`get_max_tokens_per_item` returns a mapping for all modalities, but this early return ignores `mm_counts`. If a modality is not requested (e.g., `mm_counts` excludes `video`), the returned mapping still includes its token count, which can overestimate the maximum number of tokens and lead to incorrect profiling. Filter the returned mapping to only include modalities present in `mm_counts` (or intersect with the keys of `mm_counts`).\"\n    }\n  ]\n}",
+  "stderr": null
+}

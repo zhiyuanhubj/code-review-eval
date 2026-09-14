@@ -1,0 +1,66 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@699b45c",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "382720b82e4c6c81f7e1cdd3a33272047d7a3642",
+  "head_commit": "699b45c086f53858897aa8c688bbedaf570c644f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:30:46.838699+00:00",
+  "duration_seconds": 7.2,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Base/StackWalker.cpp",
+        "start_line": 1473,
+        "end_line": 1473,
+        "content": "The format specifier `%ld` expects a `long`, but `size` is `DWORD` (unsigned long) and `result` is `BOOL` (int). On Windows, `DWORD` is `unsigned long` (32-bit), so `%ld` is technically correct for `size`, but `result` is `BOOL` (int) and should use `%d`. Using `%ld` for an `int` argument is undefined behavior. Consider using `%lu` for `size` and `%d` for `result`.",
+        "side": "right"
+      },
+      {
+        "path": "src/Base/StackWalker.cpp",
+        "start_line": 1489,
+        "end_line": 1490,
+        "content": "The format specifiers `%ld` are used for `v1`, `v2`, `v3`, `v4`, which are `DWORD` (unsigned long). `%ld` is for signed long; `%lu` is the correct specifier for unsigned long. Also, `fileVersion` is `DWORD64` (unsigned long long) and is passed to `%ld`? Wait, the arguments are `v1`, `v2`, `v3`, `v4` which are `DWORD` (unsigned long). Use `%lu` instead of `%ld`.",
+        "side": "right"
+      },
+      {
+        "path": "src/Base/StackWalker.cpp",
+        "start_line": 1540,
+        "end_line": 1540,
+        "content": "`entry.lineNumber` is `DWORD` (unsigned long). The format specifier `%ld` is for signed long; use `%lu` for unsigned long to avoid undefined behavior.",
+        "side": "right"
+      },
+      {
+        "path": "src/Base/StackWalker.cpp",
+        "start_line": 1559,
+        "end_line": 1559,
+        "content": "`gle` is `DWORD` (unsigned long). The format specifier `%ld` is for signed long; use `%lu` for unsigned long.",
+        "side": "right"
+      },
+      {
+        "path": "src/Base/StackWalker.cpp",
+        "start_line": 1576,
+        "end_line": 1576,
+        "content": "`symOptions` is `DWORD` (unsigned long). The format specifier `%ld` is for signed long; use `%lu` for unsigned long.",
+        "side": "right"
+      },
+      {
+        "path": "src/Base/StackWalker.cpp",
+        "start_line": 1609,
+        "end_line": 1609,
+        "content": "`ver.dwMajorVersion`, `ver.dwMinorVersion`, and `ver.dwBuildNumber` are `DWORD` (unsigned long). The format specifier `%ld` is for signed long; use `%lu` for unsigned long.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/CAM/libarea/pyarea.cpp",
+        "start_line": 51,
+        "end_line": 51,
+        "content": "The format specifier `%zu` is for `size_t`, but `nvertices` is likely `unsigned int` or `int`. On Windows, `%zu` is supported in MSVC 2015 and later, but if `nvertices` is not `size_t`, this is incorrect. Check the type of `nvertices`; if it's `size_t`, this is fine, but if it's `unsigned int`, use `%u`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Base/StackWalker.cpp\",\n      \"start_line\": 1473,\n      \"end_line\": 1473,\n      \"content\": \"The format specifier `%ld` expects a `long`, but `size` is `DWORD` (unsigned long) and `result` is `BOOL` (int). On Windows, `DWORD` is `unsigned long` (32-bit), so `%ld` is technically correct for `size`, but `result` is `BOOL` (int) and should use `%d`. Using `%ld` for an `int` argument is undefined behavior. Consider using `%lu` for `size` and `%d` for `result`.\"\n    },\n    {\n      \"path\": \"src/Base/StackWalker.cpp\",\n      \"start_line\": 1489,\n      \"end_line\": 1490,\n      \"content\": \"The format specifiers `%ld` are used for `v1`, `v2`, `v3`, `v4`, which are `DWORD` (unsigned long). `%ld` is for signed long; `%lu` is the correct specifier for unsigned long. Also, `fileVersion` is `DWORD64` (unsigned long long) and is passed to `%ld`? Wait, the arguments are `v1`, `v2`, `v3`, `v4` which are `DWORD` (unsigned long). Use `%lu` instead of `%ld`.\"\n    },\n    {\n      \"path\": \"src/Base/StackWalker.cpp\",\n      \"start_line\": 1540,\n      \"end_line\": 1540,\n      \"content\": \"`entry.lineNumber` is `DWORD` (unsigned long). The format specifier `%ld` is for signed long; use `%lu` for unsigned long to avoid undefined behavior.\"\n    },\n    {\n      \"path\": \"src/Base/StackWalker.cpp\",\n      \"start_line\": 1559,\n      \"end_line\": 1559,\n      \"content\": \"`gle` is `DWORD` (unsigned long). The format specifier `%ld` is for signed long; use `%lu` for unsigned long.\"\n    },\n    {\n      \"path\": \"src/Base/StackWalker.cpp\",\n      \"start_line\": 1576,\n      \"end_line\": 1576,\n      \"content\": \"`symOptions` is `DWORD` (unsigned long). The format specifier `%ld` is for signed long; use `%lu` for unsigned long.\"\n    },\n    {\n      \"path\": \"src/Base/StackWalker.cpp\",\n      \"start_line\": 1609,\n      \"end_line\": 1609,\n      \"content\": \"`ver.dwMajorVersion`, `ver.dwMinorVersion`, and `ver.dwBuildNumber` are `DWORD` (unsigned long). The format specifier `%ld` is for signed long; use `%lu` for unsigned long.\"\n    },\n    {\n      \"path\": \"src/Mod/CAM/libarea/pyarea.cpp\",\n      \"start_line\": 51,\n      \"end_line\": 51,\n      \"content\": \"The format specifier `%zu` is for `size_t`, but `nvertices` is likely `unsigned int` or `int`. On Windows, `%zu` is supported in MSVC 2015 and later, but if `nvertices` is not `size_t`, this is incorrect. Check the type of `nvertices`; if it's `size_t`, this is fine, but if it's `unsigned int`, use `%u`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

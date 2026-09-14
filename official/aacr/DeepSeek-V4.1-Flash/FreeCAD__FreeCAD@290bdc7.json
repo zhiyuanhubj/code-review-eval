@@ -1,0 +1,38 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@290bdc7",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "16968aa3ee1bc7f2caf4ce592d13066aa8755a80",
+  "head_commit": "290bdc79d1ad92669431458a62205d694522586e",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:30:36.097354+00:00",
+  "duration_seconds": 4.72,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/App/PropertyLinks.cpp",
+        "start_line": 1958,
+        "end_line": 1958,
+        "content": "Removing `std::forward<Args>(args)...` here changes the semantics for rvalue arguments: they will now be passed as lvalues. Since `updateLinkSubs` is called in a loop, forwarding was likely intentional to allow moving. If the function `f` takes arguments by value or by rvalue reference, this could cause unnecessary copies or fail to compile. Please verify that this change is intentional and does not break callers relying on perfect forwarding.",
+        "side": "right"
+      },
+      {
+        "path": "src/Gui/WorkbenchManipulatorPython.cpp",
+        "start_line": 156,
+        "end_line": 159,
+        "content": "Returning early when `item == menuBar` skips processing any remaining commands in the `remove` list. If the intent is only to skip this particular removal, use `continue` instead of `return` so subsequent commands are still processed.",
+        "side": "right"
+      },
+      {
+        "path": "src/Gui/WorkbenchManipulatorPython.cpp",
+        "start_line": 317,
+        "end_line": 320,
+        "content": "Returning early when `item == toolBar` skips processing any remaining commands in the `remove` list. If the intent is only to skip this particular removal, use `continue` instead of `return` so subsequent commands are still processed.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/App/PropertyLinks.cpp\",\n      \"start_line\": 1958,\n      \"end_line\": 1958,\n      \"content\": \"Removing `std::forward<Args>(args)...` here changes the semantics for rvalue arguments: they will now be passed as lvalues. Since `updateLinkSubs` is called in a loop, forwarding was likely intentional to allow moving. If the function `f` takes arguments by value or by rvalue reference, this could cause unnecessary copies or fail to compile. Please verify that this change is intentional and does not break callers relying on perfect forwarding.\"\n    },\n    {\n      \"path\": \"src/Gui/WorkbenchManipulatorPython.cpp\",\n      \"start_line\": 156,\n      \"end_line\": 159,\n      \"content\": \"Returning early when `item == menuBar` skips processing any remaining commands in the `remove` list. If the intent is only to skip this particular removal, use `continue` instead of `return` so subsequent commands are still processed.\"\n    },\n    {\n      \"path\": \"src/Gui/WorkbenchManipulatorPython.cpp\",\n      \"start_line\": 317,\n      \"end_line\": 320,\n      \"content\": \"Returning early when `item == toolBar` skips processing any remaining commands in the `remove` list. If the intent is only to skip this particular removal, use `continue` instead of `return` so subsequent commands are still processed.\"\n    }\n  ]\n}",
+  "stderr": null
+}

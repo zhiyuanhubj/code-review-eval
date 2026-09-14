@@ -1,0 +1,16 @@
+{
+  "instance_id": "mrdoob__three.js@96ab072",
+  "repo": "mrdoob/three.js",
+  "base_commit": "bf4e6fcb64a1d6bdbaf975528595ac6873051641",
+  "head_commit": "96ab0720fc65368e32ee3f2389cb192f96d8adff",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:32.569079+00:00",
+  "duration_seconds": 11.16,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit exceeded for api_key: bd37f53bc7782f394ae27bb722f76980beb718d24d1388d8024361d054bdbb43. Limit type: requests. Current limit: 50, Remaining: 0. Limit resets at: 2026-09-14 04:25:32 UTC', 'type': 'throttling_error', 'param': None, 'code': '429'}}"
+}

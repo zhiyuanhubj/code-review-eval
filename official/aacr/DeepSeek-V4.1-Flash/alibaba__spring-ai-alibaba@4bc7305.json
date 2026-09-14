@@ -1,0 +1,45 @@
+{
+  "instance_id": "alibaba__spring-ai-alibaba@4bc7305",
+  "repo": "alibaba/spring-ai-alibaba",
+  "base_commit": "71e7eeb27dfe42c5a805da413ef6e9faf84fe9d0",
+  "head_commit": "4bc73055c7b33f53433d9725eab5010b85a59632",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:33:59.353857+00:00",
+  "duration_seconds": 5.95,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "spring-ai-alibaba-jmanus/src/main/java/com/alibaba/cloud/ai/example/manus/tool/browser/actions/MoveToAndClickAction.java",
+        "start_line": 48,
+        "end_line": 48,
+        "content": "`page.viewportSize()` can return null (e.g., when the browser context is created without an explicit viewport, or in headless mode with `--no-viewport`). Calling `.width`/`.height` on it will throw a NullPointerException and abort the click. Guard against null, e.g. `ViewportSize vp = page.viewportSize(); int vw = vp != null ? vp.width : 0;` before computing scroll offsets.",
+        "side": "right"
+      },
+      {
+        "path": "spring-ai-alibaba-jmanus/src/main/java/com/alibaba/cloud/ai/example/manus/tool/browser/actions/MoveToAndClickAction.java",
+        "start_line": 52,
+        "end_line": 66,
+        "content": "The debug marker is injected at the page's document coordinates (x, y), but `page.mouse().move/click` operate in viewport coordinates. After the `window.scrollTo` above, the marker will be drawn at the wrong location (offset by the scroll amount), making the debug visualization misleading. Either draw the marker at viewport coordinates (x - scrollX, y - scrollY) or use `position: fixed`.",
+        "side": "right"
+      },
+      {
+        "path": "spring-ai-alibaba-jmanus/src/main/java/com/alibaba/cloud/ai/example/manus/tool/browser/actions/InputTextAction.java",
+        "start_line": 60,
+        "end_line": 68,
+        "content": "The catch block is misleading: `pressSequentially` is attempted first, and only if it throws do we fall back to `fill`. But the comment says \"fill 失败，尝试 pressSequentially\" (fill failed, try pressSequentially), which is the opposite of the actual order. Also, `fill(\"\")` is called twice (once in try, once in catch) which is redundant. Please fix the comment and remove the duplicate clear.",
+        "side": "right"
+      },
+      {
+        "path": "spring-ai-alibaba-jmanus/src/main/java/com/alibaba/cloud/ai/example/manus/dynamic/agent/entity/DynamicAgentEntity.java",
+        "start_line": 45,
+        "end_line": 47,
+        "content": "Setting `systemPrompt = \" \"` (a single space) as a default is a code smell. If the column is nullable now, prefer `null` as the default and let callers handle absence explicitly. A space value can leak into prompts/logs and is hard to distinguish from a real value. Also, the corresponding change in `AgentServiceImpl` sets `\" \"` instead of `null`; if any downstream code checks `systemPrompt != null` to decide whether to include it, this will silently include a blank prompt.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"spring-ai-alibaba-jmanus/src/main/java/com/alibaba/cloud/ai/example/manus/tool/browser/actions/MoveToAndClickAction.java\",\n      \"start_line\": 48,\n      \"end_line\": 48,\n      \"content\": \"`page.viewportSize()` can return null (e.g., when the browser context is created without an explicit viewport, or in headless mode with `--no-viewport`). Calling `.width`/`.height` on it will throw a NullPointerException and abort the click. Guard against null, e.g. `ViewportSize vp = page.viewportSize(); int vw = vp != null ? vp.width : 0;` before computing scroll offsets.\"\n    },\n    {\n      \"path\": \"spring-ai-alibaba-jmanus/src/main/java/com/alibaba/cloud/ai/example/manus/tool/browser/actions/MoveToAndClickAction.java\",\n      \"start_line\": 52,\n      \"end_line\": 66,\n      \"content\": \"The debug marker is injected at the page's document coordinates (x, y), but `page.mouse().move/click` operate in viewport coordinates. After the `window.scrollTo` above, the marker will be drawn at the wrong location (offset by the scroll amount), making the debug visualization misleading. Either draw the marker at viewport coordinates (x - scrollX, y - scrollY) or use `position: fixed`.\"\n    },\n    {\n      \"path\": \"spring-ai-alibaba-jmanus/src/main/java/com/alibaba/cloud/ai/example/manus/tool/browser/actions/InputTextAction.java\",\n      \"start_line\": 60,\n      \"end_line\": 68,\n      \"content\": \"The catch block is misleading: `pressSequentially` is attempted first, and only if it throws do we fall back to `fill`. But the comment says \\\"fill 失败，尝试 pressSequentially\\\" (fill failed, try pressSequentially), which is the opposite of the actual order. Also, `fill(\\\"\\\")` is called twice (once in try, once in catch) which is redundant. Please fix the comment and remove the duplicate clear.\"\n    },\n    {\n      \"path\": \"spring-ai-alibaba-jmanus/src/main/java/com/alibaba/cloud/ai/example/manus/dynamic/agent/entity/DynamicAgentEntity.java\",\n      \"start_line\": 45,\n      \"end_line\": 47,\n      \"content\": \"Setting `systemPrompt = \\\" \\\"` (a single space) as a default is a code smell. If the column is nullable now, prefer `null` as the default and let callers handle absence explicitly. A space value can leak into prompts/logs and is hard to distinguish from a real value. Also, the corresponding change in `AgentServiceImpl` sets `\\\" \\\"` instead of `null`; if any downstream code checks `systemPrompt != null` to decide whether to include it, this will silently include a blank prompt.\"\n    }\n  ]\n}",
+  "stderr": null
+}

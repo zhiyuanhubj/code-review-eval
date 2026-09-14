@@ -1,0 +1,24 @@
+{
+  "instance_id": "electron__electron@c486457",
+  "repo": "electron/electron",
+  "base_commit": "9f8a629126a31224f6b1aa90d650cdc61f7568f2",
+  "head_commit": "c4864570586f4c2f019797d3b0a9c4c76e93396b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:33:32.178042+00:00",
+  "duration_seconds": 3.43,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "shell/common/gin_helper/persistent_dictionary.h",
+        "start_line": 44,
+        "end_line": 50,
+        "content": "`ValueOrDefault` requires `T` to be default-constructible because of `T{}`. This breaks for types like `blink::mojom::FetchCacheMode` or `printing::mojom::DuplexMode` if they are not default-constructible, and also for `std::u16string` it's fine but for enums it may not be. Consider using `std::optional<T>` or a different implementation that doesn't require default construction, e.g. `T value; if (Get(key, &value)) return value; return default_value;` — but that still requires default construction. Better: use `std::optional<T>` or require `T` to be default-constructible and document it. The current code will fail to compile for non-default-constructible types.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"shell/common/gin_helper/persistent_dictionary.h\",\n      \"start_line\": 44,\n      \"end_line\": 50,\n      \"content\": \"`ValueOrDefault` requires `T` to be default-constructible because of `T{}`. This breaks for types like `blink::mojom::FetchCacheMode` or `printing::mojom::DuplexMode` if they are not default-constructible, and also for `std::u16string` it's fine but for enums it may not be. Consider using `std::optional<T>` or a different implementation that doesn't require default construction, e.g. `T value; if (Get(key, &value)) return value; return default_value;` — but that still requires default construction. Better: use `std::optional<T>` or require `T` to be default-constructible and document it. The current code will fail to compile for non-default-constructible types.\"\n    }\n  ]\n}",
+  "stderr": null
+}

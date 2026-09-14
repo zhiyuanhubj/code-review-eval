@@ -1,0 +1,31 @@
+{
+  "instance_id": "microsoft__typescript-go@892b4a3",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "a9efe52c52001ea5b49d2ae8d7b0fa32ec8339f3",
+  "head_commit": "892b4a3f6b701352047ceb019fc0683ab1146bb3",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:31:12.322225+00:00",
+  "duration_seconds": 13.02,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "internal/fourslash/_scripts/convertFourslash.mts",
+        "start_line": 71,
+        "end_line": 74,
+        "content": "The manual test check uses `testName` (capitalized first letter) to look up `manualTests`, but `makeManual.mts` writes the raw `testName` argument into `manualTests.txt`. If the user passes a lowercase test name (e.g. `npm run makemanual completionsAt`), the file will contain `completionsAt` while `convertFourslash` checks for `CompletionsAt`, so the test will not be skipped and will be regenerated into `gen/`. Normalize the name consistently in both scripts (e.g. capitalize in `makeManual.mts` before writing, or compare case-insensitively).",
+        "side": "right"
+      },
+      {
+        "path": "internal/fourslash/_scripts/makeManual.mts",
+        "start_line": 17,
+        "end_line": 22,
+        "content": "`testFileName` is set to `testName` directly, but the generated files in `gen/` are named `${test.name}_test.go` (see convertFourslash.mts). Unless the caller passes the full filename including the `_test.go` suffix, `fs.existsSync(genTestFile)` will always fail. Consider appending `_test.go` (or documenting that the full filename is required) so the script works with the same test name used elsewhere.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"internal/fourslash/_scripts/convertFourslash.mts\",\n      \"start_line\": 71,\n      \"end_line\": 74,\n      \"content\": \"The manual test check uses `testName` (capitalized first letter) to look up `manualTests`, but `makeManual.mts` writes the raw `testName` argument into `manualTests.txt`. If the user passes a lowercase test name (e.g. `npm run makemanual completionsAt`), the file will contain `completionsAt` while `convertFourslash` checks for `CompletionsAt`, so the test will not be skipped and will be regenerated into `gen/`. Normalize the name consistently in both scripts (e.g. capitalize in `makeManual.mts` before writing, or compare case-insensitively).\"\n    },\n    {\n      \"path\": \"internal/fourslash/_scripts/makeManual.mts\",\n      \"start_line\": 17,\n      \"end_line\": 22,\n      \"content\": \"`testFileName` is set to `testName` directly, but the generated files in `gen/` are named `${test.name}_test.go` (see convertFourslash.mts). Unless the caller passes the full filename including the `_test.go` suffix, `fs.existsSync(genTestFile)` will always fail. Consider appending `_test.go` (or documenting that the full filename is required) so the script works with the same test name used elsewhere.\"\n    }\n  ]\n}",
+  "stderr": null
+}

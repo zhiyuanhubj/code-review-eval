@@ -1,0 +1,47 @@
+{
+  "instance_id": "mpv-player__mpv@ff45a81",
+  "repo": "mpv-player/mpv",
+  "base_commit": "5ba7ee513751dd005379a06fb627303e6fe1b3dd",
+  "head_commit": "ff45a8103e3c5ec3e786b950b4852c2750de936f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:50:28.296880+00:00",
+  "duration_seconds": 44.84,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "video/out/gpu/video.c",
+        "start_line": 3751,
+        "end_line": 3754,
+        "content": "The vflip is applied via mp_image_vflip() after the texture upload parameters are set with .flipped = layout.params.vflip. This means the CPU-side image data is flipped, but the GPU texture upload still thinks the image is flipped (via the .flipped flag). This will likely result in a double-flip. The .flipped flag should be set to false after mp_image_vflip() is called, or the vflip should be done before setting up the upload parameters."
+      },
+      {
+        "path": "video/out/vo_dmabuf_wayland.c",
+        "start_line": 710,
+        "end_line": 710,
+        "content": "The buffer transform calculation adds 4 * !!img->params.vflip to the rotation value. According to the Wayland protocol, buffer_transform values are: 0=normal, 1=90, 2=180, 3=270, 4=flipped, 5=flipped-90, 6=flipped-180, 7=flipped-270. Adding 4 for vflip is correct only if the rotation is 0. For non-zero rotations, this produces incorrect transforms (e.g., rotate=90 + vflip gives 5 which is flipped-90, but should be flipped+90=5? Actually 5 is correct for flip+90). However, the rotation is already divided by 90 (0-3), so adding 4 works for all cases. This is correct but the comment should explain the Wayland buffer_transform enum mapping."
+      },
+      {
+        "path": "filters/f_auto_filters.c",
+        "start_line": 380,
+        "end_line": 380,
+        "content": "The condition `if (!vflip || (info && info->vflip))` continues without inserting the vflip filter. This means: if the image is not vflipped (vflip=0), or if the VO supports vflip (info->vflip=true), we skip the filter. This is correct. However, the variable name `vflip` is confusing because it's actually `img->params.vflip` (the image's vflip flag). Consider renaming to `img_vflip` for clarity."
+      },
+      {
+        "path": "filters/f_auto_filters.c",
+        "start_line": 388,
+        "end_line": 388,
+        "content": "The args array is initialized as `char *args[] = {NULL};` but passed to mp_create_user_filter. The vflip filter may not accept any arguments, but this should be verified. If the vflip filter requires arguments, this would be a bug. Check the vflip filter definition to confirm it takes no arguments."
+      },
+      {
+        "path": "video/mp_image.c",
+        "start_line": 1100,
+        "end_line": 1107,
+        "content": "The vflip detection uses the determinant of the 2x2 upper-left submatrix of the display matrix. This correctly detects a vertical flip (negative determinant). However, the code only sets dst->params.vflip when rotation is not NaN. If the display matrix exists but rotation is NaN (unlikely but possible), vflip won't be set. Consider setting vflip regardless of rotation validity, or at least logging a warning."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"video/out/gpu/video.c\",\n      \"start_line\": 3751,\n      \"end_line\": 3754,\n      \"content\": \"The vflip is applied via mp_image_vflip() after the texture upload parameters are set with .flipped = layout.params.vflip. This means the CPU-side image data is flipped, but the GPU texture upload still thinks the image is flipped (via the .flipped flag). This will likely result in a double-flip. The .flipped flag should be set to false after mp_image_vflip() is called, or the vflip should be done before setting up the upload parameters.\"\n    },\n    {\n      \"path\": \"video/out/vo_dmabuf_wayland.c\",\n      \"start_line\": 710,\n      \"end_line\": 710,\n      \"content\": \"The buffer transform calculation adds 4 * !!img->params.vflip to the rotation value. According to the Wayland protocol, buffer_transform values are: 0=normal, 1=90, 2=180, 3=270, 4=flipped, 5=flipped-90, 6=flipped-180, 7=flipped-270. Adding 4 for vflip is correct only if the rotation is 0. For non-zero rotations, this produces incorrect transforms (e.g., rotate=90 + vflip gives 5 which is flipped-90, but should be flipped+90=5? Actually 5 is correct for flip+90). However, the rotation is already divided by 90 (0-3), so adding 4 works for all cases. This is correct but the comment should explain the Wayland buffer_transform enum mapping.\"\n    },\n    {\n      \"path\": \"filters/f_auto_filters.c\",\n      \"start_line\": 380,\n      \"end_line\": 380,\n      \"content\": \"The condition `if (!vflip || (info && info->vflip))` continues without inserting the vflip filter. This means: if the image is not vflipped (vflip=0), or if the VO supports vflip (info->vflip=true), we skip the filter. This is correct. However, the variable name `vflip` is confusing because it's actually `img->params.vflip` (the image's vflip flag). Consider renaming to `img_vflip` for clarity.\"\n    },\n    {\n      \"path\": \"filters/f_auto_filters.c\",\n      \"start_line\": 388,\n      \"end_line\": 388,\n      \"content\": \"The args array is initialized as `char *args[] = {NULL};` but passed to mp_create_user_filter. The vflip filter may not accept any arguments, but this should be verified. If the vflip filter requires arguments, this would be a bug. Check the vflip filter definition to confirm it takes no arguments.\"\n    },\n    {\n      \"path\": \"video/mp_image.c\",\n      \"start_line\": 1100,\n      \"end_line\": 1107,\n      \"content\": \"The vflip detection uses the determinant of the 2x2 upper-left submatrix of the display matrix. This correctly detects a vertical flip (negative determinant). However, the code only sets dst->params.vflip when rotation is not NaN. If the display matrix exists but rotation is NaN (unlikely but possible), vflip won't be set. Consider setting vflip regardless of rotation validity, or at least logging a warning.\"\n    }\n  ]\n}",
+  "stderr": null
+}

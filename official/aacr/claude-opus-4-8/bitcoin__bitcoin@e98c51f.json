@@ -1,0 +1,16 @@
+{
+  "instance_id": "bitcoin__bitcoin@e98c51f",
+  "repo": "bitcoin/bitcoin",
+  "base_commit": "663a9cabf811e2fc53102bc6da00d09fc99d1d81",
+  "head_commit": "e98c51fcce9ae3f441a416cab32a5c85756c6c64",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:39.745651+00:00",
+  "duration_seconds": 23.02,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "Looking at this PR, let me analyze the logic for potential bugs.\n\nLet me examine the proxy override logic carefully.\n\n<br>\n\nThe key concern is the interaction between the new per-network `-proxy` handling and the \"remove proxy\" semantics.\n\nConsider the \"Test removing CJDNS proxy\" test:\n- `-proxy=127.1.1.1:1111` sets all proxies (including cjdns_proxy) to 127.1.1.1:1111\n- `-proxy=0=cjdns` sets `cjdns_proxy = proxy` where proxy is invalid (empty)\n\nThen:\n```cpp\nif (cjdns_proxy.IsValid()) {\n    SetProxy(NET_CJDNS, cjdns_proxy);\n}\n```\n\nSince `cjdns_proxy` is now invalid, `SetProxy(NET_CJDNS, ...)` is NOT called. This works because SetProxy was never called for CJDNS to begin with (it starts unset). The test passes.\n\nBut wait — there's a subtle issue. Let me check whether the \"removal\" semantics actually work when a proxy WAS previously set globally via a separate mechanism.\n\nLet me look more carefully at whether there are real bugs versus the tests passing.\n\nI'll analyze the diff carefully for real bugs before returning JSON.\n\n**Analysis of the proxy override / removal logic:**\n\nLooking at the `-proxy=0=cjdns` \"removal\" case: after `-proxy=127.1.1.1:1111` sets all local `*_proxy` variables to valid, then `-proxy=0=cjdns` sets `cjdns_proxy` to an invalid `Proxy{}`. Later, `if (cjdns_proxy.IsValid()) SetProxy(NET_CJDNS, ...)` skips the call. Since these are fresh local variables and `SetProxy` is only ever called from this block, the global state for CJDNS is never set — so removal works *by never setting*. This is correct for a fresh start but the \"removal\" framing is misleading; it can't actually remove a proxy set elsewhere. Not a bug given current usage.\n\n**The `-onion` interaction:** `onion_proxy` is declared here and later used in the `-onion` block (line ~1667). The global default-all case sets `onion_proxy = proxy`. This is consistent.\n\n**Potential real issue — name_proxy for ipv4/ipv6:** When both `-proxy=...=ipv4` and `-proxy=...=ipv6` are given, `name_proxy` is set to ipv4's then overwritten by ipv6's proxy. The last one wins for DNS. The doc says \"last one if multiple options are given\" — consistent.\n\n**`-bind` suffix handling:** `-bind` was added with `suffix_allowed=true`. `-bind=addr:port=onion` is valid syntax, so stripping at `rfind('=')` for the host:port check is correct.\n\nLet me verify one concern: `param_value.rfind('=')` for `-bind` — a bind value like `unix:/path` has no `=`, rfind returns npos, substr(0, npos) returns whole string. Fine.\n\nI don't find concrete, defensible bugs in the diff. The logic appears sound and matches the tests.\n\n```json\n{\n  \"comments\": []\n}\n```",
+  "stderr": null
+}

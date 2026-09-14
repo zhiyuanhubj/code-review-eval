@@ -1,0 +1,23 @@
+{
+  "instance_id": "laravel__framework@180c25f",
+  "repo": "laravel/framework",
+  "base_commit": "2e5054a19ba55b335bf8df43a8ae7e032244f671",
+  "head_commit": "180c25ff94ae2dff26d2ca5f8bf779af1e8fc8c2",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:22.774693+00:00",
+  "duration_seconds": 14.31,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "tests/Validation/ValidationEmailRuleTest.php",
+        "start_line": 104,
+        "end_line": 105,
+        "content": "The variable name is misleading. `$emailThatFailsBothNonStrictButFailsInStrict = 'username@sub..example.com'` claims it fails both non-strict and strict, but this test only checks it under strict mode. The name reads contradictorily ('FailsBothNonStrictButFailsInStrict'). Consider renaming to something like `$emailThatFailsBothNonStrictAndStrict`."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"tests/Validation/ValidationEmailRuleTest.php\",\n      \"start_line\": 104,\n      \"end_line\": 105,\n      \"content\": \"The variable name is misleading. `$emailThatFailsBothNonStrictButFailsInStrict = 'username@sub..example.com'` claims it fails both non-strict and strict, but this test only checks it under strict mode. The name reads contradictorily ('FailsBothNonStrictButFailsInStrict'). Consider renaming to something like `$emailThatFailsBothNonStrictAndStrict`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

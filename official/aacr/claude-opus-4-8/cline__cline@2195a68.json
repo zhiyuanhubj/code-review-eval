@@ -1,0 +1,35 @@
+{
+  "instance_id": "cline__cline@2195a68",
+  "repo": "cline/cline",
+  "base_commit": "398bc87a64800e021966868243be2f09be72e73c",
+  "head_commit": "2195a689b787a963bdacc35d348f4590c30a2692",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:56.623186+00:00",
+  "duration_seconds": 15.92,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/services/auth/AuthService.ts",
+        "start_line": 33,
+        "end_line": 33,
+        "content": "The auth nonce is now a single readonly value generated once at instance construction and never rotated. Previously it was regenerated per `createAuthRequest()` and cleared after validation via `resetAuthNonce()`. A static, long-lived nonce weakens CSRF/replay protection: it can be reused across multiple auth callbacks for the lifetime of the process. Consider regenerating the nonce on each `createAuthRequest()` call (while still exposing it via the getter) rather than fixing it for the instance lifetime."
+      },
+      {
+        "path": "src/extension.ts",
+        "start_line": 315,
+        "end_line": 322,
+        "content": "On state mismatch the code now prompts the user to confirm storing the token instead of rejecting. Note the confirmation is treated as 'proceed' unless the user explicitly clicks 'Cancel' — if the user dismisses the dialog (e.g. presses Escape), `userConfirmation` is `undefined`, which is not equal to 'Cancel', so the flow continues and stores a token from an unvalidated source. Consider checking for the positive 'Store' response instead: `if (userConfirmation !== \"Store\") return`."
+      },
+      {
+        "path": "src/extension.ts",
+        "start_line": 316,
+        "end_line": 316,
+        "content": "The warning message `Store token returned from ${uri.path}` is not very clear to end users about the security implications. Consider a clearer message explaining that the auth state didn't match and asking whether they trust this sign-in attempt."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/services/auth/AuthService.ts\",\n      \"start_line\": 33,\n      \"end_line\": 33,\n      \"content\": \"The auth nonce is now a single readonly value generated once at instance construction and never rotated. Previously it was regenerated per `createAuthRequest()` and cleared after validation via `resetAuthNonce()`. A static, long-lived nonce weakens CSRF/replay protection: it can be reused across multiple auth callbacks for the lifetime of the process. Consider regenerating the nonce on each `createAuthRequest()` call (while still exposing it via the getter) rather than fixing it for the instance lifetime.\"\n    },\n    {\n      \"path\": \"src/extension.ts\",\n      \"start_line\": 315,\n      \"end_line\": 322,\n      \"content\": \"On state mismatch the code now prompts the user to confirm storing the token instead of rejecting. Note the confirmation is treated as 'proceed' unless the user explicitly clicks 'Cancel' — if the user dismisses the dialog (e.g. presses Escape), `userConfirmation` is `undefined`, which is not equal to 'Cancel', so the flow continues and stores a token from an unvalidated source. Consider checking for the positive 'Store' response instead: `if (userConfirmation !== \\\"Store\\\") return`.\"\n    },\n    {\n      \"path\": \"src/extension.ts\",\n      \"start_line\": 316,\n      \"end_line\": 316,\n      \"content\": \"The warning message `Store token returned from ${uri.path}` is not very clear to end users about the security implications. Consider a clearer message explaining that the auth state didn't match and asking whether they trust this sign-in attempt.\"\n    }\n  ]\n}",
+  "stderr": null
+}

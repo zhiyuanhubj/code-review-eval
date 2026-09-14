@@ -1,0 +1,23 @@
+{
+  "instance_id": "timescale__timescaledb@7148e5c",
+  "repo": "timescale/timescaledb",
+  "base_commit": "d0fe7370082dbc57d391d5168705909809bd880f",
+  "head_commit": "7148e5c7d90c9da819a8ca77b79664fac300ca60",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:54:19.792483+00:00",
+  "duration_seconds": 21.03,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "tsl/src/continuous_aggs/refresh.c",
+        "start_line": 1140,
+        "end_line": 1145,
+        "content": "Using psprintf with a format string that includes user-controlled input (refresh_newest_first) could be a SQL injection risk if the boolean value isn't properly sanitized. Although refresh_newest_first is a boolean from internal config, it's safer to use a parameterized query or validate the value explicitly. Consider using a switch/case to select between two constant query strings instead of string interpolation."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"tsl/src/continuous_aggs/refresh.c\",\n      \"start_line\": 1140,\n      \"end_line\": 1145,\n      \"content\": \"Using psprintf with a format string that includes user-controlled input (refresh_newest_first) could be a SQL injection risk if the boolean value isn't properly sanitized. Although refresh_newest_first is a boolean from internal config, it's safer to use a parameterized query or validate the value explicitly. Consider using a switch/case to select between two constant query strings instead of string interpolation.\"\n    }\n  ]\n}",
+  "stderr": null
+}

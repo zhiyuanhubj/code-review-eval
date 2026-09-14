@@ -1,0 +1,77 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@eb761fd",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "17e56f6570a97aa9803b502b23cf27dc8be1da70",
+  "head_commit": "eb761fd69cf1fb9c674e385bb1d419814526ba5a",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:24.154058+00:00",
+  "duration_seconds": 30.67,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Mod/Part/Gui/Command.cpp",
+        "start_line": 1974,
+        "end_line": 1975,
+        "content": "Bug: this assigns to `curve2` but the subsequent code and `link1 = subnames1[0]` indicate this branch should populate `curve1`. The original code was `curve1 = Part::Feature::getTopoShape(docobj1, subnames1[0].c_str(), ...)`. As written, `curve1` is now never assigned in this branch and the first `curve2` value is overwritten later, breaking ruled surface creation."
+      },
+      {
+        "path": "src/Mod/Part/Gui/Mirroring.cpp",
+        "start_line": 103,
+        "end_line": 109,
+        "content": "Bug: this now passes `sSubName` instead of `subString.c_str()`. The surrounding logic uses `subString` (e.g. the `strstr(subString.c_str(), \"Face\")` checks below and the `if (subString.length() > 0)` guard), so passing `sSubName` retrieves the wrong sub-shape. Restore `subString.c_str()`."
+      },
+      {
+        "path": "src/Mod/Part/App/PartFeature.cpp",
+        "start_line": 1308,
+        "end_line": 1315,
+        "content": "Bug: the `simplifyCompound` priority array lists `TopAbs_SHELL` twice and omits `TopAbs_COMPSOLID`... actually COMPSOLID is present, but SHELL appears twice while the original chain was SOLID, COMPSOLID, FACE, SHELL, EDGE, WIRE, VERTEX. Here EDGE is missing (replaced by a duplicate SHELL), so single-edge compounds are no longer simplified. Replace the second `TopAbs_SHELL` with `TopAbs_EDGE`."
+      },
+      {
+        "path": "src/Mod/PartDesign/App/FeatureSketchBased.cpp",
+        "start_line": 730,
+        "end_line": 736,
+        "content": "This call was changed from `getTopoShape` to `getShape` (returns TopoDS_Shape), then assigned to `TopoShape face = shape;`. Since `getShape` passes `NoElementMap` internally and returns a bare TopoDS_Shape, the element map/hasher is lost compared to the original `getTopoShape` usage. Prefer keeping `getTopoShape` here to preserve element mapping for the subsequent `makeElementFace()`."
+      },
+      {
+        "path": "src/Mod/Part/App/AppPartPy.cpp",
+        "start_line": 2293,
+        "end_line": 2298,
+        "content": "Mismatched parentheses in the options expression: the `NeedSubElement` term opens a paren that is never balanced correctly — `(Feature::NeedSubElement * ... | (Feature::Transform * ...) | (Feature::NoElementMap * ...))` wraps Transform and NoElementMap inside the NeedSubElement group. It still evaluates correctly for `|` due to associativity, but the grouping is misleading and error-prone. Recommend removing the stray extra paren after `NeedSubElement * Base::asBoolean(needSubElement)` to match the intended flat OR of four flags."
+      },
+      {
+        "path": "src/Mod/Part/App/PartFeature.cpp",
+        "start_line": 949,
+        "end_line": 949,
+        "content": "Operator precedence: `options & Feature::ResolveLink && obj != owner` — `&` has lower precedence than `&&`, so this parses as `options & (Feature::ResolveLink && obj != owner)`, which is not intended. Wrap the flag test in parentheses: `(options & Feature::ResolveLink) && obj != owner`."
+      },
+      {
+        "path": "src/Mod/Part/App/PartFeature.cpp",
+        "start_line": 1065,
+        "end_line": 1065,
+        "content": "Operator precedence: `options & Feature::NeedSubElement && subelement && *subelement` parses as `options & (Feature::NeedSubElement && subelement && *subelement)` because `&&` binds tighter than `&`. Wrap in parentheses: `(options & Feature::NeedSubElement) && subelement && *subelement`."
+      },
+      {
+        "path": "src/Mod/Part/App/PartFeature.cpp",
+        "start_line": 1257,
+        "end_line": 1257,
+        "content": "Operator precedence: `options & NeedSubElement && (...)` binds as `options & (NeedSubElement && (...))`. Wrap the flag test: `(options & NeedSubElement) && (...)`."
+      },
+      {
+        "path": "src/Mod/Part/App/PartFeature.cpp",
+        "start_line": 1290,
+        "end_line": 1290,
+        "content": "Operator precedence: `pmat && options & Transform` parses as `pmat && (options & Transform)` which is actually correct here since `&&` is evaluated after `&`... no—`&` binds tighter than `&&`, so this is fine. However `if (options & Transform)` a few lines above and `(pmat || options & Transform)` in getTopoShape should be double-checked: `pmat || options & Transform` parses as `pmat || (options & Transform)` which is correct. Only flag the `&`/`&&` mixes; verify this line is intended."
+      },
+      {
+        "path": "src/Mod/Part/App/PartFeature.cpp",
+        "start_line": 1310,
+        "end_line": 1310,
+        "content": "Operator precedence: `options & NeedSubElement && !(options & DontSimplifyCompound) && shape.shapeType(true) == TopAbs_COMPOUND` — the leading `options & NeedSubElement` binds incorrectly with `&&`. Parenthesize: `(options & NeedSubElement) && !(options & DontSimplifyCompound) && ...`."
+      }
+    ]
+  },
+  "raw_output": "Looking at this refactoring PR, I've found several real bugs introduced during the conversion to the options-based API.\n\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Mod/Part/Gui/Command.cpp\",\n      \"start_line\": 1974,\n      \"end_line\": 1975,\n      \"content\": \"Bug: this assigns to `curve2` but the subsequent code and `link1 = subnames1[0]` indicate this branch should populate `curve1`. The original code was `curve1 = Part::Feature::getTopoShape(docobj1, subnames1[0].c_str(), ...)`. As written, `curve1` is now never assigned in this branch and the first `curve2` value is overwritten later, breaking ruled surface creation.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/Gui/Mirroring.cpp\",\n      \"start_line\": 103,\n      \"end_line\": 109,\n      \"content\": \"Bug: this now passes `sSubName` instead of `subString.c_str()`. The surrounding logic uses `subString` (e.g. the `strstr(subString.c_str(), \\\"Face\\\")` checks below and the `if (subString.length() > 0)` guard), so passing `sSubName` retrieves the wrong sub-shape. Restore `subString.c_str()`.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/PartFeature.cpp\",\n      \"start_line\": 1308,\n      \"end_line\": 1315,\n      \"content\": \"Bug: the `simplifyCompound` priority array lists `TopAbs_SHELL` twice and omits `TopAbs_COMPSOLID`... actually COMPSOLID is present, but SHELL appears twice while the original chain was SOLID, COMPSOLID, FACE, SHELL, EDGE, WIRE, VERTEX. Here EDGE is missing (replaced by a duplicate SHELL), so single-edge compounds are no longer simplified. Replace the second `TopAbs_SHELL` with `TopAbs_EDGE`.\"\n    },\n    {\n      \"path\": \"src/Mod/PartDesign/App/FeatureSketchBased.cpp\",\n      \"start_line\": 730,\n      \"end_line\": 736,\n      \"content\": \"This call was changed from `getTopoShape` to `getShape` (returns TopoDS_Shape), then assigned to `TopoShape face = shape;`. Since `getShape` passes `NoElementMap` internally and returns a bare TopoDS_Shape, the element map/hasher is lost compared to the original `getTopoShape` usage. Prefer keeping `getTopoShape` here to preserve element mapping for the subsequent `makeElementFace()`.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/AppPartPy.cpp\",\n      \"start_line\": 2293,\n      \"end_line\": 2298,\n      \"content\": \"Mismatched parentheses in the options expression: the `NeedSubElement` term opens a paren that is never balanced correctly — `(Feature::NeedSubElement * ... | (Feature::Transform * ...) | (Feature::NoElementMap * ...))` wraps Transform and NoElementMap inside the NeedSubElement group. It still evaluates correctly for `|` due to associativity, but the grouping is misleading and error-prone. Recommend removing the stray extra paren after `NeedSubElement * Base::asBoolean(needSubElement)` to match the intended flat OR of four flags.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/PartFeature.cpp\",\n      \"start_line\": 949,\n      \"end_line\": 949,\n      \"content\": \"Operator precedence: `options & Feature::ResolveLink && obj != owner` — `&` has lower precedence than `&&`, so this parses as `options & (Feature::ResolveLink && obj != owner)`, which is not intended. Wrap the flag test in parentheses: `(options & Feature::ResolveLink) && obj != owner`.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/PartFeature.cpp\",\n      \"start_line\": 1065,\n      \"end_line\": 1065,\n      \"content\": \"Operator precedence: `options & Feature::NeedSubElement && subelement && *subelement` parses as `options & (Feature::NeedSubElement && subelement && *subelement)` because `&&` binds tighter than `&`. Wrap in parentheses: `(options & Feature::NeedSubElement) && subelement && *subelement`.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/PartFeature.cpp\",\n      \"start_line\": 1257,\n      \"end_line\": 1257,\n      \"content\": \"Operator precedence: `options & NeedSubElement && (...)` binds as `options & (NeedSubElement && (...))`. Wrap the flag test: `(options & NeedSubElement) && (...)`.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/PartFeature.cpp\",\n      \"start_line\": 1290,\n      \"end_line\": 1290,\n      \"content\": \"Operator precedence: `pmat && options & Transform` parses as `pmat && (options & Transform)` which is actually correct here since `&&` is evaluated after `&`... no—`&` binds tighter than `&&`, so this is fine. However `if (options & Transform)` a few lines above and `(pmat || options & Transform)` in getTopoShape should be double-checked: `pmat || options & Transform` parses as `pmat || (options & Transform)` which is correct. Only flag the `&`/`&&` mixes; verify this line is intended.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/PartFeature.cpp\",\n      \"start_line\": 1310,\n      \"end_line\": 1310,\n      \"content\": \"Operator precedence: `options & NeedSubElement && !(options & DontSimplifyCompound) && shape.shapeType(true) == TopAbs_COMPOUND` — the leading `options & NeedSubElement` binds incorrectly with `&&`. Parenthesize: `(options & NeedSubElement) && !(options & DontSimplifyCompound) && ...`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

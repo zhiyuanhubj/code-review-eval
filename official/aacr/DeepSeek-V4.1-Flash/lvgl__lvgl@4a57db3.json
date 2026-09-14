@@ -1,0 +1,24 @@
+{
+  "instance_id": "lvgl__lvgl@4a57db3",
+  "repo": "lvgl/lvgl",
+  "base_commit": "d2ed41dda1618049a037df2639b9d28578847195",
+  "head_commit": "4a57db33476f1caf3e85726a6b1e189c68c1f36b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:32:45.631922+00:00",
+  "duration_seconds": 2.44,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/draw/lv_draw_label.c",
+        "start_line": 221,
+        "end_line": 221,
+        "content": "`dsc->text_size` is now used for the EXPAND case, but `lv_draw_label_dsc_t` is a public struct and existing callers (outside of `lv_label`) that don't set `text_size` will get `{0,0}`, causing the text to be clipped/not drawn. Consider falling back to `lv_text_get_size` when `text_size.x == 0` (or document/initialize the field), otherwise this is a breaking change for external users of `lv_draw_label`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\"comments\": [{\"path\": \"src/draw/lv_draw_label.c\", \"start_line\": 221, \"end_line\": 221, \"content\": \"`dsc->text_size` is now used for the EXPAND case, but `lv_draw_label_dsc_t` is a public struct and existing callers (outside of `lv_label`) that don't set `text_size` will get `{0,0}`, causing the text to be clipped/not drawn. Consider falling back to `lv_text_get_size` when `text_size.x == 0` (or document/initialize the field), otherwise this is a breaking change for external users of `lv_draw_label`.\"}]}",
+  "stderr": null
+}

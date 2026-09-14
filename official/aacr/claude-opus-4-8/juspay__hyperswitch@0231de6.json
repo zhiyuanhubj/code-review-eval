@@ -1,0 +1,29 @@
+{
+  "instance_id": "juspay__hyperswitch@0231de6",
+  "repo": "juspay/hyperswitch",
+  "base_commit": "b26e845198407f3672a7f80d8eea670419858e0e",
+  "head_commit": "0231de6ae6795ef7fa85e5ab87b6fe46a4955333",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:13.903756+00:00",
+  "duration_seconds": 17.17,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "config/config.example.toml",
+        "start_line": 474,
+        "end_line": 474,
+        "content": "Missing space after the comma before `google_pay_pre_decrypt_flow`. Add a space for consistency with the rest of the config entries: `..., google_pay_pre_decrypt_flow = ...`."
+      },
+      {
+        "path": "crates/hyperswitch_connectors/src/connectors/checkout/transformers.rs",
+        "start_line": 373,
+        "end_line": 373,
+        "content": "The `eci` value is hardcoded to `Some(\"06\")`. Google Pay decrypted data typically carries its own ECI indicator (`eci_indicator`). Using a fixed value may cause incorrect authentication results for card networks that rely on the actual ECI. Consider deriving `eci` from the decrypted payload rather than hardcoding it."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"config/config.example.toml\",\n      \"start_line\": 474,\n      \"end_line\": 474,\n      \"content\": \"Missing space after the comma before `google_pay_pre_decrypt_flow`. Add a space for consistency with the rest of the config entries: `..., google_pay_pre_decrypt_flow = ...`.\"\n    },\n    {\n      \"path\": \"crates/hyperswitch_connectors/src/connectors/checkout/transformers.rs\",\n      \"start_line\": 373,\n      \"end_line\": 373,\n      \"content\": \"The `eci` value is hardcoded to `Some(\\\"06\\\")`. Google Pay decrypted data typically carries its own ECI indicator (`eci_indicator`). Using a fixed value may cause incorrect authentication results for card networks that rely on the actual ECI. Consider deriving `eci` from the decrypted payload rather than hardcoding it.\"\n    }\n  ]\n}",
+  "stderr": null
+}

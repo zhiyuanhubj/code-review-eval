@@ -1,0 +1,23 @@
+{
+  "instance_id": "browser-use__browser-use@72f1585",
+  "repo": "browser-use/browser-use",
+  "base_commit": "e85a547378b236c9788802d28e816f10940a7e53",
+  "head_commit": "72f1585f9add5b72e829eaee3b5bff684e0b08d3",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:33.396163+00:00",
+  "duration_seconds": 13.65,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "browser_use/llm/google/chat.py",
+        "start_line": 202,
+        "end_line": 203,
+        "content": "`self.thinking_budget` is ignored here: every non-`None` value is sent as `-1`. In particular, the new default of `0` unexpectedly enables dynamic thinking instead of disabling it, and caller-supplied budgets are lost. Set `thinking_budget` to `self.thinking_budget`."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"browser_use/llm/google/chat.py\",\"start_line\":202,\"end_line\":203,\"content\":\"`self.thinking_budget` is ignored here: every non-`None` value is sent as `-1`. In particular, the new default of `0` unexpectedly enables dynamic thinking instead of disabling it, and caller-supplied budgets are lost. Set `thinking_budget` to `self.thinking_budget`.\"}]}",
+  "stderr": null
+}

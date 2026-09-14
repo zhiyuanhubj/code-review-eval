@@ -1,0 +1,16 @@
+{
+  "instance_id": "valkey-io__valkey@36f37c0",
+  "repo": "valkey-io/valkey",
+  "base_commit": "ea2e48a807e1d4a1a5a684a2a699eda1934a0c6f",
+  "head_commit": "36f37c0bafa72c091a9a3725b9a026a056130892",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:52.006607+00:00",
+  "duration_seconds": 9.62,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit exceeded for api_key: bd37f53bc7782f394ae27bb722f76980beb718d24d1388d8024361d054bdbb43. Limit type: requests. Current limit: 50, Remaining: 0. Limit resets at: 2026-09-14 04:27:51 UTC', 'type': 'throttling_error', 'param': None, 'code': '429'}}"
+}

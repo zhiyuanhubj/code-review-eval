@@ -1,0 +1,23 @@
+{
+  "instance_id": "microsoft__PowerToys@c1cedce",
+  "repo": "microsoft/PowerToys",
+  "base_commit": "e1474c1f3020e2615c438d82b29f48626f456a9f",
+  "head_commit": "c1cedce10cfe7436da12580ea231d5837520ef69",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:28:23.078522+00:00",
+  "duration_seconds": 48.07,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/modules/cmdpal/Microsoft.CmdPal.UI.ViewModels/TopLevelViewModel.cs",
+        "start_line": 72,
+        "end_line": 72,
+        "content": "Returning `null` here still inserts an invalid entry into the resulting context-item array, so an unsupported or null view model merely moves the failure to the consumer. Filter unsupported values out (for example, apply `OfType<IContextItem>()` before `ToArray()`) instead of emitting null elements."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/modules/cmdpal/Microsoft.CmdPal.UI.ViewModels/TopLevelViewModel.cs\",\"start_line\":72,\"end_line\":72,\"content\":\"Returning `null` here still inserts an invalid entry into the resulting context-item array, so an unsupported or null view model merely moves the failure to the consumer. Filter unsupported values out (for example, apply `OfType<IContextItem>()` before `ToArray()`) instead of emitting null elements.\"}]}",
+  "stderr": null
+}

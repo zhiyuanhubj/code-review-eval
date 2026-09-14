@@ -1,0 +1,24 @@
+{
+  "instance_id": "opencv__opencv@e546382",
+  "repo": "opencv/opencv",
+  "base_commit": "16a3d37dc159dbcaaf8ee74cf63669f0203f9655",
+  "head_commit": "e546382fc1cbb61a7679c0511303729844a70111",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:32:31.275176+00:00",
+  "duration_seconds": 2.06,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "modules/imgcodecs/src/grfmt_png.cpp",
+        "start_line": 289,
+        "end_line": 293,
+        "content": "The two CV_LOG_IF_ERROR calls are mutually exclusive and both will fire for any non-IHDR first chunk. For a CgBI first chunk, the first log fires (id == id_CgBI is true) and the second does not (id != id_CgBI is false), which is correct. However, for any other non-IHDR chunk, the first log does not fire and the second does, which is also correct. The logic is fine, but consider using a single if/else for clarity and to avoid evaluating the condition twice. Not a bug.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"modules/imgcodecs/src/grfmt_png.cpp\",\n      \"start_line\": 289,\n      \"end_line\": 293,\n      \"content\": \"The two CV_LOG_IF_ERROR calls are mutually exclusive and both will fire for any non-IHDR first chunk. For a CgBI first chunk, the first log fires (id == id_CgBI is true) and the second does not (id != id_CgBI is false), which is correct. However, for any other non-IHDR chunk, the first log does not fire and the second does, which is also correct. The logic is fine, but consider using a single if/else for clarity and to avoid evaluating the condition twice. Not a bug.\"\n    }\n  ]\n}",
+  "stderr": null
+}

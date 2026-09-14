@@ -1,0 +1,24 @@
+{
+  "instance_id": "filamentphp__filament@77874d0",
+  "repo": "filamentphp/filament",
+  "base_commit": "753ceeac007a0d0aa4423971b01d651288720873",
+  "head_commit": "77874d0c3782a257101c3fb578144a6950f3dc9c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:53.432499+00:00",
+  "duration_seconds": 2.77,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/actions/src/Exports/Jobs/PrepareCsvExport.php",
+        "start_line": 152,
+        "end_line": 154,
+        "content": "This change makes `distinct($qualifiedKeyName)` conditional on the first order column being the key. However, the original code always applied `distinct($qualifiedKeyName)`. If the query has no orders at all (e.g. `$query->getQuery()->orders` is null/empty), `orders[0]['column']` will be null and distinct won't be applied — which may change behavior for unordered queries. Also, if the first order is on a different column but the key is still needed for distinctness (e.g. to avoid duplicate rows when joining), this could produce duplicate rows in the export. Please confirm this is intentional and that the key column is still guaranteed unique in the result set.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"packages/actions/src/Exports/Jobs/PrepareCsvExport.php\",\n      \"start_line\": 152,\n      \"end_line\": 154,\n      \"content\": \"This change makes `distinct($qualifiedKeyName)` conditional on the first order column being the key. However, the original code always applied `distinct($qualifiedKeyName)`. If the query has no orders at all (e.g. `$query->getQuery()->orders` is null/empty), `orders[0]['column']` will be null and distinct won't be applied — which may change behavior for unordered queries. Also, if the first order is on a different column but the key is still needed for distinctness (e.g. to avoid duplicate rows when joining), this could produce duplicate rows in the export. Please confirm this is intentional and that the key column is still guaranteed unique in the result set.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

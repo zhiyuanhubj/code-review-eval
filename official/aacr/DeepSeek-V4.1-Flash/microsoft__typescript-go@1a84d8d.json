@@ -1,0 +1,24 @@
+{
+  "instance_id": "microsoft__typescript-go@1a84d8d",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "da4e121142cd3f891785b573a194b9caaaa01d55",
+  "head_commit": "1a84d8d5705df98fd1e1f81d9d3115a7a203509d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:31:17.671790+00:00",
+  "duration_seconds": 7.38,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "internal/checker/checker.go",
+        "start_line": 10829,
+        "end_line": 10831,
+        "content": "The condition `c.compilerOptions.Lib == nil || slices.Contains(c.compilerOptions.Lib, \"lib.dom.d.ts\")` is inverted. When `Lib` is nil, the default libs (including DOM) are used, so the function should return false (not a missing DOM element). When `lib.dom.d.ts` is explicitly included, it should also return false. The current logic returns false only when `Lib` is nil or contains `lib.dom.d.ts`, which is correct for those cases, but it returns true (proceed to check) when `Lib` is non-nil and does not contain `lib.dom.d.ts`. However, the original TypeScript implementation checks `compilerOptions.lib` and returns false if it's undefined or includes 'dom'. The Go code uses `slices.Contains` with the full filename `\"lib.dom.d.ts\"`, but the compiler options likely store lib names like `\"dom\"` (without `lib.` prefix and `.d.ts` suffix). This mismatch means the check will never match, causing the function to incorrectly return true even when DOM lib is included. Verify the format of `compilerOptions.Lib` and adjust the string comparison accordingly.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"internal/checker/checker.go\",\n      \"start_line\": 10829,\n      \"end_line\": 10831,\n      \"content\": \"The condition `c.compilerOptions.Lib == nil || slices.Contains(c.compilerOptions.Lib, \\\"lib.dom.d.ts\\\")` is inverted. When `Lib` is nil, the default libs (including DOM) are used, so the function should return false (not a missing DOM element). When `lib.dom.d.ts` is explicitly included, it should also return false. The current logic returns false only when `Lib` is nil or contains `lib.dom.d.ts`, which is correct for those cases, but it returns true (proceed to check) when `Lib` is non-nil and does not contain `lib.dom.d.ts`. However, the original TypeScript implementation checks `compilerOptions.lib` and returns false if it's undefined or includes 'dom'. The Go code uses `slices.Contains` with the full filename `\\\"lib.dom.d.ts\\\"`, but the compiler options likely store lib names like `\\\"dom\\\"` (without `lib.` prefix and `.d.ts` suffix). This mismatch means the check will never match, causing the function to incorrectly return true even when DOM lib is included. Verify the format of `compilerOptions.Lib` and adjust the string comparison accordingly.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,87 @@
+{
+  "instance_id": "wavetermdev__waveterm@61b0fb4",
+  "repo": "wavetermdev/waveterm",
+  "base_commit": "3beb14aa6bdd9118c43cdd75adca32616619451b",
+  "head_commit": "61b0fb4baec87c6fa91bdeadc43fab75fd29eb61",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:35:33.984072+00:00",
+  "duration_seconds": 12.71,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/wshutil/wshproxy.go",
+        "start_line": 200,
+        "end_line": 202,
+        "content": "This `if origMsg.Command == wshrpc.Command_AuthenticateToken {` block is empty. The `HandleClientProxyAuth` function is used by the client-side proxy (e.g. `wsh connserver`), and the token swap flow is handled by `HandleAuthentication` on the server side. This empty branch is dead code and should be removed. If the intent was to handle token auth here, the implementation is missing.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/shellexec/shellexec.go",
+        "start_line": 402,
+        "end_line": 408,
+        "content": "`cmdOpts.SwapToken` is dereferenced without a nil check. If a caller invokes `StartRemoteShellProc` without setting `SwapToken` (e.g. any code path that doesn't go through `setupAndStartShellProcess`), this will panic. Add a nil guard, or ensure `SwapToken` is always populated before calling.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/shellexec/shellexec.go",
+        "start_line": 483,
+        "end_line": 489,
+        "content": "Same nil-dereference risk as in `StartRemoteShellProc`: `cmdOpts.SwapToken.PackForClient()` will panic if `SwapToken` is nil. Add a nil check before calling.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/util/shellutil/tokenswap.go",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "`TokenSwapEntry` is stored in a package-level map and mutated concurrently (e.g. `swapToken.Env[...] = jwtStr` in blockcontroller after `AddTokenSwapEntry` may race with `GetAndRemoveTokenSwapEntry`). The map itself is protected by `tokenMapLock`, but the entries are not. Consider copying the entry on insert, or documenting that entries must not be mutated after `AddTokenSwapEntry`.",
+        "side": "right"
+      },
+      {
+        "path": "cmd/wsh/cmd/wshcmd-connserver.go",
+        "start_line": 232,
+        "end_line": 249,
+        "content": "`askForJwtToken` uses `fmt.Fscanln(os.Stdin, &line)`, which splits on whitespace. If the JWT ever contains whitespace (unlikely for JWT but possible for future token formats), this will truncate. More importantly, `Fscanln` returns an error on EOF, so if stdin is closed without a token the error message will be confusing. Consider using `bufio.NewReader(os.Stdin).ReadString('\\n')` for clarity.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/conncontroller/conncontroller.go",
+        "start_line": 328,
+        "end_line": 340,
+        "content": "After reading the jwt status line, if the line is not `NEED-JWT` (e.g. the remote already has a JWT in env), the code proceeds without writing the token. But the remote `connserver` in that case will use its own env JWT, which may not match the local `jwtToken`. Verify that this is the intended behavior — otherwise the connection may authenticate with a stale/incorrect token.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/wshutil/wshproxy.go",
+        "start_line": 148,
+        "end_line": 165,
+        "content": "`handleAuthenticateTokenCommand` calls `GetAndRemoveTokenSwapEntry` which deletes the entry on first use. If the client retries the RPC (e.g. due to a transient network error), the second attempt will fail with \"no token entry found\". Consider whether the token should be single-use or idempotent within its expiry window.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/util/shellutil/shellutil.go",
+        "start_line": 57,
+        "end_line": 65,
+        "content": "In `ZshStartup_Zshrc`, `wsh token` is invoked before `~/.zshrc` is sourced. If the user's `.zshrc` modifies `PATH` or `WAVETERM_*` vars, the token-derived env may be overwritten. Also, `source <(wsh token ...)` runs before the user's rc, so any env vars set by the token (e.g. `WAVETERM_BLOCKID`) could be clobbered by user config. Confirm the ordering is intentional.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/util/shellutil/shellutil.go",
+        "start_line": 143,
+        "end_line": 145,
+        "content": "In the fish startup, `wsh token \"$WAVETERM_SWAPTOKEN\" fish 2>/dev/null | source` — if `wsh` is not on PATH yet (the `set -x PATH` above should handle it, but only if `{{.WSHBINDIR}}` is correct), this silently fails due to `2>/dev/null`. Consider logging failures or at least not suppressing stderr entirely during development.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/blockcontroller/blockcontroller.go",
+        "start_line": 278,
+        "end_line": 305,
+        "content": "`makeSwapToken` logs errors but continues, leaving `token.Env` partially populated. If `DBFindTabForBlockId` fails, `WAVETERM_TABID` is missing but the token is still issued. Downstream consumers may assume these env vars are always present. Consider whether partial tokens should be rejected.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"pkg/wshutil/wshproxy.go\",\n      \"start_line\": 200,\n      \"end_line\": 202,\n      \"content\": \"This `if origMsg.Command == wshrpc.Command_AuthenticateToken {` block is empty. The `HandleClientProxyAuth` function is used by the client-side proxy (e.g. `wsh connserver`), and the token swap flow is handled by `HandleAuthentication` on the server side. This empty branch is dead code and should be removed. If the intent was to handle token auth here, the implementation is missing.\"\n    },\n    {\n      \"path\": \"pkg/shellexec/shellexec.go\",\n      \"start_line\": 402,\n      \"end_line\": 408,\n      \"content\": \"`cmdOpts.SwapToken` is dereferenced without a nil check. If a caller invokes `StartRemoteShellProc` without setting `SwapToken` (e.g. any code path that doesn't go through `setupAndStartShellProcess`), this will panic. Add a nil guard, or ensure `SwapToken` is always populated before calling.\"\n    },\n    {\n      \"path\": \"pkg/shellexec/shellexec.go\",\n      \"start_line\": 483,\n      \"end_line\": 489,\n      \"content\": \"Same nil-dereference risk as in `StartRemoteShellProc`: `cmdOpts.SwapToken.PackForClient()` will panic if `SwapToken` is nil. Add a nil check before calling.\"\n    },\n    {\n      \"path\": \"pkg/util/shellutil/tokenswap.go\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"`TokenSwapEntry` is stored in a package-level map and mutated concurrently (e.g. `swapToken.Env[...] = jwtStr` in blockcontroller after `AddTokenSwapEntry` may race with `GetAndRemoveTokenSwapEntry`). The map itself is protected by `tokenMapLock`, but the entries are not. Consider copying the entry on insert, or documenting that entries must not be mutated after `AddTokenSwapEntry`.\"\n    },\n    {\n      \"path\": \"cmd/wsh/cmd/wshcmd-connserver.go\",\n      \"start_line\": 232,\n      \"end_line\": 249,\n      \"content\": \"`askForJwtToken` uses `fmt.Fscanln(os.Stdin, &line)`, which splits on whitespace. If the JWT ever contains whitespace (unlikely for JWT but possible for future token formats), this will truncate. More importantly, `Fscanln` returns an error on EOF, so if stdin is closed without a token the error message will be confusing. Consider using `bufio.NewReader(os.Stdin).ReadString('\\\\n')` for clarity.\"\n    },\n    {\n      \"path\": \"pkg/remote/conncontroller/conncontroller.go\",\n      \"start_line\": 328,\n      \"end_line\": 340,\n      \"content\": \"After reading the jwt status line, if the line is not `NEED-JWT` (e.g. the remote already has a JWT in env), the code proceeds without writing the token. But the remote `connserver` in that case will use its own env JWT, which may not match the local `jwtToken`. Verify that this is the intended behavior — otherwise the connection may authenticate with a stale/incorrect token.\"\n    },\n    {\n      \"path\": \"pkg/wshutil/wshproxy.go\",\n      \"start_line\": 148,\n      \"end_line\": 165,\n      \"content\": \"`handleAuthenticateTokenCommand` calls `GetAndRemoveTokenSwapEntry` which deletes the entry on first use. If the client retries the RPC (e.g. due to a transient network error), the second attempt will fail with \\\"no token entry found\\\". Consider whether the token should be single-use or idempotent within its expiry window.\"\n    },\n    {\n      \"path\": \"pkg/util/shellutil/shellutil.go\",\n      \"start_line\": 57,\n      \"end_line\": 65,\n      \"content\": \"In `ZshStartup_Zshrc`, `wsh token` is invoked before `~/.zshrc` is sourced. If the user's `.zshrc` modifies `PATH` or `WAVETERM_*` vars, the token-derived env may be overwritten. Also, `source <(wsh token ...)` runs before the user's rc, so any env vars set by the token (e.g. `WAVETERM_BLOCKID`) could be clobbered by user config. Confirm the ordering is intentional.\"\n    },\n    {\n      \"path\": \"pkg/util/shellutil/shellutil.go\",\n      \"start_line\": 143,\n      \"end_line\": 145,\n      \"content\": \"In the fish startup, `wsh token \\\"$WAVETERM_SWAPTOKEN\\\" fish 2>/dev/null | source` — if `wsh` is not on PATH yet (the `set -x PATH` above should handle it, but only if `{{.WSHBINDIR}}` is correct), this silently fails due to `2>/dev/null`. Consider logging failures or at least not suppressing stderr entirely during development.\"\n    },\n    {\n      \"path\": \"pkg/blockcontroller/blockcontroller.go\",\n      \"start_line\": 278,\n      \"end_line\": 305,\n      \"content\": \"`makeSwapToken` logs errors but continues, leaving `token.Env` partially populated. If `DBFindTabForBlockId` fails, `WAVETERM_TABID` is missing but the token is still issued. Downstream consumers may assume these env vars are always present. Consider whether partial tokens should be rejected.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

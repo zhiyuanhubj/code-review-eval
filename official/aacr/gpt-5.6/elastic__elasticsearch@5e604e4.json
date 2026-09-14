@@ -1,0 +1,23 @@
+{
+  "instance_id": "elastic__elasticsearch@5e604e4",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "0a5a74c5e9dad3d62a8486e52422be2ae1295e03",
+  "head_commit": "5e604e492648a95f7adef067aeb2b9fc2ca4a206",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:31:24.048885+00:00",
+  "duration_seconds": 48.8,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/main/java/org/elasticsearch/index/codec/tsdb/es819/ES819TSDBDocValuesProducer.java",
+        "start_line": 1535,
+        "end_line": 1535,
+        "content": "This ignores `offset`: only `docs.count() - offset` documents are being requested. Comparing against `docs.count()` can both miss the bulk path and, when the value-index span happens to equal the full count, return extra values for documents not in the requested suffix. Use a `requestedCount = docs.count() - offset` consistently for this comparison and the block's expected count."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"server/src/main/java/org/elasticsearch/index/codec/tsdb/es819/ES819TSDBDocValuesProducer.java\",\"start_line\":1535,\"end_line\":1535,\"content\":\"This ignores `offset`: only `docs.count() - offset` documents are being requested. Comparing against `docs.count()` can both miss the bulk path and, when the value-index span happens to equal the full count, return extra values for documents not in the requested suffix. Use a `requestedCount = docs.count() - offset` consistently for this comparison and the block's expected count.\"}]}",
+  "stderr": null
+}

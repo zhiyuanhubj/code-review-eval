@@ -1,0 +1,73 @@
+{
+  "instance_id": "kestra-io__kestra@0ec45f0",
+  "repo": "kestra-io/kestra",
+  "base_commit": "bfcfb2ac16dd8f198a99fef43072cb178f9a1d8e",
+  "head_commit": "0ec45f028467c99d8d1efeee6c201210d9433e6d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:37:09.758920+00:00",
+  "duration_seconds": 7.71,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java",
+        "start_line": 20,
+        "end_line": 20,
+        "content": "The error message references the 'read' function, but this is the 'fileEmpty' function. Update the message to reference 'fileEmpty' for accurate diagnostics.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileExistsFunction.java",
+        "start_line": 20,
+        "end_line": 20,
+        "content": "The error message references the 'fileSize' function, but this is the 'fileExists' function. Update the message to reference 'fileExists'.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java",
+        "start_line": 70,
+        "end_line": 70,
+        "content": "`checkIfFileFromParentExecution` is called when the file is not from the current execution, but its return value is ignored. If the trigger check passes, execution continues and the file is read from storage. This is intentional, but note that the method throws when invalid — however, the `@SuppressWarnings(\"unchecked\")` cast of `context.getVariable(TRIGGER)` to `Map<String, String>` is unchecked and could throw ClassCastException if the trigger variable is not a Map. Consider validating the type before casting.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java",
+        "start_line": 79,
+        "end_line": 79,
+        "content": "`readAndCheckEmptyFileFromInternalStorage` reads the entire file into memory via `readAllBytes()` to check if it's blank. For large files this is wasteful; consider reading only the first non-whitespace byte(s) or using a streaming check to avoid loading potentially huge files into memory.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java",
+        "start_line": 103,
+        "end_line": 103,
+        "content": "Missing newline at end of file.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileExistsFunction.java",
+        "start_line": 99,
+        "end_line": 99,
+        "content": "Missing newline at end of file.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/test/java/io/kestra/core/runners/pebble/functions/FileEmptyFunctionTest.java",
+        "start_line": 90,
+        "end_line": 90,
+        "content": "Missing newline at end of file.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/test/java/io/kestra/core/runners/pebble/functions/FileExistsFunctionTest.java",
+        "start_line": 71,
+        "end_line": 71,
+        "content": "Missing newline at end of file.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java\",\n      \"start_line\": 20,\n      \"end_line\": 20,\n      \"content\": \"The error message references the 'read' function, but this is the 'fileEmpty' function. Update the message to reference 'fileEmpty' for accurate diagnostics.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileExistsFunction.java\",\n      \"start_line\": 20,\n      \"end_line\": 20,\n      \"content\": \"The error message references the 'fileSize' function, but this is the 'fileExists' function. Update the message to reference 'fileExists'.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java\",\n      \"start_line\": 70,\n      \"end_line\": 70,\n      \"content\": \"`checkIfFileFromParentExecution` is called when the file is not from the current execution, but its return value is ignored. If the trigger check passes, execution continues and the file is read from storage. This is intentional, but note that the method throws when invalid — however, the `@SuppressWarnings(\\\"unchecked\\\")` cast of `context.getVariable(TRIGGER)` to `Map<String, String>` is unchecked and could throw ClassCastException if the trigger variable is not a Map. Consider validating the type before casting.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java\",\n      \"start_line\": 79,\n      \"end_line\": 79,\n      \"content\": \"`readAndCheckEmptyFileFromInternalStorage` reads the entire file into memory via `readAllBytes()` to check if it's blank. For large files this is wasteful; consider reading only the first non-whitespace byte(s) or using a streaming check to avoid loading potentially huge files into memory.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java\",\n      \"start_line\": 103,\n      \"end_line\": 103,\n      \"content\": \"Missing newline at end of file.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileExistsFunction.java\",\n      \"start_line\": 99,\n      \"end_line\": 99,\n      \"content\": \"Missing newline at end of file.\"\n    },\n    {\n      \"path\": \"core/src/test/java/io/kestra/core/runners/pebble/functions/FileEmptyFunctionTest.java\",\n      \"start_line\": 90,\n      \"end_line\": 90,\n      \"content\": \"Missing newline at end of file.\"\n    },\n    {\n      \"path\": \"core/src/test/java/io/kestra/core/runners/pebble/functions/FileExistsFunctionTest.java\",\n      \"start_line\": 71,\n      \"end_line\": 71,\n      \"content\": \"Missing newline at end of file.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

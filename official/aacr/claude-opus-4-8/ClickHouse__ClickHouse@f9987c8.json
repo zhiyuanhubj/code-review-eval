@@ -1,0 +1,29 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@f9987c8",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "25f2e13a8fc3ed6e6215ee7481677e1b8523ac4c",
+  "head_commit": "f9987c89a4cfaa95269385f24323dc6f44cda6e9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:09.031283+00:00",
+  "duration_seconds": 64.04,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Storages/MergeTree/KeyCondition.cpp",
+        "start_line": 2905,
+        "end_line": 2917,
+        "content": "Using a default-constructed `Field{}` (Null) as both the left and right bounds when calling `getMonotonicityForRange` is fragile. Many monotonic functions branch on the actual range values to decide monotonicity/direction, and passing Null may not reflect \"always monotonic\" behavior correctly. For functions where monotonicity depends on the argument range (e.g. sign-flipping), `is_always_monotonic` computed against a Null/empty range may be misleading. Consider computing monotonicity over the full type range or documenting why the empty range is safe here."
+      },
+      {
+        "path": "tests/queries/0_stateless/03518_key_condition_binary_search.sh",
+        "start_line": 31,
+        "end_line": 31,
+        "content": "Missing trailing newline at end of file ('\\ No newline at end of file'). Please add a newline to the end of the script."
+      }
+    ]
+  },
+  "raw_output": "Let me analyze the key logic change.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Storages/MergeTree/KeyCondition.cpp\",\n      \"start_line\": 2905,\n      \"end_line\": 2917,\n      \"content\": \"Using a default-constructed `Field{}` (Null) as both the left and right bounds when calling `getMonotonicityForRange` is fragile. Many monotonic functions branch on the actual range values to decide monotonicity/direction, and passing Null may not reflect \\\"always monotonic\\\" behavior correctly. For functions where monotonicity depends on the argument range (e.g. sign-flipping), `is_always_monotonic` computed against a Null/empty range may be misleading. Consider computing monotonicity over the full type range or documenting why the empty range is safe here.\"\n    },\n    {\n      \"path\": \"tests/queries/0_stateless/03518_key_condition_binary_search.sh\",\n      \"start_line\": 31,\n      \"end_line\": 31,\n      \"content\": \"Missing trailing newline at end of file ('\\\\ No newline at end of file'). Please add a newline to the end of the script.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

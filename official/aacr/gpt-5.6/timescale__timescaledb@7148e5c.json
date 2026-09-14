@@ -1,0 +1,23 @@
+{
+  "instance_id": "timescale__timescaledb@7148e5c",
+  "repo": "timescale/timescaledb",
+  "base_commit": "d0fe7370082dbc57d391d5168705909809bd880f",
+  "head_commit": "7148e5c7d90c9da819a8ca77b79664fac300ca60",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:34:07.097555+00:00",
+  "duration_seconds": 71.48,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "tsl/src/bgw_policy/continuous_aggregate_api.c",
+        "start_line": 174,
+        "end_line": 174,
+        "content": "The new SQL argument is not read by `ts_policy_refresh_cagg_add` or serialized into the policy config under `POL_REFRESH_CONF_KEY_REFRESH_NEWEST_FIRST`. Consequently this lookup never finds the key for policies created through the API and always returns the default `true`, so `refresh_newest_first => false` has no effect. Please plumb the 11th argument into the config creation path and add a test that verifies the resulting execution order."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"tsl/src/bgw_policy/continuous_aggregate_api.c\",\"start_line\":174,\"end_line\":174,\"content\":\"The new SQL argument is not read by `ts_policy_refresh_cagg_add` or serialized into the policy config under `POL_REFRESH_CONF_KEY_REFRESH_NEWEST_FIRST`. Consequently this lookup never finds the key for policies created through the API and always returns the default `true`, so `refresh_newest_first => false` has no effect. Please plumb the 11th argument into the config creation path and add a test that verifies the resulting execution order.\"}]}",
+  "stderr": null
+}

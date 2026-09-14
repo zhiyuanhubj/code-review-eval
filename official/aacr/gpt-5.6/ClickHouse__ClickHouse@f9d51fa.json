@@ -1,0 +1,23 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@f9d51fa",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "e06542d23d77ca297014b40c7fd0f406f15fef81",
+  "head_commit": "f9d51faa7cba634f38a711494003d404946b05de",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:30:50.382632+00:00",
+  "duration_seconds": 46.82,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Disks/DiskLocalCheckThread.cpp",
+        "start_line": 83,
+        "end_line": 84,
+        "content": "These counters only observe transitions made during this invocation. If the status changes between checks—most notably when `SYSTEM RESTART DISK` clears `broken`—the next run snapshots the already-cleared value, so `BrokenDisks` is never decremented and remains stale. Track the last status reported to CurrentMetrics (and reconcile it on every run and shutdown), or update the metric in every external status-changing path."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/Disks/DiskLocalCheckThread.cpp\",\"start_line\":83,\"end_line\":84,\"content\":\"These counters only observe transitions made during this invocation. If the status changes between checks—most notably when `SYSTEM RESTART DISK` clears `broken`—the next run snapshots the already-cleared value, so `BrokenDisks` is never decremented and remains stale. Track the last status reported to CurrentMetrics (and reconcile it on every run and shutdown), or update the metric in every external status-changing path.\"}]}",
+  "stderr": null
+}

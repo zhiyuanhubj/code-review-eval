@@ -1,0 +1,31 @@
+{
+  "instance_id": "juspay__hyperswitch@0231de6",
+  "repo": "juspay/hyperswitch",
+  "base_commit": "b26e845198407f3672a7f80d8eea670419858e0e",
+  "head_commit": "0231de6ae6795ef7fa85e5ab87b6fe46a4955333",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:37:23.638299+00:00",
+  "duration_seconds": 4.2,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "crates/hyperswitch_connectors/src/connectors/checkout/transformers.rs",
+        "start_line": 350,
+        "end_line": 353,
+        "content": "The `eci` field is hardcoded to `Some(\"06\".to_string())`. For Google Pay network tokenization, the ECI value should typically be derived from the decrypted token data (e.g., `google_pay_decrypted_data.eci_indicator`) rather than hardcoded. Hardcoding ECI=06 may cause incorrect 3DS/liability shift behavior for transactions where the actual ECI differs. Please verify whether the decrypted data exposes an ECI field and use it if available.",
+        "side": "right"
+      },
+      {
+        "path": "crates/router/src/core/payments.rs",
+        "start_line": 6904,
+        "end_line": 6917,
+        "content": "The function name `is_google_pay_pre_decrypt_type_connector_tokenization` is misleading: it returns `true` when the flow is NOT network tokenization (i.e., when connector tokenization should be used), and `true` for all non-GooglePay cases. This mirrors the Apple Pay helper, but the naming combined with the `!matches!` logic makes it easy to misread. Consider renaming to something like `is_google_pay_connector_tokenization_allowed` or adding a doc comment clarifying the semantics.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"crates/hyperswitch_connectors/src/connectors/checkout/transformers.rs\",\n      \"start_line\": 350,\n      \"end_line\": 353,\n      \"content\": \"The `eci` field is hardcoded to `Some(\\\"06\\\".to_string())`. For Google Pay network tokenization, the ECI value should typically be derived from the decrypted token data (e.g., `google_pay_decrypted_data.eci_indicator`) rather than hardcoded. Hardcoding ECI=06 may cause incorrect 3DS/liability shift behavior for transactions where the actual ECI differs. Please verify whether the decrypted data exposes an ECI field and use it if available.\"\n    },\n    {\n      \"path\": \"crates/router/src/core/payments.rs\",\n      \"start_line\": 6904,\n      \"end_line\": 6917,\n      \"content\": \"The function name `is_google_pay_pre_decrypt_type_connector_tokenization` is misleading: it returns `true` when the flow is NOT network tokenization (i.e., when connector tokenization should be used), and `true` for all non-GooglePay cases. This mirrors the Apple Pay helper, but the naming combined with the `!matches!` logic makes it easy to misread. Consider renaming to something like `is_google_pay_connector_tokenization_allowed` or adding a doc comment clarifying the semantics.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

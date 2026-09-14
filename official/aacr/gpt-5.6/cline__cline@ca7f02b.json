@@ -1,0 +1,16 @@
+{
+  "instance_id": "cline__cline@ca7f02b",
+  "repo": "cline/cline",
+  "base_commit": "8f4c6038dd70ce02caaf7ae924dc28d5be63968e",
+  "head_commit": "ca7f02b8cf8cd36d832a63e1c9ad892356c7df66",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:24.492130+00:00",
+  "duration_seconds": 89.03,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": null
+}

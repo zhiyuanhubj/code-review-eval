@@ -1,0 +1,41 @@
+{
+  "instance_id": "dbeaver__dbeaver@dc67ca7",
+  "repo": "dbeaver/dbeaver",
+  "base_commit": "469e4265a58af95a6d5f4069515e029fc2891374",
+  "head_commit": "dc67ca7cf486ceaf45559318cdcbca193847188d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:04.777653+00:00",
+  "duration_seconds": 18.89,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANATable.java",
+        "start_line": 158,
+        "end_line": 164,
+        "content": "The null check on `dbResult` is misordered and ineffective: `JDBCUtils.safeGetInt(dbResult, \"PART_ID\")` is called before the `if (dbResult == null)` check, so a null result would already NPE. Also `dbResult` is annotated `@NotNull`, so this check is dead code. Remove the null check or, if it is genuinely needed, move it before the `safeGetInt` call."
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANAPartition.java",
+        "start_line": 43,
+        "end_line": 43,
+        "content": "`@NotNull` on the primitive `int partId` parameter is meaningless (primitives cannot be null). Remove the annotation."
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANATable.java",
+        "start_line": 154,
+        "end_line": 156,
+        "content": "The SELECT list explicitly enumerates columns after `tp.*` but does not include `LOAD_UNIT` (read in HANAPartition via safeGetString on \"LOAD_UNIT\"). Since `tp.*` is TABLE_PARTITIONS, verify LOAD_UNIT actually originates from TABLE_PARTITIONS; if it comes from M_CS_TABLES it will silently be null. Consider explicitly selecting the intended source column."
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANAPartition.java",
+        "start_line": 105,
+        "end_line": 105,
+        "content": "HANAPartition extends HANATable, which owns a `partitionCache`. As a result each partition itself exposes a `getPartitions(...)` method and a partitions folder in the tree, allowing recursive partition-of-partition navigation. Consider overriding getPartitions() to return an empty collection for partitions (or restructure so HANAPartition does not inherit the partition cache)."
+      }
+    ]
+  },
+  "raw_output": "I'll analyze this PR for real issues.\n\nLooking at the key areas:\n\n1. `fetchObject` reads `PART_ID` from `dbResult` before checking if `dbResult == null` — but `dbResult` is `@NotNull` so this check is pointless and misordered.\n\n2. The SQL query selects `LOAD_UNIT` in `HANAPartition` but it's not in the SELECT list.\n\n3. `HANAPartition` extends `HANATable`, which has `partitionCache` — a partition could recursively load partitions.\n\nLet me check the SQL more carefully. The partition reads `LOAD_UNIT` via `JDBCUtils.safeGetString(dbResult, \"LOAD_UNIT\")` but the SELECT uses `tp.*` which likely includes it. `safeGetString` is safe anyway.\n\nLet me focus on precise, real issues.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANATable.java\",\n      \"start_line\": 158,\n      \"end_line\": 164,\n      \"content\": \"The null check on `dbResult` is misordered and ineffective: `JDBCUtils.safeGetInt(dbResult, \\\"PART_ID\\\")` is called before the `if (dbResult == null)` check, so a null result would already NPE. Also `dbResult` is annotated `@NotNull`, so this check is dead code. Remove the null check or, if it is genuinely needed, move it before the `safeGetInt` call.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANAPartition.java\",\n      \"start_line\": 43,\n      \"end_line\": 43,\n      \"content\": \"`@NotNull` on the primitive `int partId` parameter is meaningless (primitives cannot be null). Remove the annotation.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANATable.java\",\n      \"start_line\": 154,\n      \"end_line\": 156,\n      \"content\": \"The SELECT list explicitly enumerates columns after `tp.*` but does not include `LOAD_UNIT` (read in HANAPartition via safeGetString on \\\"LOAD_UNIT\\\"). Since `tp.*` is TABLE_PARTITIONS, verify LOAD_UNIT actually originates from TABLE_PARTITIONS; if it comes from M_CS_TABLES it will silently be null. Consider explicitly selecting the intended source column.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.hana/src/org/jkiss/dbeaver/ext/hana/model/HANAPartition.java\",\n      \"start_line\": 105,\n      \"end_line\": 105,\n      \"content\": \"HANAPartition extends HANATable, which owns a `partitionCache`. As a result each partition itself exposes a `getPartitions(...)` method and a partitions folder in the tree, allowing recursive partition-of-partition navigation. Consider overriding getPartitions() to return an empty collection for partitions (or restructure so HANAPartition does not inherit the partition cache).\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

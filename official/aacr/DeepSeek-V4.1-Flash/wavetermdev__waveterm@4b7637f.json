@@ -1,0 +1,199 @@
+{
+  "instance_id": "wavetermdev__waveterm@4b7637f",
+  "repo": "wavetermdev/waveterm",
+  "base_commit": "ce9775c00c36ba290c7a6f5134c0ff7759def6eb",
+  "head_commit": "4b7637fb17fb0f937d67f12a63f3f370a3343117",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:35:56.205288+00:00",
+  "duration_seconds": 25.07,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/remote/fileshare/fsutil/fsutil.go",
+        "start_line": 30,
+        "end_line": 32,
+        "content": "Changing the empty/root case to return `\"\"` instead of `fspath.Separator` is a behavior change that affects callers like `s3fs.ReadTarStream` (which uses `GetParentPathString(tarPathPrefix)`). Previously, a root path would return `/`, now it returns empty string. Verify this is intentional and that downstream consumers handle the empty string correctly (e.g., when constructing tar entry names or S3 prefixes).",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/fsutil/fsutil.go",
+        "start_line": 88,
+        "end_line": 96,
+        "content": "In `PrefixCopyRemote`, `destPathPrefix` is unconditionally suffixed with `fspath.Separator`. If `CleanPathPrefix` returns an empty string (which it now does for empty input), `destPathPrefix` becomes just `/`. Combined with the new `CleanPathPrefix` behavior of returning `\"\"` for empty input, this could produce unexpected paths. Confirm the empty-path case is handled by callers.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/fsutil/fsutil.go",
+        "start_line": 130,
+        "end_line": 145,
+        "content": "`DetermineCopyDestPath` calls `destClient.Stat` on the original `destConn` before potentially modifying `destConn.Path`. If `destConn.Path` is empty or root, `destInfo` may be nil when `err == nil` is false but `errors.Is(err, fs.ErrNotExist)` is also false — the subsequent `destInfo.IsDir` access at line ~150 could panic. Ensure `destInfo` is non-nil before dereferencing, or guard the `destExists` computation.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/fsutil/fsutil.go",
+        "start_line": 148,
+        "end_line": 152,
+        "content": "When `overwrite` is true, `destClient.Delete(ctx, destConn, destInfo.IsDir)` is called. Previously the code always passed `true` for recursive. If `destInfo.IsDir` is false but the destination is actually a directory (e.g., stat returned stale info), the delete will fail. More importantly, if `destInfo` is nil (see previous comment), this will panic. Add a nil check.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/fsutil/fsutil.go",
+        "start_line": 100,
+        "end_line": 108,
+        "content": "In `PrefixCopyRemote`, `destPathPrefix` is computed from `destConn.Path` before `DetermineCopyDestPath` mutates `destConn.Path`. However, `DetermineCopyDestPath` may append the source basename to `destConn.Path` when the destination doesn't exist and source is a dir. The `destPathPrefix` used for joining child names is then based on the pre-mutation path, which may not match the actual destination directory. Verify this is correct for the case where dest doesn't exist and src is a directory.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/fsutil/fsutil.go",
+        "start_line": 110,
+        "end_line": 118,
+        "content": "The `singleFile` branch now sets `fileName = destPath` unconditionally, dropping the previous `!destHasSlash` condition. If the destination path ends with a slash and `singleFile` is true, `destPath` (cleaned) will not include the trailing slash, so the file will be written to the directory path itself rather than inside it. Confirm this matches the intended semantics of `singleFile`.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/fsutil/fsutil.go",
+        "start_line": 175,
+        "end_line": 178,
+        "content": "`CleanPathPrefix` now returns `(\"\", nil)` for empty input instead of an error. Callers that previously relied on the error to detect empty paths (e.g., validation) will now silently proceed with an empty path. Audit callers to ensure empty paths are handled safely downstream.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/s3fs/s3fs.go",
+        "start_line": 700,
+        "end_line": 720,
+        "content": "`Delete` with `recursive=true` now uses `listFilesPrefix` with pagination and accumulates all object identifiers into memory before calling `DeleteObjects`. For very large prefixes this could be a memory concern, and `DeleteObjects` has a limit of 1000 keys per request. The previous code used a single `ListObjectsV2` call (also limited to 1000). Consider batching `DeleteObjects` calls to handle >1000 objects.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/s3fs/s3fs.go",
+        "start_line": 705,
+        "end_line": 710,
+        "content": "When `recursive` is true and the object key does not end with a separator, a separator is appended. This means deleting `s3://bucket/foo` recursively will delete `foo/` prefix but not the object `foo` itself. Verify this matches the intended behavior, especially now that `MoveInternal` passes `isDir` from `CopyInternal` — if the source was a single file, `isDir` is false and this branch is skipped, which is correct.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/wshrpc/wshremote/wshremote.go",
+        "start_line": 490,
+        "end_line": 495,
+        "content": "`srcIsDir = !singleFile` is set inside the walk callback for the cross-host case. If the source directory is empty (no entries), the callback never runs, so `srcIsDir` remains `false` even though the source is a directory. This would cause `Delete` to be called with `recursive=false` on the source directory, potentially failing to remove it. Consider setting `srcIsDir` based on the source stat before the walk.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/wshrpc/wshremote/wshremote.go",
+        "start_line": 490,
+        "end_line": 495,
+        "content": "The `singleFile` variable is derived from `data.Opts` presumably; verify that `singleFile` correctly reflects whether the source is a single file vs. a directory. If `singleFile` is true but the source is actually a directory, `srcIsDir` will be false and the subsequent delete will be non-recursive, leaving orphaned files.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/pathtree/pathtree.go",
+        "start_line": 38,
+        "end_line": 38,
+        "content": "Debug `log.Printf` statements added throughout `pathtree.go` (and elsewhere in this PR) will produce noisy logs in production. Consider removing these or gating them behind a debug flag.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/pathtree/pathtree.go",
+        "start_line": 64,
+        "end_line": 64,
+        "content": "`log.Printf(\"relativePath: %s\", relativePath)` is a debug log that will fire for every path added to the tree. This is likely to be very noisy. Remove or gate behind a debug flag.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/pathtree/pathtree.go",
+        "start_line": 73,
+        "end_line": 73,
+        "content": "`log.Printf(\"path already in tree: %s\", relativePath)` — debug log, remove or gate.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/pathtree/pathtree.go",
+        "start_line": 81,
+        "end_line": 81,
+        "content": "`log.Printf(\"invalid path component: %s\", component)` — debug log, remove or gate.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/pathtree/pathtree.go",
+        "start_line": 87,
+        "end_line": 87,
+        "content": "`log.Printf(\"added to existing parent: %s\", ...)` — debug log, remove or gate.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/pathtree/pathtree.go",
+        "start_line": 91,
+        "end_line": 91,
+        "content": "`log.Printf(\"adding new path: %s\", ...)` — debug log, remove or gate.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/s3fs/s3fs.go",
+        "start_line": 210,
+        "end_line": 210,
+        "content": "`log.Printf(\"singleFile or includeDir; tarPathPrefix: %v\", tarPathPrefix)` — debug log, remove or gate.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/s3fs/s3fs.go",
+        "start_line": 299,
+        "end_line": 299,
+        "content": "`log.Printf(\"writing %v\", path)` — debug log inside a walk callback, will be very noisy. Remove or gate.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/s3fs/s3fs.go",
+        "start_line": 700,
+        "end_line": 760,
+        "content": "Multiple debug `log.Printf` statements added to `Delete` (e.g., \"s3fs.Delete\", \"Deleting object\", \"Error listing objects\", etc.). These will be noisy in production. Consider removing or gating behind a debug flag.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/wshfs/wshfs.go",
+        "start_line": 117,
+        "end_line": 122,
+        "content": "`CopyRemote` and `CopyInternal` now return `(bool, error)` but the implementation simply forwards the result of `c.CopyInternal`. Verify that `CopyInternal` actually returns a meaningful `isDir` value — if it always returns `false`, the `MoveInternal` caller will pass `recursive=false` to `Delete`, which may fail for directories.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/wavefs/wavefs.go",
+        "start_line": 425,
+        "end_line": 432,
+        "content": "`MoveInternal` now uses `isDir` from `CopyInternal` to decide `recursive` for `Delete`. Previously it used `opts.Recursive`. If `opts` is nil, this would have panicked before; now it relies on `CopyInternal`'s return. Verify `CopyInternal` correctly reports `isDir` for all cases (including empty directories).",
+        "side": "right"
+      },
+      {
+        "path": "frontend/app/view/preview/directorypreview.tsx",
+        "start_line": 307,
+        "end_line": 312,
+        "content": "Appending `/` to `srcuri` when `isDir` is true: verify that `formatRemoteUri` doesn't already append a trailing slash for directories, which would result in a double slash. Also verify that the backend `Move`/`Copy` correctly handles a trailing slash on the source URI (it's used to determine `srcHasSlash` in `DetermineCopyDestPath`).",
+        "side": "right"
+      },
+      {
+        "path": "frontend/app/view/preview/directorypreview.tsx",
+        "start_line": 307,
+        "end_line": 312,
+        "content": "The `isDir` parameter is passed from `finfo.isdir`. Verify that `finfo.isdir` is reliably populated for all entry types (e.g., symlinks to directories). If it's undefined for some entries, `isDir` will be falsy and the trailing slash won't be added, potentially causing incorrect move semantics.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/fileshare.go",
+        "start_line": 132,
+        "end_line": 138,
+        "content": "`Move` now relies on `CopyRemote` returning `srcIsDir` to decide `recursive` for `Delete`. If `CopyRemote` returns `false` for a directory (e.g., due to a bug in the implementation), the subsequent `Delete` with `recursive=false` may fail or leave orphaned files. Consider adding a safety check or logging.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/remote/fileshare/fileshare.go",
+        "start_line": 132,
+        "end_line": 138,
+        "content": "The previous code explicitly checked `finfo.IsDir && !recursive` and returned an error. This check is now removed. If `CopyRemote` succeeds but `srcIsDir` is false for a directory, `Delete` will be called with `recursive=false`, which may silently fail or leave files behind. Verify the new flow handles this case.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"pkg/remote/fileshare/fsutil/fsutil.go\",\n      \"start_line\": 30,\n      \"end_line\": 32,\n      \"content\": \"Changing the empty/root case to return `\\\"\\\"` instead of `fspath.Separator` is a behavior change that affects callers like `s3fs.ReadTarStream` (which uses `GetParentPathString(tarPathPrefix)`). Previously, a root path would return `/`, now it returns empty string. Verify this is intentional and that downstream consumers handle the empty string correctly (e.g., when constructing tar entry names or S3 prefixes).\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/fsutil/fsutil.go\",\n      \"start_line\": 88,\n      \"end_line\": 96,\n      \"content\": \"In `PrefixCopyRemote`, `destPathPrefix` is unconditionally suffixed with `fspath.Separator`. If `CleanPathPrefix` returns an empty string (which it now does for empty input), `destPathPrefix` becomes just `/`. Combined with the new `CleanPathPrefix` behavior of returning `\\\"\\\"` for empty input, this could produce unexpected paths. Confirm the empty-path case is handled by callers.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/fsutil/fsutil.go\",\n      \"start_line\": 130,\n      \"end_line\": 145,\n      \"content\": \"`DetermineCopyDestPath` calls `destClient.Stat` on the original `destConn` before potentially modifying `destConn.Path`. If `destConn.Path` is empty or root, `destInfo` may be nil when `err == nil` is false but `errors.Is(err, fs.ErrNotExist)` is also false — the subsequent `destInfo.IsDir` access at line ~150 could panic. Ensure `destInfo` is non-nil before dereferencing, or guard the `destExists` computation.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/fsutil/fsutil.go\",\n      \"start_line\": 148,\n      \"end_line\": 152,\n      \"content\": \"When `overwrite` is true, `destClient.Delete(ctx, destConn, destInfo.IsDir)` is called. Previously the code always passed `true` for recursive. If `destInfo.IsDir` is false but the destination is actually a directory (e.g., stat returned stale info), the delete will fail. More importantly, if `destInfo` is nil (see previous comment), this will panic. Add a nil check.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/fsutil/fsutil.go\",\n      \"start_line\": 100,\n      \"end_line\": 108,\n      \"content\": \"In `PrefixCopyRemote`, `destPathPrefix` is computed from `destConn.Path` before `DetermineCopyDestPath` mutates `destConn.Path`. However, `DetermineCopyDestPath` may append the source basename to `destConn.Path` when the destination doesn't exist and source is a dir. The `destPathPrefix` used for joining child names is then based on the pre-mutation path, which may not match the actual destination directory. Verify this is correct for the case where dest doesn't exist and src is a directory.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/fsutil/fsutil.go\",\n      \"start_line\": 110,\n      \"end_line\": 118,\n      \"content\": \"The `singleFile` branch now sets `fileName = destPath` unconditionally, dropping the previous `!destHasSlash` condition. If the destination path ends with a slash and `singleFile` is true, `destPath` (cleaned) will not include the trailing slash, so the file will be written to the directory path itself rather than inside it. Confirm this matches the intended semantics of `singleFile`.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/fsutil/fsutil.go\",\n      \"start_line\": 175,\n      \"end_line\": 178,\n      \"content\": \"`CleanPathPrefix` now returns `(\\\"\\\", nil)` for empty input instead of an error. Callers that previously relied on the error to detect empty paths (e.g., validation) will now silently proceed with an empty path. Audit callers to ensure empty paths are handled safely downstream.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/s3fs/s3fs.go\",\n      \"start_line\": 700,\n      \"end_line\": 720,\n      \"content\": \"`Delete` with `recursive=true` now uses `listFilesPrefix` with pagination and accumulates all object identifiers into memory before calling `DeleteObjects`. For very large prefixes this could be a memory concern, and `DeleteObjects` has a limit of 1000 keys per request. The previous code used a single `ListObjectsV2` call (also limited to 1000). Consider batching `DeleteObjects` calls to handle >1000 objects.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/s3fs/s3fs.go\",\n      \"start_line\": 705,\n      \"end_line\": 710,\n      \"content\": \"When `recursive` is true and the object key does not end with a separator, a separator is appended. This means deleting `s3://bucket/foo` recursively will delete `foo/` prefix but not the object `foo` itself. Verify this matches the intended behavior, especially now that `MoveInternal` passes `isDir` from `CopyInternal` — if the source was a single file, `isDir` is false and this branch is skipped, which is correct.\"\n    },\n    {\n      \"path\": \"pkg/wshrpc/wshremote/wshremote.go\",\n      \"start_line\": 490,\n      \"end_line\": 495,\n      \"content\": \"`srcIsDir = !singleFile` is set inside the walk callback for the cross-host case. If the source directory is empty (no entries), the callback never runs, so `srcIsDir` remains `false` even though the source is a directory. This would cause `Delete` to be called with `recursive=false` on the source directory, potentially failing to remove it. Consider setting `srcIsDir` based on the source stat before the walk.\"\n    },\n    {\n      \"path\": \"pkg/wshrpc/wshremote/wshremote.go\",\n      \"start_line\": 490,\n      \"end_line\": 495,\n      \"content\": \"The `singleFile` variable is derived from `data.Opts` presumably; verify that `singleFile` correctly reflects whether the source is a single file vs. a directory. If `singleFile` is true but the source is actually a directory, `srcIsDir` will be false and the subsequent delete will be non-recursive, leaving orphaned files.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/pathtree/pathtree.go\",\n      \"start_line\": 38,\n      \"end_line\": 38,\n      \"content\": \"Debug `log.Printf` statements added throughout `pathtree.go` (and elsewhere in this PR) will produce noisy logs in production. Consider removing these or gating them behind a debug flag.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/pathtree/pathtree.go\",\n      \"start_line\": 64,\n      \"end_line\": 64,\n      \"content\": \"`log.Printf(\\\"relativePath: %s\\\", relativePath)` is a debug log that will fire for every path added to the tree. This is likely to be very noisy. Remove or gate behind a debug flag.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/pathtree/pathtree.go\",\n      \"start_line\": 73,\n      \"end_line\": 73,\n      \"content\": \"`log.Printf(\\\"path already in tree: %s\\\", relativePath)` — debug log, remove or gate.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/pathtree/pathtree.go\",\n      \"start_line\": 81,\n      \"end_line\": 81,\n      \"content\": \"`log.Printf(\\\"invalid path component: %s\\\", component)` — debug log, remove or gate.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/pathtree/pathtree.go\",\n      \"start_line\": 87,\n      \"end_line\": 87,\n      \"content\": \"`log.Printf(\\\"added to existing parent: %s\\\", ...)` — debug log, remove or gate.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/pathtree/pathtree.go\",\n      \"start_line\": 91,\n      \"end_line\": 91,\n      \"content\": \"`log.Printf(\\\"adding new path: %s\\\", ...)` — debug log, remove or gate.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/s3fs/s3fs.go\",\n      \"start_line\": 210,\n      \"end_line\": 210,\n      \"content\": \"`log.Printf(\\\"singleFile or includeDir; tarPathPrefix: %v\\\", tarPathPrefix)` — debug log, remove or gate.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/s3fs/s3fs.go\",\n      \"start_line\": 299,\n      \"end_line\": 299,\n      \"content\": \"`log.Printf(\\\"writing %v\\\", path)` — debug log inside a walk callback, will be very noisy. Remove or gate.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/s3fs/s3fs.go\",\n      \"start_line\": 700,\n      \"end_line\": 760,\n      \"content\": \"Multiple debug `log.Printf` statements added to `Delete` (e.g., \\\"s3fs.Delete\\\", \\\"Deleting object\\\", \\\"Error listing objects\\\", etc.). These will be noisy in production. Consider removing or gating behind a debug flag.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/wshfs/wshfs.go\",\n      \"start_line\": 117,\n      \"end_line\": 122,\n      \"content\": \"`CopyRemote` and `CopyInternal` now return `(bool, error)` but the implementation simply forwards the result of `c.CopyInternal`. Verify that `CopyInternal` actually returns a meaningful `isDir` value — if it always returns `false`, the `MoveInternal` caller will pass `recursive=false` to `Delete`, which may fail for directories.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/wavefs/wavefs.go\",\n      \"start_line\": 425,\n      \"end_line\": 432,\n      \"content\": \"`MoveInternal` now uses `isDir` from `CopyInternal` to decide `recursive` for `Delete`. Previously it used `opts.Recursive`. If `opts` is nil, this would have panicked before; now it relies on `CopyInternal`'s return. Verify `CopyInternal` correctly reports `isDir` for all cases (including empty directories).\"\n    },\n    {\n      \"path\": \"frontend/app/view/preview/directorypreview.tsx\",\n      \"start_line\": 307,\n      \"end_line\": 312,\n      \"content\": \"Appending `/` to `srcuri` when `isDir` is true: verify that `formatRemoteUri` doesn't already append a trailing slash for directories, which would result in a double slash. Also verify that the backend `Move`/`Copy` correctly handles a trailing slash on the source URI (it's used to determine `srcHasSlash` in `DetermineCopyDestPath`).\"\n    },\n    {\n      \"path\": \"frontend/app/view/preview/directorypreview.tsx\",\n      \"start_line\": 307,\n      \"end_line\": 312,\n      \"content\": \"The `isDir` parameter is passed from `finfo.isdir`. Verify that `finfo.isdir` is reliably populated for all entry types (e.g., symlinks to directories). If it's undefined for some entries, `isDir` will be falsy and the trailing slash won't be added, potentially causing incorrect move semantics.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/fileshare.go\",\n      \"start_line\": 132,\n      \"end_line\": 138,\n      \"content\": \"`Move` now relies on `CopyRemote` returning `srcIsDir` to decide `recursive` for `Delete`. If `CopyRemote` returns `false` for a directory (e.g., due to a bug in the implementation), the subsequent `Delete` with `recursive=false` may fail or leave orphaned files. Consider adding a safety check or logging.\"\n    },\n    {\n      \"path\": \"pkg/remote/fileshare/fileshare.go\",\n      \"start_line\": 132,\n      \"end_line\": 138,\n      \"content\": \"The previous code explicitly checked `finfo.IsDir && !recursive` and returned an error. This check is now removed. If `CopyRemote` succeeds but `srcIsDir` is false for a directory, `Delete` will be called with `recursive=false`, which may silently fail or leave files behind. Verify the new flow handles this case.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

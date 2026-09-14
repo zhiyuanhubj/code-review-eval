@@ -1,0 +1,16 @@
+{
+  "instance_id": "sveltejs__svelte@4bf1f91",
+  "repo": "sveltejs/svelte",
+  "base_commit": "e4987d2a9f36b33f3934725723f9c4cc998ef278",
+  "head_commit": "4bf1f915d3374721f8a1655b1a151c1c423b1a3c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:49.632876+00:00",
+  "duration_seconds": 10.74,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit exceeded for api_key: ae216d0793f98a0b4884105df8b57205bdef6cc20ec0d8440c48851cbb4f4d7d. Limit type: requests. Current limit: 50, Remaining: 0. Limit resets at: 2026-09-14 04:26:49 UTC', 'type': 'throttling_error', 'param': None, 'code': '429'}}"
+}

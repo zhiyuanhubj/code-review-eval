@@ -1,0 +1,23 @@
+{
+  "instance_id": "immich-app__immich@91b3b6a",
+  "repo": "immich-app/immich",
+  "base_commit": "10e569cc1c563ece2eb7e2581cef943829a72440",
+  "head_commit": "91b3b6aebd3a02a4ac158b21ce469138df893178",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:28:27.184994+00:00",
+  "duration_seconds": 52.11,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "e2e/src/api/specs/asset.e2e-spec.ts",
+        "start_line": 808,
+        "end_line": 809,
+        "content": "This assertion is both racy and non-isolated. Forced deletion only queues an `ASSET_DELETION` job, so the asset may still exist immediately after the 204 response; additionally, `after.total` includes any other trashed assets owned by the admin, including assets left by earlier tests. Wait for the `backgroundTask` queue to finish, then assert that this specific `assetId` is no longer retrievable (or compare the trash count before and after)."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"e2e/src/api/specs/asset.e2e-spec.ts\",\"start_line\":808,\"end_line\":809,\"content\":\"This assertion is both racy and non-isolated. Forced deletion only queues an `ASSET_DELETION` job, so the asset may still exist immediately after the 204 response; additionally, `after.total` includes any other trashed assets owned by the admin, including assets left by earlier tests. Wait for the `backgroundTask` queue to finish, then assert that this specific `assetId` is no longer retrievable (or compare the trash count before and after).\"}]}",
+  "stderr": null
+}

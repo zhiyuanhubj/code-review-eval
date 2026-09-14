@@ -1,0 +1,23 @@
+{
+  "instance_id": "filamentphp__filament@871ec75",
+  "repo": "filamentphp/filament",
+  "base_commit": "e4a7ecf0e65574522eb9fbe70b7339f41de0bbe2",
+  "head_commit": "871ec75815e1f92da141e9aef80f287f7779dfe7",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:00.919944+00:00",
+  "duration_seconds": 11.91,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/tables/src/Commands/FileGenerators/Concerns/CanGenerateModelTables.php",
+        "start_line": 145,
+        "end_line": 148,
+        "content": "The `time` type sets `$columnData['time'] = []`, but verify the corresponding column output logic actually handles a `time` key (e.g., calling `->time()` on a TextColumn or generating a column that supports time formatting). If the downstream code that renders `$columnData` into a column definition only checks for `date`/`dateTime` keys, this new `time` entry will be silently ignored and the generated column won't format as a time."
+      }
+    ]
+  },
+  "raw_output": "Looking at the diff to identify real issues.\n\nLet me analyze the table column generation code.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"packages/tables/src/Commands/FileGenerators/Concerns/CanGenerateModelTables.php\",\n      \"start_line\": 145,\n      \"end_line\": 148,\n      \"content\": \"The `time` type sets `$columnData['time'] = []`, but verify the corresponding column output logic actually handles a `time` key (e.g., calling `->time()` on a TextColumn or generating a column that supports time formatting). If the downstream code that renders `$columnData` into a column definition only checks for `date`/`dateTime` keys, this new `time` entry will be silently ignored and the generated column won't format as a time.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

@@ -1,0 +1,29 @@
+{
+  "instance_id": "n8n-io__n8n@9321691",
+  "repo": "n8n-io/n8n",
+  "base_commit": "aae55fe7ac77594444c3405161555a517902c68b",
+  "head_commit": "93216919462181f52d6994f8f20a9a478716545f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:27:53.201753+00:00",
+  "duration_seconds": 31.35,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": ".github/workflows/release-publish.yml",
+        "start_line": 106,
+        "end_line": 106,
+        "content": "`build-args` is passed directly to `docker buildx`; it is not evaluated by a shell, so this sets `N8N_RELEASE_DATE` to the literal string `$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")`. The application will then reject it as an invalid timestamp. Generate the date in a preceding `run` step and expose it via `$GITHUB_OUTPUT`, then reference that step output here."
+      },
+      {
+        "path": "packages/core/src/errors/error-reporter.ts",
+        "start_line": 89,
+        "end_line": 92,
+        "content": "A fresh release has roughly 3.63 billion ms until expiration, exceeding Node's maximum timeout delay of 2^31-1 ms. Node clamps such a timeout to about 1 ms, so error reporting will be disabled almost immediately for releases less than roughly 17 days old. Check the expiration timestamp in `beforeSend`, or schedule capped/chunked timeouts instead."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\".github/workflows/release-publish.yml\",\"start_line\":106,\"end_line\":106,\"content\":\"`build-args` is passed directly to `docker buildx`; it is not evaluated by a shell, so this sets `N8N_RELEASE_DATE` to the literal string `$(date -u +\\\"%Y-%m-%dT%H:%M:%SZ\\\")`. The application will then reject it as an invalid timestamp. Generate the date in a preceding `run` step and expose it via `$GITHUB_OUTPUT`, then reference that step output here.\"},{\"path\":\"packages/core/src/errors/error-reporter.ts\",\"start_line\":89,\"end_line\":92,\"content\":\"A fresh release has roughly 3.63 billion ms until expiration, exceeding Node's maximum timeout delay of 2^31-1 ms. Node clamps such a timeout to about 1 ms, so error reporting will be disabled almost immediately for releases less than roughly 17 days old. Check the expiration timestamp in `beforeSend`, or schedule capped/chunked timeouts instead.\"}]}",
+  "stderr": null
+}

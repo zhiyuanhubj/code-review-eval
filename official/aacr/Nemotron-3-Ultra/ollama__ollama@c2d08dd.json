@@ -1,0 +1,29 @@
+{
+  "instance_id": "ollama__ollama@c2d08dd",
+  "repo": "ollama/ollama",
+  "base_commit": "f53f4198c36d0a943de598ad91a20baa9481c5c5",
+  "head_commit": "c2d08dd67a9bcf15e52a2f15b1fad888afffcd32",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:49:21.225214+00:00",
+  "duration_seconds": 18.67,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "envconfig/config.go",
+        "start_line": 170,
+        "end_line": 170,
+        "content": "The warning log message says 'context length is less than 0' but the condition checks for <= 0, which includes 0. The message should say 'less than or equal to 0' or 'less than 1' for accuracy."
+      },
+      {
+        "path": "envconfig/config.go",
+        "start_line": 170,
+        "end_line": 170,
+        "content": "Using slog.Warn here will log a warning every time ContextLength() is called with an invalid value. Since this is a package-level variable initialized once, it's only called once at startup, but consider using a less noisy log level or only logging once if this function could be called multiple times."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"envconfig/config.go\",\n      \"start_line\": 170,\n      \"end_line\": 170,\n      \"content\": \"The warning log message says 'context length is less than 0' but the condition checks for <= 0, which includes 0. The message should say 'less than or equal to 0' or 'less than 1' for accuracy.\"\n    },\n    {\n      \"path\": \"envconfig/config.go\",\n      \"start_line\": 170,\n      \"end_line\": 170,\n      \"content\": \"Using slog.Warn here will log a warning every time ContextLength() is called with an invalid value. Since this is a package-level variable initialized once, it's only called once at startup, but consider using a less noisy log level or only logging once if this function could be called multiple times.\"\n    }\n  ]\n}",
+  "stderr": null
+}

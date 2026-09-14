@@ -1,0 +1,23 @@
+{
+  "instance_id": "dotnet__aspnetcore@0ce67cd",
+  "repo": "dotnet/aspnetcore",
+  "base_commit": "f83c97fa0b91f83bd20511d1abf235dc48b596e2",
+  "head_commit": "0ce67cdee87e9fee014ba95c11e8e36b8913041c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:28:15.453897+00:00",
+  "duration_seconds": 31.88,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Shared/HttpSys/NativeInterop/SocketAddress.cs",
+        "start_line": 55,
+        "end_line": 55,
+        "content": "The TODO comment about scope ID for IPv6 addresses should be addressed. The sin6_scope_id field in SOCKADDR_IN6 contains the interface index for link-local addresses, which is needed for proper IPv6 address handling. Consider including it in the IPAddress construction or documenting why it's intentionally omitted."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Shared/HttpSys/NativeInterop/SocketAddress.cs\",\n      \"start_line\": 55,\n      \"end_line\": 55,\n      \"content\": \"The TODO comment about scope ID for IPv6 addresses should be addressed. The sin6_scope_id field in SOCKADDR_IN6 contains the interface index for link-local addresses, which is needed for proper IPv6 address handling. Consider including it in the IPAddress construction or documenting why it's intentionally omitted.\"\n    }\n  ]\n}",
+  "stderr": null
+}

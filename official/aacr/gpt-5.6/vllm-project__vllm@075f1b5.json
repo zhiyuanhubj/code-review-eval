@@ -1,0 +1,16 @@
+{
+  "instance_id": "vllm-project__vllm@075f1b5",
+  "repo": "vllm-project/vllm",
+  "base_commit": "7a8987dac5f0ed0c798a73e8b4ec8f5e640bc63a",
+  "head_commit": "075f1b5b8015e343f25b45d36ccff571cb39739b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:29:49.610188+00:00",
+  "duration_seconds": 89.26,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": null
+}

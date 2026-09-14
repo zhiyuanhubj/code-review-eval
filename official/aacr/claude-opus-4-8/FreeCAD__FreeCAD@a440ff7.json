@@ -1,0 +1,16 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@a440ff7",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "abb50a4daa43abee9e6b263dd82e5e876c978c6a",
+  "head_commit": "a440ff7e4138c20ed2ac66977a199ebbf295e493",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:14.074792+00:00",
+  "duration_seconds": 20.59,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "Looking at this PR, it's entirely a documentation/comment/UI-string grammar cleanup (\"allows to\" → \"allows one to\" / \"allows [verb]ing\", \"segements\" → \"segments\", etc.). Let me check for any grammatically broken replacements that introduce incorrect meaning.\n\nA few replacements are grammatically awkward or wrong, but most are pre-existing awkwardness in comments. Let me focus on real regressions introduced.\n\nThe ArchStairs.py change turns already-awkward text into more awkward text but doesn't break code. The \"behave every DocumentObject\" phrasing was already awkward before and after.\n\nNone of these changes affect code behavior—they are comments and UI strings only. The one genuinely nonsensical new phrase is in ArchStairs.py (\"allow one tolerance\"), but that's inside an existing awkward TODO comment and not a code bug.\n\nNo functional bugs are introduced by this PR.\n\n```json\n{\n  \"comments\": []\n}\n```",
+  "stderr": null
+}

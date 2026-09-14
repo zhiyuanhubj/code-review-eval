@@ -1,0 +1,29 @@
+{
+  "instance_id": "sveltejs__svelte@44bec4c",
+  "repo": "sveltejs/svelte",
+  "base_commit": "2af7ba21563f1b7f011ffa9f0c08e4acb473eef3",
+  "head_commit": "44bec4c8b172a47ff300f754463555bbb694bb05",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:10.794203+00:00",
+  "duration_seconds": 17.13,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/svelte/src/compiler/phases/2-analyze/index.js",
+        "start_line": 445,
+        "end_line": 448,
+        "content": "`node.specifiers` is only present on `ExportNamedDeclaration` nodes without a declaration, but when `node.declaration` is truthy `node.specifiers` is still an empty array, so this is fine. However, when `node.declaration` exists and is not a `let` VariableDeclaration, the `||` still evaluates `node.specifiers.some(...)` on an empty array — that's harmless. The real concern: for `export { x as y }` re-exports where `specifier.local` refers to an imported binding, `instance.scope.get(name)?.declaration_kind` may not be `'let'` even though it's still a legacy `export`. Consider verifying re-export cases are handled, or this could misclassify a legacy component as maybe_runes."
+      },
+      {
+        "path": "packages/svelte/src/compiler/phases/2-analyze/index.js",
+        "start_line": 442,
+        "end_line": 442,
+        "content": "`module.scope.references.keys()` returns an iterator; calling `.some(...)` on it will throw because iterators don't have `Array.prototype.some`. This should be `[...module.scope.references.keys()].some(...)` or use `.has('$$props') || .has('$$restProps')` on the Map directly."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\": [\n  {\n    \"path\": \"packages/svelte/src/compiler/phases/2-analyze/index.js\",\n    \"start_line\": 445,\n    \"end_line\": 448,\n    \"content\": \"`node.specifiers` is only present on `ExportNamedDeclaration` nodes without a declaration, but when `node.declaration` is truthy `node.specifiers` is still an empty array, so this is fine. However, when `node.declaration` exists and is not a `let` VariableDeclaration, the `||` still evaluates `node.specifiers.some(...)` on an empty array — that's harmless. The real concern: for `export { x as y }` re-exports where `specifier.local` refers to an imported binding, `instance.scope.get(name)?.declaration_kind` may not be `'let'` even though it's still a legacy `export`. Consider verifying re-export cases are handled, or this could misclassify a legacy component as maybe_runes.\"\n  },\n  {\n    \"path\": \"packages/svelte/src/compiler/phases/2-analyze/index.js\",\n    \"start_line\": 442,\n    \"end_line\": 442,\n    \"content\": \"`module.scope.references.keys()` returns an iterator; calling `.some(...)` on it will throw because iterators don't have `Array.prototype.some`. This should be `[...module.scope.references.keys()].some(...)` or use `.has('$$props') || .has('$$restProps')` on the Map directly.\"\n  }\n]}",
+  "stderr": null
+}

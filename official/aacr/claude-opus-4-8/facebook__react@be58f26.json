@@ -1,0 +1,29 @@
+{
+  "instance_id": "facebook__react@be58f26",
+  "repo": "facebook/react",
+  "base_commit": "88b976740467f9dfabae03c79a8eff9033c35050",
+  "head_commit": "be58f26f9a6e579d8df36d901a59249d9ac1393f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:26.722023+00:00",
+  "duration_seconds": 13.81,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/react-dom/src/__tests__/ReactDOMForm-test.js",
+        "start_line": 1673,
+        "end_line": 1673,
+        "content": "Remove `it.only` before merging — this will disable all other tests in the ReactDOMForm suite."
+      },
+      {
+        "path": "packages/react-reconciler/src/ReactFiberHooks.js",
+        "start_line": 3264,
+        "end_line": 3264,
+        "content": "This condition change looks suspicious. The added `existingStateHook.next !== null` check assumes a fully-upgraded stateful form fiber always has a subsequent hook. If a form was upgraded but only has a single hook (no `.next`), this will re-run the upgrade path and re-mount hooks, corrupting the hook list. Please verify the invariant that an upgraded form always has `next !== null`, and add a comment explaining why, otherwise consider tracking the upgraded state explicitly rather than inferring it from the hook chain length."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"packages/react-dom/src/__tests__/ReactDOMForm-test.js\",\n      \"start_line\": 1673,\n      \"end_line\": 1673,\n      \"content\": \"Remove `it.only` before merging — this will disable all other tests in the ReactDOMForm suite.\"\n    },\n    {\n      \"path\": \"packages/react-reconciler/src/ReactFiberHooks.js\",\n      \"start_line\": 3264,\n      \"end_line\": 3264,\n      \"content\": \"This condition change looks suspicious. The added `existingStateHook.next !== null` check assumes a fully-upgraded stateful form fiber always has a subsequent hook. If a form was upgraded but only has a single hook (no `.next`), this will re-run the upgrade path and re-mount hooks, corrupting the hook list. Please verify the invariant that an upgraded form always has `next !== null`, and add a comment explaining why, otherwise consider tracking the upgraded state explicitly rather than inferring it from the hook chain length.\"\n    }\n  ]\n}",
+  "stderr": null
+}

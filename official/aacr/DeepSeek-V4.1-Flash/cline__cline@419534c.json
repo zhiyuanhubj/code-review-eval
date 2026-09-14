@@ -1,0 +1,24 @@
+{
+  "instance_id": "cline__cline@419534c",
+  "repo": "cline/cline",
+  "base_commit": "a1bf1f95a30ca95581d9811488636aec42dd2f80",
+  "head_commit": "419534ccd4241fc11827741eb0d76ba0c9d21277",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:32:50.274952+00:00",
+  "duration_seconds": 2.47,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/core/task/index.ts",
+        "start_line": 1322,
+        "end_line": 1322,
+        "content": "The `commit()` promise is now fire-and-forget without a `.catch()`. If the git operation rejects (e.g., shadow repo corruption, permission error, or the tracker being disposed mid-operation), this will produce an unhandled promise rejection. Please add a `.catch()` that logs the error (and optionally surfaces it) so failures don't go silent or crash the extension host.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/core/task/index.ts\",\n      \"start_line\": 1322,\n      \"end_line\": 1322,\n      \"content\": \"The `commit()` promise is now fire-and-forget without a `.catch()`. If the git operation rejects (e.g., shadow repo corruption, permission error, or the tracker being disposed mid-operation), this will produce an unhandled promise rejection. Please add a `.catch()` that logs the error (and optionally surfaces it) so failures don't go silent or crash the extension host.\"\n    }\n  ]\n}",
+  "stderr": null
+}

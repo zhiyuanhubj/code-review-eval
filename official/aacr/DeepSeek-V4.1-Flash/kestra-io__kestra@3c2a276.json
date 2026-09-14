@@ -1,0 +1,52 @@
+{
+  "instance_id": "kestra-io__kestra@3c2a276",
+  "repo": "kestra-io/kestra",
+  "base_commit": "a716094a9d3c3522fb40ea988b3dab2763d7519c",
+  "head_commit": "3c2a2765fcd06d7fe127e362ddc9a706d4073047",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:37:15.773761+00:00",
+  "duration_seconds": 6.31,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "script/src/main/java/io/kestra/plugin/scripts/exec/scripts/runners/CommandsWrapper.java",
+        "start_line": 168,
+        "end_line": 178,
+        "content": "The `renderCommands` method is called three times, and each call invokes `ScriptService.replaceInternalStorage` which internally calls `taskRunner.additionalVars(runContext, taskCommands)`. This recomputes additional vars three times per execution. More importantly, `additionalVars` may include side effects (e.g., creating output directories, registering files). Consider computing additionalVars once and passing it in, or at least verify `additionalVars` is idempotent.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/models/tasks/runners/TaskRunner.java",
+        "start_line": 134,
+        "end_line": 148,
+        "content": "`renderCommands` calls `renderCommandsFromList` three times, and each call invokes `this.additionalVars(runContext, taskCommands)`. This is redundant work and may have side effects (e.g., output directory creation). Compute `additionalVars` once and reuse.",
+        "side": "right"
+      },
+      {
+        "path": "script/src/main/java/io/kestra/plugin/scripts/runner/docker/Docker.java",
+        "start_line": 780,
+        "end_line": 783,
+        "content": "`this.renderCommands(runContext, taskCommands)` is now called both in `configure` (via `withCmd`) and again in the run method (line ~431). This means commands are rendered twice for Docker, and each render calls `additionalVars` which may have side effects. Consider rendering once and reusing.",
+        "side": "right"
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/models/tasks/runners/ScriptService.java",
+        "start_line": 97,
+        "end_line": 106,
+        "content": "The new overload returns `Collections.emptyList()` when `commands == null`, but the existing `replaceInternalStorage(RunContext, List<String>)` overloads may have different null-handling semantics. Verify callers relying on the new overload handle the empty-list case correctly (e.g., interpreter/beforeCommands being null should not produce empty entries in the final command list).",
+        "side": "right"
+      },
+      {
+        "path": "script/src/main/java/io/kestra/plugin/scripts/exec/scripts/runners/CommandsWrapper.java",
+        "start_line": 168,
+        "end_line": 178,
+        "content": "After this change, `this.commands` is set to the fully-composed command list (interpreter + beforeCommands + commands). Any downstream code that previously expected `getCommands()` to return only the user-provided commands (not the interpreter/beforeCommands) will now see the merged list. Verify all consumers of `TaskCommands.getCommands()` are updated accordingly.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"script/src/main/java/io/kestra/plugin/scripts/exec/scripts/runners/CommandsWrapper.java\",\n      \"start_line\": 168,\n      \"end_line\": 178,\n      \"content\": \"The `renderCommands` method is called three times, and each call invokes `ScriptService.replaceInternalStorage` which internally calls `taskRunner.additionalVars(runContext, taskCommands)`. This recomputes additional vars three times per execution. More importantly, `additionalVars` may include side effects (e.g., creating output directories, registering files). Consider computing additionalVars once and passing it in, or at least verify `additionalVars` is idempotent.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/models/tasks/runners/TaskRunner.java\",\n      \"start_line\": 134,\n      \"end_line\": 148,\n      \"content\": \"`renderCommands` calls `renderCommandsFromList` three times, and each call invokes `this.additionalVars(runContext, taskCommands)`. This is redundant work and may have side effects (e.g., output directory creation). Compute `additionalVars` once and reuse.\"\n    },\n    {\n      \"path\": \"script/src/main/java/io/kestra/plugin/scripts/runner/docker/Docker.java\",\n      \"start_line\": 780,\n      \"end_line\": 783,\n      \"content\": \"`this.renderCommands(runContext, taskCommands)` is now called both in `configure` (via `withCmd`) and again in the run method (line ~431). This means commands are rendered twice for Docker, and each render calls `additionalVars` which may have side effects. Consider rendering once and reusing.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/models/tasks/runners/ScriptService.java\",\n      \"start_line\": 97,\n      \"end_line\": 106,\n      \"content\": \"The new overload returns `Collections.emptyList()` when `commands == null`, but the existing `replaceInternalStorage(RunContext, List<String>)` overloads may have different null-handling semantics. Verify callers relying on the new overload handle the empty-list case correctly (e.g., interpreter/beforeCommands being null should not produce empty entries in the final command list).\"\n    },\n    {\n      \"path\": \"script/src/main/java/io/kestra/plugin/scripts/exec/scripts/runners/CommandsWrapper.java\",\n      \"start_line\": 168,\n      \"end_line\": 178,\n      \"content\": \"After this change, `this.commands` is set to the fully-composed command list (interpreter + beforeCommands + commands). Any downstream code that previously expected `getCommands()` to return only the user-provided commands (not the interpreter/beforeCommands) will now see the merged list. Verify all consumers of `TaskCommands.getCommands()` are updated accordingly.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

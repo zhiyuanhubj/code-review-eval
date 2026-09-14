@@ -1,0 +1,23 @@
+{
+  "instance_id": "kestra-io__kestra@3c2a276",
+  "repo": "kestra-io/kestra",
+  "base_commit": "a716094a9d3c3522fb40ea988b3dab2763d7519c",
+  "head_commit": "3c2a2765fcd06d7fe127e362ddc9a706d4073047",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:30:21.640390+00:00",
+  "duration_seconds": 67.37,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "script/src/main/java/io/kestra/plugin/scripts/exec/scripts/runners/CommandsWrapper.java",
+        "start_line": 173,
+        "end_line": 179,
+        "content": "`finalCommands` already contains the rendered interpreter and before-commands via `ScriptService.scriptCommands`, but only `commands` is replaced here. The original `interpreter` and `beforeCommands` remain set, so `TaskRunner.renderCommands()` prepends them again when the real runner starts (for example, `sh -c ...` becomes `sh -c sh -c ...`). Clear those two properties after composing, or defer composition so each component is included exactly once."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"script/src/main/java/io/kestra/plugin/scripts/exec/scripts/runners/CommandsWrapper.java\",\"start_line\":173,\"end_line\":179,\"content\":\"`finalCommands` already contains the rendered interpreter and before-commands via `ScriptService.scriptCommands`, but only `commands` is replaced here. The original `interpreter` and `beforeCommands` remain set, so `TaskRunner.renderCommands()` prepends them again when the real runner starts (for example, `sh -c ...` becomes `sh -c sh -c ...`). Clear those two properties after composing, or defer composition so each component is included exactly once.\"}]}",
+  "stderr": null
+}

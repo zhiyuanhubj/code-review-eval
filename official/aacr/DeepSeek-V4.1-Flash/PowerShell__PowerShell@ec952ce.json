@@ -1,0 +1,16 @@
+{
+  "instance_id": "PowerShell__PowerShell@ec952ce",
+  "repo": "PowerShell/PowerShell",
+  "base_commit": "2259f56c0786574cbde8624d031e778028352372",
+  "head_commit": "ec952ce3b70c87885ed756ffca2bec128f07c51b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:31:27.595212+00:00",
+  "duration_seconds": 0.69,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\"comments\": []}",
+  "stderr": null
+}

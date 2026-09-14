@@ -1,0 +1,35 @@
+{
+  "instance_id": "elastic__elasticsearch@902352a",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "edb3818ecc0ff0c34a63dcac533f51cfee4c4443",
+  "head_commit": "902352ac82dfa1d0b0a54ef7f0d86d6733691ba5",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:44:59.419364+00:00",
+  "duration_seconds": 33.39,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/main/java/org/elasticsearch/inference/UnifiedCompletionRequest.java",
+        "start_line": 122,
+        "end_line": 128,
+        "content": "Changing 'content' from required (constructorArg) to optional (optionalConstructorArg) is a breaking change. The OpenAI API requires 'content' for user/assistant messages (though it can be null for tool calls). This change allows null content to be parsed without error, but the downstream serialization in OpenAiUnifiedChatCompletionRequestEntity.java now has a 'case null -> {}' that silently drops the content field. This could produce invalid OpenAI requests. Should we keep 'content' as required and handle tool-call messages (where content is legitimately null) differently?"
+      },
+      {
+        "path": "x-pack/plugin/inference/src/main/java/org/elasticsearch/xpack/inference/external/request/openai/OpenAiUnifiedChatCompletionRequestEntity.java",
+        "start_line": 78,
+        "end_line": 84,
+        "content": "The 'case null -> {}' silently omits the 'content' field when it's null. Per OpenAI API spec, 'content' is required for user and assistant messages (string or array of content parts). For tool messages, 'content' is required and must be a string. For function messages (legacy), 'content' is required. Only assistant messages with tool_calls can have null content. This code doesn't check the role before omitting content, which could generate invalid requests. Add role-based validation or at least log a warning."
+      },
+      {
+        "path": "x-pack/plugin/inference/src/test/java/org/elasticsearch/xpack/inference/external/request/openai/OpenAiUnifiedChatCompletionRequestEntityTests.java",
+        "start_line": 702,
+        "end_line": 826,
+        "content": "Two tests were removed: 'testSerializationWithMissingRequiredFields' and 'testSerializationWithMixedValidAndInvalidData'. These tests verified that null content throws an exception during serialization. With the new 'case null -> {}' handling, these tests would now pass (no exception), but they were testing important validation behavior. Either restore these tests with updated expectations (if null content is now valid for some roles) or add new tests that verify role-specific content requirements."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/inference/UnifiedCompletionRequest.java\",\n      \"start_line\": 122,\n      \"end_line\": 128,\n      \"content\": \"Changing 'content' from required (constructorArg) to optional (optionalConstructorArg) is a breaking change. The OpenAI API requires 'content' for user/assistant messages (though it can be null for tool calls). This change allows null content to be parsed without error, but the downstream serialization in OpenAiUnifiedChatCompletionRequestEntity.java now has a 'case null -> {}' that silently drops the content field. This could produce invalid OpenAI requests. Should we keep 'content' as required and handle tool-call messages (where content is legitimately null) differently?\"\n    },\n    {\n      \"path\": \"x-pack/plugin/inference/src/main/java/org/elasticsearch/xpack/inference/external/request/openai/OpenAiUnifiedChatCompletionRequestEntity.java\",\n      \"start_line\": 78,\n      \"end_line\": 84,\n      \"content\": \"The 'case null -> {}' silently omits the 'content' field when it's null. Per OpenAI API spec, 'content' is required for user and assistant messages (string or array of content parts). For tool messages, 'content' is required and must be a string. For function messages (legacy), 'content' is required. Only assistant messages with tool_calls can have null content. This code doesn't check the role before omitting content, which could generate invalid requests. Add role-based validation or at least log a warning.\"\n    },\n    {\n      \"path\": \"x-pack/plugin/inference/src/test/java/org/elasticsearch/xpack/inference/external/request/openai/OpenAiUnifiedChatCompletionRequestEntityTests.java\",\n      \"start_line\": 702,\n      \"end_line\": 826,\n      \"content\": \"Two tests were removed: 'testSerializationWithMissingRequiredFields' and 'testSerializationWithMixedValidAndInvalidData'. These tests verified that null content throws an exception during serialization. With the new 'case null -> {}' handling, these tests would now pass (no exception), but they were testing important validation behavior. Either restore these tests with updated expectations (if null content is now valid for some roles) or add new tests that verify role-specific content requirements.\"\n    }\n  ]\n}",
+  "stderr": null
+}

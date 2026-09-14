@@ -1,0 +1,59 @@
+{
+  "instance_id": "unionlabs__union@d840723",
+  "repo": "unionlabs/union",
+  "base_commit": "efab2bedc6beb4e1bb01906cba9e0dabd3072f13",
+  "head_commit": "d840723278f1d4cecc02ac540385725a1c54ca84",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:54:39.423655+00:00",
+  "duration_seconds": 35.5,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "lib/voyager-core/src/lib.rs",
+        "start_line": 345,
+        "end_line": 345,
+        "content": "The `try_into()` call on `Timestamp` in `query_latest_timestamp` implementations will fail because `Timestamp` doesn't implement `TryFrom<Timestamp>`. The return type is already `RpcResult<Timestamp>`, so you should just return `Ok(timestamp)` directly without the `.try_into().unwrap()` calls."
+      },
+      {
+        "path": "voyager/modules/consensus/cometbls/src/main.rs",
+        "start_line": 173,
+        "end_line": 177,
+        "content": "Remove `.try_into().expect(\"should be fine\")` - the return type is already `RpcResult<Timestamp>` and you're constructing a `Timestamp` directly."
+      },
+      {
+        "path": "voyager/modules/consensus/tendermint/src/main.rs",
+        "start_line": 164,
+        "end_line": 168,
+        "content": "Remove `.try_into().expect(\"should be fine\")` - the return type is already `RpcResult<Timestamp>` and you're constructing a `Timestamp` directly."
+      },
+      {
+        "path": "voyager/modules/consensus/ethereum/src/main.rs",
+        "start_line": 175,
+        "end_line": 185,
+        "content": "Remove `.try_into().unwrap()` - the return type is already `RpcResult<Timestamp>` and you're constructing a `Timestamp` directly."
+      },
+      {
+        "path": "voyager/modules/consensus/ethereum/src/main.rs",
+        "start_line": 190,
+        "end_line": 197,
+        "content": "Remove `.try_into().unwrap()` - the return type is already `RpcResult<Timestamp>` and you're constructing a `Timestamp` directly."
+      },
+      {
+        "path": "voyager/modules/consensus/movement/src/main.rs",
+        "start_line": 165,
+        "end_line": 165,
+        "content": "Remove `.try_into().unwrap()` - the return type is already `RpcResult<Timestamp>` and you're constructing a `Timestamp` directly."
+      },
+      {
+        "path": "voyager/modules/state/movement/src/main.rs",
+        "start_line": 148,
+        "end_line": 148,
+        "content": "Remove `.try_into().unwrap()` - the return type is already `RpcResult<Timestamp>` and you're constructing a `Timestamp` directly."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"lib/voyager-core/src/lib.rs\",\n      \"start_line\": 345,\n      \"end_line\": 345,\n      \"content\": \"The `try_into()` call on `Timestamp` in `query_latest_timestamp` implementations will fail because `Timestamp` doesn't implement `TryFrom<Timestamp>`. The return type is already `RpcResult<Timestamp>`, so you should just return `Ok(timestamp)` directly without the `.try_into().unwrap()` calls.\"\n    },\n    {\n      \"path\": \"voyager/modules/consensus/cometbls/src/main.rs\",\n      \"start_line\": 173,\n      \"end_line\": 177,\n      \"content\": \"Remove `.try_into().expect(\\\"should be fine\\\")` - the return type is already `RpcResult<Timestamp>` and you're constructing a `Timestamp` directly.\"\n    },\n    {\n      \"path\": \"voyager/modules/consensus/tendermint/src/main.rs\",\n      \"start_line\": 164,\n      \"end_line\": 168,\n      \"content\": \"Remove `.try_into().expect(\\\"should be fine\\\")` - the return type is already `RpcResult<Timestamp>` and you're constructing a `Timestamp` directly.\"\n    },\n    {\n      \"path\": \"voyager/modules/consensus/ethereum/src/main.rs\",\n      \"start_line\": 175,\n      \"end_line\": 185,\n      \"content\": \"Remove `.try_into().unwrap()` - the return type is already `RpcResult<Timestamp>` and you're constructing a `Timestamp` directly.\"\n    },\n    {\n      \"path\": \"voyager/modules/consensus/ethereum/src/main.rs\",\n      \"start_line\": 190,\n      \"end_line\": 197,\n      \"content\": \"Remove `.try_into().unwrap()` - the return type is already `RpcResult<Timestamp>` and you're constructing a `Timestamp` directly.\"\n    },\n    {\n      \"path\": \"voyager/modules/consensus/movement/src/main.rs\",\n      \"start_line\": 165,\n      \"end_line\": 165,\n      \"content\": \"Remove `.try_into().unwrap()` - the return type is already `RpcResult<Timestamp>` and you're constructing a `Timestamp` directly.\"\n    },\n    {\n      \"path\": \"voyager/modules/state/movement/src/main.rs\",\n      \"start_line\": 148,\n      \"end_line\": 148,\n      \"content\": \"Remove `.try_into().unwrap()` - the return type is already `RpcResult<Timestamp>` and you're constructing a `Timestamp` directly.\"\n    }\n  ]\n}",
+  "stderr": null
+}

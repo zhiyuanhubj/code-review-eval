@@ -1,0 +1,16 @@
+{
+  "instance_id": "gofr-dev__gofr@b9cdcbb",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "7f1760b083ea23ffd95fdf83467bdfa21735df81",
+  "head_commit": "b9cdcbb2b9fc78499d15d51ffbb7c861592b0efe",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:31.562890+00:00",
+  "duration_seconds": 12.93,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "Looking at the diff, let me analyze the key change in the `response` struct and the test expectations.\n\nThe `response.Metadata` field uses `json:\"metadata,omitempty\"` but when Metadata is nil, the test expects `{\"metadata\":null,...}`. Let me verify this discrepancy.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/http/responder.go\",\n      \"start_line\": 96,\n      \"end_line\": 96,\n      \"content\": \"The `Metadata` field uses `json:\\\"metadata,omitempty\\\"`, but the responder always constructs `response{Data: v.Data, Metadata: v.Metadata, ...}`. When `v.Metadata` is nil, `omitempty` does NOT omit a nil `interface{}` that has been assigned from a nil `map[string]any` in all cases — actually it does omit nil interface values. This conflicts with the test at responder_test.go which expects `{\\\"metadata\\\":null,\\\"data\\\":...}` for the no-metadata case. Either the struct tag should be `json:\\\"metadata\\\"` (to always emit) or the test expectation is wrong. Please reconcile: the documented behavior says metadata should be omitted when not provided, so the test expecting `\\\"metadata\\\":null` contradicts both the docs and the `omitempty` tag.\"\n    },\n    {\n      \"path\": \"pkg/gofr/http/responder_test.go\",\n      \"start_line\": 60,\n      \"end_line\": 61,\n      \"content\": \"This expected body `{\\\"metadata\\\":null,\\\"data\\\":\\\"Hello World from new Server\\\"}` contradicts the documentation (which states metadata should be omitted when not provided) and the `omitempty` tag on the `Metadata` field. Since `v.Metadata` is a nil `map[string]any` assigned to an `interface{}` field with `omitempty`, JSON marshaling will omit it, producing `{\\\"data\\\":\\\"Hello World from new Server\\\"}`. This test expectation appears incorrect and will fail.\"\n    },\n    {\n      \"path\": \"pkg/gofr/http/responder_test.go\",\n      \"start_line\": 1,\n      \"end_line\": 10,\n      \"content\": \"The test now uses `bytes.TrimSpace` and `bytes.` functions but the import block shown does not include the `bytes` package. Please ensure `bytes` is imported, otherwise the test will not compile.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

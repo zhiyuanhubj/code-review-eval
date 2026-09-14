@@ -1,0 +1,16 @@
+{
+  "instance_id": "nodejs__node@b225544",
+  "repo": "nodejs/node",
+  "base_commit": "6cd1805364f457b19ebecb38b8f909146f968354",
+  "head_commit": "b2255442712cb6db83d112deb6ba61197d06a5f3",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:34.773687+00:00",
+  "duration_seconds": 1.33,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RepoError: commit b2255442712cb6db83d112deb6ba61197d06a5f3 unavailable after fetch: fatal: remote error: upload-pack: not our ref b2255442712cb6db83d112deb6ba61197d06a5f3"
+}

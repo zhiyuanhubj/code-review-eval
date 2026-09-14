@@ -1,0 +1,23 @@
+{
+  "instance_id": "google-gemini__gemini-cli@c6e6248",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "809b933d8150c29154062e4d596cd916258022fc",
+  "head_commit": "c6e624883852318b71baa2a060c933bb5de591ef",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:08.991870+00:00",
+  "duration_seconds": 12.16,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "integration-tests/test-helper.ts",
+        "start_line": 336,
+        "end_line": 351,
+        "content": "The 'error' event on the spawned child process is not handled. If `node` fails to spawn (e.g., executable not found or EPIPE when writing to stdin of a process that already exited), the promise will never resolve or reject, causing the test to hang until timeout. Consider adding `child.on('error', reject)` and handling stdin write errors."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"integration-tests/test-helper.ts\",\n      \"start_line\": 336,\n      \"end_line\": 351,\n      \"content\": \"The 'error' event on the spawned child process is not handled. If `node` fails to spawn (e.g., executable not found or EPIPE when writing to stdin of a process that already exited), the promise will never resolve or reject, causing the test to hang until timeout. Consider adding `child.on('error', reject)` and handling stdin write errors.\"\n    }\n  ]\n}",
+  "stderr": null
+}

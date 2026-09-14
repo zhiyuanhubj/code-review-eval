@@ -1,0 +1,41 @@
+{
+  "instance_id": "google-gemini__gemini-cli@77ea28a",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "de968877895a8ae5f0edb83a43b37fa190cc8ec9",
+  "head_commit": "77ea28a234023019ddda3f4a5f7a81b3514d3eb8",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:10.669447+00:00",
+  "duration_seconds": 14.63,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/cli/src/ui/commands/promptCommands.ts",
+        "start_line": 152,
+        "end_line": 155,
+        "content": "The prompt text is being JSON.stringify'd before being submitted, which will wrap the text in quotes and escape internal characters (e.g., newlines become \\n, quotes become \\\"). Since `result.messages[0].content.text` is already a string, this will send a malformed prompt to the model. Use the raw text directly: `content: result.messages[0].content.text`."
+      },
+      {
+        "path": "packages/cli/src/ui/commands/promptCommands.ts",
+        "start_line": 141,
+        "end_line": 145,
+        "content": "This only handles `result.messages[0].content.text`, but MCP prompt responses can contain multiple messages and non-text content types (e.g., image, resource). Consider concatenating text across all messages, or at least documenting that only the first text message is used. As written, multi-message prompts silently lose data."
+      },
+      {
+        "path": "packages/cli/src/ui/commands/promptCommands.ts",
+        "start_line": 108,
+        "end_line": 113,
+        "content": "Arguments are parsed only via `--key=value` syntax. MCP prompt arguments are commonly positional. Also, `if (value)` treats an empty-string value (e.g. `--key=\"\"`) as missing, which will incorrectly trigger the required-argument error for intentionally empty values. Consider checking `value !== undefined` instead of truthiness."
+      },
+      {
+        "path": "packages/core/src/tools/mcp-client.ts",
+        "start_line": 490,
+        "end_line": 492,
+        "content": "Removing the `if (discoveredTools.length === 0) throw Error('No enabled tools found')` check changes discovery behavior: servers that expose only prompts (and no tools) will no longer throw. Verify that downstream callers of discoverTools/connectAndDiscover correctly handle the now-possible empty tools array, since prior code relied on this throw to mark servers appropriately."
+      }
+    ]
+  },
+  "raw_output": "Looking at the diff, I'll analyze for real bugs and issues.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"packages/cli/src/ui/commands/promptCommands.ts\",\n      \"start_line\": 152,\n      \"end_line\": 155,\n      \"content\": \"The prompt text is being JSON.stringify'd before being submitted, which will wrap the text in quotes and escape internal characters (e.g., newlines become \\\\n, quotes become \\\\\\\"). Since `result.messages[0].content.text` is already a string, this will send a malformed prompt to the model. Use the raw text directly: `content: result.messages[0].content.text`.\"\n    },\n    {\n      \"path\": \"packages/cli/src/ui/commands/promptCommands.ts\",\n      \"start_line\": 141,\n      \"end_line\": 145,\n      \"content\": \"This only handles `result.messages[0].content.text`, but MCP prompt responses can contain multiple messages and non-text content types (e.g., image, resource). Consider concatenating text across all messages, or at least documenting that only the first text message is used. As written, multi-message prompts silently lose data.\"\n    },\n    {\n      \"path\": \"packages/cli/src/ui/commands/promptCommands.ts\",\n      \"start_line\": 108,\n      \"end_line\": 113,\n      \"content\": \"Arguments are parsed only via `--key=value` syntax. MCP prompt arguments are commonly positional. Also, `if (value)` treats an empty-string value (e.g. `--key=\\\"\\\"`) as missing, which will incorrectly trigger the required-argument error for intentionally empty values. Consider checking `value !== undefined` instead of truthiness.\"\n    },\n    {\n      \"path\": \"packages/core/src/tools/mcp-client.ts\",\n      \"start_line\": 490,\n      \"end_line\": 492,\n      \"content\": \"Removing the `if (discoveredTools.length === 0) throw Error('No enabled tools found')` check changes discovery behavior: servers that expose only prompts (and no tools) will no longer throw. Verify that downstream callers of discoverTools/connectAndDiscover correctly handle the now-possible empty tools array, since prior code relied on this throw to mark servers appropriately.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

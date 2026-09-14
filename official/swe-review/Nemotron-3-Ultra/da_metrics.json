@@ -1,0 +1,15 @@
+{
+  "DA": 70.9,
+  "DA_total_50": 53.3,
+  "CR": 15.8,
+  "FAR": 95.5,
+  "FRR": 3.5,
+  "total": 500,
+  "correct": 56,
+  "model_fail": 421,
+  "produced": 79,
+  "TP": 55,
+  "FP": 21,
+  "TN": 1,
+  "FN": 2
+}

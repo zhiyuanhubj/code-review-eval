@@ -1,0 +1,80 @@
+{
+  "instance_id": "google-gemini__gemini-cli@0fa1bd7",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "5a05fb0dd002481343aaab7736a871904bb07c6f",
+  "head_commit": "0fa1bd7ac417366f321ed2554caeaef550321959",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:34:39.029725+00:00",
+  "duration_seconds": 10.91,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/cli/src/utils/commentJson.ts",
+        "start_line": 30,
+        "end_line": 38,
+        "content": "When the file doesn't exist, this writes `JSON.stringify(updates, null, 2)` directly. If `updates` contains resolved env var values (which it will, since `saveSettings` passes the merged settings that have already been resolved via `resolveEnvVarsInObject`), the newly created file will contain the resolved secret values instead of the `$VAR` references. Consider applying `restoreEnvVarReferences` here too, or at least documenting this behavior.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/utils/commentJson.ts",
+        "start_line": 60,
+        "end_line": 90,
+        "content": "`applyUpdates` mutates `current` in place and returns it. Since `parsed` is the result of `parse(originalContent)`, this is fine for the current call site, but the function name and signature suggest a pure update. More importantly, when `updates` contains a key whose value is `undefined`, `Object.entries` will include it and `result[key] = undefined` will be set, which `comment-json`'s `stringify` may serialize as `null` or omit inconsistently. Consider skipping `undefined` values explicitly.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/utils/commentJson.ts",
+        "start_line": 92,
+        "end_line": 118,
+        "content": "`restoreEnvVarReferences` uses `mapping.path.join('.')` as the map key. If any settings key contains a literal `.` character, this will produce collisions (e.g. path `['a.b']` and `['a','b']` both become `'a.b'`). Use a more robust key (e.g. `JSON.stringify(mapping.path)`) to avoid ambiguity.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/utils/commentJson.ts",
+        "start_line": 120,
+        "end_line": 148,
+        "content": "`restoreEnvVarsRecursive` only recurses into plain objects, not arrays. If an env var reference lives inside an array element (e.g. `mcpServers` entries stored as arrays, or any list-valued setting), the reference will not be restored and the resolved secret will be written to disk. Consider handling arrays by iterating indices.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/utils/commentJson.ts",
+        "start_line": 150,
+        "end_line": 173,
+        "content": "`trackEnvVarMappings` uses `for (const key in obj)` which iterates inherited enumerable properties. Since `obj`/`originalObj` come from parsed JSON this is usually safe, but for robustness (and to match the prototype-pollution hardening elsewhere in this file) prefer `Object.keys(obj)` or `Object.entries(obj)`.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/utils/commentJson.ts",
+        "start_line": 150,
+        "end_line": 173,
+        "content": "The env var regex `/^\\$(?:(\\w+)|{([^}]+)})$/` only matches a value that is *entirely* a single env var reference. Values like `\"prefix-$VAR\"` or `\"${A}-${B}\"` won't be tracked, so if such a value is resolved and later saved, the resolved secret will be persisted to disk. Confirm this is intentional; if not, the regex should match embedded references too.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/config/settings.ts",
+        "start_line": 661,
+        "end_line": 685,
+        "content": "`structuredClone(systemSettings)` etc. are taken *after* `loadEnvironment(tempMergedSettings)` but the originals are captured right before `resolveEnvVarsInObject`. That's correct for tracking, but note that `trackEnvVarMappings` is called with `(resolved, original)` — verify the argument order matches the function signature `(obj, originalObj)`. It does here, but the naming in the call site (`systemSettings, systemOriginal`) is easy to invert in future edits; consider a named-args or clearer naming.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/config/settings.ts",
+        "start_line": 418,
+        "end_line": 422,
+        "content": "`this.envVarMappings.get(scope) || []` — the map is populated for System/User/Workspace in `loadSettings`, but if a new `SettingScope` is added later (or if `setValue` is called with a scope not in the map), the fallback `[]` silently disables env var restoration and the resolved secret will be written to disk. Consider logging a warning or throwing when the scope is missing from `envVarMappings`.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/config/settings.ts",
+        "start_line": 734,
+        "end_line": 741,
+        "content": "`updateSettingsFilePreservingFormat` swallows parse errors internally (logs and returns without writing). The previous `fs.writeFileSync` would throw on failure and be caught by the surrounding try/catch, which logs `'Error saving user settings file:'`. Now a corrupted settings file will silently fail to save with a different error message and no indication to the caller that the save did not happen. Consider returning a boolean or rethrowing so callers can react.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"packages/cli/src/utils/commentJson.ts\",\n      \"start_line\": 30,\n      \"end_line\": 38,\n      \"content\": \"When the file doesn't exist, this writes `JSON.stringify(updates, null, 2)` directly. If `updates` contains resolved env var values (which it will, since `saveSettings` passes the merged settings that have already been resolved via `resolveEnvVarsInObject`), the newly created file will contain the resolved secret values instead of the `$VAR` references. Consider applying `restoreEnvVarReferences` here too, or at least documenting this behavior.\"\n    },\n    {\n      \"path\": \"packages/cli/src/utils/commentJson.ts\",\n      \"start_line\": 60,\n      \"end_line\": 90,\n      \"content\": \"`applyUpdates` mutates `current` in place and returns it. Since `parsed` is the result of `parse(originalContent)`, this is fine for the current call site, but the function name and signature suggest a pure update. More importantly, when `updates` contains a key whose value is `undefined`, `Object.entries` will include it and `result[key] = undefined` will be set, which `comment-json`'s `stringify` may serialize as `null` or omit inconsistently. Consider skipping `undefined` values explicitly.\"\n    },\n    {\n      \"path\": \"packages/cli/src/utils/commentJson.ts\",\n      \"start_line\": 92,\n      \"end_line\": 118,\n      \"content\": \"`restoreEnvVarReferences` uses `mapping.path.join('.')` as the map key. If any settings key contains a literal `.` character, this will produce collisions (e.g. path `['a.b']` and `['a','b']` both become `'a.b'`). Use a more robust key (e.g. `JSON.stringify(mapping.path)`) to avoid ambiguity.\"\n    },\n    {\n      \"path\": \"packages/cli/src/utils/commentJson.ts\",\n      \"start_line\": 120,\n      \"end_line\": 148,\n      \"content\": \"`restoreEnvVarsRecursive` only recurses into plain objects, not arrays. If an env var reference lives inside an array element (e.g. `mcpServers` entries stored as arrays, or any list-valued setting), the reference will not be restored and the resolved secret will be written to disk. Consider handling arrays by iterating indices.\"\n    },\n    {\n      \"path\": \"packages/cli/src/utils/commentJson.ts\",\n      \"start_line\": 150,\n      \"end_line\": 173,\n      \"content\": \"`trackEnvVarMappings` uses `for (const key in obj)` which iterates inherited enumerable properties. Since `obj`/`originalObj` come from parsed JSON this is usually safe, but for robustness (and to match the prototype-pollution hardening elsewhere in this file) prefer `Object.keys(obj)` or `Object.entries(obj)`.\"\n    },\n    {\n      \"path\": \"packages/cli/src/utils/commentJson.ts\",\n      \"start_line\": 150,\n      \"end_line\": 173,\n      \"content\": \"The env var regex `/^\\\\$(?:(\\\\w+)|{([^}]+)})$/` only matches a value that is *entirely* a single env var reference. Values like `\\\"prefix-$VAR\\\"` or `\\\"${A}-${B}\\\"` won't be tracked, so if such a value is resolved and later saved, the resolved secret will be persisted to disk. Confirm this is intentional; if not, the regex should match embedded references too.\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/settings.ts\",\n      \"start_line\": 661,\n      \"end_line\": 685,\n      \"content\": \"`structuredClone(systemSettings)` etc. are taken *after* `loadEnvironment(tempMergedSettings)` but the originals are captured right before `resolveEnvVarsInObject`. That's correct for tracking, but note that `trackEnvVarMappings` is called with `(resolved, original)` — verify the argument order matches the function signature `(obj, originalObj)`. It does here, but the naming in the call site (`systemSettings, systemOriginal`) is easy to invert in future edits; consider a named-args or clearer naming.\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/settings.ts\",\n      \"start_line\": 418,\n      \"end_line\": 422,\n      \"content\": \"`this.envVarMappings.get(scope) || []` — the map is populated for System/User/Workspace in `loadSettings`, but if a new `SettingScope` is added later (or if `setValue` is called with a scope not in the map), the fallback `[]` silently disables env var restoration and the resolved secret will be written to disk. Consider logging a warning or throwing when the scope is missing from `envVarMappings`.\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/settings.ts\",\n      \"start_line\": 734,\n      \"end_line\": 741,\n      \"content\": \"`updateSettingsFilePreservingFormat` swallows parse errors internally (logs and returns without writing). The previous `fs.writeFileSync` would throw on failure and be caught by the surrounding try/catch, which logs `'Error saving user settings file:'`. Now a corrupted settings file will silently fail to save with a different error message and no indication to the caller that the save did not happen. Consider returning a boolean or rethrowing so callers can react.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

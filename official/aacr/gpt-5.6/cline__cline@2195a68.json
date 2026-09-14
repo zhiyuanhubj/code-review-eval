@@ -1,0 +1,29 @@
+{
+  "instance_id": "cline__cline@2195a68",
+  "repo": "cline/cline",
+  "base_commit": "398bc87a64800e021966868243be2f09be72e73c",
+  "head_commit": "2195a689b787a963bdacc35d348f4590c30a2692",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:29.098461+00:00",
+  "duration_seconds": 34.53,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/extension.ts",
+        "start_line": 318,
+        "end_line": 318,
+        "content": "`showWarningMessage` returns `undefined` when the dialog is dismissed, but this check only stops for the explicit \"Cancel\" button. Dismissing the security confirmation therefore continues and stores the mismatched-state token. Require explicit consent instead, e.g. return unless `userConfirmation === \"Store\"`."
+      },
+      {
+        "path": "src/services/auth/AuthService.ts",
+        "start_line": 33,
+        "end_line": 33,
+        "content": "The state nonce is now generated only once, and `validateAuthState` no longer invalidates it. Consequently, a callback state from any earlier login remains valid for the entire extension-host lifetime, including after deauth and subsequent auth requests. Generate/rotate the nonce for each auth request and invalidate it after a successful callback so the state remains single-use."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/extension.ts\",\"start_line\":318,\"end_line\":318,\"content\":\"`showWarningMessage` returns `undefined` when the dialog is dismissed, but this check only stops for the explicit \\\"Cancel\\\" button. Dismissing the security confirmation therefore continues and stores the mismatched-state token. Require explicit consent instead, e.g. return unless `userConfirmation === \\\"Store\\\"`.\"},{\"path\":\"src/services/auth/AuthService.ts\",\"start_line\":33,\"end_line\":33,\"content\":\"The state nonce is now generated only once, and `validateAuthState` no longer invalidates it. Consequently, a callback state from any earlier login remains valid for the entire extension-host lifetime, including after deauth and subsequent auth requests. Generate/rotate the nonce for each auth request and invalidate it after a successful callback so the state remains single-use.\"}]}",
+  "stderr": null
+}

@@ -1,0 +1,23 @@
+{
+  "instance_id": "gofr-dev__gofr@b9cdcbb",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "7f1760b083ea23ffd95fdf83467bdfa21735df81",
+  "head_commit": "b9cdcbb2b9fc78499d15d51ffbb7c861592b0efe",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:12.790273+00:00",
+  "duration_seconds": 18.33,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/gofr/http/responder.go",
+        "start_line": 32,
+        "end_line": 33,
+        "content": "When `v.Metadata` is a nil map, assigning it to the `interface{}` field creates a non-nil interface containing a typed nil, so `omitempty` does not omit it and the response contains `\"metadata\":null`. This contradicts the documented response shape when metadata is absent (and the new test currently enshrines the incorrect output). Keep `response.Metadata` typed as `map[string]any`, or only assign it when `v.Metadata != nil`, and update the test to expect the field to be absent."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"pkg/gofr/http/responder.go\",\"start_line\":32,\"end_line\":33,\"content\":\"When `v.Metadata` is a nil map, assigning it to the `interface{}` field creates a non-nil interface containing a typed nil, so `omitempty` does not omit it and the response contains `\\\"metadata\\\":null`. This contradicts the documented response shape when metadata is absent (and the new test currently enshrines the incorrect output). Keep `response.Metadata` typed as `map[string]any`, or only assign it when `v.Metadata != nil`, and update the test to expect the field to be absent.\"}]}",
+  "stderr": null
+}

@@ -1,0 +1,16 @@
+{
+  "instance_id": "dotnet__aspnetcore@2f372e8",
+  "repo": "dotnet/aspnetcore",
+  "base_commit": "e7d49f52363753a4faa2a22538eace7a923382ce",
+  "head_commit": "2f372e8ff137aa24114269576fc1912f12ff5402",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:04.277596+00:00",
+  "duration_seconds": 11.3,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": []\n}",
+  "stderr": null
+}

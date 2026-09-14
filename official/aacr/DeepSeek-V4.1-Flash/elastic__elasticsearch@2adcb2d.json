@@ -1,0 +1,24 @@
+{
+  "instance_id": "elastic__elasticsearch@2adcb2d",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "3594ade2a9ce3dac2abda77add51cc88990ce43a",
+  "head_commit": "2adcb2d510ac8667f771842572c4b2c8bcaf2992",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:39:16.203278+00:00",
+  "duration_seconds": 3.88,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/main/java/org/elasticsearch/cluster/ClusterChangedEvent.java",
+        "start_line": 351,
+        "end_line": 358,
+        "content": "The fast-path check only returns EMPTY_PROJECT_DELTA when both metadata have exactly one project and it is the default project. If either metadata has only the default project but the other has additional projects, the method falls through to the general set-difference calculation, which is correct. However, the fast path is unnecessarily narrow: it could also return EMPTY_PROJECT_DELTA whenever the project key sets are equal, avoiding the set-difference computation in the common case where no projects were added or removed. This is a minor optimization, not a bug.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/cluster/ClusterChangedEvent.java\",\n      \"start_line\": 351,\n      \"end_line\": 358,\n      \"content\": \"The fast-path check only returns EMPTY_PROJECT_DELTA when both metadata have exactly one project and it is the default project. If either metadata has only the default project but the other has additional projects, the method falls through to the general set-difference calculation, which is correct. However, the fast path is unnecessarily narrow: it could also return EMPTY_PROJECT_DELTA whenever the project key sets are equal, avoiding the set-difference computation in the common case where no projects were added or removed. This is a minor optimization, not a bug.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,52 @@
+{
+  "instance_id": "microsoft__typescript-go@100dbc5",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "3a3ff237cf7ad91bcdb604271f6135762aed9365",
+  "head_commit": "100dbc5127e723c4108efc02a179d9aec5fce32a",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:31:32.160618+00:00",
+  "duration_seconds": 10.2,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "internal/execute/outputs.go",
+        "start_line": 271,
+        "end_line": 271,
+        "content": "`terminalWidth` is declared but never assigned, so it is always 0 and the `terminalWidth >= 80` branch is dead code. This means the pretty/column-aligned output path is never taken. If this is intentional for now (pending `sys.getWidthOfTerminal`), consider removing the dead branch or adding a TODO; otherwise wire up the terminal width.",
+        "side": "right"
+      },
+      {
+        "path": "internal/execute/outputs.go",
+        "start_line": 320,
+        "end_line": 320,
+        "content": "`showAdditionalInfoOutput` dereferences `valueCandidates.possibleValues` without a nil check, but `getValueCandidate` returns `nil` for `CommandLineOptionTypeObject`. Callers pass the result of `getValueCandidate` directly, so this will panic for object-typed options. Add a nil guard at the top of the function (e.g. `if valueCandidates == nil { return false }`).",
+        "side": "right"
+      },
+      {
+        "path": "internal/execute/outputs.go",
+        "start_line": 324,
+        "end_line": 324,
+        "content": "`option.DefaultValueDescription` is compared against string literals `\"false\"` and `\"n/a\"`, but elsewhere in this file it is treated as a `*diagnostics.Message` (see the type assertion in `generateOptionOutput`). Comparing a `*diagnostics.Message` to a string will never be true, so this branch is effectively dead. Compare against the formatted message text instead.",
+        "side": "right"
+      },
+      {
+        "path": "internal/execute/outputs.go",
+        "start_line": 350,
+        "end_line": 353,
+        "content": "`getPossibleValues` returns `string(option.Kind)` for string/number/boolean options, which yields the raw enum value (e.g. `\"string\"`, `\"number\"`, `\"boolean\"`). This happens to match the baseline output, but it is fragile: it relies on the enum's string representation matching the user-facing type name. Consider mapping explicitly to `\"string\"`/`\"number\"`/`\"boolean\"` to avoid breakage if the enum values change.",
+        "side": "right"
+      },
+      {
+        "path": "internal/execute/outputs.go",
+        "start_line": 366,
+        "end_line": 366,
+        "content": "`inverted.Set(value, append(inverted.GetOrZero(value), name))` — `GetOrZero` returns the zero value (`nil` slice) when the key is absent, and `append(nil, name)` is fine, but if the same `value` appears multiple times the returned slice is appended to and re-set, which is correct. However, note that `GetOrZero` may return a shared backing array; verify `OrderedMap.GetOrZero` semantics to ensure no aliasing bug when the same value is set repeatedly.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"internal/execute/outputs.go\",\n      \"start_line\": 271,\n      \"end_line\": 271,\n      \"content\": \"`terminalWidth` is declared but never assigned, so it is always 0 and the `terminalWidth >= 80` branch is dead code. This means the pretty/column-aligned output path is never taken. If this is intentional for now (pending `sys.getWidthOfTerminal`), consider removing the dead branch or adding a TODO; otherwise wire up the terminal width.\"\n    },\n    {\n      \"path\": \"internal/execute/outputs.go\",\n      \"start_line\": 320,\n      \"end_line\": 320,\n      \"content\": \"`showAdditionalInfoOutput` dereferences `valueCandidates.possibleValues` without a nil check, but `getValueCandidate` returns `nil` for `CommandLineOptionTypeObject`. Callers pass the result of `getValueCandidate` directly, so this will panic for object-typed options. Add a nil guard at the top of the function (e.g. `if valueCandidates == nil { return false }`).\"\n    },\n    {\n      \"path\": \"internal/execute/outputs.go\",\n      \"start_line\": 324,\n      \"end_line\": 324,\n      \"content\": \"`option.DefaultValueDescription` is compared against string literals `\\\"false\\\"` and `\\\"n/a\\\"`, but elsewhere in this file it is treated as a `*diagnostics.Message` (see the type assertion in `generateOptionOutput`). Comparing a `*diagnostics.Message` to a string will never be true, so this branch is effectively dead. Compare against the formatted message text instead.\"\n    },\n    {\n      \"path\": \"internal/execute/outputs.go\",\n      \"start_line\": 350,\n      \"end_line\": 353,\n      \"content\": \"`getPossibleValues` returns `string(option.Kind)` for string/number/boolean options, which yields the raw enum value (e.g. `\\\"string\\\"`, `\\\"number\\\"`, `\\\"boolean\\\"`). This happens to match the baseline output, but it is fragile: it relies on the enum's string representation matching the user-facing type name. Consider mapping explicitly to `\\\"string\\\"`/`\\\"number\\\"`/`\\\"boolean\\\"` to avoid breakage if the enum values change.\"\n    },\n    {\n      \"path\": \"internal/execute/outputs.go\",\n      \"start_line\": 366,\n      \"end_line\": 366,\n      \"content\": \"`inverted.Set(value, append(inverted.GetOrZero(value), name))` — `GetOrZero` returns the zero value (`nil` slice) when the key is absent, and `append(nil, name)` is fine, but if the same `value` appears multiple times the returned slice is appended to and re-set, which is correct. However, note that `GetOrZero` may return a shared backing array; verify `OrderedMap.GetOrZero` semantics to ensure no aliasing bug when the same value is set repeatedly.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

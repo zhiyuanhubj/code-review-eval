@@ -1,0 +1,35 @@
+{
+  "instance_id": "elastic__elasticsearch@a6a4623",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "cc0e53e883ee7e0b136e58a0105103c1a7ffddf9",
+  "head_commit": "a6a4623f4a0216b515a8cb323110305504431459",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:46:04.002379+00:00",
+  "duration_seconds": 36.44,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/main/java/org/elasticsearch/lucene/search/uhighlight/QueryMaxAnalyzedOffset.java",
+        "start_line": 1,
+        "end_line": 30,
+        "content": "The constructor comment says 'If we have a negative value, grab value for the actual maximum from the index.' but the implementation only uses the index value when queryMaxAnalyzedOffset < 0. The comment should clarify that -1 is the special sentinel value that triggers using the index setting, not any negative value. Also, the class name 'QueryMaxAnalyzedOffset' is slightly misleading since it can hold the resolved index value, not just the query value. Consider renaming to 'ResolvedMaxAnalyzedOffset' or similar."
+      },
+      {
+        "path": "server/src/main/java/org/elasticsearch/search/fetch/subphase/highlight/AbstractHighlighterBuilder.java",
+        "start_line": 561,
+        "end_line": 572,
+        "content": "The javadoc says 'maxAnalyzedOffset might be non-negative int, null (unknown), or a negative int (defaulting to index analyzed offset).' but the validation only allows >= -1. The comment should specify that -1 is the only valid negative value (the sentinel), not any negative integer."
+      },
+      {
+        "path": "rest-api-spec/src/yamlRestTest/resources/rest-api-spec/test/search.highlight/30_max_analyzed_offset.yml",
+        "start_line": 115,
+        "end_line": 134,
+        "content": "The test name was changed from 'Plain highlighter with max_analyzed_offset < 0 should FAIL' to 'Plain highlighter with max_analyzed_offset < -1 should FAIL' but the test body still uses a negative value that should fail. Need to verify the test actually passes a value < -1 (e.g., -2) to match the new name and validation logic. The diff doesn't show the request body, so this should be verified."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/lucene/search/uhighlight/QueryMaxAnalyzedOffset.java\",\n      \"start_line\": 1,\n      \"end_line\": 30,\n      \"content\": \"The constructor comment says 'If we have a negative value, grab value for the actual maximum from the index.' but the implementation only uses the index value when queryMaxAnalyzedOffset < 0. The comment should clarify that -1 is the special sentinel value that triggers using the index setting, not any negative value. Also, the class name 'QueryMaxAnalyzedOffset' is slightly misleading since it can hold the resolved index value, not just the query value. Consider renaming to 'ResolvedMaxAnalyzedOffset' or similar.\"\n    },\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/search/fetch/subphase/highlight/AbstractHighlighterBuilder.java\",\n      \"start_line\": 561,\n      \"end_line\": 572,\n      \"content\": \"The javadoc says 'maxAnalyzedOffset might be non-negative int, null (unknown), or a negative int (defaulting to index analyzed offset).' but the validation only allows >= -1. The comment should specify that -1 is the only valid negative value (the sentinel), not any negative integer.\"\n    },\n    {\n      \"path\": \"rest-api-spec/src/yamlRestTest/resources/rest-api-spec/test/search.highlight/30_max_analyzed_offset.yml\",\n      \"start_line\": 115,\n      \"end_line\": 134,\n      \"content\": \"The test name was changed from 'Plain highlighter with max_analyzed_offset < 0 should FAIL' to 'Plain highlighter with max_analyzed_offset < -1 should FAIL' but the test body still uses a negative value that should fail. Need to verify the test actually passes a value < -1 (e.g., -2) to match the new name and validation logic. The diff doesn't show the request body, so this should be verified.\"\n    }\n  ]\n}",
+  "stderr": null
+}

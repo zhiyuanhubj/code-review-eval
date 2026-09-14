@@ -1,0 +1,35 @@
+{
+  "instance_id": "browser-use__browser-use@aab7b3b",
+  "repo": "browser-use/browser-use",
+  "base_commit": "515b94225aa86c40dc2c20034055ab8bcc88c6ae",
+  "head_commit": "aab7b3bb54e2b15ee3b32ad7de74c91fc8b22f52",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:23.818557+00:00",
+  "duration_seconds": 69.61,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "browser_use/browser/browser.py",
+        "start_line": 283,
+        "end_line": 283,
+        "content": "`channel='chrome'` is now passed unconditionally, including when `browser_class` is `firefox` or `webkit`; those launch paths cannot use the Chrome channel. It also makes the default Chromium path require a separately installed branded Chrome instead of the browser installed by `playwright`/`patchright install`. Make the channel conditional/configurable, or remove the unsupported browser choices and update installation accordingly."
+      },
+      {
+        "path": "browser_use/browser/context.py",
+        "start_line": 412,
+        "end_line": 415,
+        "content": "In headed mode `kwargs` contains neither `viewport` nor `no_viewport`, so Patchright uses its default emulated 1280x720 viewport. Previously `no_viewport=True` made the page use the actual browser window, including fullscreen/custom window sizes. Preserve that behavior with an `else` setting `no_viewport=True` (or explicitly configure the intended headed viewport)."
+      },
+      {
+        "path": "browser_use/browser/context.py",
+        "start_line": 446,
+        "end_line": 449,
+        "content": "This rewrite also removes the `Element.prototype.attachShadow` wrapper that forced closed shadow roots open. Patchright's anti-detection patches do not replace that browser-use functionality, so DOM extraction can no longer inspect elements created inside closed shadow roots. Keep the attachShadow wrapper separately while removing the navigator stealth shims."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"browser_use/browser/browser.py\",\"start_line\":283,\"end_line\":283,\"content\":\"`channel='chrome'` is now passed unconditionally, including when `browser_class` is `firefox` or `webkit`; those launch paths cannot use the Chrome channel. It also makes the default Chromium path require a separately installed branded Chrome instead of the browser installed by `playwright`/`patchright install`. Make the channel conditional/configurable, or remove the unsupported browser choices and update installation accordingly.\"},{\"path\":\"browser_use/browser/context.py\",\"start_line\":412,\"end_line\":415,\"content\":\"In headed mode `kwargs` contains neither `viewport` nor `no_viewport`, so Patchright uses its default emulated 1280x720 viewport. Previously `no_viewport=True` made the page use the actual browser window, including fullscreen/custom window sizes. Preserve that behavior with an `else` setting `no_viewport=True` (or explicitly configure the intended headed viewport).\"},{\"path\":\"browser_use/browser/context.py\",\"start_line\":446,\"end_line\":449,\"content\":\"This rewrite also removes the `Element.prototype.attachShadow` wrapper that forced closed shadow roots open. Patchright's anti-detection patches do not replace that browser-use functionality, so DOM extraction can no longer inspect elements created inside closed shadow roots. Keep the attachShadow wrapper separately while removing the navigator stealth shims.\"}]}",
+  "stderr": null
+}

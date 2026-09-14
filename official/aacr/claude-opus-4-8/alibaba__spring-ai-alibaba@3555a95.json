@@ -1,0 +1,16 @@
+{
+  "instance_id": "alibaba__spring-ai-alibaba@3555a95",
+  "repo": "alibaba/spring-ai-alibaba",
+  "base_commit": "76c06b58a4d9e8ee3fe3c0269a046987ad0502e5",
+  "head_commit": "3555a95e7b888335d9f72e432eb4f9fb9640e8cd",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:16.690616+00:00",
+  "duration_seconds": 22.4,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "<think>\nLet me analyze the key change. The `apply` method now requires `sourceLanguage` to be non-empty:\n\n```java\nif (request == null || !StringUtils.hasText(request.text) || !StringUtils.hasText(request.sourceLanguage)\n        || !StringUtils.hasText(request.targetLanguage)) {\n    return null;\n}\n```\n\nBut the JsonPropertyDescription says default is zh for source and en for target, and they're `required = false`. This means when the LLM doesn't provide sourceLanguage or targetLanguage, the request will have null values, and apply returns null. This is a behavior contradiction - the description says defaults exist, but the validation rejects null.\n\nThe convenience constructor `Request(String text)` sets defaults, but that's not what the LLM uses via JSON deserialization. When deserialized from JSON with only `text`, the sourceLanguage and targetLanguage will be null, and the multi-arg canonical constructor is used, so no defaults applied.\n\nThis is a real bug: the \"default is zh/en\" documented behavior is not implemented for JSON deserialization path. The apply() will return null instead of using defaults.\n\nLet me report this.\n</think>\n\n{\n  \"comments\": [\n    {\n      \"path\": \"community/tool-calls/spring-ai-alibaba-starter-tool-calling-alitranslate/src/main/java/com/alibaba/cloud/ai/toolcalling/alitranslate/AliTranslateService.java\",\n      \"start_line\": 84,\n      \"end_line\": 88,\n      \"content\": \"The validation now rejects requests where `sourceLanguage` (and `targetLanguage`) are blank, but both fields are declared `required = false` with descriptions stating \\\"default is zh\\\"/\\\"default is en\\\". When the LLM emits only `text`, Jackson uses the canonical record constructor with null source/target (the single-arg convenience constructor is not invoked during deserialization), so `apply` returns null instead of applying the documented defaults. Either make the fields truly required, or apply the defaults here (e.g. `String source = StringUtils.hasText(request.sourceLanguage) ? request.sourceLanguage : LANGUAGE_CODE_ZH;`) before the null check so the documented default behavior actually works.\"\n    },\n    {\n      \"path\": \"community/tool-calls/spring-ai-alibaba-starter-tool-calling-alitranslate/src/main/java/com/alibaba/cloud/ai/toolcalling/alitranslate/AliTranslateService.java\",\n      \"start_line\": 145,\n      \"end_line\": 147,\n      \"content\": \"The convenience constructor comment says \\\"默认目标语言为英语\\\" but the arguments passed are `(text, LANGUAGE_CODE_ZH, LANGUAGE_CODE_EN)`, i.e. source=zh, target=en. The record component order is (text, sourceLanguage, targetLanguage), so this is correct, but the comment is now misleading—consider updating it to reflect source=zh, target=en.\"\n    }\n  ]\n}",
+  "stderr": null
+}

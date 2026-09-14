@@ -1,0 +1,24 @@
+{
+  "instance_id": "timescale__timescaledb@2568b01",
+  "repo": "timescale/timescaledb",
+  "base_commit": "17fb43d888dbe3b328da6b08b310bc83d3167d39",
+  "head_commit": "2568b018719e25f262255626c474a461da38fc21",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:55.719152+00:00",
+  "duration_seconds": 2.57,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "tsl/src/hypercore/hypercore_handler.c",
+        "start_line": 97,
+        "end_line": 104,
+        "content": "The `mode` parameter is ignored; the function always opens with `AccessShareLock`. This is a real bug: callers pass `RowExclusiveLock` (e.g. in `hypercore_tuple_delete`, `hypercore_decompress_update_segment`, `hypercore_index_delete_tuples`, `compress_and_swap_heap`) and `RowShareLock` (in `hypercore_tuple_lock`), but the compressed relation is opened with `AccessShareLock` instead. This weakens locking and can lead to incorrect concurrency behavior. Use `table_open(hcinfo->compressed_relid, mode)`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\"comments\": [{\"path\": \"tsl/src/hypercore/hypercore_handler.c\", \"start_line\": 97, \"end_line\": 104, \"content\": \"The `mode` parameter is ignored; the function always opens with `AccessShareLock`. This is a real bug: callers pass `RowExclusiveLock` (e.g. in `hypercore_tuple_delete`, `hypercore_decompress_update_segment`, `hypercore_index_delete_tuples`, `compress_and_swap_heap`) and `RowShareLock` (in `hypercore_tuple_lock`), but the compressed relation is opened with `AccessShareLock` instead. This weakens locking and can lead to incorrect concurrency behavior. Use `table_open(hcinfo->compressed_relid, mode)`.\"}]}",
+  "stderr": null
+}

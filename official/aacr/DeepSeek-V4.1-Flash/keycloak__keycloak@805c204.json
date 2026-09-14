@@ -1,0 +1,24 @@
+{
+  "instance_id": "keycloak__keycloak@805c204",
+  "repo": "keycloak/keycloak",
+  "base_commit": "8521b9952a989d0dac17697278610b053c613528",
+  "head_commit": "805c204a9dbfb5b8128de8f70c9f3fbd6d6583f9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:32.221207+00:00",
+  "duration_seconds": 3.13,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "docs/maven-plugin/src/main/java/org/keycloak/guides/maven/GuideParser.java",
+        "start_line": 78,
+        "end_line": 82,
+        "content": "Missing `break;` after the `priority` case causes fall-through into the `tileVisible` case. When a guide specifies `priority=...`, `attributeMatcher.group(\"valueString\")` will be null (since the int alternative matched), and `Boolean.parseBoolean(null)` returns false, silently setting `tileVisible` to `false` on every guide that has a priority. This will then trigger the new `Context` check (\"Invisible tiles should be pinned or have an explicit priority\") for guides that have a priority but no explicit `tileVisible`, breaking the build. Add `break;` after `guide.setPriority(...)`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"docs/maven-plugin/src/main/java/org/keycloak/guides/maven/GuideParser.java\",\n      \"start_line\": 78,\n      \"end_line\": 82,\n      \"content\": \"Missing `break;` after the `priority` case causes fall-through into the `tileVisible` case. When a guide specifies `priority=...`, `attributeMatcher.group(\\\"valueString\\\")` will be null (since the int alternative matched), and `Boolean.parseBoolean(null)` returns false, silently setting `tileVisible` to `false` on every guide that has a priority. This will then trigger the new `Context` check (\\\"Invisible tiles should be pinned or have an explicit priority\\\") for guides that have a priority but no explicit `tileVisible`, breaking the build. Add `break;` after `guide.setPriority(...)`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,16 @@
+{
+  "instance_id": "elastic__elasticsearch@4d9b96f",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "ba5a9c83310ce6fbe27ff251aba00e37fad1d205",
+  "head_commit": "4d9b96f4ac1af0cb871f1d3b77169f9f1e83d194",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:45:54.084461+00:00",
+  "duration_seconds": 36.25,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"libs/entitlement/src/main/java/org/elasticsearch/entitlement/runtime/policy/PolicyManager.java\",\n      \"start_line\": 65,\n      \"end_line\": 65,\n      \"content\": \"DEFAULT_FILESYSTEM_CLASS is captured at class initialization time. If the default filesystem changes later (e.g., via FileSystems.setDefaultFileSystem), this check will use a stale reference. Consider calling PathUtils.getDefaultFileSystem().getClass() directly in isPathOnDefaultFilesystem() instead of caching.\"\n    },\n    {\n      \"path\": \"libs/entitlement/src/main/java/org/elasticsearch/entitlement/runtime/policy/PolicyManager.java\",\n      \"start_line\": 310,\n      \"end_line\": 325,\n      \"content\": \"The method name isPathOnDefaultFilesystem() returns true when the path IS on the default filesystem, but the logic in checkFileRead/checkFileWrite returns early when it returns false. This is correct but the naming is confusing. Consider renaming to isPathOnNonDefaultFilesystem() and inverting the logic, or renaming to isPathOnDefaultFilesystem() and changing the call sites to 'if (!isPathOnDefaultFilesystem(path)) return;'.\"\n    },\n    {\n      \"path\": \"libs/entitlement/src/main/java/org/elasticsearch/entitlement/runtime/policy/FileAccessTree.java\",\n      \"start_line\": 206,\n      \"end_line\": 206,\n      \"content\": \"Debug logging of paths in checkPath() could be verbose in production. Consider if this should be trace level instead, or if the paths array could be large enough to cause performance issues when joined.\"\n    },\n    {\n      \"path\": \"libs/entitlement/src/main/java/org/elasticsearch/entitlement/runtime/policy/FileAccessTree.java\",\n      \"start_line\": 224,\n      end_line: 224,\n      \"content\": \"Debug logging in isParent() will fire for every path comparison during tree traversal. This could be extremely verbose. Consider removing or making it trace level.\"\n    }\n  ]\n}",
+  "stderr": null
+}

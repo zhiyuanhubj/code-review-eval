@@ -1,0 +1,23 @@
+{
+  "instance_id": "ollama__ollama@af112d6",
+  "repo": "ollama/ollama",
+  "base_commit": "2db96c18e72289928e45704a77f96f7bdfaee30f",
+  "head_commit": "af112d6365207a5a3f65136c7057d6bb98203c35",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:32:10.249605+00:00",
+  "duration_seconds": 45.78,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/create.go",
+        "start_line": 280,
+        "end_line": 285,
+        "content": "`O_CREATE` materializes an empty destination file. The existing code later hard-links the blob to this same path, so `os.Link` will fail with `EEXIST` for every valid file. It also fails before the later `MkdirAll` for valid nested paths whose parent directory does not yet exist. Validate containment without creating the destination, or perform the directory creation and final file operation through `os.Root`."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"server/create.go\",\"start_line\":280,\"end_line\":285,\"content\":\"`O_CREATE` materializes an empty destination file. The existing code later hard-links the blob to this same path, so `os.Link` will fail with `EEXIST` for every valid file. It also fails before the later `MkdirAll` for valid nested paths whose parent directory does not yet exist. Validate containment without creating the destination, or perform the directory creation and final file operation through `os.Root`.\"}]}",
+  "stderr": null
+}

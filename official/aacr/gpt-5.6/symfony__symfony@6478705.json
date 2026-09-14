@@ -1,0 +1,16 @@
+{
+  "instance_id": "symfony__symfony@6478705",
+  "repo": "symfony/symfony",
+  "base_commit": "e06b10c4f0088e2966c510d335531f7daed61915",
+  "head_commit": "647870557cf275de666557e552e11e9a295b9d4a",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:32:54.298371+00:00",
+  "duration_seconds": 14.43,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\"comments\":[]}",
+  "stderr": null
+}

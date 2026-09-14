@@ -1,0 +1,47 @@
+{
+  "instance_id": "ollama__ollama@498792c",
+  "repo": "ollama/ollama",
+  "base_commit": "56dc316a57f07fbed80723d1ecd589da0906018e",
+  "head_commit": "498792c9be023ebfdaa1e0dbc6ac85c0ff8c75b1",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:32.695109+00:00",
+  "duration_seconds": 22.39,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "integration/api_test.go",
+        "start_line": 18,
+        "end_line": 21,
+        "content": "The context timeout is 1 minute, but `initialTimeout` (60s) plus `streamTimeout` handling can exceed this. More importantly, `req.Stream` is dereferenced in `fn` (`*req.Stream`) before it's set. It's only assigned inside the goroutine (`req.Stream = &test.stream`), but `fn` may be invoked concurrently. Since the assignment happens before `client.Generate` in the same goroutine, this is likely fine, but relying on `*req.Stream` inside a callback that reads shared `req` is fragile. Consider capturing `test.stream` directly."
+      },
+      {
+        "path": "integration/api_test.go",
+        "start_line": 111,
+        "end_line": 113,
+        "content": "On the stall timeout case, the test calls `t.Errorf` but does not return/stop; execution falls through to the PS validation below while the generate goroutine may still be running and mutating `buf`. Consider returning from the subtest after a stall to avoid racing with the still-active goroutine."
+      },
+      {
+        "path": "integration/model_arch_test.go",
+        "start_line": 89,
+        "end_line": 91,
+        "content": "`time.Now().Sub(started)` triggers gosimple (S1012); prefer `time.Since(started)`."
+      },
+      {
+        "path": "integration/model_arch_test.go",
+        "start_line": 44,
+        "end_line": 46,
+        "content": "The `getTimeouts` helper returns durations that may be zero (on the Skip path). When `hasDeadline` is false it returns fixed values, but the Skip branch calls t.Skip and returns zeroes; `context.WithTimeout(ctx, 0)` would immediately expire. Since t.Skip stops the test this is typically unreachable, but the returned zero durations are still used to build the context before Skip fully unwinds only if the caller ignores Skip. Verify the Skip actually halts before the context is created (getTimeouts is called before WithTimeout, so this is fine—no change needed)."
+      },
+      {
+        "path": "integration/model_arch_test.go",
+        "start_line": 34,
+        "end_line": 34,
+        "content": "`stablelm2:latest` is annotated as crashing on small VRAM GPUs yet remains uncommented in the active list, unlike `phi:latest` which was disabled for flakiness. Consider gating stablelm2 behind a VRAM check or commenting it out to avoid crashes in CI."
+      }
+    ]
+  },
+  "raw_output": "I need to review this PR diff, focusing on real bugs and actionable issues.\n\nLooking at the diff, this is primarily test code for integration tests. Let me examine the key areas.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"integration/api_test.go\",\n      \"start_line\": 18,\n      \"end_line\": 21,\n      \"content\": \"The context timeout is 1 minute, but `initialTimeout` (60s) plus `streamTimeout` handling can exceed this. More importantly, `req.Stream` is dereferenced in `fn` (`*req.Stream`) before it's set. It's only assigned inside the goroutine (`req.Stream = &test.stream`), but `fn` may be invoked concurrently. Since the assignment happens before `client.Generate` in the same goroutine, this is likely fine, but relying on `*req.Stream` inside a callback that reads shared `req` is fragile. Consider capturing `test.stream` directly.\"\n    },\n    {\n      \"path\": \"integration/api_test.go\",\n      \"start_line\": 111,\n      \"end_line\": 113,\n      \"content\": \"On the stall timeout case, the test calls `t.Errorf` but does not return/stop; execution falls through to the PS validation below while the generate goroutine may still be running and mutating `buf`. Consider returning from the subtest after a stall to avoid racing with the still-active goroutine.\"\n    },\n    {\n      \"path\": \"integration/model_arch_test.go\",\n      \"start_line\": 89,\n      \"end_line\": 91,\n      \"content\": \"`time.Now().Sub(started)` triggers gosimple (S1012); prefer `time.Since(started)`.\"\n    },\n    {\n      \"path\": \"integration/model_arch_test.go\",\n      \"start_line\": 44,\n      \"end_line\": 46,\n      \"content\": \"The `getTimeouts` helper returns durations that may be zero (on the Skip path). When `hasDeadline` is false it returns fixed values, but the Skip branch calls t.Skip and returns zeroes; `context.WithTimeout(ctx, 0)` would immediately expire. Since t.Skip stops the test this is typically unreachable, but the returned zero durations are still used to build the context before Skip fully unwinds only if the caller ignores Skip. Verify the Skip actually halts before the context is created (getTimeouts is called before WithTimeout, so this is fine—no change needed).\"\n    },\n    {\n      \"path\": \"integration/model_arch_test.go\",\n      \"start_line\": 34,\n      \"end_line\": 34,\n      \"content\": \"`stablelm2:latest` is annotated as crashing on small VRAM GPUs yet remains uncommented in the active list, unlike `phi:latest` which was disabled for flakiness. Consider gating stablelm2 behind a VRAM check or commenting it out to avoid crashes in CI.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

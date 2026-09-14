@@ -1,0 +1,31 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@39c5968",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "b59cd794274c8c007b2ef16c3a06fecf30c0aef1",
+  "head_commit": "39c5968bdc6c0b20d94d4a629cd43eafee1e56d0",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:30:39.531542+00:00",
+  "duration_seconds": 3.19,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/App/Application.cpp",
+        "start_line": 1196,
+        "end_line": 1196,
+        "content": "The original code `std::string(RESOURCEDIR).c_str()` was intentionally truncating at the first null character to work around Conda injecting null characters (issue #6892). Changing it to `std::string(RESOURCEDIR)` removes that workaround and may reintroduce the bug. The same applies to `getLibraryDir()` and `getHelpDir()`.",
+        "side": "right"
+      },
+      {
+        "path": "src/App/Application.cpp",
+        "start_line": 3516,
+        "end_line": 3516,
+        "content": "The new code leaks `buf` when `_NSGetExecutablePath` fails (returns non-zero), because `delete[] buf` is only executed inside the success branch. The original code had the same issue, but since this line is being modified, it would be good to fix it by deleting `buf` unconditionally.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/App/Application.cpp\",\n      \"start_line\": 1196,\n      \"end_line\": 1196,\n      \"content\": \"The original code `std::string(RESOURCEDIR).c_str()` was intentionally truncating at the first null character to work around Conda injecting null characters (issue #6892). Changing it to `std::string(RESOURCEDIR)` removes that workaround and may reintroduce the bug. The same applies to `getLibraryDir()` and `getHelpDir()`.\"\n    },\n    {\n      \"path\": \"src/App/Application.cpp\",\n      \"start_line\": 3516,\n      \"end_line\": 3516,\n      \"content\": \"The new code leaks `buf` when `_NSGetExecutablePath` fails (returns non-zero), because `delete[] buf` is only executed inside the success branch. The original code had the same issue, but since this line is being modified, it would be good to fix it by deleting `buf` unconditionally.\"\n    }\n  ]\n}",
+  "stderr": null
+}

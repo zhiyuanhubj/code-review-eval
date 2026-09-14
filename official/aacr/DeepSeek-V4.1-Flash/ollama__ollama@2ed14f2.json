@@ -1,0 +1,157 @@
+{
+  "instance_id": "ollama__ollama@2ed14f2",
+  "repo": "ollama/ollama",
+  "base_commit": "4ea4d2b18952a104a47079df00ac0bfe4706f3aa",
+  "head_commit": "2ed14f2a28867c017426b41a9ff6bfc52c981a43",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:11.761438+00:00",
+  "duration_seconds": 20.78,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/internal/cache/blob/chunked.go",
+        "start_line": 47,
+        "end_line": 47,
+        "content": "`Close` will panic with a nil pointer dereference when the Chunker was created via the pre-validated path in `Chunked` (where `f` is nil). Callers in `registry.go` do `defer chunked.Close()` unconditionally, so this will panic whenever a blob already exists with the expected size. Guard with `if c.f == nil { return nil }`.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/client/ollama/registry.go",
+        "start_line": 476,
+        "end_line": 476,
+        "content": "`defer chunked.Close()` is inside the loop, so all files stay open until `Pull` returns. For models with many layers this can exhaust file descriptors. Close the chunker at the end of each iteration (e.g. wrap the per-layer work in a closure or call `chunked.Close()` explicitly after the goroutine completes).",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/client/ollama/registry.go",
+        "start_line": 484,
+        "end_line": 484,
+        "content": "The `g.Go` closure captures the loop variable `l` (and `chunked`, `progress`). In Go <1.22 this is a classic loop-variable capture bug; even in Go 1.22+ the `progress` variable is declared inside the loop so it's fine, but `l` is the range variable. Verify the module's Go version, or shadow `l := l` inside the loop to be safe.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/client/ollama/registry.go",
+        "start_line": 486,
+        "end_line": 486,
+        "content": "`t.update(l, progress.Load(), err)` is called from the deferred function, but `progress` is shared across all chunks of the same layer and is only incremented by `trackingReader`. On the first chunk's completion this reports the running total, which is fine, but if a chunk fails the reported `progress.Load()` may not reflect the actual bytes written for that chunk. Consider tracking per-chunk bytes for accurate error reporting.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/client/ollama/registry.go",
+        "start_line": 505,
+        "end_line": 505,
+        "content": "`chunked.Put(cs.Chunk, cs.Digest, body)` is called with `cs.Digest` as the expected digest, but `checkWriter` verifies the hash of the bytes written against `d`. For chunked downloads the per-chunk digest is the digest of the chunk, not of the whole blob, so this is correct only if the server's chunksums endpoint returns per-chunk digests. Confirm the server contract; otherwise the hash check will fail for every chunk.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/client/ollama/registry.go",
+        "start_line": 700,
+        "end_line": 700,
+        "content": "`chunksums` uses `l.Size < r.maxChunkingThreshold()` (strict less-than). A layer exactly equal to the threshold will go through the chunksums endpoint. The previous code used `<=`. If the intent is to keep the boundary behavior, use `<=`; otherwise document the change.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/client/ollama/registry.go",
+        "start_line": 760,
+        "end_line": 760,
+        "content": "`blob.ParseDigest(s.Bytes())` is called with `s.Bytes()` which is only valid until the next `s.Scan()`. Since the digest is parsed before the next Scan, this is currently safe, but it's fragile. Consider copying the bytes or using `s.Text()` for clarity.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/registry/server.go",
+        "start_line": 296,
+        "end_line": 296,
+        "content": "`t := time.NewTicker(time.Hour)` is never stopped. The `defer t.Stop()` was removed in this refactor. Add `defer t.Stop()` after creating the ticker to avoid leaking the timer.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/registry/server.go",
+        "start_line": 297,
+        "end_line": 297,
+        "content": "`start := sync.OnceFunc(func() { t.Reset(100 * time.Millisecond) })` resets the ticker, but `t.Reset` on a ticker that has already fired is fine; however, if `start` is called after the ticker has been stopped (which it isn't here) it would panic. More importantly, the initial `time.Hour` tick means the first `pushUpdate` only fires after the first `Update` callback with `n > 0`. If a pull completes without any bytes (e.g. all cached), the final `pushUpdate` in the `done` case still fires, so this is OK. No action needed, but worth a comment.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/registry/server.go",
+        "start_line": 320,
+        "end_line": 320,
+        "content": "`pushUpdate` reads `progress` map under `mu`, but the `Update` callback writes to it under `mu` as well. However, `pushUpdate` is called from the main goroutine while `Update` is called from the pull goroutine, so the mutex is necessary and correct. No issue.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/registry/server.go",
+        "start_line": 340,
+        "end_line": 340,
+        "content": "The `done` channel receives the error from `s.Client.Pull`, but the goroutine does not check `ctx.Done()`. If the client disconnects, `Pull` should return via context cancellation. Verify that `Pull` respects `ctx` cancellation; otherwise this goroutine can leak.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/registry/server.go",
+        "start_line": 355,
+        "end_line": 355,
+        "content": "After `enc.Encode(progressUpdateJSON{Status: status})` for the error case, the function returns `nil`, so the HTTP status will be 200 even though the pull failed. The non-streaming path returns `errModelNotFound` (404) for the same condition. This inconsistency means streaming clients cannot distinguish success from failure via HTTP status. Consider whether this is intentional (streaming errors are conveyed in the JSON body) and document it.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/registry/server_test.go",
+        "start_line": 213,
+        "end_line": 213,
+        "content": "The expected output `{\"status\":\"\",\"digest\":\"smol\",\"total\":8,\"completed\":8}` has an empty `status` field. This is because `pushUpdate` initializes `p := progressUpdateJSON{Digest: p.model()}` without setting `Status`. The previous behavior emitted `\"pulling\"` as the status. This is a user-visible regression in the streaming API. Set `Status: \"pulling\"` (or similar) in `pushUpdate`.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/registry/server_test.go",
+        "start_line": 213,
+        "end_line": 213,
+        "content": "The test now expects only a single progress line for the `smol` pull, whereas previously multiple progress updates were emitted. This is because the ticker only fires every 100ms and the pull completes faster. This makes the test flaky: on a slow CI machine, multiple updates may be emitted. Consider making the test tolerant of multiple updates or using a deterministic mechanism.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/client/ollama/registry_test.go",
+        "start_line": 535,
+        "end_line": 535,
+        "content": "`t.Skip(\"TODO: BRING BACK BEFORE LANDING\")` disables the chunking test. This should be resolved before merging, as it removes coverage for the new chunked download path.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/cache/blob/cache.go",
+        "start_line": 531,
+        "end_line": 531,
+        "content": "Removing the `strings.Contains(name, \"@\")` check from `nameToPath` means names containing `@` are now passed to `names.Parse`. Verify that `names.Parse` correctly rejects or handles names with `@` (e.g. `foo@bar`), since the previous code explicitly rejected them. If `names.Parse` accepts them, this could allow path traversal or unexpected link names.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/cache/blob/cache.go",
+        "start_line": 425,
+        "end_line": 425,
+        "content": "`checkWriter.Write` now returns early if `w.err != nil`, but `w.err` is only set by `seterr`. The `w` field is set by the creator; if a caller forgets to set `w`, `w.w.Write` will panic with a nil pointer. Consider adding a nil check or documenting the requirement.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/cache/blob/chunked.go",
+        "start_line": 47,
+        "end_line": 47,
+        "content": "`Close` does not handle the case where `c.f` is nil (pre-validated chunker). This will panic. See the comment on line 47 above.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/chunks/chunks.go",
+        "start_line": 34,
+        "end_line": 34,
+        "content": "The generic `Parse[S ~string | ~[]byte]` converts `s` to `string` for `strings.Cut`, which allocates for `[]byte` inputs. Since `Parse` is called in a hot loop in `chunksums`, consider using `bytes.Cut` for `[]byte` or accepting the allocation. Minor performance nit.",
+        "side": "right"
+      },
+      {
+        "path": "server/internal/client/ollama/registry.go",
+        "start_line": 476,
+        "end_line": 476,
+        "content": "`defer chunked.Close()` inside the loop defers until function return, not loop iteration end. This is a resource leak for multi-layer models. Move the close into the goroutine or use an explicit close after `g.Wait()` per layer.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"server/internal/cache/blob/chunked.go\",\n      \"start_line\": 47,\n      \"end_line\": 47,\n      \"content\": \"`Close` will panic with a nil pointer dereference when the Chunker was created via the pre-validated path in `Chunked` (where `f` is nil). Callers in `registry.go` do `defer chunked.Close()` unconditionally, so this will panic whenever a blob already exists with the expected size. Guard with `if c.f == nil { return nil }`.\"\n    },\n    {\n      \"path\": \"server/internal/client/ollama/registry.go\",\n      \"start_line\": 476,\n      \"end_line\": 476,\n      \"content\": \"`defer chunked.Close()` is inside the loop, so all files stay open until `Pull` returns. For models with many layers this can exhaust file descriptors. Close the chunker at the end of each iteration (e.g. wrap the per-layer work in a closure or call `chunked.Close()` explicitly after the goroutine completes).\"\n    },\n    {\n      \"path\": \"server/internal/client/ollama/registry.go\",\n      \"start_line\": 484,\n      \"end_line\": 484,\n      \"content\": \"The `g.Go` closure captures the loop variable `l` (and `chunked`, `progress`). In Go <1.22 this is a classic loop-variable capture bug; even in Go 1.22+ the `progress` variable is declared inside the loop so it's fine, but `l` is the range variable. Verify the module's Go version, or shadow `l := l` inside the loop to be safe.\"\n    },\n    {\n      \"path\": \"server/internal/client/ollama/registry.go\",\n      \"start_line\": 486,\n      \"end_line\": 486,\n      \"content\": \"`t.update(l, progress.Load(), err)` is called from the deferred function, but `progress` is shared across all chunks of the same layer and is only incremented by `trackingReader`. On the first chunk's completion this reports the running total, which is fine, but if a chunk fails the reported `progress.Load()` may not reflect the actual bytes written for that chunk. Consider tracking per-chunk bytes for accurate error reporting.\"\n    },\n    {\n      \"path\": \"server/internal/client/ollama/registry.go\",\n      \"start_line\": 505,\n      \"end_line\": 505,\n      \"content\": \"`chunked.Put(cs.Chunk, cs.Digest, body)` is called with `cs.Digest` as the expected digest, but `checkWriter` verifies the hash of the bytes written against `d`. For chunked downloads the per-chunk digest is the digest of the chunk, not of the whole blob, so this is correct only if the server's chunksums endpoint returns per-chunk digests. Confirm the server contract; otherwise the hash check will fail for every chunk.\"\n    },\n    {\n      \"path\": \"server/internal/client/ollama/registry.go\",\n      \"start_line\": 700,\n      \"end_line\": 700,\n      \"content\": \"`chunksums` uses `l.Size < r.maxChunkingThreshold()` (strict less-than). A layer exactly equal to the threshold will go through the chunksums endpoint. The previous code used `<=`. If the intent is to keep the boundary behavior, use `<=`; otherwise document the change.\"\n    },\n    {\n      \"path\": \"server/internal/client/ollama/registry.go\",\n      \"start_line\": 760,\n      \"end_line\": 760,\n      \"content\": \"`blob.ParseDigest(s.Bytes())` is called with `s.Bytes()` which is only valid until the next `s.Scan()`. Since the digest is parsed before the next Scan, this is currently safe, but it's fragile. Consider copying the bytes or using `s.Text()` for clarity.\"\n    },\n    {\n      \"path\": \"server/internal/registry/server.go\",\n      \"start_line\": 296,\n      \"end_line\": 296,\n      \"content\": \"`t := time.NewTicker(time.Hour)` is never stopped. The `defer t.Stop()` was removed in this refactor. Add `defer t.Stop()` after creating the ticker to avoid leaking the timer.\"\n    },\n    {\n      \"path\": \"server/internal/registry/server.go\",\n      \"start_line\": 297,\n      \"end_line\": 297,\n      \"content\": \"`start := sync.OnceFunc(func() { t.Reset(100 * time.Millisecond) })` resets the ticker, but `t.Reset` on a ticker that has already fired is fine; however, if `start` is called after the ticker has been stopped (which it isn't here) it would panic. More importantly, the initial `time.Hour` tick means the first `pushUpdate` only fires after the first `Update` callback with `n > 0`. If a pull completes without any bytes (e.g. all cached), the final `pushUpdate` in the `done` case still fires, so this is OK. No action needed, but worth a comment.\"\n    },\n    {\n      \"path\": \"server/internal/registry/server.go\",\n      \"start_line\": 320,\n      \"end_line\": 320,\n      \"content\": \"`pushUpdate` reads `progress` map under `mu`, but the `Update` callback writes to it under `mu` as well. However, `pushUpdate` is called from the main goroutine while `Update` is called from the pull goroutine, so the mutex is necessary and correct. No issue.\"\n    },\n    {\n      \"path\": \"server/internal/registry/server.go\",\n      \"start_line\": 340,\n      \"end_line\": 340,\n      \"content\": \"The `done` channel receives the error from `s.Client.Pull`, but the goroutine does not check `ctx.Done()`. If the client disconnects, `Pull` should return via context cancellation. Verify that `Pull` respects `ctx` cancellation; otherwise this goroutine can leak.\"\n    },\n    {\n      \"path\": \"server/internal/registry/server.go\",\n      \"start_line\": 355,\n      \"end_line\": 355,\n      \"content\": \"After `enc.Encode(progressUpdateJSON{Status: status})` for the error case, the function returns `nil`, so the HTTP status will be 200 even though the pull failed. The non-streaming path returns `errModelNotFound` (404) for the same condition. This inconsistency means streaming clients cannot distinguish success from failure via HTTP status. Consider whether this is intentional (streaming errors are conveyed in the JSON body) and document it.\"\n    },\n    {\n      \"path\": \"server/internal/registry/server_test.go\",\n      \"start_line\": 213,\n      \"end_line\": 213,\n      \"content\": \"The expected output `{\\\"status\\\":\\\"\\\",\\\"digest\\\":\\\"smol\\\",\\\"total\\\":8,\\\"completed\\\":8}` has an empty `status` field. This is because `pushUpdate` initializes `p := progressUpdateJSON{Digest: p.model()}` without setting `Status`. The previous behavior emitted `\\\"pulling\\\"` as the status. This is a user-visible regression in the streaming API. Set `Status: \\\"pulling\\\"` (or similar) in `pushUpdate`.\"\n    },\n    {\n      \"path\": \"server/internal/registry/server_test.go\",\n      \"start_line\": 213,\n      \"end_line\": 213,\n      \"content\": \"The test now expects only a single progress line for the `smol` pull, whereas previously multiple progress updates were emitted. This is because the ticker only fires every 100ms and the pull completes faster. This makes the test flaky: on a slow CI machine, multiple updates may be emitted. Consider making the test tolerant of multiple updates or using a deterministic mechanism.\"\n    },\n    {\n      \"path\": \"server/internal/client/ollama/registry_test.go\",\n      \"start_line\": 535,\n      \"end_line\": 535,\n      \"content\": \"`t.Skip(\\\"TODO: BRING BACK BEFORE LANDING\\\")` disables the chunking test. This should be resolved before merging, as it removes coverage for the new chunked download path.\"\n    },\n    {\n      \"path\": \"server/internal/cache/blob/cache.go\",\n      \"start_line\": 531,\n      \"end_line\": 531,\n      \"content\": \"Removing the `strings.Contains(name, \\\"@\\\")` check from `nameToPath` means names containing `@` are now passed to `names.Parse`. Verify that `names.Parse` correctly rejects or handles names with `@` (e.g. `foo@bar`), since the previous code explicitly rejected them. If `names.Parse` accepts them, this could allow path traversal or unexpected link names.\"\n    },\n    {\n      \"path\": \"server/internal/cache/blob/cache.go\",\n      \"start_line\": 425,\n      \"end_line\": 425,\n      \"content\": \"`checkWriter.Write` now returns early if `w.err != nil`, but `w.err` is only set by `seterr`. The `w` field is set by the creator; if a caller forgets to set `w`, `w.w.Write` will panic with a nil pointer. Consider adding a nil check or documenting the requirement.\"\n    },\n    {\n      \"path\": \"server/internal/cache/blob/chunked.go\",\n      \"start_line\": 47,\n      \"end_line\": 47,\n      \"content\": \"`Close` does not handle the case where `c.f` is nil (pre-validated chunker). This will panic. See the comment on line 47 above.\"\n    },\n    {\n      \"path\": \"server/internal/chunks/chunks.go\",\n      \"start_line\": 34,\n      \"end_line\": 34,\n      \"content\": \"The generic `Parse[S ~string | ~[]byte]` converts `s` to `string` for `strings.Cut`, which allocates for `[]byte` inputs. Since `Parse` is called in a hot loop in `chunksums`, consider using `bytes.Cut` for `[]byte` or accepting the allocation. Minor performance nit.\"\n    },\n    {\n      \"path\": \"server/internal/client/ollama/registry.go\",\n      \"start_line\": 476,\n      \"end_line\": 476,\n      \"content\": \"`defer chunked.Close()` inside the loop defers until function return, not loop iteration end. This is a resource leak for multi-layer models. Move the close into the goroutine or use an explicit close after `g.Wait()` per layer.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

@@ -1,0 +1,29 @@
+{
+  "instance_id": "cline__cline@cb4d5c9",
+  "repo": "cline/cline",
+  "base_commit": "4d8bdf29458db722a2bce1dfacc50771959b32fa",
+  "head_commit": "cb4d5c90460885942cbbae0298b95f4ee5682086",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:39.887850+00:00",
+  "duration_seconds": 44.09,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/api/providers/openai.ts",
+        "start_line": 17,
+        "end_line": 17,
+        "content": "The endpoint name is user-controlled and does not reliably identify its API shape. A valid Azure AI Foundry DeepSeek endpoint can be named `my-endpoint...models.ai.azure.com` and would still select `AzureOpenAI`, while an Azure OpenAI resource whose name contains `deepseek` would incorrectly select `OpenAI`. Detect the Foundry endpoint host/path (or expose an explicit client type) rather than checking for `deepseek`."
+      },
+      {
+        "path": "src/api/providers/openai.ts",
+        "start_line": 39,
+        "end_line": 39,
+        "content": "This check is case-sensitive, but Azure's canonical model/deployment name is commonly `DeepSeek-R1`, so it will not enter the reasoner-specific path. Normalize `modelId` with `toLowerCase()` before checking (and likewise consider that Azure deployment names may be customized)."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/api/providers/openai.ts\",\"start_line\":17,\"end_line\":17,\"content\":\"The endpoint name is user-controlled and does not reliably identify its API shape. A valid Azure AI Foundry DeepSeek endpoint can be named `my-endpoint...models.ai.azure.com` and would still select `AzureOpenAI`, while an Azure OpenAI resource whose name contains `deepseek` would incorrectly select `OpenAI`. Detect the Foundry endpoint host/path (or expose an explicit client type) rather than checking for `deepseek`.\"},{\"path\":\"src/api/providers/openai.ts\",\"start_line\":39,\"end_line\":39,\"content\":\"This check is case-sensitive, but Azure's canonical model/deployment name is commonly `DeepSeek-R1`, so it will not enter the reasoner-specific path. Normalize `modelId` with `toLowerCase()` before checking (and likewise consider that Azure deployment names may be customized).\"}]}",
+  "stderr": null
+}

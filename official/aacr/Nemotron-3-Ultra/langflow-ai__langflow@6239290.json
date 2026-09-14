@@ -1,0 +1,59 @@
+{
+  "instance_id": "langflow-ai__langflow@6239290",
+  "repo": "langflow-ai/langflow",
+  "base_commit": "a8f6ee4af97fe594eb2c84b655abc549f6d7c741",
+  "head_commit": "623929065f9ae45792afce2eb3185dad353df78e",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:56:43.483344+00:00",
+  "duration_seconds": 46.11,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/backend/base/langflow/components/processing/parser.py",
+        "start_line": 109,
+        "end_line": 109,
+        "content": "The `template` input is marked as `required=True` but when `stringify=True`, the template is not used. The `update_build_config` correctly sets `required=False` when `stringify=True`, but the initial declaration should probably have `required=False` since it's conditionally required. This avoids potential validation issues on initial load."
+      },
+      {
+        "path": "src/backend/base/langflow/components/processing/parser.py",
+        "start_line": 135,
+        "end_line": 135,
+        "content": "The `clean_data` input is dynamically added in `update_build_config` but is not declared in the `inputs` list. This works because `update_build_config` injects it into `build_config`, but it's inconsistent with other inputs. Consider adding it to `inputs` with `show=False` initially for clarity and to ensure it's part of the component's defined interface."
+      },
+      {
+        "path": "src/backend/base/langflow/components/processing/parser.py",
+        "start_line": 155,
+        "end_line": 155,
+        "content": "In `_clean_args`, when `input_data` is a `Data` object, the code returns `template` and `sep` but the template formatting at line 183 uses `template.format(text=data.get_text())`. This assumes the template only uses `{text}` placeholder. If a user provides a template with other placeholders (e.g., `{foo}`), it will raise a KeyError. The docstring says 'Use variables within curly brackets to extract column values for DataFrames or key values for Data.' but for Data objects, only `text` key is available. This should be documented or validated."
+      },
+      {
+        "path": "src/backend/base/langflow/components/processing/parser.py",
+        "start_line": 170,
+        "end_line": 170,
+        "content": "In `_clean_args`, the dict handling assumes `input_data` is a dict with 'data' key. However, `DataFrame.from_dict` expects a dict of columns, not a dict with 'data' key. The condition `if 'columns' in input_data` checks for 'columns' but `DataFrame.from_dict` doesn't require 'columns' key. This logic seems fragile and may not correctly reconstruct DataFrame/Data from dict. Consider using `DataFrame(**input_data)` or `Data(**input_data)` directly if the dict matches the schema."
+      },
+      {
+        "path": "src/backend/base/langflow/components/processing/parser.py",
+        "start_line": 195,
+        "end_line": 195,
+        "content": "In `_safe_convert`, when `clean_data=True` and input is a DataFrame, the code modifies the DataFrame in-place with `data = data.dropna(how='all')` and regex replacements. This mutates the original DataFrame which could have side effects if the same DataFrame is used elsewhere. Consider using `data.copy()` before modifications."
+      },
+      {
+        "path": "src/backend/base/langflow/components/processing/parser.py",
+        "start_line": 195,
+        "end_line": 195,
+        "content": "In `_safe_convert`, the regex `data.replace(r'^\\s*$', '', regex=True)` replaces cells that are entirely whitespace with empty string, but doesn't remove the rows. Combined with `dropna(how='all')` which only drops rows where ALL values are NaN, rows with empty strings will remain. This may not be the intended 'cleaning' behavior. Also, `replace(r'\\n+', '\\n', regex=True)` replaces multiple newlines with single newline in all cells, which could be unexpected for users."
+      },
+      {
+        "path": "src/backend/tests/unit/components/processing/test_parser_component.py",
+        "start_line": 100,
+        "end_line": 100,
+        "content": "In `test_clean_data_with_stringify`, the assertions check for '| Good' and '| Person' as separate rows, but the markdown table output from `to_markdown()` would show 'Good\\nPerson' in a single cell (since the regex replaces double newlines with single newline, not splitting into rows). The test assertions may not match actual output. Verify the expected markdown table format."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/backend/base/langflow/components/processing/parser.py\",\n      \"start_line\": 109,\n      \"end_line\": 109,\n      \"content\": \"The `template` input is marked as `required=True` but when `stringify=True`, the template is not used. The `update_build_config` correctly sets `required=False` when `stringify=True`, but the initial declaration should probably have `required=False` since it's conditionally required. This avoids potential validation issues on initial load.\"\n    },\n    {\n      \"path\": \"src/backend/base/langflow/components/processing/parser.py\",\n      \"start_line\": 135,\n      \"end_line\": 135,\n      \"content\": \"The `clean_data` input is dynamically added in `update_build_config` but is not declared in the `inputs` list. This works because `update_build_config` injects it into `build_config`, but it's inconsistent with other inputs. Consider adding it to `inputs` with `show=False` initially for clarity and to ensure it's part of the component's defined interface.\"\n    },\n    {\n      \"path\": \"src/backend/base/langflow/components/processing/parser.py\",\n      \"start_line\": 155,\n      \"end_line\": 155,\n      \"content\": \"In `_clean_args`, when `input_data` is a `Data` object, the code returns `template` and `sep` but the template formatting at line 183 uses `template.format(text=data.get_text())`. This assumes the template only uses `{text}` placeholder. If a user provides a template with other placeholders (e.g., `{foo}`), it will raise a KeyError. The docstring says 'Use variables within curly brackets to extract column values for DataFrames or key values for Data.' but for Data objects, only `text` key is available. This should be documented or validated.\"\n    },\n    {\n      \"path\": \"src/backend/base/langflow/components/processing/parser.py\",\n      \"start_line\": 170,\n      \"end_line\": 170,\n      \"content\": \"In `_clean_args`, the dict handling assumes `input_data` is a dict with 'data' key. However, `DataFrame.from_dict` expects a dict of columns, not a dict with 'data' key. The condition `if 'columns' in input_data` checks for 'columns' but `DataFrame.from_dict` doesn't require 'columns' key. This logic seems fragile and may not correctly reconstruct DataFrame/Data from dict. Consider using `DataFrame(**input_data)` or `Data(**input_data)` directly if the dict matches the schema.\"\n    },\n    {\n      \"path\": \"src/backend/base/langflow/components/processing/parser.py\",\n      \"start_line\": 195,\n      \"end_line\": 195,\n      \"content\": \"In `_safe_convert`, when `clean_data=True` and input is a DataFrame, the code modifies the DataFrame in-place with `data = data.dropna(how='all')` and regex replacements. This mutates the original DataFrame which could have side effects if the same DataFrame is used elsewhere. Consider using `data.copy()` before modifications.\"\n    },\n    {\n      \"path\": \"src/backend/base/langflow/components/processing/parser.py\",\n      \"start_line\": 195,\n      \"end_line\": 195,\n      \"content\": \"In `_safe_convert`, the regex `data.replace(r'^\\\\s*$', '', regex=True)` replaces cells that are entirely whitespace with empty string, but doesn't remove the rows. Combined with `dropna(how='all')` which only drops rows where ALL values are NaN, rows with empty strings will remain. This may not be the intended 'cleaning' behavior. Also, `replace(r'\\\\n+', '\\\\n', regex=True)` replaces multiple newlines with single newline in all cells, which could be unexpected for users.\"\n    },\n    {\n      \"path\": \"src/backend/tests/unit/components/processing/test_parser_component.py\",\n      \"start_line\": 100,\n      \"end_line\": 100,\n      \"content\": \"In `test_clean_data_with_stringify`, the assertions check for '| Good' and '| Person' as separate rows, but the markdown table output from `to_markdown()` would show 'Good\\\\nPerson' in a single cell (since the regex replaces double newlines with single newline, not splitting into rows). The test assertions may not match actual output. Verify the expected markdown table format.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,41 @@
+{
+  "instance_id": "infiniflow__ragflow@f189316",
+  "repo": "infiniflow/ragflow",
+  "base_commit": "8362ab405c35d260dd2328dc207aefcf30778f66",
+  "head_commit": "f189316eae1c199a5891f7a8bc47d53bb1b5c818",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:27:12.492556+00:00",
+  "duration_seconds": 74.87,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "rag/utils/infinity_conn.py",
+        "start_line": 84,
+        "end_line": 84,
+        "content": "The scalar full-text value is interpolated without escaping single quotes, unlike the list branch above. A source/entity value containing `'` will produce an invalid filter (and may allow filter injection). Escape string values with `v.replace(\"'\", \"''\")` or use parameterized expressions."
+      },
+      {
+        "path": "rag/utils/infinity_conn.py",
+        "start_line": 575,
+        "end_line": 580,
+        "content": "The string-form `remove` branch leaves the original `\"remove\"` key in `newValue`, so the final update attempts to assign a nonexistent `remove` column. Delete/pop this key for both string and mapping forms, as the previous implementation did."
+      },
+      {
+        "path": "rag/utils/infinity_conn.py",
+        "start_line": 577,
+        "end_line": 579,
+        "content": "`str.find()` returns `-1` when `\"cha\"` is absent, and `-1` is truthy, while a match at index 0 is falsy. This can therefore substitute `\"\"` for a missing numeric default and miss character types beginning with `cha`. Use `if \"cha\" in ty.lower():`."
+      },
+      {
+        "path": "rag/utils/infinity_conn.py",
+        "start_line": 609,
+        "end_line": 609,
+        "content": "When the update consists only of mapping-form `remove`, line 584 deletes its sole key, leaving `newValue` empty; this then invokes Infinity's update API with no assignments after the per-row removals. Guard this call with `if newValue:` to avoid an invalid empty update."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"rag/utils/infinity_conn.py\",\"start_line\":84,\"end_line\":84,\"content\":\"The scalar full-text value is interpolated without escaping single quotes, unlike the list branch above. A source/entity value containing `'` will produce an invalid filter (and may allow filter injection). Escape string values with `v.replace(\\\"'\\\", \\\"''\\\")` or use parameterized expressions.\"},{\"path\":\"rag/utils/infinity_conn.py\",\"start_line\":575,\"end_line\":580,\"content\":\"The string-form `remove` branch leaves the original `\\\"remove\\\"` key in `newValue`, so the final update attempts to assign a nonexistent `remove` column. Delete/pop this key for both string and mapping forms, as the previous implementation did.\"},{\"path\":\"rag/utils/infinity_conn.py\",\"start_line\":577,\"end_line\":579,\"content\":\"`str.find()` returns `-1` when `\\\"cha\\\"` is absent, and `-1` is truthy, while a match at index 0 is falsy. This can therefore substitute `\\\"\\\"` for a missing numeric default and miss character types beginning with `cha`. Use `if \\\"cha\\\" in ty.lower():`.\"},{\"path\":\"rag/utils/infinity_conn.py\",\"start_line\":609,\"end_line\":609,\"content\":\"When the update consists only of mapping-form `remove`, line 584 deletes its sole key, leaving `newValue` empty; this then invokes Infinity's update API with no assignments after the per-row removals. Guard this call with `if newValue:` to avoid an invalid empty update.\"}]}",
+  "stderr": null
+}

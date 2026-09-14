@@ -1,0 +1,80 @@
+{
+  "instance_id": "dotnet__aspnetcore@8ac940f",
+  "repo": "dotnet/aspnetcore",
+  "base_commit": "7ba02e8ac71eeba562476953d5ff6030b8eda765",
+  "head_commit": "8ac940ff581aa344ab8f859874f6d4c0ecaec6b6",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:37:09.361349+00:00",
+  "duration_seconds": 12.67,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs",
+        "start_line": 356,
+        "end_line": 356,
+        "content": "The new constructor takes `string[]` while the old one took `IEnumerable<string>`. This is a source-breaking change for any callers passing an `IEnumerable<string>` (e.g., a `List<string>` or LINQ result). Consider keeping the `IEnumerable<string>` signature or adding an overload to preserve compatibility.",
+        "side": "right"
+      },
+      {
+        "path": "src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs",
+        "start_line": 363,
+        "end_line": 373,
+        "content": "`ArrayPool<int>.Shared.Rent(purposes.Length)` can return a larger array than requested. The loop only fills `[0, purposes.Length)`, which is fine, but if `purposes.Length == 0` the rented array may be empty and `Return` is still fine. However, if an exception is thrown inside the loop (e.g., from `GetByteCount`), the rented array is leaked. Wrap the body in try/finally to guarantee `ArrayPool<int>.Shared.Return` is called.",
+        "side": "right"
+      },
+      {
+        "path": "src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs",
+        "start_line": 375,
+        "end_line": 375,
+        "content": "`totalPurposeLen` is computed as `int` and can overflow for very large purposes. The old code used `MemoryStream` which would throw `OutOfMemoryException` on overflow; here an overflow would silently produce a too-small buffer and then `targetSpan.Slice(index)` would throw `ArgumentOutOfRangeException` (or worse, corrupt data if the overflow wraps to a positive value). Consider using `checked` arithmetic or validating the total length.",
+        "side": "right"
+      },
+      {
+        "path": "src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs",
+        "start_line": 384,
+        "end_line": 384,
+        "content": "`BinaryPrimitives.WriteInt32BigEndian` is used for the purpose count, but the old code wrote a `uint` via `writer.WriteBigEndian(purposeCount)` where `purposeCount` was `uint`. The byte layout is identical for non-negative values, but for consistency and to match the documented format (`purposeCount (32-bit)`), consider using `WriteUInt32BigEndian` with a `uint` cast.",
+        "side": "right"
+      },
+      {
+        "path": "src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs",
+        "start_line": 400,
+        "end_line": 400,
+        "content": "`Write7BitEncodedInt` is called with `purposeLengthsPool[i]` (an `int`), but the helper `Measure7BitEncodedUIntLength` takes a `uint`. The cast `(uint)purposeLength` in the measurement path is fine for non-negative lengths, but the asymmetry is confusing. Also note that `BinaryWriter.Write(string)` uses `Write7BitEncodedInt` on the byte count, so this matches the old behavior — good. Just ensure `purposeLength` is never negative (it can't be from `GetByteCount`).",
+        "side": "right"
+      },
+      {
+        "path": "src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs",
+        "start_line": 407,
+        "end_line": 407,
+        "content": "`EncodingUtil.SecureUtf8Encoding.GetBytes(purpose.AsSpan(), targetSpan.Slice(index))` returns the number of bytes written. If the destination span is too small (which shouldn't happen given the pre-computed length, but could if `GetByteCount` and `GetBytes` disagree, e.g., due to invalid surrogates), this will throw. The old `BinaryWriter.Write(string)` path would also throw, so behavior is preserved. No action needed, but worth a comment.",
+        "side": "right"
+      },
+      {
+        "path": "src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs",
+        "start_line": 411,
+        "end_line": 411,
+        "content": "`Debug.Assert(index == targetArr.Length)` is only active in debug builds. If the length calculation is ever wrong in release, the buffer will be silently larger than needed (or the write will have thrown earlier). Consider whether a runtime check is warranted, or at least document the invariant.",
+        "side": "right"
+      },
+      {
+        "path": "src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs",
+        "start_line": 414,
+        "end_line": 414,
+        "content": "`Measure7BitEncodedUIntLength` uses `BitOperations.LeadingZeroCount(value | 1)`. For `value == 0`, `value | 1 == 1`, `LeadingZeroCount(1) == 31`, so `(31 - 31) / 7 + 1 == 1`. Correct. For `value == uint.MaxValue`, `LeadingZeroCount == 0`, `(31 - 0) / 7 + 1 == 5`. Correct (max 5 bytes for 32-bit 7-bit encoding). The implementation is correct.",
+        "side": "right"
+      },
+      {
+        "path": "src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs",
+        "start_line": 425,
+        "end_line": 425,
+        "content": "`Write7BitEncodedInt` writes `(byte)(uValue | ~0x7Fu)`. `~0x7Fu` is `0xFFFFFF80`, so `uValue | ~0x7Fu` sets the high bit and preserves the low 7 bits of `uValue`. Casting to `byte` takes the low 8 bits, giving `0x80 | (uValue & 0x7F)`. Correct. This matches `BinaryWriter.Write7BitEncodedInt`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs\",\n      \"start_line\": 356,\n      \"end_line\": 356,\n      \"content\": \"The new constructor takes `string[]` while the old one took `IEnumerable<string>`. This is a source-breaking change for any callers passing an `IEnumerable<string>` (e.g., a `List<string>` or LINQ result). Consider keeping the `IEnumerable<string>` signature or adding an overload to preserve compatibility.\"\n    },\n    {\n      \"path\": \"src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs\",\n      \"start_line\": 363,\n      \"end_line\": 373,\n      \"content\": \"`ArrayPool<int>.Shared.Rent(purposes.Length)` can return a larger array than requested. The loop only fills `[0, purposes.Length)`, which is fine, but if `purposes.Length == 0` the rented array may be empty and `Return` is still fine. However, if an exception is thrown inside the loop (e.g., from `GetByteCount`), the rented array is leaked. Wrap the body in try/finally to guarantee `ArrayPool<int>.Shared.Return` is called.\"\n    },\n    {\n      \"path\": \"src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs\",\n      \"start_line\": 375,\n      \"end_line\": 375,\n      \"content\": \"`totalPurposeLen` is computed as `int` and can overflow for very large purposes. The old code used `MemoryStream` which would throw `OutOfMemoryException` on overflow; here an overflow would silently produce a too-small buffer and then `targetSpan.Slice(index)` would throw `ArgumentOutOfRangeException` (or worse, corrupt data if the overflow wraps to a positive value). Consider using `checked` arithmetic or validating the total length.\"\n    },\n    {\n      \"path\": \"src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs\",\n      \"start_line\": 384,\n      \"end_line\": 384,\n      \"content\": \"`BinaryPrimitives.WriteInt32BigEndian` is used for the purpose count, but the old code wrote a `uint` via `writer.WriteBigEndian(purposeCount)` where `purposeCount` was `uint`. The byte layout is identical for non-negative values, but for consistency and to match the documented format (`purposeCount (32-bit)`), consider using `WriteUInt32BigEndian` with a `uint` cast.\"\n    },\n    {\n      \"path\": \"src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs\",\n      \"start_line\": 400,\n      \"end_line\": 400,\n      \"content\": \"`Write7BitEncodedInt` is called with `purposeLengthsPool[i]` (an `int`), but the helper `Measure7BitEncodedUIntLength` takes a `uint`. The cast `(uint)purposeLength` in the measurement path is fine for non-negative lengths, but the asymmetry is confusing. Also note that `BinaryWriter.Write(string)` uses `Write7BitEncodedInt` on the byte count, so this matches the old behavior — good. Just ensure `purposeLength` is never negative (it can't be from `GetByteCount`).\"\n    },\n    {\n      \"path\": \"src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs\",\n      \"start_line\": 407,\n      \"end_line\": 407,\n      \"content\": \"`EncodingUtil.SecureUtf8Encoding.GetBytes(purpose.AsSpan(), targetSpan.Slice(index))` returns the number of bytes written. If the destination span is too small (which shouldn't happen given the pre-computed length, but could if `GetByteCount` and `GetBytes` disagree, e.g., due to invalid surrogates), this will throw. The old `BinaryWriter.Write(string)` path would also throw, so behavior is preserved. No action needed, but worth a comment.\"\n    },\n    {\n      \"path\": \"src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs\",\n      \"start_line\": 411,\n      \"end_line\": 411,\n      \"content\": \"`Debug.Assert(index == targetArr.Length)` is only active in debug builds. If the length calculation is ever wrong in release, the buffer will be silently larger than needed (or the write will have thrown earlier). Consider whether a runtime check is warranted, or at least document the invariant.\"\n    },\n    {\n      \"path\": \"src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs\",\n      \"start_line\": 414,\n      \"end_line\": 414,\n      \"content\": \"`Measure7BitEncodedUIntLength` uses `BitOperations.LeadingZeroCount(value | 1)`. For `value == 0`, `value | 1 == 1`, `LeadingZeroCount(1) == 31`, so `(31 - 31) / 7 + 1 == 1`. Correct. For `value == uint.MaxValue`, `LeadingZeroCount == 0`, `(31 - 0) / 7 + 1 == 5`. Correct (max 5 bytes for 32-bit 7-bit encoding). The implementation is correct.\"\n    },\n    {\n      \"path\": \"src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs\",\n      \"start_line\": 425,\n      \"end_line\": 425,\n      \"content\": \"`Write7BitEncodedInt` writes `(byte)(uValue | ~0x7Fu)`. `~0x7Fu` is `0xFFFFFF80`, so `uValue | ~0x7Fu` sets the high bit and preserves the low 7 bits of `uValue`. Casting to `byte` takes the low 8 bits, giving `0x80 | (uValue & 0x7F)`. Correct. This matches `BinaryWriter.Write7BitEncodedInt`.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

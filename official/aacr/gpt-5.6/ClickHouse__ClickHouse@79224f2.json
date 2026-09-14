@@ -1,0 +1,23 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@79224f2",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "cb7d649b965c4049bf97942db7125cce1154ca38",
+  "head_commit": "79224f240cf020f73a9f492ce293d046fc0b7949",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:31:21.240371+00:00",
+  "duration_seconds": 82.73,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueIFileMetadata.cpp",
+        "start_line": 265,
+        "end_line": 265,
+        "content": "This lock is released when `prepareSetProcessingRequests()` returns, before the caller executes the Keeper multi-op and updates `file_status->state`. A second local source can therefore acquire the lock while the state is still processable and enqueue the same file again, so this does not prevent the race it is intended to handle. Keep a reservation/lock alive through processing of the multi response, or atomically mark the local status as reserved here and roll it back if the Keeper operation fails."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/Storages/ObjectStorageQueue/ObjectStorageQueueIFileMetadata.cpp\",\"start_line\":265,\"end_line\":265,\"content\":\"This lock is released when `prepareSetProcessingRequests()` returns, before the caller executes the Keeper multi-op and updates `file_status->state`. A second local source can therefore acquire the lock while the state is still processable and enqueue the same file again, so this does not prevent the race it is intended to handle. Keep a reservation/lock alive through processing of the multi response, or atomically mark the local status as reserved here and roll it back if the Keeper operation fails.\"}]}",
+  "stderr": null
+}

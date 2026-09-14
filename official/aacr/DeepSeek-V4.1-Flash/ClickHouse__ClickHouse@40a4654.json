@@ -1,0 +1,80 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@40a4654",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "83afa5c6704737ed4afc5a178f96bf49c39e5e4c",
+  "head_commit": "40a4654d7b114f1d42f48680d57007ae80897cd1",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:38:06.014496+00:00",
+  "duration_seconds": 41.26,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp",
+        "start_line": 480,
+        "end_line": 490,
+        "content": "The `chassert(started_file->getFileStatus()->processed_rows > 0)` here is risky. When `isCancelled()` is true but the reader was just created and no chunk has been pulled yet (processed_rows == 0), this assertion will fire in debug builds. The original code handled this case by only calling `setFailed` when `file_status->processed_rows` was non-zero. Consider guarding the assertion or handling the zero-rows case explicitly.",
+        "side": "right"
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp",
+        "start_line": 495,
+        "end_line": 505,
+        "content": "Same concern as above for the `table_is_being_dropped` branch: `chassert(started_file->getFileStatus()->processed_rows > 0)` may fire if the file was just started and no rows were read yet. The previous implementation checked `file_status->processed_rows == 0` and simply broke out of the loop in that case.",
+        "side": "right"
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp",
+        "start_line": 605,
+        "end_line": 615,
+        "content": "When an error occurs during read, the code now returns `{}` unconditionally without calling `file_iterator->returnForRetry(...)`. Previously, if `processed_rows == 0` and retries were below max, the file was returned for retry. With the new flow, the retry is presumably handled via `setFailed(..., reduce_retry_count=true)` in `commit`, but the file iterator's in-memory retry queue is no longer updated. Verify that the retry mechanism still works correctly for files that failed before any rows were read.",
+        "side": "right"
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueIFileMetadata.cpp",
+        "start_line": 264,
+        "end_line": 275,
+        "content": "`resetProcessing()` now throws `LOGICAL_ERROR` if `processing_id_version` is not set. However, `setFailed()` calls `resetProcessing()` in the `else` branch (when `reduce_retry_count` is false). If `setFailed` is invoked on a file whose state is `Failed` (not `Processing`), `resetProcessing` will throw because the state check at the top of `resetProcessing` requires `Processing`. Confirm that `setFailed` is never called on a file that is not in `Processing` state, or add a state guard before calling `resetProcessing`.",
+        "side": "right"
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueIFileMetadata.cpp",
+        "start_line": 380,
+        "end_line": 395,
+        "content": "The `file_status->onFailed(exception_message)` call was moved to after the `resetProcessing()` call. If `resetProcessing()` throws (e.g., due to a Keeper error), `onFailed` will never be invoked, leaving the file status inconsistent. Consider whether `onFailed` should be called before the ZK operations, or wrap the reset in a try/catch.",
+        "side": "right"
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueOrderedFileMetadata.cpp",
+        "start_line": 250,
+        "end_line": 300,
+        "content": "In the MULTI_READ branch, when `responses[0]->error == ZOK` but `get_response->data.empty()`, `processed_node` remains `std::nullopt` and `processed_node_stat` is left default-initialized. Later, `if (processed_node.has_value())` will be false, so `addCheckNotExistsRequest` is used. This matches the non-MULTI_READ path behavior, but note that the non-MULTI_READ path also checks `failed_node_path` existence only when `getMaxProcessedFile` returns true. The MULTI_READ path checks `failed_node_path` unconditionally, which is a behavior change — verify this is intentional.",
+        "side": "right"
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueOrderedFileMetadata.cpp",
+        "start_line": 430,
+        "end_line": 435,
+        "content": "Removing the `makeCheckRequest(processing_node_id_path, processing_id_version.value())` before `makeRemoveRequest` changes the semantics: previously the multi-op would fail atomically if the version didn't match; now the remove itself carries the version, which is equivalent. This is fine, but ensure all callers relying on the check-then-remove pattern are updated consistently (the unordered variant was also changed).",
+        "side": "right"
+      },
+      {
+        "path": "src/Storages/ObjectStorageQueue/ObjectStorageQueueUnorderedFileMetadata.h",
+        "start_line": 27,
+        "end_line": 32,
+        "content": "`setProcessedImpl(bool remove_processing_nodes_only)` is still declared but the `resetProcessingImpl` override was removed. Since `resetProcessingImpl` is no longer virtual in the base class, this declaration is now dead code. Consider removing it to avoid confusion.",
+        "side": "right"
+      },
+      {
+        "path": "tests/integration/test_storage_s3_queue/test.py",
+        "start_line": 1876,
+        "end_line": 1885,
+        "content": "The test now calls `node.query(\"system stop merges\")` but never restores merges if the test fails before `system start merges`. Consider using a try/finally to ensure merges are restarted, otherwise subsequent tests in the same node may be affected.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp\",\n      \"start_line\": 480,\n      \"end_line\": 490,\n      \"content\": \"The `chassert(started_file->getFileStatus()->processed_rows > 0)` here is risky. When `isCancelled()` is true but the reader was just created and no chunk has been pulled yet (processed_rows == 0), this assertion will fire in debug builds. The original code handled this case by only calling `setFailed` when `file_status->processed_rows` was non-zero. Consider guarding the assertion or handling the zero-rows case explicitly.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp\",\n      \"start_line\": 495,\n      \"end_line\": 505,\n      \"content\": \"Same concern as above for the `table_is_being_dropped` branch: `chassert(started_file->getFileStatus()->processed_rows > 0)` may fire if the file was just started and no rows were read yet. The previous implementation checked `file_status->processed_rows == 0` and simply broke out of the loop in that case.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueSource.cpp\",\n      \"start_line\": 605,\n      \"end_line\": 615,\n      \"content\": \"When an error occurs during read, the code now returns `{}` unconditionally without calling `file_iterator->returnForRetry(...)`. Previously, if `processed_rows == 0` and retries were below max, the file was returned for retry. With the new flow, the retry is presumably handled via `setFailed(..., reduce_retry_count=true)` in `commit`, but the file iterator's in-memory retry queue is no longer updated. Verify that the retry mechanism still works correctly for files that failed before any rows were read.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueIFileMetadata.cpp\",\n      \"start_line\": 264,\n      \"end_line\": 275,\n      \"content\": \"`resetProcessing()` now throws `LOGICAL_ERROR` if `processing_id_version` is not set. However, `setFailed()` calls `resetProcessing()` in the `else` branch (when `reduce_retry_count` is false). If `setFailed` is invoked on a file whose state is `Failed` (not `Processing`), `resetProcessing` will throw because the state check at the top of `resetProcessing` requires `Processing`. Confirm that `setFailed` is never called on a file that is not in `Processing` state, or add a state guard before calling `resetProcessing`.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueIFileMetadata.cpp\",\n      \"start_line\": 380,\n      \"end_line\": 395,\n      \"content\": \"The `file_status->onFailed(exception_message)` call was moved to after the `resetProcessing()` call. If `resetProcessing()` throws (e.g., due to a Keeper error), `onFailed` will never be invoked, leaving the file status inconsistent. Consider whether `onFailed` should be called before the ZK operations, or wrap the reset in a try/catch.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueOrderedFileMetadata.cpp\",\n      \"start_line\": 250,\n      \"end_line\": 300,\n      \"content\": \"In the MULTI_READ branch, when `responses[0]->error == ZOK` but `get_response->data.empty()`, `processed_node` remains `std::nullopt` and `processed_node_stat` is left default-initialized. Later, `if (processed_node.has_value())` will be false, so `addCheckNotExistsRequest` is used. This matches the non-MULTI_READ path behavior, but note that the non-MULTI_READ path also checks `failed_node_path` existence only when `getMaxProcessedFile` returns true. The MULTI_READ path checks `failed_node_path` unconditionally, which is a behavior change — verify this is intentional.\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueOrderedFileMetadata.cpp\",\n      \"start_line\": 430,\n      \"end_line\": 435,\n      \"content\": \"Removing the `makeCheckRequest(processing_node_id_path, processing_id_version.value())` before `makeRemoveRequest` changes the semantics: previously the multi-op would fail atomically if the version didn't match; now the remove itself carries the version, which is equivalent. This is fine, but ensure all callers relying on the check-then-remove pattern are updated consistently (the unordered variant was also changed).\"\n    },\n    {\n      \"path\": \"src/Storages/ObjectStorageQueue/ObjectStorageQueueUnorderedFileMetadata.h\",\n      \"start_line\": 27,\n      \"end_line\": 32,\n      \"content\": \"`setProcessedImpl(bool remove_processing_nodes_only)` is still declared but the `resetProcessingImpl` override was removed. Since `resetProcessingImpl` is no longer virtual in the base class, this declaration is now dead code. Consider removing it to avoid confusion.\"\n    },\n    {\n      \"path\": \"tests/integration/test_storage_s3_queue/test.py\",\n      \"start_line\": 1876,\n      \"end_line\": 1885,\n      \"content\": \"The test now calls `node.query(\\\"system stop merges\\\")` but never restores merges if the test fails before `system start merges`. Consider using a try/finally to ensure merges are restarted, otherwise subsequent tests in the same node may be affected.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

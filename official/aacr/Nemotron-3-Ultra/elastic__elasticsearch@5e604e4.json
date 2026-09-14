@@ -1,0 +1,23 @@
+{
+  "instance_id": "elastic__elasticsearch@5e604e4",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "0a5a74c5e9dad3d62a8486e52422be2ae1295e03",
+  "head_commit": "5e604e492648a95f7adef067aeb2b9fc2ca4a206",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:44:24.378353+00:00",
+  "duration_seconds": 15.47,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/main/java/org/elasticsearch/index/mapper/BlockDocValuesReader.java",
+        "start_line": 143,
+        "end_line": 143,
+        "content": "The assert message has a typo: 'nullFiltered' should be 'nullsFiltered' to match the parameter name."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/index/mapper/BlockDocValuesReader.java\",\n      \"start_line\": 143,\n      \"end_line\": 143,\n      \"content\": \"The assert message has a typo: 'nullFiltered' should be 'nullsFiltered' to match the parameter name.\"\n    }\n  ]\n}",
+  "stderr": null
+}

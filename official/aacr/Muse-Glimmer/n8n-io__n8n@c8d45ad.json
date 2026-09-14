@@ -1,0 +1,16 @@
+{
+  "instance_id": "n8n-io__n8n@c8d45ad",
+  "repo": "n8n-io/n8n",
+  "base_commit": "9627409d223cbff5d8b8a90e796c39b6124a736d",
+  "head_commit": "c8d45ad42aebf937a8347aa32a84ca63416bfdd4",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T19:06:09.442587+00:00",
+  "duration_seconds": 3.03,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "BadRequestError: Error code: 400 - {'error': {'message': \"This model's maximum context length is 32768 tokens. However, you requested 4096 output tokens and your prompt contains at least 28673 input tokens, for a total of at least 32769 tokens. Please reduce the length of the input prompt or the number of requested output tokens. (parameter=input_tokens, value=28673)\", 'type': 'BadRequestError', '"
+}

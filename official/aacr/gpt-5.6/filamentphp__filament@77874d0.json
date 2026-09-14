@@ -1,0 +1,23 @@
+{
+  "instance_id": "filamentphp__filament@77874d0",
+  "repo": "filamentphp/filament",
+  "base_commit": "753ceeac007a0d0aa4423971b01d651288720873",
+  "head_commit": "77874d0c3782a257101c3fb578144a6950f3dc9c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:30:08.726643+00:00",
+  "duration_seconds": 85.19,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/actions/src/Exports/Jobs/PrepareCsvExport.php",
+        "start_line": 77,
+        "end_line": 79,
+        "content": "`reject()` and `unique()` preserve the collection's original keys. If the first order is `$qualifiedKeyName` and a secondary order remains, this collection is non-empty but has no index `0`, so these accesses can fail and `forget(0)` removes nothing. Take and remove the first remaining item with `shift()` (or call `values()` before indexing), then pass that item to `reorder()`."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"packages/actions/src/Exports/Jobs/PrepareCsvExport.php\",\"start_line\":77,\"end_line\":79,\"content\":\"`reject()` and `unique()` preserve the collection's original keys. If the first order is `$qualifiedKeyName` and a secondary order remains, this collection is non-empty but has no index `0`, so these accesses can fail and `forget(0)` removes nothing. Take and remove the first remaining item with `shift()` (or call `values()` before indexing), then pass that item to `reorder()`.\"}]}",
+  "stderr": null
+}

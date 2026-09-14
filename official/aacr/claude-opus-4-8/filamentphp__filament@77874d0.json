@@ -1,0 +1,35 @@
+{
+  "instance_id": "filamentphp__filament@77874d0",
+  "repo": "filamentphp/filament",
+  "base_commit": "753ceeac007a0d0aa4423971b01d651288720873",
+  "head_commit": "77874d0c3782a257101c3fb578144a6950f3dc9c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:08.896299+00:00",
+  "duration_seconds": 20.1,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/actions/src/Exports/Jobs/PrepareCsvExport.php",
+        "start_line": 72,
+        "end_line": 72,
+        "content": "The `reject` filter now only excludes `$qualifiedKeyName` but no longer excludes `$keyName`. If the original query orders by the unqualified key name (e.g. `orderBy('id')`), it will not be rejected here, but the later `distinct($qualifiedKeyName)` check on line 154 compares against both `$keyName` and `$qualifiedKeyName`. This asymmetry can lead to inconsistent handling. Consider keeping both `[$keyName, $qualifiedKeyName]` in the reject list, or documenting why only the qualified name should be rejected."
+      },
+      {
+        "path": "packages/actions/src/Exports/Jobs/PrepareCsvExport.php",
+        "start_line": 74,
+        "end_line": 82,
+        "content": "`$originalOrders` is a Collection built with `unique('column')`, so its keys are not guaranteed to be sequential starting at 0. Accessing `$originalOrders[0]` and calling `$originalOrders->forget(0)` assumes index 0 exists and is the first element. If the first order was de-duplicated or filtered out, key `0` may not exist, causing an undefined index. Use `$originalOrders->first()` and `$originalOrders->shift()` (or reset keys via `->values()`) to safely obtain and remove the first element."
+      },
+      {
+        "path": "packages/actions/src/Exports/Jobs/PrepareCsvExport.php",
+        "start_line": 153,
+        "end_line": 155,
+        "content": "This reads `$query->getQuery()->orders[0]` directly, but after the `reorder(...)` calls above, the orders array is rebuilt. Ensure `orders` is non-empty before indexing `[0]`; if the query has no orders at this point, `orders[0]` yields null and `distinct($qualifiedKeyName)` is skipped, which may unintentionally drop the distinct behavior needed for stable chunking. Verify this branch handles the empty-orders case correctly."
+      }
+    ]
+  },
+  "raw_output": "Looking at this PR, let me analyze the changes to the PostgreSQL export ordering logic.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"packages/actions/src/Exports/Jobs/PrepareCsvExport.php\",\n      \"start_line\": 72,\n      \"end_line\": 72,\n      \"content\": \"The `reject` filter now only excludes `$qualifiedKeyName` but no longer excludes `$keyName`. If the original query orders by the unqualified key name (e.g. `orderBy('id')`), it will not be rejected here, but the later `distinct($qualifiedKeyName)` check on line 154 compares against both `$keyName` and `$qualifiedKeyName`. This asymmetry can lead to inconsistent handling. Consider keeping both `[$keyName, $qualifiedKeyName]` in the reject list, or documenting why only the qualified name should be rejected.\"\n    },\n    {\n      \"path\": \"packages/actions/src/Exports/Jobs/PrepareCsvExport.php\",\n      \"start_line\": 74,\n      \"end_line\": 82,\n      \"content\": \"`$originalOrders` is a Collection built with `unique('column')`, so its keys are not guaranteed to be sequential starting at 0. Accessing `$originalOrders[0]` and calling `$originalOrders->forget(0)` assumes index 0 exists and is the first element. If the first order was de-duplicated or filtered out, key `0` may not exist, causing an undefined index. Use `$originalOrders->first()` and `$originalOrders->shift()` (or reset keys via `->values()`) to safely obtain and remove the first element.\"\n    },\n    {\n      \"path\": \"packages/actions/src/Exports/Jobs/PrepareCsvExport.php\",\n      \"start_line\": 153,\n      \"end_line\": 155,\n      \"content\": \"This reads `$query->getQuery()->orders[0]` directly, but after the `reorder(...)` calls above, the orders array is rebuilt. Ensure `orders` is non-empty before indexing `[0]`; if the query has no orders at this point, `orders[0]` yields null and `distinct($qualifiedKeyName)` is skipped, which may unintentionally drop the distinct behavior needed for stable chunking. Verify this branch handles the empty-orders case correctly.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

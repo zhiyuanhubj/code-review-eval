@@ -1,0 +1,16 @@
+{
+  "instance_id": "mrdoob__three.js@7388f60",
+  "repo": "mrdoob/three.js",
+  "base_commit": "1fc010cb7bd1e17d94c1a33ba8dacdf9e34193cb",
+  "head_commit": "7388f600209ce8a98f7211cd0e93a170b6e98d61",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:40.312384+00:00",
+  "duration_seconds": 13.76,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "InternalServerError: Error code: 500 - {'error': {'message': \"cannot pickle '_thread.RLock' object\", 'type': 'None', 'param': 'None', 'code': '500'}}"
+}

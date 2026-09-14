@@ -1,0 +1,87 @@
+{
+  "instance_id": "immich-app__immich@d38f1f5",
+  "repo": "immich-app/immich",
+  "base_commit": "c664d99a348999d16cda45a8dd57db436b8f9fba",
+  "head_commit": "d38f1f55f42d600d05058e70d6ccee9679623591",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:25.966086+00:00",
+  "duration_seconds": 10.87,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 1,
+        "end_line": 90,
+        "content": "This service worker is not registered anywhere. SvelteKit only auto-registers a service worker if `src/service-worker.ts` (or `.js`) exists at the root of `src`. Since this file is at `src/service-worker/index.ts`, it will never be installed, so `preloadImageUrl`/`cancelImageUrl` messages will have no effect and the preload/cancel behavior is dead code. Either move it to `src/service-worker.ts` or explicitly register it.",
+        "side": "right"
+      },
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 47,
+        "end_line": 68,
+        "content": "`immichAsset` caches every 200 response for asset URLs, but the cache is never invalidated when the underlying asset changes (e.g. thumbnail regeneration, re-upload, or `updatedAt` change). Since the URL is the cache key and doesn't include a version/etag, users may see stale thumbnails/originals indefinitely. Consider keying on a versioned URL or respecting cache headers / `Cache-Control: no-store`.",
+        "side": "right"
+      },
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 47,
+        "end_line": 68,
+        "content": "The `fetch` call uses `fetch(url, ...)` with a `URL` object, which drops the original request's credentials, headers (e.g. `Authorization`, cookies), and `mode`/`credentials` settings. For authenticated asset endpoints this can result in 401 responses being cached or returned. Pass the original `Request` (or at least `{ credentials: 'include' }`) instead of just the URL.",
+        "side": "right"
+      },
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 47,
+        "end_line": 68,
+        "content": "When a request is aborted via `cancelImageUrl`, the `catch` block returns `Response.error()`. That error response is returned to the page for a request that was intentionally cancelled, which can surface as a broken image / console error. Consider re-throwing `AbortError` or returning a 499-style response so callers can distinguish cancellation from real failures.",
+        "side": "right"
+      },
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 47,
+        "end_line": 68,
+        "content": "`pendingLoads` is keyed by `url.toString()`, but the same URL can be requested concurrently (e.g. thumbnail + original, or multiple components). The second request overwrites the first entry, so a subsequent `cancel` only aborts one of them and the `finally` of the first request deletes the entry belonging to the second. Use a `Map<string, Set<AbortController>>` or refcount.",
+        "side": "right"
+      },
+      {
+        "path": "web/src/service-worker/index.ts",
+        "start_line": 70,
+        "end_line": 90,
+        "content": "`new URL(urlstring, event.origin)` — `event.origin` on a `MessageEvent` from a `BroadcastChannel` is typically an empty string, so relative URLs will throw `TypeError: Invalid URL`. Use `self.location.origin` instead.",
+        "side": "right"
+      },
+      {
+        "path": "web/src/lib/components/assets/thumbnail/image-thumbnail.svelte",
+        "start_line": 64,
+        "end_line": 71,
+        "content": "`cancelImageUrl(url)` is called on destroy, but `url` is a reactive prop that can change during the component's lifetime (e.g. when the asset changes). The destroy callback captures the value at mount time, so cancelling will target the wrong URL if `url` was updated. Capture the current value via a getter or track the latest url.",
+        "side": "right"
+      },
+      {
+        "path": "web/src/lib/components/asset-viewer/photo-viewer.svelte",
+        "start_line": 168,
+        "end_line": 172,
+        "content": "`cancelImageUrl(imageLoaderUrl)` is called in the cleanup of the `$effect`, but `imageLoaderUrl` may be reassigned during the effect's lifetime. The cleanup closure will read the latest value at cleanup time, which is correct here, but note that if `imageLoaderUrl` is undefined at cleanup (e.g. before assignment) this will post `{ type: 'cancel', url: undefined }`. Guard with a truthiness check.",
+        "side": "right"
+      },
+      {
+        "path": "web/src/lib/utils/sw-messaging.ts",
+        "start_line": 1,
+        "end_line": 8,
+        "content": "A module-level `BroadcastChannel` is created on import. In SSR/prerender contexts (SvelteKit) `BroadcastChannel` is not defined in Node, which will throw at import time. Guard with `typeof window !== 'undefined'` or lazily instantiate inside the functions.",
+        "side": "right"
+      },
+      {
+        "path": "web/eslint.config.js",
+        "start_line": 61,
+        "end_line": 61,
+        "content": "The `ignores` key is placed inside the config object that also has `rules`, which means it only applies to that specific config block, not globally. If the intent is to ignore the service worker directory across all linting, move `ignores` to a top-level config object (e.g. `{ ignores: [...] }` as the first entry).",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 1,\n      \"end_line\": 90,\n      \"content\": \"This service worker is not registered anywhere. SvelteKit only auto-registers a service worker if `src/service-worker.ts` (or `.js`) exists at the root of `src`. Since this file is at `src/service-worker/index.ts`, it will never be installed, so `preloadImageUrl`/`cancelImageUrl` messages will have no effect and the preload/cancel behavior is dead code. Either move it to `src/service-worker.ts` or explicitly register it.\"\n    },\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 47,\n      \"end_line\": 68,\n      \"content\": \"`immichAsset` caches every 200 response for asset URLs, but the cache is never invalidated when the underlying asset changes (e.g. thumbnail regeneration, re-upload, or `updatedAt` change). Since the URL is the cache key and doesn't include a version/etag, users may see stale thumbnails/originals indefinitely. Consider keying on a versioned URL or respecting cache headers / `Cache-Control: no-store`.\"\n    },\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 47,\n      \"end_line\": 68,\n      \"content\": \"The `fetch` call uses `fetch(url, ...)` with a `URL` object, which drops the original request's credentials, headers (e.g. `Authorization`, cookies), and `mode`/`credentials` settings. For authenticated asset endpoints this can result in 401 responses being cached or returned. Pass the original `Request` (or at least `{ credentials: 'include' }`) instead of just the URL.\"\n    },\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 47,\n      \"end_line\": 68,\n      \"content\": \"When a request is aborted via `cancelImageUrl`, the `catch` block returns `Response.error()`. That error response is returned to the page for a request that was intentionally cancelled, which can surface as a broken image / console error. Consider re-throwing `AbortError` or returning a 499-style response so callers can distinguish cancellation from real failures.\"\n    },\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 47,\n      \"end_line\": 68,\n      \"content\": \"`pendingLoads` is keyed by `url.toString()`, but the same URL can be requested concurrently (e.g. thumbnail + original, or multiple components). The second request overwrites the first entry, so a subsequent `cancel` only aborts one of them and the `finally` of the first request deletes the entry belonging to the second. Use a `Map<string, Set<AbortController>>` or refcount.\"\n    },\n    {\n      \"path\": \"web/src/service-worker/index.ts\",\n      \"start_line\": 70,\n      \"end_line\": 90,\n      \"content\": \"`new URL(urlstring, event.origin)` — `event.origin` on a `MessageEvent` from a `BroadcastChannel` is typically an empty string, so relative URLs will throw `TypeError: Invalid URL`. Use `self.location.origin` instead.\"\n    },\n    {\n      \"path\": \"web/src/lib/components/assets/thumbnail/image-thumbnail.svelte\",\n      \"start_line\": 64,\n      \"end_line\": 71,\n      \"content\": \"`cancelImageUrl(url)` is called on destroy, but `url` is a reactive prop that can change during the component's lifetime (e.g. when the asset changes). The destroy callback captures the value at mount time, so cancelling will target the wrong URL if `url` was updated. Capture the current value via a getter or track the latest url.\"\n    },\n    {\n      \"path\": \"web/src/lib/components/asset-viewer/photo-viewer.svelte\",\n      \"start_line\": 168,\n      \"end_line\": 172,\n      \"content\": \"`cancelImageUrl(imageLoaderUrl)` is called in the cleanup of the `$effect`, but `imageLoaderUrl` may be reassigned during the effect's lifetime. The cleanup closure will read the latest value at cleanup time, which is correct here, but note that if `imageLoaderUrl` is undefined at cleanup (e.g. before assignment) this will post `{ type: 'cancel', url: undefined }`. Guard with a truthiness check.\"\n    },\n    {\n      \"path\": \"web/src/lib/utils/sw-messaging.ts\",\n      \"start_line\": 1,\n      \"end_line\": 8,\n      \"content\": \"A module-level `BroadcastChannel` is created on import. In SSR/prerender contexts (SvelteKit) `BroadcastChannel` is not defined in Node, which will throw at import time. Guard with `typeof window !== 'undefined'` or lazily instantiate inside the functions.\"\n    },\n    {\n      \"path\": \"web/eslint.config.js\",\n      \"start_line\": 61,\n      \"end_line\": 61,\n      \"content\": \"The `ignores` key is placed inside the config object that also has `rules`, which means it only applies to that specific config block, not globally. If the intent is to ignore the service worker directory across all linting, move `ignores` to a top-level config object (e.g. `{ ignores: [...] }` as the first entry).\"\n    }\n  ]\n}",
+  "stderr": null
+}

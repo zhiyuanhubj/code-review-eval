@@ -1,0 +1,23 @@
+{
+  "instance_id": "infiniflow__ragflow@a63caa1",
+  "repo": "infiniflow/ragflow",
+  "base_commit": "0a42e5777eb966b26aaf8f2a7d593ae99a4aa87a",
+  "head_commit": "a63caa1087852ada98964678be26b7c4d8363af6",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:27:12.448393+00:00",
+  "duration_seconds": 70.62,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "graphrag/utils.py",
+        "start_line": 442,
+        "end_line": 442,
+        "content": "Awaiting `run_sync` inside the loop serializes every datastore deletion, while the surrounding nursery launches no tasks. Entity merges can remove many edges, so this can add one full datastore round trip per edge and make `set_graph` extremely slow. Preserve concurrency by binding the current query/edge values (for example with `functools.partial`) and passing `trio.to_thread.run_sync` to `nursery.start_soon`."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"graphrag/utils.py\",\"start_line\":442,\"end_line\":442,\"content\":\"Awaiting `run_sync` inside the loop serializes every datastore deletion, while the surrounding nursery launches no tasks. Entity merges can remove many edges, so this can add one full datastore round trip per edge and make `set_graph` extremely slow. Preserve concurrency by binding the current query/edge values (for example with `functools.partial`) and passing `trio.to_thread.run_sync` to `nursery.start_soon`.\"}]}",
+  "stderr": null
+}

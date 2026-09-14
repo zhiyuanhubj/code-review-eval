@@ -1,0 +1,29 @@
+{
+  "instance_id": "infiniflow__ragflow@7051234",
+  "repo": "infiniflow/ragflow",
+  "base_commit": "b1c874698469ac999d210cd8cde59425781e4da2",
+  "head_commit": "705123406ec7cd5eb1f9be26f6c5c31357aeffc9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:54.138505+00:00",
+  "duration_seconds": 45.4,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "api/apps/api_app.py",
+        "start_line": 618,
+        "end_line": 618,
+        "content": "`get_doc_ids_by_doc_names()` returns `None` when `doc_names` is empty or has no matches. Requests that specify only `doc_ids` will therefore fail at `if doc_id not in doc_ids`, and an unmatched name will also break `get_by_ids`. Make the bulk helper always return a list (use `[]` for no matches)."
+      },
+      {
+        "path": "api/db/services/document_service.py",
+        "start_line": 335,
+        "end_line": 336,
+        "content": "This changes the singular helper's semantics from at most one document per requested name to every document with that name, without any tenant or knowledge-base restriction. Since document names are not globally unique, removing by name can now include additional documents, potentially from other tenants. Pass the authenticated tenant/KB scope into this query and explicitly handle duplicate names rather than returning every global match."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"api/apps/api_app.py\",\"start_line\":618,\"end_line\":618,\"content\":\"`get_doc_ids_by_doc_names()` returns `None` when `doc_names` is empty or has no matches. Requests that specify only `doc_ids` will therefore fail at `if doc_id not in doc_ids`, and an unmatched name will also break `get_by_ids`. Make the bulk helper always return a list (use `[]` for no matches).\"},{\"path\":\"api/db/services/document_service.py\",\"start_line\":335,\"end_line\":336,\"content\":\"This changes the singular helper's semantics from at most one document per requested name to every document with that name, without any tenant or knowledge-base restriction. Since document names are not globally unique, removing by name can now include additional documents, potentially from other tenants. Pass the authenticated tenant/KB scope into this query and explicitly handle duplicate names rather than returning every global match.\"}]}",
+  "stderr": null
+}

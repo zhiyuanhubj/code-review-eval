@@ -1,0 +1,45 @@
+{
+  "instance_id": "mrdoob__three.js@96ab072",
+  "repo": "mrdoob/three.js",
+  "base_commit": "bf4e6fcb64a1d6bdbaf975528595ac6873051641",
+  "head_commit": "96ab0720fc65368e32ee3f2389cb192f96d8adff",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:32:16.687316+00:00",
+  "duration_seconds": 5.82,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/geometries/ExtrudeGeometry.js",
+        "start_line": 165,
+        "end_line": 189,
+        "content": "The `cleanPoints` function has a bug when removing the last point. When `currentIndex` is `points.length - 1` and the distance to `prevPos` is below the threshold, `points.splice(currentIndex, 1)` removes the last point, then `i--` and `continue` cause the loop to re-examine the same index. However, since `currentIndex = i % points.length` and `points.length` has shrunk, the modulo may now wrap to a different point, potentially skipping points or causing incorrect comparisons. More critically, if the first point is removed (`currentIndex == 0`), the loop breaks immediately, leaving any remaining duplicate points at the end of the array uncleaned. Consider iterating more carefully, e.g., building a new array of kept points, or handling the wrap-around case explicitly.",
+        "side": "right"
+      },
+      {
+        "path": "src/geometries/ExtrudeGeometry.js",
+        "start_line": 165,
+        "end_line": 189,
+        "content": "`cleanPoints` mutates the input array in place via `splice`. For `vertices` this is fine, but `holes.forEach(cleanPoints)` passes each hole array directly. If the caller reuses the same hole arrays (e.g., the shape's `holes` array), this will silently mutate user-provided data. Consider cloning the arrays before cleaning, or documenting the mutation.",
+        "side": "right"
+      },
+      {
+        "path": "src/geometries/ExtrudeGeometry.js",
+        "start_line": 165,
+        "end_line": 189,
+        "content": "The `THRESHOLD` of 0.0002 is a magic number with no explanation. It also assumes the shape coordinates are in a unit scale where 0.0002 is a reasonable epsilon. For very small or very large shapes this may over- or under-clean. Consider making this configurable or at least documenting the rationale.",
+        "side": "right"
+      },
+      {
+        "path": "src/geometries/ExtrudeGeometry.js",
+        "start_line": 407,
+        "end_line": 407,
+        "content": "`contractedContourVertices` and `expandedHoleVertices` are only populated when `t == 0`. If `bevelSegments` is 0 (no bevel), the loop `for ( let t = 0; t <= bevelSegments; t ++ )` still runs once with `t == 0`, so this is fine. However, if `bevelEnabled` is false, the bevel loop is skipped entirely (see surrounding code), and these arrays will be empty, causing `triangulateShape` to receive empty inputs. Verify that the non-bevel path still produces valid faces.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/geometries/ExtrudeGeometry.js\",\n      \"start_line\": 165,\n      \"end_line\": 189,\n      \"content\": \"The `cleanPoints` function has a bug when removing the last point. When `currentIndex` is `points.length - 1` and the distance to `prevPos` is below the threshold, `points.splice(currentIndex, 1)` removes the last point, then `i--` and `continue` cause the loop to re-examine the same index. However, since `currentIndex = i % points.length` and `points.length` has shrunk, the modulo may now wrap to a different point, potentially skipping points or causing incorrect comparisons. More critically, if the first point is removed (`currentIndex == 0`), the loop breaks immediately, leaving any remaining duplicate points at the end of the array uncleaned. Consider iterating more carefully, e.g., building a new array of kept points, or handling the wrap-around case explicitly.\"\n    },\n    {\n      \"path\": \"src/geometries/ExtrudeGeometry.js\",\n      \"start_line\": 165,\n      \"end_line\": 189,\n      \"content\": \"`cleanPoints` mutates the input array in place via `splice`. For `vertices` this is fine, but `holes.forEach(cleanPoints)` passes each hole array directly. If the caller reuses the same hole arrays (e.g., the shape's `holes` array), this will silently mutate user-provided data. Consider cloning the arrays before cleaning, or documenting the mutation.\"\n    },\n    {\n      \"path\": \"src/geometries/ExtrudeGeometry.js\",\n      \"start_line\": 165,\n      \"end_line\": 189,\n      \"content\": \"The `THRESHOLD` of 0.0002 is a magic number with no explanation. It also assumes the shape coordinates are in a unit scale where 0.0002 is a reasonable epsilon. For very small or very large shapes this may over- or under-clean. Consider making this configurable or at least documenting the rationale.\"\n    },\n    {\n      \"path\": \"src/geometries/ExtrudeGeometry.js\",\n      \"start_line\": 407,\n      \"end_line\": 407,\n      \"content\": \"`contractedContourVertices` and `expandedHoleVertices` are only populated when `t == 0`. If `bevelSegments` is 0 (no bevel), the loop `for ( let t = 0; t <= bevelSegments; t ++ )` still runs once with `t == 0`, so this is fine. However, if `bevelEnabled` is false, the bevel loop is skipped entirely (see surrounding code), and these arrays will be empty, causing `triangulateShape` to receive empty inputs. Verify that the non-bevel path still produces valid faces.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

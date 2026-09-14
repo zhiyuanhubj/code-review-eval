@@ -1,0 +1,73 @@
+{
+  "instance_id": "google-gemini__gemini-cli@d64b61e",
+  "repo": "google-gemini/gemini-cli",
+  "base_commit": "6e4236bf7681b2a2cba5630a8dd0a0d5a200a0df",
+  "head_commit": "d64b61ef89f01ecdc0e095a995d47522245a0065",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:34:23.343549+00:00",
+  "duration_seconds": 12.63,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "packages/cli/src/config/extensions/extensionEnablement.ts",
+        "start_line": 99,
+        "end_line": 105,
+        "content": "The new glob-to-regex conversion `(\\/?)\\*` -> `($1.*)?` makes the trailing `*` optional, which changes semantics. For a rule like `/path/to/dir/*`, the regex becomes `^/path/to/dir/(/.*)?$`. This matches `/path/to/dir/` (with trailing slash) but not `/path/to/dir` (without trailing slash). Since `ensureLeadingAndTrailingSlash` is applied to the input path in `isEnabled`, this may be fine for that call site, but `Override.asRegex()` is also used in `isChildOf` where `this.baseRule` (which always has a trailing slash) is tested. Verify that the optional group is intentional and that all call sites pass paths with trailing slashes; otherwise, rules like `/path/to/dir/*` will fail to match `/path/to/dir`.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/config/extensions/extensionEnablement.ts",
+        "start_line": 60,
+        "end_line": 68,
+        "content": "`isChildOf` uses `parent.asRegex().test(this.baseRule)`. Because `asRegex` for a parent with `includeSubdirs=true` produces a regex that requires a trailing slash (e.g. `^/path/to/dir/(/.*)?$`), and `this.baseRule` is normalized to end with `/`, this works. However, if the parent rule is `/` (root), `asRegex` becomes `^(/.*)?$` which matches everything — that's likely intended. But note that `isChildOf` returns true for the parent itself when the child equals the parent (since `baseRule` matches). Combined with the `isEqualTo` check in `enable`/`disable`, this is handled, but callers should be aware.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/commands/extensions/disable.ts",
+        "start_line": 14,
+        "end_line": 22,
+        "content": "The `handleDisable` function silently falls back to `SettingScope.User` for any scope value that isn't `'workspace'` (case-insensitive). While the `.check()` validates the scope, this fallback is fragile: if a new scope is added to `SettingScope` in the future, it will be silently treated as `User`. Consider explicitly handling each valid scope or throwing on unknown values to avoid silent misbehavior.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/commands/extensions/enable.ts",
+        "start_line": 14,
+        "end_line": 22,
+        "content": "Same issue as `disable.ts`: `handleEnable` silently defaults to `SettingScope.User` for any non-`workspace` scope. The docstring for the `--scope` option says \"If not set, will be enabled in all scopes\", but the implementation only enables in `User` scope when scope is unset. This is a behavior/documentation mismatch — either update the description or implement the documented behavior.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/config/extensions/extensionEnablement.ts",
+        "start_line": 170,
+        "end_line": 185,
+        "content": "In `enable`, the filter removes rules where `fileOverride.isChildOf(override)` is true. But `isChildOf` returns `false` when `parent.includeSubdirs` is false. So when enabling a parent without subdirs (e.g. `/path/to/dir` with `includeSubdirs=false`), child rules like `/path/to/dir/subdir1/` are NOT removed. This is tested in `'should not remove child rules if includeSubdirs is false'`, so it appears intentional. However, this creates a subtle inconsistency: a non-subdir parent rule `/path/to/dir/` will not match `/path/to/dir/subdir1` (since the regex requires exact match), so the child rule still applies — which is correct. Just confirming the intent is documented.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/config/extensions/extensionEnablement.ts",
+        "start_line": 188,
+        "end_line": 194,
+        "content": "`disable` now delegates to `enable` with a `!`-prefixed path. This is clever, but `Override.fromInput` strips the leading `!` and sets `isDisable=true`, then `output()` re-adds it. The `conflictsWith` logic compares `isDisable`, so a disable rule will correctly conflict with an enable rule at the same path. However, `isChildOf` does not consider `isDisable` — so disabling a parent will remove child enable rules (as tested). Verify this is the desired semantics: disabling `/path/to/dir` with subdirs removes an explicit enable for `/path/to/dir/subdir1`, which seems correct since the parent disable covers it.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/config/extensions/extensionEnablement.test.ts",
+        "start_line": 51,
+        "end_line": 56,
+        "content": "The test was changed from `manager.disable('ext-test', true, '*')` to `manager.disable('ext-test', true, '/')`. With the new `ensureLeadingAndTrailingSlash`, `'*'` would become `'/*/'` which is likely not intended. Using `'/'` is more correct, but note that `Override.fromInput('/', true)` produces `baseRule='/'` and `output()` returns `'/*'`. The regex for `'/*'` is `^(/.*)?$` which matches everything — good. Just confirming the test change is intentional and not masking a regression in handling `'*'` as a global disable.",
+        "side": "right"
+      },
+      {
+        "path": "packages/cli/src/config/extensions/extensionEnablement.test.ts",
+        "start_line": 88,
+        "end_line": 96,
+        "content": "The test name `'should handle'` is not descriptive. Consider renaming to something like `'should allow a more specific disable rule to override a parent enable rule'` to clarify intent.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"packages/cli/src/config/extensions/extensionEnablement.ts\",\n      \"start_line\": 99,\n      \"end_line\": 105,\n      \"content\": \"The new glob-to-regex conversion `(\\\\/?)\\\\*` -> `($1.*)?` makes the trailing `*` optional, which changes semantics. For a rule like `/path/to/dir/*`, the regex becomes `^/path/to/dir/(/.*)?$`. This matches `/path/to/dir/` (with trailing slash) but not `/path/to/dir` (without trailing slash). Since `ensureLeadingAndTrailingSlash` is applied to the input path in `isEnabled`, this may be fine for that call site, but `Override.asRegex()` is also used in `isChildOf` where `this.baseRule` (which always has a trailing slash) is tested. Verify that the optional group is intentional and that all call sites pass paths with trailing slashes; otherwise, rules like `/path/to/dir/*` will fail to match `/path/to/dir`.\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/extensions/extensionEnablement.ts\",\n      \"start_line\": 60,\n      \"end_line\": 68,\n      \"content\": \"`isChildOf` uses `parent.asRegex().test(this.baseRule)`. Because `asRegex` for a parent with `includeSubdirs=true` produces a regex that requires a trailing slash (e.g. `^/path/to/dir/(/.*)?$`), and `this.baseRule` is normalized to end with `/`, this works. However, if the parent rule is `/` (root), `asRegex` becomes `^(/.*)?$` which matches everything — that's likely intended. But note that `isChildOf` returns true for the parent itself when the child equals the parent (since `baseRule` matches). Combined with the `isEqualTo` check in `enable`/`disable`, this is handled, but callers should be aware.\"\n    },\n    {\n      \"path\": \"packages/cli/src/commands/extensions/disable.ts\",\n      \"start_line\": 14,\n      \"end_line\": 22,\n      \"content\": \"The `handleDisable` function silently falls back to `SettingScope.User` for any scope value that isn't `'workspace'` (case-insensitive). While the `.check()` validates the scope, this fallback is fragile: if a new scope is added to `SettingScope` in the future, it will be silently treated as `User`. Consider explicitly handling each valid scope or throwing on unknown values to avoid silent misbehavior.\"\n    },\n    {\n      \"path\": \"packages/cli/src/commands/extensions/enable.ts\",\n      \"start_line\": 14,\n      \"end_line\": 22,\n      \"content\": \"Same issue as `disable.ts`: `handleEnable` silently defaults to `SettingScope.User` for any non-`workspace` scope. The docstring for the `--scope` option says \\\"If not set, will be enabled in all scopes\\\", but the implementation only enables in `User` scope when scope is unset. This is a behavior/documentation mismatch — either update the description or implement the documented behavior.\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/extensions/extensionEnablement.ts\",\n      \"start_line\": 170,\n      \"end_line\": 185,\n      \"content\": \"In `enable`, the filter removes rules where `fileOverride.isChildOf(override)` is true. But `isChildOf` returns `false` when `parent.includeSubdirs` is false. So when enabling a parent without subdirs (e.g. `/path/to/dir` with `includeSubdirs=false`), child rules like `/path/to/dir/subdir1/` are NOT removed. This is tested in `'should not remove child rules if includeSubdirs is false'`, so it appears intentional. However, this creates a subtle inconsistency: a non-subdir parent rule `/path/to/dir/` will not match `/path/to/dir/subdir1` (since the regex requires exact match), so the child rule still applies — which is correct. Just confirming the intent is documented.\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/extensions/extensionEnablement.ts\",\n      \"start_line\": 188,\n      \"end_line\": 194,\n      \"content\": \"`disable` now delegates to `enable` with a `!`-prefixed path. This is clever, but `Override.fromInput` strips the leading `!` and sets `isDisable=true`, then `output()` re-adds it. The `conflictsWith` logic compares `isDisable`, so a disable rule will correctly conflict with an enable rule at the same path. However, `isChildOf` does not consider `isDisable` — so disabling a parent will remove child enable rules (as tested). Verify this is the desired semantics: disabling `/path/to/dir` with subdirs removes an explicit enable for `/path/to/dir/subdir1`, which seems correct since the parent disable covers it.\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/extensions/extensionEnablement.test.ts\",\n      \"start_line\": 51,\n      \"end_line\": 56,\n      \"content\": \"The test was changed from `manager.disable('ext-test', true, '*')` to `manager.disable('ext-test', true, '/')`. With the new `ensureLeadingAndTrailingSlash`, `'*'` would become `'/*/'` which is likely not intended. Using `'/'` is more correct, but note that `Override.fromInput('/', true)` produces `baseRule='/'` and `output()` returns `'/*'`. The regex for `'/*'` is `^(/.*)?$` which matches everything — good. Just confirming the test change is intentional and not masking a regression in handling `'*'` as a global disable.\"\n    },\n    {\n      \"path\": \"packages/cli/src/config/extensions/extensionEnablement.test.ts\",\n      \"start_line\": 88,\n      \"end_line\": 96,\n      \"content\": \"The test name `'should handle'` is not descriptive. Consider renaming to something like `'should allow a more specific disable rule to override a parent enable rule'` to clarify intent.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

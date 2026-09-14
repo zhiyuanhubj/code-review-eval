@@ -1,0 +1,23 @@
+{
+  "instance_id": "gofr-dev__gofr@dc0b3e6",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "44e3eeb2786ad4d333dc1f528fb104236693d060",
+  "head_commit": "dc0b3e630423b72cb9b2f273fdc18a5c11d12984",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:27.982370+00:00",
+  "duration_seconds": 6.69,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/gofr/datasource/mongo/mongo.go",
+        "start_line": 145,
+        "end_line": 147,
+        "content": "Double-encoding of credentials: `url.UserPassword` already percent-encodes the user and password when the URL is serialized via `u.String()`. Wrapping them in `url.QueryEscape` first will result in double-encoding (e.g. a password `p@ss` becomes `p%2540ss`), producing an incorrect URI and failing authentication for credentials containing special characters. Pass the raw values: `u.User = url.UserPassword(config.User, config.Password)`."
+      }
+    ]
+  },
+  "raw_output": "Looking at the code, let me analyze the credential encoding logic.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/datasource/mongo/mongo.go\",\n      \"start_line\": 145,\n      \"end_line\": 147,\n      \"content\": \"Double-encoding of credentials: `url.UserPassword` already percent-encodes the user and password when the URL is serialized via `u.String()`. Wrapping them in `url.QueryEscape` first will result in double-encoding (e.g. a password `p@ss` becomes `p%2540ss`), producing an incorrect URI and failing authentication for credentials containing special characters. Pass the raw values: `u.User = url.UserPassword(config.User, config.Password)`.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

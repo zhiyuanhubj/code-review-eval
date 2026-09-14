@@ -1,0 +1,59 @@
+{
+  "instance_id": "ollama__ollama@b6002f6",
+  "repo": "ollama/ollama",
+  "base_commit": "92b96d54efd6b49322b7cf046f9a0dc16b00cd0a",
+  "head_commit": "b6002f6b6c69370f8c18a9e6c1cafa8463273a6b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:02.045907+00:00",
+  "duration_seconds": 6.97,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "kvcache/encoder.go",
+        "start_line": 94,
+        "end_line": 94,
+        "content": "`batch.Positions.Ints()` allocates a new slice on every call. Since this is called on every forward pass with multimodal input, consider caching the result or using a cheaper accessor. More importantly, if `batch.Positions` is nil (e.g., a batch without positions), this will panic. Verify that Positions is always populated before this path.",
+        "side": "right"
+      },
+      {
+        "path": "kvcache/wrapper.go",
+        "start_line": 50,
+        "end_line": 50,
+        "content": "`batch.Positions.Ints()` is called inside the inner unwind loop, causing a fresh allocation on every iteration of `j`. Hoist it outside the `for j` loop to avoid repeated allocations.",
+        "side": "right"
+      },
+      {
+        "path": "ml/backend/ggml/ggml.go",
+        "start_line": 1021,
+        "end_line": 1035,
+        "content": "`Ints()` uses `unsafe.Slice((*int32)(bts), ...)` for CPU-memory tensors, which returns a view into the underlying ggml buffer rather than a copy. Callers (e.g., `kvcache/causal.go` storing `c.curPositions`) may hold this slice beyond the tensor's lifetime, leading to use-after-free or aliasing bugs. Consider returning a copy, or document clearly that the returned slice is only valid while the tensor is alive. Note `Floats()` has the same pattern but is pre-existing.",
+        "side": "right"
+      },
+      {
+        "path": "model/models/gptoss/model.go",
+        "start_line": 42,
+        "end_line": 44,
+        "content": "The previous code guarded with `len(batch.Outputs) > 0` before assigning outputs. The new code unconditionally assigns `batch.Outputs` on the last block. If `batch.Outputs` is nil/empty (e.g., during a reserve/warmup pass where outputs aren't needed), downstream `Rows`/indexing may fail. Confirm that `batch.Outputs` is always a valid tensor here, or restore the length check.",
+        "side": "right"
+      },
+      {
+        "path": "runner/ollamarunner/runner.go",
+        "start_line": 582,
+        "end_line": 583,
+        "content": "`FromIntSlice(batchOutputs, len(batchOutputs))` is called even when `batchOutputs` is empty (no sequence at its last input). Verify that `FromIntSlice` with length 0 produces a valid tensor that downstream `Rows`/`FromIntSlice` consumers handle correctly; otherwise guard with a length check.",
+        "side": "right"
+      },
+      {
+        "path": "runner/ollamarunner/runner.go",
+        "start_line": 1069,
+        "end_line": 1069,
+        "content": "`ctx.Input().Arange(0, float32(s.parallel), 1, ml.DTypeI32)` — verify that `Arange` with `DTypeI32` produces the same values as the previous `[]int32{0,1,...,parallel-1}`. If `Arange` uses float32 internally, large `s.parallel` values could lose precision, though this is unlikely in practice.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"kvcache/encoder.go\",\n      \"start_line\": 94,\n      \"end_line\": 94,\n      \"content\": \"`batch.Positions.Ints()` allocates a new slice on every call. Since this is called on every forward pass with multimodal input, consider caching the result or using a cheaper accessor. More importantly, if `batch.Positions` is nil (e.g., a batch without positions), this will panic. Verify that Positions is always populated before this path.\"\n    },\n    {\n      \"path\": \"kvcache/wrapper.go\",\n      \"start_line\": 50,\n      \"end_line\": 50,\n      \"content\": \"`batch.Positions.Ints()` is called inside the inner unwind loop, causing a fresh allocation on every iteration of `j`. Hoist it outside the `for j` loop to avoid repeated allocations.\"\n    },\n    {\n      \"path\": \"ml/backend/ggml/ggml.go\",\n      \"start_line\": 1021,\n      \"end_line\": 1035,\n      \"content\": \"`Ints()` uses `unsafe.Slice((*int32)(bts), ...)` for CPU-memory tensors, which returns a view into the underlying ggml buffer rather than a copy. Callers (e.g., `kvcache/causal.go` storing `c.curPositions`) may hold this slice beyond the tensor's lifetime, leading to use-after-free or aliasing bugs. Consider returning a copy, or document clearly that the returned slice is only valid while the tensor is alive. Note `Floats()` has the same pattern but is pre-existing.\"\n    },\n    {\n      \"path\": \"model/models/gptoss/model.go\",\n      \"start_line\": 42,\n      \"end_line\": 44,\n      \"content\": \"The previous code guarded with `len(batch.Outputs) > 0` before assigning outputs. The new code unconditionally assigns `batch.Outputs` on the last block. If `batch.Outputs` is nil/empty (e.g., during a reserve/warmup pass where outputs aren't needed), downstream `Rows`/indexing may fail. Confirm that `batch.Outputs` is always a valid tensor here, or restore the length check.\"\n    },\n    {\n      \"path\": \"runner/ollamarunner/runner.go\",\n      \"start_line\": 582,\n      \"end_line\": 583,\n      \"content\": \"`FromIntSlice(batchOutputs, len(batchOutputs))` is called even when `batchOutputs` is empty (no sequence at its last input). Verify that `FromIntSlice` with length 0 produces a valid tensor that downstream `Rows`/`FromIntSlice` consumers handle correctly; otherwise guard with a length check.\"\n    },\n    {\n      \"path\": \"runner/ollamarunner/runner.go\",\n      \"start_line\": 1069,\n      \"end_line\": 1069,\n      \"content\": \"`ctx.Input().Arange(0, float32(s.parallel), 1, ml.DTypeI32)` — verify that `Arange` with `DTypeI32` produces the same values as the previous `[]int32{0,1,...,parallel-1}`. If `Arange` uses float32 internally, large `s.parallel` values could lose precision, though this is unlikely in practice.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

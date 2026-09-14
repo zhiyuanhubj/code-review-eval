@@ -1,0 +1,23 @@
+{
+  "instance_id": "dbeaver__dbeaver@bc3ac7b",
+  "repo": "dbeaver/dbeaver",
+  "base_commit": "24ad3c4030412df3d9c843c405e90a0b1e2ad5dd",
+  "head_commit": "bc3ac7bb47092a934b344791d8aa3a1c41e6c8f7",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:28:54.073214+00:00",
+  "duration_seconds": 25.36,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "plugins/org.jkiss.dbeaver.model/src/org/jkiss/dbeaver/model/navigator/fs/DBNPathBase.java",
+        "start_line": 293,
+        "end_line": 296,
+        "content": "Close the adapted stream with try-with-resources. `IFile.getContents()` returns a stream that the caller must close, and `Files.copy(InputStream, ...)` does not close it, so every copied workspace resource currently leaks an input stream (including on copy failure)."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"plugins/org.jkiss.dbeaver.model/src/org/jkiss/dbeaver/model/navigator/fs/DBNPathBase.java\",\"start_line\":293,\"end_line\":296,\"content\":\"Close the adapted stream with try-with-resources. `IFile.getContents()` returns a stream that the caller must close, and `Files.copy(InputStream, ...)` does not close it, so every copied workspace resource currently leaks an input stream (including on copy failure).\"}]}",
+  "stderr": null
+}

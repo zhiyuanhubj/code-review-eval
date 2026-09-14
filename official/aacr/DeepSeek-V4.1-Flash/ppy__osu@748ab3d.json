@@ -1,0 +1,31 @@
+{
+  "instance_id": "ppy__osu@748ab3d",
+  "repo": "ppy/osu",
+  "base_commit": "19e9bffc11f026ebff2dc2831668e606c701f71f",
+  "head_commit": "748ab3d4863f6ea4bf6a3fffccb50e5cd616937b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:28.944753+00:00",
+  "duration_seconds": 6.16,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "osu.Game/Rulesets/Difficulty/Utils/DifficultyCalculationUtils.cs",
+        "start_line": 76,
+        "end_line": 81,
+        "content": "The `SmoothstepBellCurve` implementation is incorrect. For `x` outside `[mean - width, mean + width]`, `x` becomes negative after the subtraction and `Smoothstep` returns 0, which is fine. However, for `x` inside the range, the logic `x = x > 0 ? (width - x) : (width + x)` maps the distance from the mean to `width - |x - mean|`, which is correct. But the function is not symmetric around the mean when `x == mean`: `x -= mean` gives 0, then `x = width + 0 = width`, and `Smoothstep(width, 0, width)` returns 1, which is correct. The real issue is that the doc says \"smoothly reducing its value to 0 over width\", but the function actually reaches 0 at `|x - mean| = width`, and for `|x - mean| > width` it returns 0. That part is fine. The actual bug: when `x - mean` is exactly `width`, `x` becomes 0, and `Smoothstep(0, 0, width)` returns 0, which is correct. So the function appears correct. However, the parameter `width` is used both as the half-width of the bell and as the denominator in `Smoothstep`, which is consistent. No bug here. But note the typo in the XML doc: \"returns returns\" and \"it's\" should be \"its\".",
+        "side": "right"
+      },
+      {
+        "path": "osu.Game.Rulesets.Osu/Difficulty/Evaluators/RhythmEvaluator.cs",
+        "start_line": 71,
+        "end_line": 76,
+        "content": "The new rhythm ratio calculation uses `reverseDeltaDifferenceRatio - (long)reverseDeltaDifferenceRatio` to get the fractional part. This is problematic for large ratios: if `reverseDeltaDifferenceRatio` exceeds `long.MaxValue` (e.g., extremely small `currDelta`), the cast to `long` overflows and produces undefined behavior (in C#, unchecked cast of a double larger than long.MaxValue to long yields long.MinValue on most platforms, but it's not guaranteed). More importantly, for ratios like 2.0, the fractional part is 0, and `SmoothstepBellCurve(0)` returns 0, which correctly removes the rhythm bonus for exact multiples. However, for ratios like 1.5, the fractional part is 0.5, and `SmoothstepBellCurve(0.5)` returns 1, giving maximum bonus. This matches the intent. But the original code used `Math.Sin(Math.PI / deltaDifferenceRatio)` which had a different shape. The new approach is likely intentional. The real concern is the cast to `long` for very large ratios; consider using `Math.IEEERemainder` or `x - Math.Floor(x)` instead to avoid overflow and precision issues.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"osu.Game/Rulesets/Difficulty/Utils/DifficultyCalculationUtils.cs\",\n      \"start_line\": 76,\n      \"end_line\": 81,\n      \"content\": \"The `SmoothstepBellCurve` implementation is incorrect. For `x` outside `[mean - width, mean + width]`, `x` becomes negative after the subtraction and `Smoothstep` returns 0, which is fine. However, for `x` inside the range, the logic `x = x > 0 ? (width - x) : (width + x)` maps the distance from the mean to `width - |x - mean|`, which is correct. But the function is not symmetric around the mean when `x == mean`: `x -= mean` gives 0, then `x = width + 0 = width`, and `Smoothstep(width, 0, width)` returns 1, which is correct. The real issue is that the doc says \\\"smoothly reducing its value to 0 over width\\\", but the function actually reaches 0 at `|x - mean| = width`, and for `|x - mean| > width` it returns 0. That part is fine. The actual bug: when `x - mean` is exactly `width`, `x` becomes 0, and `Smoothstep(0, 0, width)` returns 0, which is correct. So the function appears correct. However, the parameter `width` is used both as the half-width of the bell and as the denominator in `Smoothstep`, which is consistent. No bug here. But note the typo in the XML doc: \\\"returns returns\\\" and \\\"it's\\\" should be \\\"its\\\".\"\n    },\n    {\n      \"path\": \"osu.Game.Rulesets.Osu/Difficulty/Evaluators/RhythmEvaluator.cs\",\n      \"start_line\": 71,\n      \"end_line\": 76,\n      \"content\": \"The new rhythm ratio calculation uses `reverseDeltaDifferenceRatio - (long)reverseDeltaDifferenceRatio` to get the fractional part. This is problematic for large ratios: if `reverseDeltaDifferenceRatio` exceeds `long.MaxValue` (e.g., extremely small `currDelta`), the cast to `long` overflows and produces undefined behavior (in C#, unchecked cast of a double larger than long.MaxValue to long yields long.MinValue on most platforms, but it's not guaranteed). More importantly, for ratios like 2.0, the fractional part is 0, and `SmoothstepBellCurve(0)` returns 0, which correctly removes the rhythm bonus for exact multiples. However, for ratios like 1.5, the fractional part is 0.5, and `SmoothstepBellCurve(0.5)` returns 1, giving maximum bonus. This matches the intent. But the original code used `Math.Sin(Math.PI / deltaDifferenceRatio)` which had a different shape. The new approach is likely intentional. The real concern is the cast to `long` for very large ratios; consider using `Math.IEEERemainder` or `x - Math.Floor(x)` instead to avoid overflow and precision issues.\"\n    }\n  ]\n}",
+  "stderr": null
+}

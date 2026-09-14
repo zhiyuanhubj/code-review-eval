@@ -1,0 +1,23 @@
+{
+  "instance_id": "vllm-project__vllm@3fe1893",
+  "repo": "vllm-project/vllm",
+  "base_commit": "c3bf9bad11193ee684ed6083b6692d0b5bf2bac7",
+  "head_commit": "3fe18934d7f33b98812d7402463fe171c24efc77",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:29:26.642428+00:00",
+  "duration_seconds": 64.44,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "vllm/model_executor/models/qwen2_vl.py",
+        "start_line": 822,
+        "end_line": 823,
+        "content": "These values only match the default Qwen processor settings. Qwen2-VL supports overriding settings such as `max_pixels` through `mm_processor_kwargs`; increasing it can produce more visual tokens than these constants, while this hook now bypasses the dummy-input calculation that respected those settings. Please derive these bounds from the resolved processor/model configuration, or return `None` whenever relevant overrides are present, to avoid underestimating the profiling/cache budget."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"vllm/model_executor/models/qwen2_vl.py\",\"start_line\":822,\"end_line\":823,\"content\":\"These values only match the default Qwen processor settings. Qwen2-VL supports overriding settings such as `max_pixels` through `mm_processor_kwargs`; increasing it can produce more visual tokens than these constants, while this hook now bypasses the dummy-input calculation that respected those settings. Please derive these bounds from the resolved processor/model configuration, or return `None` whenever relevant overrides are present, to avoid underestimating the profiling/cache budget.\"}]}",
+  "stderr": null
+}

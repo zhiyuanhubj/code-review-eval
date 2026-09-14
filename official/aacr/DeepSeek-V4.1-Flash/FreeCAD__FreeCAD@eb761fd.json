@@ -1,0 +1,115 @@
+{
+  "instance_id": "FreeCAD__FreeCAD@eb761fd",
+  "repo": "FreeCAD/FreeCAD",
+  "base_commit": "17e56f6570a97aa9803b502b23cf27dc8be1da70",
+  "head_commit": "eb761fd69cf1fb9c674e385bb1d419814526ba5a",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:30:24.606052+00:00",
+  "duration_seconds": 13.36,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Mod/Part/Gui/Command.cpp",
+        "start_line": 1974,
+        "end_line": 1981,
+        "content": "This block assigns `curve2` instead of `curve1`. The original code assigned `curve1` when `subnames1` had one element. This is a functional regression.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Part/Gui/Mirroring.cpp",
+        "start_line": 103,
+        "end_line": 110,
+        "content": "`sSubName` is not defined in this scope; the original code used `subString`. This will cause a compilation error.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/PartDesign/App/FeatureSketchBased.cpp",
+        "start_line": 730,
+        "end_line": 736,
+        "content": "`Part::Feature::getShape` returns `TopoDS_Shape`, but the result is assigned to `auto shape` and then used as `TopoShape face = shape;`. This may not compile or may lose element mapping. The original code used `getTopoShape`. Use `getTopoShape` here.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Part/App/PartFeature.cpp",
+        "start_line": 1330,
+        "end_line": 1343,
+        "content": "The simplification priority array contains `TopAbs_SHELL` twice and omits `TopAbs_COMPSOLID` ordering. The original code checked `TopAbs_COMPSOLID` before `TopAbs_FACE`. This changes behavior for compounds containing a single COMPSOLID.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Part/App/PartFeature.cpp",
+        "start_line": 1266,
+        "end_line": 1266,
+        "content": "Operator precedence: `options & NeedSubElement && ...` is parsed as `(options & NeedSubElement) && ...` which is correct, but for clarity and to avoid warnings, consider adding parentheses.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Part/App/PartFeature.cpp",
+        "start_line": 1287,
+        "end_line": 1287,
+        "content": "Operator precedence: `pmat && options & Transform` is parsed as `pmat && (options & Transform)`. This is correct but should be parenthesized for clarity.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Part/App/AppPartPy.cpp",
+        "start_line": 2291,
+        "end_line": 2295,
+        "content": "The bitwise OR expression is malformed. `(Feature::NeedSubElement * Base::asBoolean(needSubElement) | ...)` uses `*` instead of `&`, and the parentheses are unbalanced. This will not compile or will produce incorrect flags.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Part/App/FeatureExtrusion.cpp",
+        "start_line": 173,
+        "end_line": 177,
+        "content": "`NeedSubElement`, `ResolveLink`, and `Transform` are used unqualified. They are members of `Part::Feature`, so they should be `Feature::NeedSubElement`, etc., unless there is a `using namespace` or they are in scope. This may not compile.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Part/App/FeatureMirroring.cpp",
+        "start_line": 173,
+        "end_line": 178,
+        "content": "`NeedSubElement`, `ResolveLink`, and `Transform` are used unqualified. They should be `Feature::NeedSubElement`, etc.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Part/App/FeatureProjectOnSurface.cpp",
+        "start_line": 111,
+        "end_line": 115,
+        "content": "`NeedSubElement`, `ResolveLink`, and `Transform` are used unqualified. They should be `Feature::NeedSubElement`, etc.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Part/App/FeatureProjectOnSurface.cpp",
+        "start_line": 129,
+        "end_line": 133,
+        "content": "`NeedSubElement`, `ResolveLink`, and `Transform` are used unqualified. They should be `Feature::NeedSubElement`, etc.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Part/App/FeatureRevolution.cpp",
+        "start_line": 94,
+        "end_line": 98,
+        "content": "`NeedSubElement`, `ResolveLink`, and `Transform` are used unqualified. They should be `Feature::NeedSubElement`, etc.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Part/App/PartFeatures.cpp",
+        "start_line": 143,
+        "end_line": 147,
+        "content": "`NeedSubElement`, `ResolveLink`, and `Transform` are used unqualified. They should be `Feature::NeedSubElement`, etc.",
+        "side": "right"
+      },
+      {
+        "path": "src/Mod/Part/App/PartFeature.cpp",
+        "start_line": 1189,
+        "end_line": 1191,
+        "content": "`Feature::NeedSubElement` is passed as the last argument to `_getTopoShape`, but the parameter order is `(obj, subname, pmat, powner, hiddens, lastLink, options)`. The call passes `nextHiddens` and `nextLink` before the options, which matches, but the options argument is missing `ResolveLink` and `Transform` that were previously passed as `false, false`. This changes behavior.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Mod/Part/Gui/Command.cpp\",\n      \"start_line\": 1974,\n      \"end_line\": 1981,\n      \"content\": \"This block assigns `curve2` instead of `curve1`. The original code assigned `curve1` when `subnames1` had one element. This is a functional regression.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/Gui/Mirroring.cpp\",\n      \"start_line\": 103,\n      \"end_line\": 110,\n      \"content\": \"`sSubName` is not defined in this scope; the original code used `subString`. This will cause a compilation error.\"\n    },\n    {\n      \"path\": \"src/Mod/PartDesign/App/FeatureSketchBased.cpp\",\n      \"start_line\": 730,\n      \"end_line\": 736,\n      \"content\": \"`Part::Feature::getShape` returns `TopoDS_Shape`, but the result is assigned to `auto shape` and then used as `TopoShape face = shape;`. This may not compile or may lose element mapping. The original code used `getTopoShape`. Use `getTopoShape` here.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/PartFeature.cpp\",\n      \"start_line\": 1330,\n      \"end_line\": 1343,\n      \"content\": \"The simplification priority array contains `TopAbs_SHELL` twice and omits `TopAbs_COMPSOLID` ordering. The original code checked `TopAbs_COMPSOLID` before `TopAbs_FACE`. This changes behavior for compounds containing a single COMPSOLID.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/PartFeature.cpp\",\n      \"start_line\": 1266,\n      \"end_line\": 1266,\n      \"content\": \"Operator precedence: `options & NeedSubElement && ...` is parsed as `(options & NeedSubElement) && ...` which is correct, but for clarity and to avoid warnings, consider adding parentheses.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/PartFeature.cpp\",\n      \"start_line\": 1287,\n      \"end_line\": 1287,\n      \"content\": \"Operator precedence: `pmat && options & Transform` is parsed as `pmat && (options & Transform)`. This is correct but should be parenthesized for clarity.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/AppPartPy.cpp\",\n      \"start_line\": 2291,\n      \"end_line\": 2295,\n      \"content\": \"The bitwise OR expression is malformed. `(Feature::NeedSubElement * Base::asBoolean(needSubElement) | ...)` uses `*` instead of `&`, and the parentheses are unbalanced. This will not compile or will produce incorrect flags.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/FeatureExtrusion.cpp\",\n      \"start_line\": 173,\n      \"end_line\": 177,\n      \"content\": \"`NeedSubElement`, `ResolveLink`, and `Transform` are used unqualified. They are members of `Part::Feature`, so they should be `Feature::NeedSubElement`, etc., unless there is a `using namespace` or they are in scope. This may not compile.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/FeatureMirroring.cpp\",\n      \"start_line\": 173,\n      \"end_line\": 178,\n      \"content\": \"`NeedSubElement`, `ResolveLink`, and `Transform` are used unqualified. They should be `Feature::NeedSubElement`, etc.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/FeatureProjectOnSurface.cpp\",\n      \"start_line\": 111,\n      \"end_line\": 115,\n      \"content\": \"`NeedSubElement`, `ResolveLink`, and `Transform` are used unqualified. They should be `Feature::NeedSubElement`, etc.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/FeatureProjectOnSurface.cpp\",\n      \"start_line\": 129,\n      \"end_line\": 133,\n      \"content\": \"`NeedSubElement`, `ResolveLink`, and `Transform` are used unqualified. They should be `Feature::NeedSubElement`, etc.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/FeatureRevolution.cpp\",\n      \"start_line\": 94,\n      \"end_line\": 98,\n      \"content\": \"`NeedSubElement`, `ResolveLink`, and `Transform` are used unqualified. They should be `Feature::NeedSubElement`, etc.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/PartFeatures.cpp\",\n      \"start_line\": 143,\n      \"end_line\": 147,\n      \"content\": \"`NeedSubElement`, `ResolveLink`, and `Transform` are used unqualified. They should be `Feature::NeedSubElement`, etc.\"\n    },\n    {\n      \"path\": \"src/Mod/Part/App/PartFeature.cpp\",\n      \"start_line\": 1189,\n      \"end_line\": 1191,\n      \"content\": \"`Feature::NeedSubElement` is passed as the last argument to `_getTopoShape`, but the parameter order is `(obj, subname, pmat, powner, hiddens, lastLink, options)`. The call passes `nextHiddens` and `nextLink` before the options, which matches, but the options argument is missing `ResolveLink` and `Transform` that were previously passed as `false, false`. This changes behavior.\"\n    }\n  ]\n}",
+  "stderr": null
+}

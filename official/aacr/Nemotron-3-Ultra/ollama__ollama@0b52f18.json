@@ -1,0 +1,41 @@
+{
+  "instance_id": "ollama__ollama@0b52f18",
+  "repo": "ollama/ollama",
+  "base_commit": "c2f5d6662ba696b94455eaaa298a797d56fdca5c",
+  "head_commit": "0b52f186fb4af8fa7d4f6a71967f922eb6b69cdc",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:48:37.376137+00:00",
+  "duration_seconds": 35.59,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "cmd/cmd.go",
+        "start_line": 133,
+        "end_line": 133,
+        "content": "The concurrency limit `max(runtime.GOMAXPROCS(0)-1, 1)` could be 0 if GOMAXPROCS is 1, but max with 1 prevents that. However, consider using a named constant for clarity, e.g., `const maxConcurrency = max(runtime.GOMAXPROCS(0)-1, 1)`."
+      },
+      {
+        "path": "cmd/cmd.go",
+        "start_line": 135,
+        "end_line": 135,
+        "content": "The variable `temp` is reused for both `req.Files` and `req.Adapters` loops. While functionally correct, declaring separate variables (e.g., `tempFiles` and `tempAdapters`) would improve readability and avoid potential confusion."
+      },
+      {
+        "path": "progress/progress.go",
+        "start_line": 94,
+        "end_line": 94,
+        "content": "The call to `term.GetSize` inside `render()` is executed on every render cycle. Since terminal size rarely changes, consider caching the terminal dimensions and only refreshing on `SIGWINCH` or at a lower frequency to reduce syscall overhead."
+      },
+      {
+        "path": "progress/progress.go",
+        "start_line": 118,
+        "end_line": 118,
+        "content": "The loop uses `min(len(p.states), termHeight-1)` but `p.states` is a map, which has no guaranteed iteration order. This may cause flickering or inconsistent display as the subset of rendered states changes randomly between renders. Consider sorting keys or using a slice to maintain stable order."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"cmd/cmd.go\",\n      \"start_line\": 133,\n      \"end_line\": 133,\n      \"content\": \"The concurrency limit `max(runtime.GOMAXPROCS(0)-1, 1)` could be 0 if GOMAXPROCS is 1, but max with 1 prevents that. However, consider using a named constant for clarity, e.g., `const maxConcurrency = max(runtime.GOMAXPROCS(0)-1, 1)`.\"\n    },\n    {\n      \"path\": \"cmd/cmd.go\",\n      \"start_line\": 135,\n      \"end_line\": 135,\n      \"content\": \"The variable `temp` is reused for both `req.Files` and `req.Adapters` loops. While functionally correct, declaring separate variables (e.g., `tempFiles` and `tempAdapters`) would improve readability and avoid potential confusion.\"\n    },\n    {\n      \"path\": \"progress/progress.go\",\n      \"start_line\": 94,\n      \"end_line\": 94,\n      \"content\": \"The call to `term.GetSize` inside `render()` is executed on every render cycle. Since terminal size rarely changes, consider caching the terminal dimensions and only refreshing on `SIGWINCH` or at a lower frequency to reduce syscall overhead.\"\n    },\n    {\n      \"path\": \"progress/progress.go\",\n      \"start_line\": 118,\n      \"end_line\": 118,\n      \"content\": \"The loop uses `min(len(p.states), termHeight-1)` but `p.states` is a map, which has no guaranteed iteration order. This may cause flickering or inconsistent display as the subset of rendered states changes randomly between renders. Consider sorting keys or using a slice to maintain stable order.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,23 @@
+{
+  "instance_id": "timescale__timescaledb@2568b01",
+  "repo": "timescale/timescaledb",
+  "base_commit": "17fb43d888dbe3b328da6b08b310bc83d3167d39",
+  "head_commit": "2568b018719e25f262255626c474a461da38fc21",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:53:38.718580+00:00",
+  "duration_seconds": 20.68,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "tsl/src/hypercore/hypercore_handler.c",
+        "start_line": 3886,
+        "end_line": 3896,
+        "content": "The `RelationGetHypercoreInfo(rel)` call is inside a loop iterating over index keys. Since `RelationGetHypercoreInfo` is a relatively expensive operation (involves cache lookup and potential rebuild), it should be hoisted outside the loop. Move the call before the `for (int i = 0; i < indkeys->dim1; i++)` loop."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"tsl/src/hypercore/hypercore_handler.c\",\n      \"start_line\": 3886,\n      \"end_line\": 3896,\n      \"content\": \"The `RelationGetHypercoreInfo(rel)` call is inside a loop iterating over index keys. Since `RelationGetHypercoreInfo` is a relatively expensive operation (involves cache lookup and potential rebuild), it should be hoisted outside the loop. Move the call before the `for (int i = 0; i < indkeys->dim1; i++)` loop.\"\n    }\n  ]\n}",
+  "stderr": null
+}

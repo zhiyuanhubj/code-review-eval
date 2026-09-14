@@ -1,0 +1,16 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@73ecc7d",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "80e66f08662739d8eaaccb40ef75c573572bb8ba",
+  "head_commit": "73ecc7d809300ed1c29e1078712c531ebddcb181",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:02.675545+00:00",
+  "duration_seconds": 59.4,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "Reviewing the documentation changes for correctness.\n\nKey issues I can identify:\n\n1. **base64URLDecode.cpp** - The argument description says \"String column or constant to encode\" but this is a decode function.\n\n2. **concatWithSeparator** - The `introduced_in` version for the injective variant reuses the base function's `{22, 12}`, which may be incorrect, but I can't verify without more context.\n\n3. **base64Encode.cpp** - The argument description says \"Plaintext column or constant to decode.\" for an encode function.\n\nLet me report the clearly verifiable bugs.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Functions/base64URLDecode.cpp\",\n      \"start_line\": 28,\n      \"end_line\": 28,\n      \"content\": \"The argument description says \\\"String column or constant to encode\\\" but this is the base64URLDecode function. It should say \\\"to decode\\\".\"\n    },\n    {\n      \"path\": \"src/Functions/base64Encode.cpp\",\n      \"start_line\": 25,\n      \"end_line\": 25,\n      \"content\": \"The argument description says \\\"Plaintext column or constant to decode.\\\" but this is base64Encode. It should say \\\"to encode\\\" (or simply \\\"Plaintext column or constant.\\\").\"\n    },\n    {\n      \"path\": \"src/Functions/concat.cpp\",\n      \"start_line\": 300,\n      \"end_line\": 300,\n      \"content\": \"Typo: \\\"it returns different results for for different arguments\\\" — duplicated word \\\"for\\\".\"\n    },\n    {\n      \"path\": \"src/Functions/concat.cpp\",\n      \"start_line\": 315,\n      \"end_line\": 322,\n      \"content\": \"The concatAssumeInjective example's SELECT uses concat(key1, key2) in the projection but concatAssumeInjective(key1, key2) in GROUP BY; more importantly, the shown result contains duplicate 'Hello, World!' rows, which contradicts the purpose (injective/distinct grouping keys) and looks like an incorrect/misleading example output.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

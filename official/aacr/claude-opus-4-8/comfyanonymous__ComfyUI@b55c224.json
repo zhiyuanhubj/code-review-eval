@@ -1,0 +1,23 @@
+{
+  "instance_id": "comfyanonymous__ComfyUI@b55c224",
+  "repo": "comfyanonymous/ComfyUI",
+  "base_commit": "832e3f5ca3c357e527fdf811502357bd2798425e",
+  "head_commit": "b55c2247654476fbc744e572ba7a834fd9378745",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:39.853455+00:00",
+  "duration_seconds": 14.83,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "comfy/clip_model.py",
+        "start_line": 107,
+        "end_line": 110,
+        "content": "The DirectML branch creates the causal mask with uninitialized memory (torch.empty) then only applies triu_(1) without fill_, so the upper-triangular entries retain arbitrary garbage values instead of the intended masking value. This will produce incorrect attention. If the intent is to avoid -inf on DirectML, you should still fill_ with a large negative finite value (e.g. -torch.finfo(x.dtype).max) before triu_, matching the original behavior minus the -inf issue."
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"comfy/clip_model.py\",\n      \"start_line\": 107,\n      \"end_line\": 110,\n      \"content\": \"The DirectML branch creates the causal mask with uninitialized memory (torch.empty) then only applies triu_(1) without fill_, so the upper-triangular entries retain arbitrary garbage values instead of the intended masking value. This will produce incorrect attention. If the intent is to avoid -inf on DirectML, you should still fill_ with a large negative finite value (e.g. -torch.finfo(x.dtype).max) before triu_, matching the original behavior minus the -inf issue.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

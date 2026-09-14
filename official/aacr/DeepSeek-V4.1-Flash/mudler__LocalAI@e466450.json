@@ -1,0 +1,31 @@
+{
+  "instance_id": "mudler__LocalAI@e466450",
+  "repo": "mudler/LocalAI",
+  "base_commit": "78533d7230bdb5e352e325c15d0d53f38428b08e",
+  "head_commit": "e466450c007539a2b1e4d2951c6756ff004a2b52",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:35:18.387395+00:00",
+  "duration_seconds": 2.83,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "core/http/endpoints/openai/completion.go",
+        "start_line": 183,
+        "end_line": 183,
+        "content": "The accumulation of `totalTokenUsage.Prompt` and `totalTokenUsage.Completion` was removed and replaced with timing fields only. This means the non-streaming completion response will now always report 0 prompt/completion tokens. Restore the original `totalTokenUsage.Prompt += tokenUsage.Prompt` and `totalTokenUsage.Completion += tokenUsage.Completion` lines in addition to the new timing accumulations.",
+        "side": "right"
+      },
+      {
+        "path": "core/cli/run.go",
+        "start_line": 74,
+        "end_line": 74,
+        "content": "The help string is a placeholder (`TODO: write a help string`). Please provide a real description for the `MachineTag` flag before merging.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"core/http/endpoints/openai/completion.go\",\n      \"start_line\": 183,\n      \"end_line\": 183,\n      \"content\": \"The accumulation of `totalTokenUsage.Prompt` and `totalTokenUsage.Completion` was removed and replaced with timing fields only. This means the non-streaming completion response will now always report 0 prompt/completion tokens. Restore the original `totalTokenUsage.Prompt += tokenUsage.Prompt` and `totalTokenUsage.Completion += tokenUsage.Completion` lines in addition to the new timing accumulations.\"\n    },\n    {\n      \"path\": \"core/cli/run.go\",\n      \"start_line\": 74,\n      \"end_line\": 74,\n      \"content\": \"The help string is a placeholder (`TODO: write a help string`). Please provide a real description for the `MachineTag` flag before merging.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

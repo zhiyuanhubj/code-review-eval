@@ -1,0 +1,45 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@f9d51fa",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "e06542d23d77ca297014b40c7fd0f406f15fef81",
+  "head_commit": "f9d51faa7cba634f38a711494003d404946b05de",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:38:31.734748+00:00",
+  "duration_seconds": 7.73,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Disks/DiskLocalCheckThread.cpp",
+        "start_line": 76,
+        "end_line": 77,
+        "content": "The metric update is only reached on the `can_read` and `!can_read` branches, but the early `if (need_stop) return;` path skips it. More importantly, when the disk transitions to broken, the readonly flag may also change (e.g. `disk->readonly` is not reset when broken), so the readonly metric delta computed here may be stale. Consider updating metrics before the early return and ensuring both flags are captured consistently. Also, `diskStatusChange` is defined in the global namespace in a .cpp file — it should be `static` or in an anonymous namespace to avoid ODR/linkage issues.",
+        "side": "right"
+      },
+      {
+        "path": "src/Disks/DiskLocalCheckThread.cpp",
+        "start_line": 44,
+        "end_line": 47,
+        "content": "`diskStatusChange` is a non-static free function with external linkage in a translation unit. This can cause ODR violations if another TU defines the same symbol. Mark it `static` or wrap it in an anonymous namespace.",
+        "side": "right"
+      },
+      {
+        "path": "src/Disks/DiskLocalCheckThread.cpp",
+        "start_line": 33,
+        "end_line": 37,
+        "content": "`formatReadableTime` expects seconds, but the argument is `check_period_ms * 1e6` which converts ms to ns, not seconds. This will print a wildly incorrect value. It should be `check_period_ms / 1000.0` (or `* 1e-3`).",
+        "side": "right"
+      },
+      {
+        "path": "src/Disks/DiskLocalCheckThread.cpp",
+        "start_line": 60,
+        "end_line": 63,
+        "content": "The log message no longer includes the disk name, but the logger is now `DiskLocal(<name>)` (see DiskLocal.cpp change), so this is fine. However, the `SYSTEM RESTART DISK {0}` placeholder still uses `disk->getName()` — verify the argument is still passed. It is, so OK.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Disks/DiskLocalCheckThread.cpp\",\n      \"start_line\": 76,\n      \"end_line\": 77,\n      \"content\": \"The metric update is only reached on the `can_read` and `!can_read` branches, but the early `if (need_stop) return;` path skips it. More importantly, when the disk transitions to broken, the readonly flag may also change (e.g. `disk->readonly` is not reset when broken), so the readonly metric delta computed here may be stale. Consider updating metrics before the early return and ensuring both flags are captured consistently. Also, `diskStatusChange` is defined in the global namespace in a .cpp file — it should be `static` or in an anonymous namespace to avoid ODR/linkage issues.\"\n    },\n    {\n      \"path\": \"src/Disks/DiskLocalCheckThread.cpp\",\n      \"start_line\": 44,\n      \"end_line\": 47,\n      \"content\": \"`diskStatusChange` is a non-static free function with external linkage in a translation unit. This can cause ODR violations if another TU defines the same symbol. Mark it `static` or wrap it in an anonymous namespace.\"\n    },\n    {\n      \"path\": \"src/Disks/DiskLocalCheckThread.cpp\",\n      \"start_line\": 33,\n      \"end_line\": 37,\n      \"content\": \"`formatReadableTime` expects seconds, but the argument is `check_period_ms * 1e6` which converts ms to ns, not seconds. This will print a wildly incorrect value. It should be `check_period_ms / 1000.0` (or `* 1e-3`).\"\n    },\n    {\n      \"path\": \"src/Disks/DiskLocalCheckThread.cpp\",\n      \"start_line\": 60,\n      \"end_line\": 63,\n      \"content\": \"The log message no longer includes the disk name, but the logger is now `DiskLocal(<name>)` (see DiskLocal.cpp change), so this is fine. However, the `SYSTEM RESTART DISK {0}` placeholder still uses `disk->getName()` — verify the argument is still passed. It is, so OK.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

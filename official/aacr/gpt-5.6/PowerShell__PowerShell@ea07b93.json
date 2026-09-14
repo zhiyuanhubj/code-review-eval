@@ -1,0 +1,23 @@
+{
+  "instance_id": "PowerShell__PowerShell@ea07b93",
+  "repo": "PowerShell/PowerShell",
+  "base_commit": "ce76ae1def6d5b00fff0d855ec01575121268ef3",
+  "head_commit": "ea07b93a40f64274505e3a070c1fd91684ff2959",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:12.699027+00:00",
+  "duration_seconds": 35.42,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs",
+        "start_line": 2237,
+        "end_line": 2238,
+        "content": "This manual lookup fails on Windows for the default `sshCommand` value (`\"ssh\"`), because the executable is normally `ssh.exe` and `File.Exists(path\\ssh)` does not apply `PATHEXT`/`.exe` resolution like command discovery or process creation does. SDK hosts without a TLS runspace will therefore report `CommandNotFoundException` even when OpenSSH is on `PATH`. Please emulate Windows executable-extension resolution (for example by probing `PATHEXT`) during this fallback."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/System.Management.Automation/engine/remoting/common/RunspaceConnectionInfo.cs\",\"start_line\":2237,\"end_line\":2238,\"content\":\"This manual lookup fails on Windows for the default `sshCommand` value (`\\\"ssh\\\"`), because the executable is normally `ssh.exe` and `File.Exists(path\\\\ssh)` does not apply `PATHEXT`/`.exe` resolution like command discovery or process creation does. SDK hosts without a TLS runspace will therefore report `CommandNotFoundException` even when OpenSSH is on `PATH`. Please emulate Windows executable-extension resolution (for example by probing `PATHEXT`) during this fallback.\"}]}",
+  "stderr": null
+}

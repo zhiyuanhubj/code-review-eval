@@ -1,0 +1,23 @@
+{
+  "instance_id": "dotnet__aspnetcore@8ac940f",
+  "repo": "dotnet/aspnetcore",
+  "base_commit": "7ba02e8ac71eeba562476953d5ff6030b8eda765",
+  "head_commit": "8ac940ff581aa344ab8f859874f6d4c0ecaec6b6",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:29:58.416218+00:00",
+  "duration_seconds": 58.71,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs",
+        "start_line": 365,
+        "end_line": 365,
+        "content": "Ensure this rented array is returned in a `finally` block. `SecureUtf8Encoding.GetByteCount`/`GetBytes` can throw for malformed UTF-16, so the current success-only `Return` drops a buffer from the shared pool on every failed construction."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs\",\"start_line\":365,\"end_line\":365,\"content\":\"Ensure this rented array is returned in a `finally` block. `SecureUtf8Encoding.GetByteCount`/`GetBytes` can throw for malformed UTF-16, so the current success-only `Return` drops a buffer from the shared pool on every failed construction.\"}]}",
+  "stderr": null
+}

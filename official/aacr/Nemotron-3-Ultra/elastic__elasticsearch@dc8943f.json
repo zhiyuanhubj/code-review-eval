@@ -1,0 +1,29 @@
+{
+  "instance_id": "elastic__elasticsearch@dc8943f",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "3c264cff967750ff7cb581defa42b0d69bb31fc6",
+  "head_commit": "dc8943ff2d735c9cd71adef644378ca2850db34f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:46:16.751376+00:00",
+  "duration_seconds": 21.84,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "server/src/main/java/org/elasticsearch/index/codec/vectors/DefaultIVFVectorsReader.java",
+        "start_line": 43,
+        "end_line": 43,
+        "content": "The comment for CENTROID_OVERSAMPLING mentions 'hierarchical centroids' but this class doesn't appear to implement hierarchical IVF. Consider clarifying if this is for future hierarchical support or if the comment is misleading."
+      },
+      {
+        "path": "server/src/main/java/org/elasticsearch/index/codec/vectors/DefaultIVFVectorsReader.java",
+        "start_line": 192,
+        "end_line": 192,
+        "content": "The bufferSize calculation uses visitRatio * numCentroids * CENTROID_OVERSAMPLING. Since visitRatio is a float (likely 0.0-1.0) and CENTROID_OVERSAMPLING is 8.0f, this could produce bufferSize > numCentroids before the Math.min clamp. The Math.min handles this, but consider if the formula should be visitRatio * CENTROID_OVERSAMPLING (without numCentroids) to represent oversampling factor per visited centroid."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/index/codec/vectors/DefaultIVFVectorsReader.java\",\n      \"start_line\": 43,\n      \"end_line\": 43,\n      \"content\": \"The comment for CENTROID_OVERSAMPLING mentions 'hierarchical centroids' but this class doesn't appear to implement hierarchical IVF. Consider clarifying if this is for future hierarchical support or if the comment is misleading.\"\n    },\n    {\n      \"path\": \"server/src/main/java/org/elasticsearch/index/codec/vectors/DefaultIVFVectorsReader.java\",\n      \"start_line\": 192,\n      \"end_line\": 192,\n      \"content\": \"The bufferSize calculation uses visitRatio * numCentroids * CENTROID_OVERSAMPLING. Since visitRatio is a float (likely 0.0-1.0) and CENTROID_OVERSAMPLING is 8.0f, this could produce bufferSize > numCentroids before the Math.min clamp. The Math.min handles this, but consider if the formula should be visitRatio * CENTROID_OVERSAMPLING (without numCentroids) to represent oversampling factor per visited centroid.\"\n    }\n  ]\n}",
+  "stderr": null
+}

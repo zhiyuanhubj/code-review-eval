@@ -1,0 +1,35 @@
+{
+  "instance_id": "mpv-player__mpv@0729afe",
+  "repo": "mpv-player/mpv",
+  "base_commit": "5809d4d1bc54c3a3a32b38c7cf8a6ed90e91f7db",
+  "head_commit": "0729afe8d7067f0e4d69000309ec6f3e24ac3926",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:34.563434+00:00",
+  "duration_seconds": 21.81,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "player/command.c",
+        "start_line": 7707,
+        "end_line": 7724,
+        "content": "The coalescing loop is buggy. When `drop` becomes true, the code shifts subsequent entries down by one (`option_callbacks[i] = option_callbacks[i + 1]`) but `num_option_callbacks` is never decremented, so the last (now duplicated) slot still gets iterated in `mp_option_run_callbacks`, executing a stale callback twice.\n\nAlso, when multiple entries match, only the first match triggers `drop` and then *every* remaining entry gets shifted regardless of whether it matches — this corrupts the queue and can drop unrelated pending callbacks. Consider finding the matching index, removing that single entry via MP_TARRAY_REMOVE_AT (which decrements the count), then appending the new one. For example:\n\n    bool drop = false;\n    for (int i = 0; i < mpctx->num_option_callbacks; i++) {\n        struct mp_option_callback *cb = &mpctx->option_callbacks[i];\n        if ((flags && flags == cb->flags) ||\n            (cb->co && opt_ptr == cb->co->data)) {\n            MP_TARRAY_REMOVE_AT(mpctx->option_callbacks,\n                                mpctx->num_option_callbacks, i);\n            drop = true;\n            break;\n        }\n    }\n\nThen always append the new callback (the coalescing just removed the older duplicate)."
+      },
+      {
+        "path": "player/command.c",
+        "start_line": 7718,
+        "end_line": 7721,
+        "content": "Coalescing purely by `flags` equality is unsafe: two different options can share the same UPDATE_* flag but have different `co`/`opt_ptr`. Dropping one because it has the same flags as another would skip an option-specific action keyed on `opt_ptr` (e.g. `opts->ipc_path` vs `opts->play_dir`). Coalescing should only drop when the same option (`co->data`) is queued, not when flags merely match."
+      },
+      {
+        "path": "player/main.c",
+        "start_line": 415,
+        "end_line": 415,
+        "content": "Now that IPC init is moved out of the option-change callback path and initialized explicitly here, confirm the previous `init` code path (which formerly reinitialized IPC on startup via `mp_option_change_callback` with `co == NULL`) is no longer relied upon elsewhere. The `init` handling was removed from the callback, so any startup-only actions that used to run under `if (init ...)` must be verified to still execute."
+      }
+    ]
+  },
+  "raw_output": "Looking at the coalescing logic in `mp_option_change_callback`, there's a bug in how it shifts entries when dropping.\n\n{\n  \"comments\": [\n    {\n      \"path\": \"player/command.c\",\n      \"start_line\": 7707,\n      \"end_line\": 7724,\n      \"content\": \"The coalescing loop is buggy. When `drop` becomes true, the code shifts subsequent entries down by one (`option_callbacks[i] = option_callbacks[i + 1]`) but `num_option_callbacks` is never decremented, so the last (now duplicated) slot still gets iterated in `mp_option_run_callbacks`, executing a stale callback twice.\\n\\nAlso, when multiple entries match, only the first match triggers `drop` and then *every* remaining entry gets shifted regardless of whether it matches — this corrupts the queue and can drop unrelated pending callbacks. Consider finding the matching index, removing that single entry via MP_TARRAY_REMOVE_AT (which decrements the count), then appending the new one. For example:\\n\\n    bool drop = false;\\n    for (int i = 0; i < mpctx->num_option_callbacks; i++) {\\n        struct mp_option_callback *cb = &mpctx->option_callbacks[i];\\n        if ((flags && flags == cb->flags) ||\\n            (cb->co && opt_ptr == cb->co->data)) {\\n            MP_TARRAY_REMOVE_AT(mpctx->option_callbacks,\\n                                mpctx->num_option_callbacks, i);\\n            drop = true;\\n            break;\\n        }\\n    }\\n\\nThen always append the new callback (the coalescing just removed the older duplicate).\"\n    },\n    {\n      \"path\": \"player/command.c\",\n      \"start_line\": 7718,\n      \"end_line\": 7721,\n      \"content\": \"Coalescing purely by `flags` equality is unsafe: two different options can share the same UPDATE_* flag but have different `co`/`opt_ptr`. Dropping one because it has the same flags as another would skip an option-specific action keyed on `opt_ptr` (e.g. `opts->ipc_path` vs `opts->play_dir`). Coalescing should only drop when the same option (`co->data`) is queued, not when flags merely match.\"\n    },\n    {\n      \"path\": \"player/main.c\",\n      \"start_line\": 415,\n      \"end_line\": 415,\n      \"content\": \"Now that IPC init is moved out of the option-change callback path and initialized explicitly here, confirm the previous `init` code path (which formerly reinitialized IPC on startup via `mp_option_change_callback` with `co == NULL`) is no longer relied upon elsewhere. The `init` handling was removed from the callback, so any startup-only actions that used to run under `if (init ...)` must be verified to still execute.\"\n    }\n  ]\n}",
+  "stderr": null
+}

@@ -1,0 +1,16 @@
+{
+  "instance_id": "filamentphp__filament@871ec75",
+  "repo": "filamentphp/filament",
+  "base_commit": "e4a7ecf0e65574522eb9fbe70b7339f41de0bbe2",
+  "head_commit": "871ec75815e1f92da141e9aef80f287f7779dfe7",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:52.486244+00:00",
+  "duration_seconds": 1.45,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\"comments\": []}",
+  "stderr": null
+}

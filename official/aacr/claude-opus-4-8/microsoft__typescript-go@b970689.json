@@ -1,0 +1,23 @@
+{
+  "instance_id": "microsoft__typescript-go@b970689",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "bc3195e0f2727d11a48ed9fc61f37a90c9b7deb4",
+  "head_commit": "b970689fe86e0b6ef4f5285b18343ddf16b294eb",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:13.678308+00:00",
+  "duration_seconds": 20.19,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "internal/parser/reparser.go",
+        "start_line": 119,
+        "end_line": 124,
+        "content": "The reparse assumes `importTag.ImportClause` is non-nil. If a `@import` tag is malformed and parsed without an import clause, `importTag.ImportClause.Clone(...)` will panic with a nil dereference. Consider guarding with a nil check before cloning, or confirm the parser always produces a non-nil ImportClause for JSDocImportTag."
+      }
+    ]
+  },
+  "raw_output": "I'll analyze this PR that introduces a `KindJSImportDeclaration` node to properly reparse `@import` JSDoc tags into import declarations.\n\nLet me focus on the reparser changes, which are the core logic.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"internal/parser/reparser.go\",\n      \"start_line\": 119,\n      \"end_line\": 124,\n      \"content\": \"The reparse assumes `importTag.ImportClause` is non-nil. If a `@import` tag is malformed and parsed without an import clause, `importTag.ImportClause.Clone(...)` will panic with a nil dereference. Consider guarding with a nil check before cloning, or confirm the parser always produces a non-nil ImportClause for JSDocImportTag.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

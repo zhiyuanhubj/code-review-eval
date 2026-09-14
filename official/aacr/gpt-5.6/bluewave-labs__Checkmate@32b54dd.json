@@ -1,0 +1,16 @@
+{
+  "instance_id": "bluewave-labs__Checkmate@32b54dd",
+  "repo": "bluewave-labs/Checkmate",
+  "base_commit": "05dd5f7de27ae7f2139714f0bc577484642e2c77",
+  "head_commit": "32b54ddf11ea27b8ed85d2139fe38e0dcb7f3d43",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:33:55.545657+00:00",
+  "duration_seconds": 79.9,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": null
+}

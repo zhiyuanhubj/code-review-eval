@@ -1,0 +1,41 @@
+{
+  "instance_id": "valkey-io__valkey@8b2137d",
+  "repo": "valkey-io/valkey",
+  "base_commit": "7fa784a27562940d2995fc6e3d6938940d81e4b6",
+  "head_commit": "8b2137d6cd7c8b898352b8bcb035402958d92707",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:40.653348+00:00",
+  "duration_seconds": 29.77,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/networking.c",
+        "start_line": 2062,
+        "end_line": 2067,
+        "content": "The single-block case does not `break` after the last node when `first_node == last_node`, but the multi-block path computes `iovmax = min(IOV_MAX, c->conn->iovcnt)`. When there are more than `iovmax` blocks to write, the loop stops filling iov at `iovcnt < iovmax` without reaching `last_node`. In that case `total_bytes` only covers the first `iovmax` blocks — this is fine — but after a successful partial `writeToReplica`, subsequent calls rely on `postWriteToReplica` advancing `ref_repl_buf_node`. Please confirm the case where the number of blocks between `first_node` and `last_node` exceeds `iovmax`: the `if (cur_node == last_node) break;` is never hit, so writing stops early (correct), but ensure the client is rescheduled to write the remaining blocks rather than silently dropping data."
+      },
+      {
+        "path": "src/networking.c",
+        "start_line": 2093,
+        "end_line": 2115,
+        "content": "In the multi-block writev loop, when `connWritev` returns a partial write (`nwritten > 0` but `totwritten < total_bytes`), the outer `while (iovcnt > 0)` loops again and re-issues `connWritev` on the adjusted iov. For a non-blocking socket this will almost always return EAGAIN (<=0) on the second iteration, which then sets `WRITE_FLAGS_WRITE_ERROR` even though a partial write succeeded. This differs from the original code which returned after a short write without flagging an error. This can incorrectly mark the replica connection as errored. Consider breaking out of the loop on a successful partial write and letting the next event-loop iteration continue, rather than re-calling connWritev in a tight loop."
+      },
+      {
+        "path": "src/io_threads.c",
+        "start_line": 366,
+        "end_line": 368,
+        "content": "The write-offload guard now allows primary clients (previously `c->flag.primary` returned C_ERR). Only non-online replicas are excluded. Please verify that offloading writes for a `primary` client (i.e., we act as replica writing back to our primary, e.g. REPLCONF ACK) is actually safe with the new replica-specific write path, since `WRITE_FLAGS_IS_REPLICA` is only set when `getClientType(c) == CLIENT_TYPE_REPLICA`. A primary client would take the `_writeToClient` path here but its reply buffers may be handled elsewhere — confirm this is intended and tested."
+      },
+      {
+        "path": "src/unit/test_networking.c",
+        "start_line": 47,
+        "end_line": 50,
+        "content": "`mock_connWritev` returns `int total` but accumulates into a `size_t total`; for large writes this truncates. More importantly, it never simulates a partial write (it always writes as much as fits in the buffer), so the retry-after-partial-write behavior in `writeToReplica` (the `while (iovcnt > 0)` loop) is not exercised by these tests. Consider adding a test that forces a short writev to cover the partial-write path."
+      }
+    ]
+  },
+  "raw_output": "Looking at this PR, let me analyze the key changes for correctness issues.\n\n{\n  \"comments\": [\n    {\n      \"path\": \"src/networking.c\",\n      \"start_line\": 2062,\n      \"end_line\": 2067,\n      \"content\": \"The single-block case does not `break` after the last node when `first_node == last_node`, but the multi-block path computes `iovmax = min(IOV_MAX, c->conn->iovcnt)`. When there are more than `iovmax` blocks to write, the loop stops filling iov at `iovcnt < iovmax` without reaching `last_node`. In that case `total_bytes` only covers the first `iovmax` blocks — this is fine — but after a successful partial `writeToReplica`, subsequent calls rely on `postWriteToReplica` advancing `ref_repl_buf_node`. Please confirm the case where the number of blocks between `first_node` and `last_node` exceeds `iovmax`: the `if (cur_node == last_node) break;` is never hit, so writing stops early (correct), but ensure the client is rescheduled to write the remaining blocks rather than silently dropping data.\"\n    },\n    {\n      \"path\": \"src/networking.c\",\n      \"start_line\": 2093,\n      \"end_line\": 2115,\n      \"content\": \"In the multi-block writev loop, when `connWritev` returns a partial write (`nwritten > 0` but `totwritten < total_bytes`), the outer `while (iovcnt > 0)` loops again and re-issues `connWritev` on the adjusted iov. For a non-blocking socket this will almost always return EAGAIN (<=0) on the second iteration, which then sets `WRITE_FLAGS_WRITE_ERROR` even though a partial write succeeded. This differs from the original code which returned after a short write without flagging an error. This can incorrectly mark the replica connection as errored. Consider breaking out of the loop on a successful partial write and letting the next event-loop iteration continue, rather than re-calling connWritev in a tight loop.\"\n    },\n    {\n      \"path\": \"src/io_threads.c\",\n      \"start_line\": 366,\n      \"end_line\": 368,\n      \"content\": \"The write-offload guard now allows primary clients (previously `c->flag.primary` returned C_ERR). Only non-online replicas are excluded. Please verify that offloading writes for a `primary` client (i.e., we act as replica writing back to our primary, e.g. REPLCONF ACK) is actually safe with the new replica-specific write path, since `WRITE_FLAGS_IS_REPLICA` is only set when `getClientType(c) == CLIENT_TYPE_REPLICA`. A primary client would take the `_writeToClient` path here but its reply buffers may be handled elsewhere — confirm this is intended and tested.\"\n    },\n    {\n      \"path\": \"src/unit/test_networking.c\",\n      \"start_line\": 47,\n      \"end_line\": 50,\n      \"content\": \"`mock_connWritev` returns `int total` but accumulates into a `size_t total`; for large writes this truncates. More importantly, it never simulates a partial write (it always writes as much as fits in the buffer), so the retry-after-partial-write behavior in `writeToReplica` (the `while (iovcnt > 0)` loop) is not exercised by these tests. Consider adding a test that forces a short writev to cover the partial-write path.\"\n    }\n  ]\n}",
+  "stderr": null
+}

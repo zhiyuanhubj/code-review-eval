@@ -1,0 +1,47 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@d67628c",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "8a04621f436a36b35346ff474fb980469b61647d",
+  "head_commit": "d67628cd7e7aeeba2a60bea273c5cfc08714120c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:42:49.625375+00:00",
+  "duration_seconds": 39.04,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Processors/Executors/ExecutorTasks.cpp",
+        "start_line": 43,
+        "end_line": 43,
+        "content": "The decrement of idle_threads happens before the check `if (thread_to_wake >= use_threads)`. If the check throws, idle_threads will be incorrectly decremented. Move the decrement after the check or use a guard to ensure it's only decremented on success."
+      },
+      {
+        "path": "src/Processors/Executors/ExecutorTasks.cpp",
+        "start_line": 114,
+        "end_line": 114,
+        "content": "The increment of idle_threads happens before `context.wait(finished)`. If wait() throws an exception, idle_threads will be incorrectly incremented. Consider using RAII or moving the increment after wait() returns successfully."
+      },
+      {
+        "path": "src/Processors/Executors/ExecutorTasks.cpp",
+        "start_line": 234,
+        "end_line": 234,
+        "content": "The decrement of idle_threads happens inside the `if (threads_queue.has(task.thread_num))` block. However, the thread might have already been woken up and removed from the queue by another path (e.g., tryWakeUpAnyOtherThreadWithTasks). This could lead to double decrement or decrement when the thread wasn't actually idle. Need to ensure atomicity between queue removal and idle_threads update."
+      },
+      {
+        "path": "src/Processors/Executors/PipelineExecutor.cpp",
+        "start_line": 381,
+        "end_line": 395,
+        "content": "The spawn_lock is acquired with try_to_lock, and if it fails, the function returns early. However, the condition `tasks.shouldSpawn()` is checked *after* acquiring the lock. This means if multiple threads call spawnThreads concurrently, only one gets the lock, but that one might not spawn if shouldSpawn() returns false. Other threads return immediately without trying again. This could lead to under-spawning when a thread holds the lock but doesn't spawn. Consider checking shouldSpawn() before acquiring the lock, or using a condition variable to coordinate."
+      },
+      {
+        "path": "src/Processors/Executors/PipelineExecutor.cpp",
+        "start_line": 368,
+        "end_line": 368,
+        "content": "The initial use_threads is hardcoded to 1 instead of using cpu_slots->grantedCount(). This changes the initial thread allocation behavior. Is this intentional? The comment above says 'To avoid counting them in ConcurrencyControl, we create dummy slot allocation.' but then we don't use the granted count. This might be a bug if the intention was to start with the granted slots."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Processors/Executors/ExecutorTasks.cpp\",\n      \"start_line\": 43,\n      \"end_line\": 43,\n      \"content\": \"The decrement of idle_threads happens before the check `if (thread_to_wake >= use_threads)`. If the check throws, idle_threads will be incorrectly decremented. Move the decrement after the check or use a guard to ensure it's only decremented on success.\"\n    },\n    {\n      \"path\": \"src/Processors/Executors/ExecutorTasks.cpp\",\n      \"start_line\": 114,\n      \"end_line\": 114,\n      \"content\": \"The increment of idle_threads happens before `context.wait(finished)`. If wait() throws an exception, idle_threads will be incorrectly incremented. Consider using RAII or moving the increment after wait() returns successfully.\"\n    },\n    {\n      \"path\": \"src/Processors/Executors/ExecutorTasks.cpp\",\n      \"start_line\": 234,\n      \"end_line\": 234,\n      \"content\": \"The decrement of idle_threads happens inside the `if (threads_queue.has(task.thread_num))` block. However, the thread might have already been woken up and removed from the queue by another path (e.g., tryWakeUpAnyOtherThreadWithTasks). This could lead to double decrement or decrement when the thread wasn't actually idle. Need to ensure atomicity between queue removal and idle_threads update.\"\n    },\n    {\n      \"path\": \"src/Processors/Executors/PipelineExecutor.cpp\",\n      \"start_line\": 381,\n      \"end_line\": 395,\n      \"content\": \"The spawn_lock is acquired with try_to_lock, and if it fails, the function returns early. However, the condition `tasks.shouldSpawn()` is checked *after* acquiring the lock. This means if multiple threads call spawnThreads concurrently, only one gets the lock, but that one might not spawn if shouldSpawn() returns false. Other threads return immediately without trying again. This could lead to under-spawning when a thread holds the lock but doesn't spawn. Consider checking shouldSpawn() before acquiring the lock, or using a condition variable to coordinate.\"\n    },\n    {\n      \"path\": \"src/Processors/Executors/PipelineExecutor.cpp\",\n      \"start_line\": 368,\n      \"end_line\": 368,\n      \"content\": \"The initial use_threads is hardcoded to 1 instead of using cpu_slots->grantedCount(). This changes the initial thread allocation behavior. Is this intentional? The comment above says 'To avoid counting them in ConcurrencyControl, we create dummy slot allocation.' but then we don't use the granted count. This might be a bug if the intention was to start with the granted slots.\"\n    }\n  ]\n}",
+  "stderr": null
+}

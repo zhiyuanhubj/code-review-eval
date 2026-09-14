@@ -1,0 +1,41 @@
+{
+  "instance_id": "dbeaver__dbeaver@bc3ac7b",
+  "repo": "dbeaver/dbeaver",
+  "base_commit": "24ad3c4030412df3d9c843c405e90a0b1e2ad5dd",
+  "head_commit": "bc3ac7bb47092a934b344791d8aa3a1c41e6c8f7",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:26:57.771177+00:00",
+  "duration_seconds": 44.78,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "plugins/org.jkiss.dbeaver.model.rcp/src/org/jkiss/dbeaver/model/navigator/DBNResource.java",
+        "start_line": 425,
+        "end_line": 431,
+        "content": "The catch block logs an error but then throws a RuntimeException wrapping the CoreException. This loses the original exception type and stack trace context. Consider either rethrowing the CoreException (if the method signature allows) or wrapping it in a more specific unchecked exception that preserves the cause. Also, the log message should include the resource path for debugging."
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.model/src/org/jkiss/dbeaver/model/navigator/fs/DBNPathBase.java",
+        "start_line": 292,
+        "end_line": 305,
+        "content": "The logic flow is confusing: when resource is null, it attempts to get an InputStream adapter and copy it, then continues to the next iteration. However, if the InputStream adapter is also null, it silently continues without any logging or error handling. This could mask issues where neither Path nor InputStream adapters are available. Consider adding a debug log when both adapters are null."
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.model/src/org/jkiss/dbeaver/model/navigator/fs/DBNPathBase.java",
+        "start_line": 363,
+        "end_line": 373,
+        "content": "The copyInputStream method creates an empty CopyOption array and then conditionally creates a new array with REPLACE_EXISTING. This can be simplified to: `CopyOption[] options = Files.exists(targetFile) ? new CopyOption[]{StandardCopyOption.REPLACE_EXISTING} : new CopyOption[0];` or use a List and convert to array."
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.model/src/org/jkiss/dbeaver/model/navigator/fs/DBNPathBase.java",
+        "start_line": 363,
+        "end_line": 373,
+        "content": "The copyInputStream method doesn't close the InputStream after copying. Since the InputStream comes from an adapter (likely from Eclipse's IFile.getContents()), it's unclear who owns the lifecycle. The method should either document that the caller is responsible for closing, or use try-with-resources if it takes ownership. Currently, this could lead to resource leaks."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.model.rcp/src/org/jkiss/dbeaver/model/navigator/DBNResource.java\",\n      \"start_line\": 425,\n      \"end_line\": 431,\n      \"content\": \"The catch block logs an error but then throws a RuntimeException wrapping the CoreException. This loses the original exception type and stack trace context. Consider either rethrowing the CoreException (if the method signature allows) or wrapping it in a more specific unchecked exception that preserves the cause. Also, the log message should include the resource path for debugging.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.model/src/org/jkiss/dbeaver/model/navigator/fs/DBNPathBase.java\",\n      \"start_line\": 292,\n      \"end_line\": 305,\n      \"content\": \"The logic flow is confusing: when resource is null, it attempts to get an InputStream adapter and copy it, then continues to the next iteration. However, if the InputStream adapter is also null, it silently continues without any logging or error handling. This could mask issues where neither Path nor InputStream adapters are available. Consider adding a debug log when both adapters are null.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.model/src/org/jkiss/dbeaver/model/navigator/fs/DBNPathBase.java\",\n      \"start_line\": 363,\n      \"end_line\": 373,\n      \"content\": \"The copyInputStream method creates an empty CopyOption array and then conditionally creates a new array with REPLACE_EXISTING. This can be simplified to: `CopyOption[] options = Files.exists(targetFile) ? new CopyOption[]{StandardCopyOption.REPLACE_EXISTING} : new CopyOption[0];` or use a List and convert to array.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.model/src/org/jkiss/dbeaver/model/navigator/fs/DBNPathBase.java\",\n      \"start_line\": 363,\n      \"end_line\": 373,\n      \"content\": \"The copyInputStream method doesn't close the InputStream after copying. Since the InputStream comes from an adapter (likely from Eclipse's IFile.getContents()), it's unclear who owns the lifecycle. The method should either document that the caller is responsible for closing, or use try-with-resources if it takes ownership. Currently, this could lead to resource leaks.\"\n    }\n  ]\n}",
+  "stderr": null
+}

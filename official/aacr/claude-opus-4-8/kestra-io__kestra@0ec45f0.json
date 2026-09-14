@@ -1,0 +1,53 @@
+{
+  "instance_id": "kestra-io__kestra@0ec45f0",
+  "repo": "kestra-io/kestra",
+  "base_commit": "bfcfb2ac16dd8f198a99fef43072cb178f9a1d8e",
+  "head_commit": "0ec45f028467c99d8d1efeee6c201210d9433e6d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:13.801725+00:00",
+  "duration_seconds": 18.52,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java",
+        "start_line": 79,
+        "end_line": 83,
+        "content": "When the file belongs to a parent execution (validated via `checkIfFileFromParentExecution`), the actual read still uses `flow.get(\"tenantId\")` and `flow.get(\"namespace\")` from the current flow. For a parent execution file the namespace/tenant may differ, so the read will target the wrong location. The trigger's namespace/tenantId should be used when the file is validated against the parent execution."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileExistsFunction.java",
+        "start_line": 63,
+        "end_line": 63,
+        "content": "Same issue as FileEmptyFunction: when the file is validated against a parent execution, `storageInterface.exists` uses `flow.get(\"tenantId\")`/`flow.get(\"namespace\")` from the current flow rather than the parent execution's namespace/tenant, which can produce an incorrect result."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java",
+        "start_line": 21,
+        "end_line": 21,
+        "content": "ERROR_MESSAGE references the 'read' function; this should say 'fileEmpty' to match the actual function name for clearer error reporting."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileExistsFunction.java",
+        "start_line": 18,
+        "end_line": 18,
+        "content": "ERROR_MESSAGE references the 'fileSize' function; this should say 'fileExists' to match the actual function name."
+      },
+      {
+        "path": "core/src/main/java/io/kestra/core/runners/pebble/functions/FileExistsFunction.java",
+        "start_line": 34,
+        "end_line": 34,
+        "content": "getUriFromThePath only accepts String paths starting with `kestra:///`, but the docs advertise `fileExists(output.download.uri)` where the URI may be a String without triple-slash or otherwise formed. Consider whether a raw path/URI string (as produced elsewhere) will consistently start with `kestra:///`; otherwise valid inputs will throw a PebbleException."
+      },
+      {
+        "path": "ui/src/assets/docs/basic.md",
+        "start_line": 322,
+        "end_line": 324,
+        "content": "These are added to the 'Filter' table but `fileSize`, `fileExists`, and `fileEmpty` are functions, not filters (they are registered via `functions.put(...)` and invoked as `fileExists(...)` not `x | fileExists`). Consider listing them under the functions section to avoid confusion."
+      }
+    ]
+  },
+  "raw_output": "I'll analyze the new functions for potential bugs.\n\nKey issues I notice:\n\n1. **`FileEmptyFunction`**: When `checkIfFileFromParentExecution` validates against parent execution, it doesn't return the trigger's namespace/tenant. But the actual read uses `flow.get(\"namespace\")` and `flow.get(\"tenantId\")`, which would be wrong for a parent execution file. Same issue in `FileExistsFunction`.\n\n2. **Error messages** copied from other functions (\"read\" function, \"fileSize\" function).\n\nLet me report the real bugs.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java\",\n      \"start_line\": 79,\n      \"end_line\": 83,\n      \"content\": \"When the file belongs to a parent execution (validated via `checkIfFileFromParentExecution`), the actual read still uses `flow.get(\\\"tenantId\\\")` and `flow.get(\\\"namespace\\\")` from the current flow. For a parent execution file the namespace/tenant may differ, so the read will target the wrong location. The trigger's namespace/tenantId should be used when the file is validated against the parent execution.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileExistsFunction.java\",\n      \"start_line\": 63,\n      \"end_line\": 63,\n      \"content\": \"Same issue as FileEmptyFunction: when the file is validated against a parent execution, `storageInterface.exists` uses `flow.get(\\\"tenantId\\\")`/`flow.get(\\\"namespace\\\")` from the current flow rather than the parent execution's namespace/tenant, which can produce an incorrect result.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileEmptyFunction.java\",\n      \"start_line\": 21,\n      \"end_line\": 21,\n      \"content\": \"ERROR_MESSAGE references the 'read' function; this should say 'fileEmpty' to match the actual function name for clearer error reporting.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileExistsFunction.java\",\n      \"start_line\": 18,\n      \"end_line\": 18,\n      \"content\": \"ERROR_MESSAGE references the 'fileSize' function; this should say 'fileExists' to match the actual function name.\"\n    },\n    {\n      \"path\": \"core/src/main/java/io/kestra/core/runners/pebble/functions/FileExistsFunction.java\",\n      \"start_line\": 34,\n      \"end_line\": 34,\n      \"content\": \"getUriFromThePath only accepts String paths starting with `kestra:///`, but the docs advertise `fileExists(output.download.uri)` where the URI may be a String without triple-slash or otherwise formed. Consider whether a raw path/URI string (as produced elsewhere) will consistently start with `kestra:///`; otherwise valid inputs will throw a PebbleException.\"\n    },\n    {\n      \"path\": \"ui/src/assets/docs/basic.md\",\n      \"start_line\": 322,\n      \"end_line\": 324,\n      \"content\": \"These are added to the 'Filter' table but `fileSize`, `fileExists`, and `fileEmpty` are functions, not filters (they are registered via `functions.put(...)` and invoked as `fileExists(...)` not `x | fileExists`). Consider listing them under the functions section to avoid confusion.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

@@ -1,0 +1,35 @@
+{
+  "instance_id": "gofr-dev__gofr@49ab394",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "ba0316277a22f508ed645951705f53d151552916",
+  "head_commit": "49ab39432cf4892ee84569099b8065dfe45fae92",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:32.332647+00:00",
+  "duration_seconds": 14.66,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/gofr/datasource/pubsub/nats/client_test.go",
+        "start_line": 148,
+        "end_line": 152,
+        "content": "In Subscribe, when checkClient returns an error, the code sleeps for defaultRetryTimeout and then immediately returns errClientNotConnected. The sleep before returning is pointless here (it delays the caller without retrying). Since this is inside a `for` loop that returns on error, either remove the sleep or `continue` to actually retry. As written, the retry loop never retries on a disconnected client."
+      },
+      {
+        "path": "pkg/gofr/datasource/pubsub/nats/client_test.go",
+        "start_line": 940,
+        "end_line": 943,
+        "content": "TestClient_retryConnect calls client.retryConnect() synchronously (not in a goroutine) followed by a time.Sleep. retryConnect() contains an infinite `for` loop that only breaks on success. For the failure-then-success and JS-failure-then-success cases the mocks are set up to eventually succeed so it terminates, but the trailing `time.Sleep(500ms)` is dead time and misleading. More importantly, if any mock expectation is missed the test will hang forever rather than fail cleanly. Consider running retryConnect in a goroutine with a bounded wait/assert-eventually, or add a max-retry guard."
+      },
+      {
+        "path": "pkg/gofr/datasource/pubsub/nats/client.go",
+        "start_line": 71,
+        "end_line": 96,
+        "content": "retryConnect() writes c.connManager, c.streamManager, and c.subManager from a goroutine while Publish/Subscribe/CreateTopic etc. read them (via checkClient) concurrently from other goroutines, with no synchronization. This is a data race. Guard these fields with the existing mutex (or atomic/pointer swap) since retryConnect runs asynchronously after Connect() returns an error."
+      }
+    ]
+  },
+  "raw_output": "Looking at the diff, let me analyze the key changes.\n\n{\n  \"comments\": [\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/client.go\",\n      \"start_line\": 148,\n      \"end_line\": 152,\n      \"content\": \"In Subscribe, when checkClient returns an error, the code sleeps for defaultRetryTimeout and then immediately returns errClientNotConnected. The sleep before returning is pointless here (it delays the caller without retrying). Since this is inside a `for` loop that returns on error, either remove the sleep or `continue` to actually retry. As written, the retry loop never retries on a disconnected client.\",\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/client_test.go\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/client_test.go\",\n      \"start_line\": 940,\n      \"end_line\": 943,\n      \"content\": \"TestClient_retryConnect calls client.retryConnect() synchronously (not in a goroutine) followed by a time.Sleep. retryConnect() contains an infinite `for` loop that only breaks on success. For the failure-then-success and JS-failure-then-success cases the mocks are set up to eventually succeed so it terminates, but the trailing `time.Sleep(500ms)` is dead time and misleading. More importantly, if any mock expectation is missed the test will hang forever rather than fail cleanly. Consider running retryConnect in a goroutine with a bounded wait/assert-eventually, or add a max-retry guard.\"\n    },\n    {\n      \"path\": \"pkg/gofr/datasource/pubsub/nats/client.go\",\n      \"start_line\": 71,\n      \"end_line\": 96,\n      \"content\": \"retryConnect() writes c.connManager, c.streamManager, and c.subManager from a goroutine while Publish/Subscribe/CreateTopic etc. read them (via checkClient) concurrently from other goroutines, with no synchronization. This is a data race. Guard these fields with the existing mutex (or atomic/pointer swap) since retryConnect runs asynchronously after Connect() returns an error.\"\n    }\n  ]\n}",
+  "stderr": null
+}

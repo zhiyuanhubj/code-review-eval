@@ -1,0 +1,23 @@
+{
+  "instance_id": "dotnet__aspnetcore@8ac940f",
+  "repo": "dotnet/aspnetcore",
+  "base_commit": "7ba02e8ac71eeba562476953d5ff6030b8eda765",
+  "head_commit": "8ac940ff581aa344ab8f859874f6d4c0ecaec6b6",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:06.408219+00:00",
+  "duration_seconds": 11.97,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs",
+        "start_line": 366,
+        "end_line": 391,
+        "content": "The rented array from ArrayPool<int>.Shared is returned only on the happy path. If EncodingUtil.SecureUtf8Encoding.GetByteCount or GetBytes throws (e.g., malformed input), or any exception occurs between the Rent call and the Return call, the buffer will leak from the pool. Wrap the logic in a try/finally to ensure ArrayPool<int>.Shared.Return(purposeLengthsPool) is always called."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtector.cs\",\n      \"start_line\": 366,\n      \"end_line\": 391,\n      \"content\": \"The rented array from ArrayPool<int>.Shared is returned only on the happy path. If EncodingUtil.SecureUtf8Encoding.GetByteCount or GetBytes throws (e.g., malformed input), or any exception occurs between the Rent call and the Return call, the buffer will leak from the pool. Wrap the logic in a try/finally to ensure ArrayPool<int>.Shared.Return(purposeLengthsPool) is always called.\"\n    }\n  ]\n}",
+  "stderr": null
+}

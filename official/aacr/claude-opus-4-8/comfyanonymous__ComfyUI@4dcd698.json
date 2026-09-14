@@ -1,0 +1,65 @@
+{
+  "instance_id": "comfyanonymous__ComfyUI@4dcd698",
+  "repo": "comfyanonymous/ComfyUI",
+  "base_commit": "c7b25784b141a298d8ee5f0d830a29da6e8a3d54",
+  "head_commit": "4dcd698e489da69294ee01de0350a9a02e3e4b41",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:51.036774+00:00",
+  "duration_seconds": 26.82,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "comfy_extras/nodes_train.py",
+        "start_line": 355,
+        "end_line": 360,
+        "content": "The default for `lora_dtype` is set to `\"bf32\"`, which is not a valid choice (the options are `[\"bf16\", \"fp32\"]`) and is not a real dtype. This will cause `node_helpers.string_to_torch_dtype(\"bf32\")` to fail or produce an unexpected result. Change the default to `\"bf16\"` (or `\"fp32\"`)."
+      },
+      {
+        "path": "comfy_extras/nodes_train.py",
+        "start_line": 32,
+        "end_line": 41,
+        "content": "If `self.loss_fn(...)` raises a `RuntimeError` matching the inference-mode message, the exception is only logged and swallowed, leaving `loss` undefined; the subsequent `loss.backward()` will then raise `UnboundLocalError`, masking the real error. Either re-raise after logging or return early with a clear error."
+      },
+      {
+        "path": "comfy_extras/nodes_train.py",
+        "start_line": 495,
+        "end_line": 503,
+        "content": "For the >=2D weight branch, when `existing_adapter is None` the code sets `adapter_cls = adapters[0]` and calls `create_train`, but only `LoRAAdapter` implements `create_train`. If `adapters[0]` is ever not LoRA, this silently breaks; more importantly, the `diff_module`/`bias_module` branches use `add_weight_wrapper(key, BiasDiff(diff))` while appending a *different* `BiasDiff(diff)` instance to `all_weight_adapters`. The wrapper and the tracked adapter must be the same object; otherwise the `requires_grad_(False)` / dtype passes at the end operate on modules that were never actually wrapped into the model."
+      },
+      {
+        "path": "comfy_extras/nodes_train.py",
+        "start_line": 621,
+        "end_line": 627,
+        "content": "`save_file` writes to a hardcoded relative path `models/loras/...`. This ignores the configured loras output directory and will fail if the CWD does not contain `models/loras`. Use `folder_paths.get_folder_paths(\"loras\")` (or `folder_paths.get_output_directory`) and ensure the directory exists before saving."
+      },
+      {
+        "path": "comfy_extras/nodes_train.py",
+        "start_line": 545,
+        "end_line": 546,
+        "content": "`torch.cuda.empty_cache()` (also used in the finally/cleanup) will raise or is a no-op depending on backend; on non-CUDA devices (MPS, CPU) this can error. Guard with `if torch.cuda.is_available():` or use `comfy.model_management.soft_empty_cache()`."
+      },
+      {
+        "path": "comfy_extras/nodes_train.py",
+        "start_line": 240,
+        "end_line": 240,
+        "content": "`load_images` uses `input_files` as the parameter name here but `LoadImageSetNode.INPUT_TYPES` declares the input as `images`, and `VALIDATE_INPUTS` also references `images`. With `INPUT_IS_LIST = True`, the FUNCTION argument name must match the declared input key (`images`), otherwise the node will fail to receive the input. Rename the parameter to `images`."
+      },
+      {
+        "path": "comfy/weight_adapter/lora.py",
+        "start_line": 27,
+        "end_line": 30,
+        "content": "`self.lora_mid = layer(mid, rank, bias=False)` passes the `mid` tensor as the `in_channels` argument to a Conv layer, which expects an int. This should use the appropriate channel dimension (e.g. `mid.size(1)`), not the tensor itself. As written, constructing a model with a non-None `mid` will fail."
+      },
+      {
+        "path": "comfy/weight_adapter/base.py",
+        "start_line": 15,
+        "end_line": 16,
+        "content": "Changing `load`'s signature to require positional `alpha` and `dora_scale` breaks backward compatibility for existing subclasses/callers that call `load(x, lora)`. Consider giving them defaults (e.g. `alpha: float = 1.0, dora_scale=None`) to avoid breaking other adapters that haven't been updated."
+      }
+    ]
+  },
+  "raw_output": "Looking at the PR, I'll analyze it for real bugs.\n\n{\n  \"comments\": [\n    {\n      \"path\": \"comfy_extras/nodes_train.py\",\n      \"start_line\": 355,\n      \"end_line\": 360,\n      \"content\": \"The default for `lora_dtype` is set to `\\\"bf32\\\"`, which is not a valid choice (the options are `[\\\"bf16\\\", \\\"fp32\\\"]`) and is not a real dtype. This will cause `node_helpers.string_to_torch_dtype(\\\"bf32\\\")` to fail or produce an unexpected result. Change the default to `\\\"bf16\\\"` (or `\\\"fp32\\\"`).\"\n    },\n    {\n      \"path\": \"comfy_extras/nodes_train.py\",\n      \"start_line\": 32,\n      \"end_line\": 41,\n      \"content\": \"If `self.loss_fn(...)` raises a `RuntimeError` matching the inference-mode message, the exception is only logged and swallowed, leaving `loss` undefined; the subsequent `loss.backward()` will then raise `UnboundLocalError`, masking the real error. Either re-raise after logging or return early with a clear error.\"\n    },\n    {\n      \"path\": \"comfy_extras/nodes_train.py\",\n      \"start_line\": 495,\n      \"end_line\": 503,\n      \"content\": \"For the >=2D weight branch, when `existing_adapter is None` the code sets `adapter_cls = adapters[0]` and calls `create_train`, but only `LoRAAdapter` implements `create_train`. If `adapters[0]` is ever not LoRA, this silently breaks; more importantly, the `diff_module`/`bias_module` branches use `add_weight_wrapper(key, BiasDiff(diff))` while appending a *different* `BiasDiff(diff)` instance to `all_weight_adapters`. The wrapper and the tracked adapter must be the same object; otherwise the `requires_grad_(False)` / dtype passes at the end operate on modules that were never actually wrapped into the model.\"\n    },\n    {\n      \"path\": \"comfy_extras/nodes_train.py\",\n      \"start_line\": 621,\n      \"end_line\": 627,\n      \"content\": \"`save_file` writes to a hardcoded relative path `models/loras/...`. This ignores the configured loras output directory and will fail if the CWD does not contain `models/loras`. Use `folder_paths.get_folder_paths(\\\"loras\\\")` (or `folder_paths.get_output_directory`) and ensure the directory exists before saving.\"\n    },\n    {\n      \"path\": \"comfy_extras/nodes_train.py\",\n      \"start_line\": 545,\n      \"end_line\": 546,\n      \"content\": \"`torch.cuda.empty_cache()` (also used in the finally/cleanup) will raise or is a no-op depending on backend; on non-CUDA devices (MPS, CPU) this can error. Guard with `if torch.cuda.is_available():` or use `comfy.model_management.soft_empty_cache()`.\"\n    },\n    {\n      \"path\": \"comfy_extras/nodes_train.py\",\n      \"start_line\": 240,\n      \"end_line\": 240,\n      \"content\": \"`load_images` uses `input_files` as the parameter name here but `LoadImageSetNode.INPUT_TYPES` declares the input as `images`, and `VALIDATE_INPUTS` also references `images`. With `INPUT_IS_LIST = True`, the FUNCTION argument name must match the declared input key (`images`), otherwise the node will fail to receive the input. Rename the parameter to `images`.\"\n    },\n    {\n      \"path\": \"comfy/weight_adapter/lora.py\",\n      \"start_line\": 27,\n      \"end_line\": 30,\n      \"content\": \"`self.lora_mid = layer(mid, rank, bias=False)` passes the `mid` tensor as the `in_channels` argument to a Conv layer, which expects an int. This should use the appropriate channel dimension (e.g. `mid.size(1)`), not the tensor itself. As written, constructing a model with a non-None `mid` will fail.\"\n    },\n    {\n      \"path\": \"comfy/weight_adapter/base.py\",\n      \"start_line\": 15,\n      \"end_line\": 16,\n      \"content\": \"Changing `load`'s signature to require positional `alpha` and `dora_scale` breaks backward compatibility for existing subclasses/callers that call `load(x, lora)`. Consider giving them defaults (e.g. `alpha: float = 1.0, dora_scale=None`) to avoid breaking other adapters that haven't been updated.\"\n    }\n  ]\n}",
+  "stderr": null
+}

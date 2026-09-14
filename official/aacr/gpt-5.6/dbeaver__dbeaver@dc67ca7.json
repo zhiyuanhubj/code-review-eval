@@ -1,0 +1,16 @@
+{
+  "instance_id": "dbeaver__dbeaver@dc67ca7",
+  "repo": "dbeaver/dbeaver",
+  "base_commit": "469e4265a58af95a6d5f4069515e029fc2891374",
+  "head_commit": "dc67ca7cf486ceaf45559318cdcbca193847188d",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:29:35.012475+00:00",
+  "duration_seconds": 67.79,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": null
+}

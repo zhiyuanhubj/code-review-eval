@@ -1,0 +1,24 @@
+{
+  "instance_id": "mpv-player__mpv@0b0330f",
+  "repo": "mpv-player/mpv",
+  "base_commit": "5ba7ee513751dd005379a06fb627303e6fe1b3dd",
+  "head_commit": "0b0330fa9d5d70c78f36e1010a3b826fa7046387",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:40:13.125423+00:00",
+  "duration_seconds": 1.7,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "misc/language.c",
+        "start_line": 350,
+        "end_line": 350,
+        "content": "The `forced` tag is only detected when `lang_length >= 2` (the same condition guarding the hearing-impaired suffixes). This means filenames like `foo.forced.srt` (no language code) won't be detected as forced, which is inconsistent with how `forced` is typically used in practice. Consider whether the forced check should be independent of the language length requirement.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\"comments\": [{\"path\": \"misc/language.c\", \"start_line\": 350, \"end_line\": 350, \"content\": \"The `forced` tag is only detected when `lang_length >= 2` (the same condition guarding the hearing-impaired suffixes). This means filenames like `foo.forced.srt` (no language code) won't be detected as forced, which is inconsistent with how `forced` is typically used in practice. Consider whether the forced check should be independent of the language length requirement.\"}]}",
+  "stderr": null
+}

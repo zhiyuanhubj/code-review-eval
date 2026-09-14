@@ -1,0 +1,24 @@
+{
+  "instance_id": "valkey-io__valkey@ecb3abd",
+  "repo": "valkey-io/valkey",
+  "base_commit": "78bcc0a2cfb33ec940bfb14cb12ea10efa3af93a",
+  "head_commit": "ecb3abd53e891861ce996506689336b6442ec8fb",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:34:56.448873+00:00",
+  "duration_seconds": 2.65,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/config.c",
+        "start_line": 545,
+        "end_line": 553,
+        "content": "The rename logic frees `cmd->current_name` when it differs from `cmd->fullname`, but it does not remove the command from `server.commands` under its old name before adding it under the new name. Since `server.commands` is now hashed by `current_name`, the old name remains in the hashtable pointing to the same command, and `hashtableAdd` will insert a second entry under the new name. This leaves a stale entry under the old name, so the old name still resolves to the command (and `hashtableAdd` may fail if the new name already exists). The command must be removed from `server.commands` using the old `current_name` before updating `current_name` and re-adding it.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/config.c\",\n      \"start_line\": 545,\n      \"end_line\": 553,\n      \"content\": \"The rename logic frees `cmd->current_name` when it differs from `cmd->fullname`, but it does not remove the command from `server.commands` under its old name before adding it under the new name. Since `server.commands` is now hashed by `current_name`, the old name remains in the hashtable pointing to the same command, and `hashtableAdd` will insert a second entry under the new name. This leaves a stale entry under the old name, so the old name still resolves to the command (and `hashtableAdd` may fail if the new name already exists). The command must be removed from `server.commands` using the old `current_name` before updating `current_name` and re-adding it.\"\n    }\n  ]\n}",
+  "stderr": null
+}

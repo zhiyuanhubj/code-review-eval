@@ -1,0 +1,16 @@
+{
+  "instance_id": "gofr-dev__gofr@49ab394",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "ba0316277a22f508ed645951705f53d151552916",
+  "head_commit": "49ab39432cf4892ee84569099b8065dfe45fae92",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:02.982581+00:00",
+  "duration_seconds": 11.74,
+  "ocr_exit_code": 1,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "",
+  "stderr": "RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit exceeded for api_key: ae216d0793f98a0b4884105df8b57205bdef6cc20ec0d8440c48851cbb4f4d7d. Limit type: requests. Current limit: 50, Remaining: 0. Limit resets at: 2026-09-14 04:25:02 UTC', 'type': 'throttling_error', 'param': None, 'code': '429'}}"
+}

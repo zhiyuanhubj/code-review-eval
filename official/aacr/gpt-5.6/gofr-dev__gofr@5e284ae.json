@@ -1,0 +1,29 @@
+{
+  "instance_id": "gofr-dev__gofr@5e284ae",
+  "repo": "gofr-dev/gofr",
+  "base_commit": "de79ab765d0d34d78a42ebdd50a21a6f26841b7f",
+  "head_commit": "5e284aec0447be34c96a252e959067c8bcd9cd4c",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:46.815406+00:00",
+  "duration_seconds": 45.98,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/gofr/handler.go",
+        "start_line": 71,
+        "end_line": 75,
+        "content": "Do not replace `h.container.Logger` for request-scoped logging: the container is shared by concurrent requests. Interleaved requests can wrap each other's loggers and restore them out of order, causing incorrect trace IDs, data races, or leaving a stale request logger installed globally. A timeout can also return and restore the logger while the handler goroutine is still running. Keep the logger on a request-local context/container instead of mutating the shared container."
+      },
+      {
+        "path": "pkg/gofr/logging/logger.go",
+        "start_line": 252,
+        "end_line": 259,
+        "content": "This filters only the first trace metadata map; subsequent `__trace_id__` maps are appended to the message because `traceID != \"\"`. Nested `ContextLogger`s can therefore leak an internal metadata map into output (and formatted logs may show it as an extra argument). Always `continue` for recognized trace metadata, while assigning `traceID` only when it is still empty."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"pkg/gofr/handler.go\",\"start_line\":71,\"end_line\":75,\"content\":\"Do not replace `h.container.Logger` for request-scoped logging: the container is shared by concurrent requests. Interleaved requests can wrap each other's loggers and restore them out of order, causing incorrect trace IDs, data races, or leaving a stale request logger installed globally. A timeout can also return and restore the logger while the handler goroutine is still running. Keep the logger on a request-local context/container instead of mutating the shared container.\"},{\"path\":\"pkg/gofr/logging/logger.go\",\"start_line\":252,\"end_line\":259,\"content\":\"This filters only the first trace metadata map; subsequent `__trace_id__` maps are appended to the message because `traceID != \\\"\\\"`. Nested `ContextLogger`s can therefore leak an internal metadata map into output (and formatted logs may show it as an extra argument). Always `continue` for recognized trace metadata, while assigning `traceID` only when it is still empty.\"}]}",
+  "stderr": null
+}

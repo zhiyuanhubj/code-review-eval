@@ -1,0 +1,38 @@
+{
+  "instance_id": "laravel__framework@180c25f",
+  "repo": "laravel/framework",
+  "base_commit": "2e5054a19ba55b335bf8df43a8ae7e032244f671",
+  "head_commit": "180c25ff94ae2dff26d2ca5f8bf779af1e8fc8c2",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:34:53.107995+00:00",
+  "duration_seconds": 3.77,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "tests/Validation/ValidationEmailRuleTest.php",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The test method `testPassesRfcCompliantButNotRfcCompliantStrict` contains a variable named `$emailsThatPassOnBothRfcCompliantAndOnStrict` and later `$emailsThatPassOnBoth` with overlapping content, which is confusing. Consider consolidating or renaming for clarity. This is a minor nit, not a bug.",
+        "side": "right"
+      },
+      {
+        "path": "tests/Validation/ValidationEmailRuleTest.php",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "In `testNativeValidationVsRfcCompliant`, the array `$emailsThatPassNativeFailRfc` is empty with a comment 'none I could find'. This dead code adds no value and could be removed to keep the test focused.",
+        "side": "right"
+      },
+      {
+        "path": "tests/Validation/ValidationEmailRuleTest.php",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "The test `testNativeValidationVsRfcCompliantStrict` uses `Rule::email()->rfcCompliant(true)` (positional) while other tests use named argument `strict: true`. For consistency, prefer the named argument form throughout.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"tests/Validation/ValidationEmailRuleTest.php\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The test method `testPassesRfcCompliantButNotRfcCompliantStrict` contains a variable named `$emailsThatPassOnBothRfcCompliantAndOnStrict` and later `$emailsThatPassOnBoth` with overlapping content, which is confusing. Consider consolidating or renaming for clarity. This is a minor nit, not a bug.\"\n    },\n    {\n      \"path\": \"tests/Validation/ValidationEmailRuleTest.php\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"In `testNativeValidationVsRfcCompliant`, the array `$emailsThatPassNativeFailRfc` is empty with a comment 'none I could find'. This dead code adds no value and could be removed to keep the test focused.\"\n    },\n    {\n      \"path\": \"tests/Validation/ValidationEmailRuleTest.php\",\n      \"start_line\": 1,\n      \"end_line\": 1,\n      \"content\": \"The test `testNativeValidationVsRfcCompliantStrict` uses `Rule::email()->rfcCompliant(true)` (positional) while other tests use named argument `strict: true`. For consistency, prefer the named argument form throughout.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

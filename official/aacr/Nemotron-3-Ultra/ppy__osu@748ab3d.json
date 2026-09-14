@@ -1,0 +1,41 @@
+{
+  "instance_id": "ppy__osu@748ab3d",
+  "repo": "ppy/osu",
+  "base_commit": "19e9bffc11f026ebff2dc2831668e606c701f71f",
+  "head_commit": "748ab3d4863f6ea4bf6a3fffccb50e5cd616937b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-13T18:50:59.814668+00:00",
+  "duration_seconds": 31.5,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "osu.Game.Rulesets.Osu/Difficulty/Evaluators/RhythmEvaluator.cs",
+        "start_line": 74,
+        "end_line": 74,
+        "content": "The variable name `reverseDeltaDifferenceRatio` is misleading. It represents the ratio of max/min (>= 1), not a 'reverse' of the previous ratio. Consider renaming to `deltaRatio` or `maxMinDeltaRatio` for clarity."
+      },
+      {
+        "path": "osu.Game.Rulesets.Osu/Difficulty/Evaluators/RhythmEvaluator.cs",
+        "start_line": 77,
+        "end_line": 77,
+        "content": "The cast to `long` truncates toward zero. Since `reverseDeltaDifferenceRatio >= 1`, this effectively takes the floor. Consider using `Math.Floor` for clarity and to explicitly handle the intent, or add a comment explaining why truncation is safe here."
+      },
+      {
+        "path": "osu.Game.Rulesets.Osu/Difficulty/Evaluators/RhythmEvaluator.cs",
+        "start_line": 77,
+        "end_line": 77,
+        "content": "The variable `deltaDifferenceFraction` represents the fractional part of the delta ratio. This measures how far the ratio is from an integer multiple. Consider adding a comment explaining this intent, as it's crucial to understanding the rhythm bonus logic."
+      },
+      {
+        "path": "osu.Game.Rulesets/Difficulty/Utils/DifficultyCalculationUtils.cs",
+        "start_line": 77,
+        "end_line": 88,
+        "content": "The `SmoothstepBellCurve` function has a typo in the XML summary: 'returns returns'. Also, the parameter `width` description says 'Range [mean - width, mean + width] where function will change values', but the implementation returns 0 when |x - mean| >= width and 1 at x = mean. The summary should clarify it returns 1 at mean and smoothly falls to 0 at the boundaries."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"osu.Game.Rulesets.Osu/Difficulty/Evaluators/RhythmEvaluator.cs\",\n      \"start_line\": 74,\n      \"end_line\": 74,\n      \"content\": \"The variable name `reverseDeltaDifferenceRatio` is misleading. It represents the ratio of max/min (>= 1), not a 'reverse' of the previous ratio. Consider renaming to `deltaRatio` or `maxMinDeltaRatio` for clarity.\"\n    },\n    {\n      \"path\": \"osu.Game.Rulesets.Osu/Difficulty/Evaluators/RhythmEvaluator.cs\",\n      \"start_line\": 77,\n      \"end_line\": 77,\n      \"content\": \"The cast to `long` truncates toward zero. Since `reverseDeltaDifferenceRatio >= 1`, this effectively takes the floor. Consider using `Math.Floor` for clarity and to explicitly handle the intent, or add a comment explaining why truncation is safe here.\"\n    },\n    {\n      \"path\": \"osu.Game.Rulesets.Osu/Difficulty/Evaluators/RhythmEvaluator.cs\",\n      \"start_line\": 77,\n      \"end_line\": 77,\n      \"content\": \"The variable `deltaDifferenceFraction` represents the fractional part of the delta ratio. This measures how far the ratio is from an integer multiple. Consider adding a comment explaining this intent, as it's crucial to understanding the rhythm bonus logic.\"\n    },\n    {\n      \"path\": \"osu.Game.Rulesets/Difficulty/Utils/DifficultyCalculationUtils.cs\",\n      \"start_line\": 77,\n      \"end_line\": 88,\n      \"content\": \"The `SmoothstepBellCurve` function has a typo in the XML summary: 'returns returns'. Also, the parameter `width` description says 'Range [mean - width, mean + width] where function will change values', but the implementation returns 0 when |x - mean| >= width and 1 at x = mean. The summary should clarify it returns 1 at mean and smoothly falls to 0 at the boundaries.\"\n    }\n  ]\n}",
+  "stderr": null
+}

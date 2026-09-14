@@ -1,0 +1,23 @@
+{
+  "instance_id": "keycloak__keycloak@805c204",
+  "repo": "keycloak/keycloak",
+  "base_commit": "8521b9952a989d0dac17697278610b053c613528",
+  "head_commit": "805c204a9dbfb5b8128de8f70c9f3fbd6d6583f9",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:33:24.375573+00:00",
+  "duration_seconds": 63.69,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "docs/maven-plugin/src/main/java/org/keycloak/guides/maven/GuideParser.java",
+        "start_line": 79,
+        "end_line": 81,
+        "content": "Add a `break` after `setPriority(...)`. As written, every numeric `priority` attribute falls through to the `tileVisible` case; `valueString` is null for that match, so `Boolean.parseBoolean(null)` sets `tileVisible` to `false` and incorrectly marks prioritized guides as invisible."
+      }
+    ]
+  },
+  "raw_output": "{\"comments\":[{\"path\":\"docs/maven-plugin/src/main/java/org/keycloak/guides/maven/GuideParser.java\",\"start_line\":79,\"end_line\":81,\"content\":\"Add a `break` after `setPriority(...)`. As written, every numeric `priority` attribute falls through to the `tileVisible` case; `valueString` is null for that match, so `Boolean.parseBoolean(null)` sets `tileVisible` to `false` and incorrectly marks prioritized guides as invisible.\"}]}",
+  "stderr": null
+}

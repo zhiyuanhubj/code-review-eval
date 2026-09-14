@@ -1,0 +1,35 @@
+{
+  "instance_id": "ollama__ollama@0b52f18",
+  "repo": "ollama/ollama",
+  "base_commit": "c2f5d6662ba696b94455eaaa298a797d56fdca5c",
+  "head_commit": "0b52f186fb4af8fa7d4f6a71967f922eb6b69cdc",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:26:22.463082+00:00",
+  "duration_seconds": 11.56,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "cmd/cmd.go",
+        "start_line": 128,
+        "end_line": 132,
+        "content": "The closure captures the loop variables `f` and `digest`. In Go versions prior to 1.22 this would capture by reference and cause a bug where all goroutines see the last iteration's values. Ensure the module's Go version is >= 1.22 (per-iteration loop variable semantics); otherwise add `f, digest := f, digest` inside the loop."
+      },
+      {
+        "path": "cmd/cmd_test.go",
+        "start_line": 692,
+        "end_line": 694,
+        "content": "The error message still references `req.Name` which no longer exists as the meaningful field; the format uses %s with req.Name. Update to `req.Model` to match the check above (and to avoid referencing the now-empty/deprecated field)."
+      },
+      {
+        "path": "progress/progress.go",
+        "start_line": 118,
+        "end_line": 122,
+        "content": "When the number of states exceeds `termHeight-1`, the loop only renders the first `termHeight-1` states, but `p.pos` (used for cursor movement in the next render) is set based on `len(p.states)`. This mismatch between rendered lines and tracked position can corrupt cursor positioning. Ensure `p.pos` is set to the actual number of lines rendered (`min(len(p.states), termHeight-1)`) rather than the full length."
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"cmd/cmd.go\",\n      \"start_line\": 128,\n      \"end_line\": 132,\n      \"content\": \"The closure captures the loop variables `f` and `digest`. In Go versions prior to 1.22 this would capture by reference and cause a bug where all goroutines see the last iteration's values. Ensure the module's Go version is >= 1.22 (per-iteration loop variable semantics); otherwise add `f, digest := f, digest` inside the loop.\"\n    },\n    {\n      \"path\": \"cmd/cmd_test.go\",\n      \"start_line\": 692,\n      \"end_line\": 694,\n      \"content\": \"The error message still references `req.Name` which no longer exists as the meaningful field; the format uses %s with req.Name. Update to `req.Model` to match the check above (and to avoid referencing the now-empty/deprecated field).\"\n    },\n    {\n      \"path\": \"progress/progress.go\",\n      \"start_line\": 118,\n      \"end_line\": 122,\n      \"content\": \"When the number of states exceeds `termHeight-1`, the loop only renders the first `termHeight-1` states, but `p.pos` (used for cursor movement in the next render) is set based on `len(p.states)`. This mismatch between rendered lines and tracked position can corrupt cursor positioning. Ensure `p.pos` is set to the actual number of lines rendered (`min(len(p.states), termHeight-1)`) rather than the full length.\"\n    }\n  ]\n}",
+  "stderr": null
+}

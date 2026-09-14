@@ -1,0 +1,16 @@
+{
+  "instance_id": "microsoft__typescript-go@ae447d3",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "15def0236938e25ec7822755444f4d58c68045be",
+  "head_commit": "ae447d3b2a6db00072941e1992a09981b6096061",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:30:56.636970+00:00",
+  "duration_seconds": 8.63,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "{\"comments\": []}",
+  "stderr": null
+}

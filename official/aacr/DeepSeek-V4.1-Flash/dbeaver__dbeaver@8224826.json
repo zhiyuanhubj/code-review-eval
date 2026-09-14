@@ -1,0 +1,45 @@
+{
+  "instance_id": "dbeaver__dbeaver@8224826",
+  "repo": "dbeaver/dbeaver",
+  "base_commit": "8793ec7a6c71aa503b1dc492ddb4e982a8f3e9d9",
+  "head_commit": "8224826969254a49e68e025cae82d3cf1574de38",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:36:50.964165+00:00",
+  "duration_seconds": 5.67,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksExecutionContext.java",
+        "start_line": 60,
+        "end_line": 70,
+        "content": "The `setDefaultCatalog` override swallows `DBCException` after `super.setDefaultCatalog` has already been called. If the super method throws, `activeCatalogName` is not updated, but the exception is silently logged and the caller believes the catalog was set successfully. This can leave the context in an inconsistent state. Consider rethrowing the exception (or at least not swallowing it) so callers are aware of the failure.",
+        "side": "right"
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksExecutionContext.java",
+        "start_line": 73,
+        "end_line": 105,
+        "content": "`refreshDefaults` opens a new JDBC session and executes `SELECT CURRENT_CATALOG()` on every call, including when `useBootstrapSettings` is false. This adds an extra round-trip to the database on each context initialization. Consider only querying the current catalog when needed, or caching the result.",
+        "side": "right"
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksExecutionContext.java",
+        "start_line": 88,
+        "end_line": 95,
+        "content": "When `useBootstrapSettings` is true and the bootstrap default catalog name is empty, the code mutates the bootstrap settings object (`bootstrap.setDefaultCatalogName(currentCatalog)`). This mutates shared configuration state as a side effect of refreshing defaults, which may be unexpected. Verify this is the intended behavior and that the bootstrap settings object is not shared across contexts.",
+        "side": "right"
+      },
+      {
+        "path": "plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksDataSource.java",
+        "start_line": 80,
+        "end_line": 96,
+        "content": "`initializeContextState` casts `context` and `initFrom` to `DatabricksExecutionContext` without checking the actual type. If a different `JDBCExecutionContext` implementation is ever passed (e.g., from a subclass or a different code path), this will throw `ClassCastException`. Consider using `instanceof` checks or documenting the invariant.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksExecutionContext.java\",\n      \"start_line\": 60,\n      \"end_line\": 70,\n      \"content\": \"The `setDefaultCatalog` override swallows `DBCException` after `super.setDefaultCatalog` has already been called. If the super method throws, `activeCatalogName` is not updated, but the exception is silently logged and the caller believes the catalog was set successfully. This can leave the context in an inconsistent state. Consider rethrowing the exception (or at least not swallowing it) so callers are aware of the failure.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksExecutionContext.java\",\n      \"start_line\": 73,\n      \"end_line\": 105,\n      \"content\": \"`refreshDefaults` opens a new JDBC session and executes `SELECT CURRENT_CATALOG()` on every call, including when `useBootstrapSettings` is false. This adds an extra round-trip to the database on each context initialization. Consider only querying the current catalog when needed, or caching the result.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksExecutionContext.java\",\n      \"start_line\": 88,\n      \"end_line\": 95,\n      \"content\": \"When `useBootstrapSettings` is true and the bootstrap default catalog name is empty, the code mutates the bootstrap settings object (`bootstrap.setDefaultCatalogName(currentCatalog)`). This mutates shared configuration state as a side effect of refreshing defaults, which may be unexpected. Verify this is the intended behavior and that the bootstrap settings object is not shared across contexts.\"\n    },\n    {\n      \"path\": \"plugins/org.jkiss.dbeaver.ext.databricks/src/org/jkiss/dbeaver/ext/databricks/DatabricksDataSource.java\",\n      \"start_line\": 80,\n      \"end_line\": 96,\n      \"content\": \"`initializeContextState` casts `context` and `initFrom` to `DatabricksExecutionContext` without checking the actual type. If a different `JDBCExecutionContext` implementation is ever passed (e.g., from a subclass or a different code path), this will throw `ClassCastException`. Consider using `instanceof` checks or documenting the invariant.\"\n    }\n  ]\n}",
+  "stderr": null
+}

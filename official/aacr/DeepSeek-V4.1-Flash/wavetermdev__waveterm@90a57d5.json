@@ -1,0 +1,66 @@
+{
+  "instance_id": "wavetermdev__waveterm@90a57d5",
+  "repo": "wavetermdev/waveterm",
+  "base_commit": "286783fb8e71cec6d2294bd871e5ccf8c798c646",
+  "head_commit": "90a57d552d15f1b2a4d92cdfc3a4308efcf5c57b",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:35:31.099775+00:00",
+  "duration_seconds": 9.84,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "pkg/blockcontroller/blockcontroller.go",
+        "start_line": 351,
+        "end_line": 358,
+        "content": "`resolveEnvMap` is called inside `makeSwapToken`, but the returned env map is only merged into `token.Env`. Previously, `cmdOpts.Env` was also populated and used by `StartLocalShellProc`/`StartRemoteShellProc`/`StartWslShellProc` to set environment variables directly on the process. Now that `cmdOpts.Env` has been removed from `CommandOptsType` and the `UpdateCmdEnv(ecmd, cmdOpts.Env)` / `session.Setenv` calls were deleted, the env vars from `cmd:env` and the block `env` file will only be applied if the swap token is actually consumed by the shell integration. For `cmd:nowsh` blocks (or when wsh is disabled), the swap token is not used, so `cmd:env` and the env file will silently be ignored. Please verify this is intended, or restore env propagation for the no-wsh path.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/blockcontroller/blockcontroller.go",
+        "start_line": 351,
+        "end_line": 358,
+        "content": "`resolveEnvMap` errors are logged but swallowed here. If reading the env file fails (e.g. permission error, not just ErrNotExist), the user's `cmd:env` will silently be missing. Consider returning the error from `makeSwapToken` (or at least surfacing it more prominently) so the failure isn't invisible.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/blockcontroller/blockcontroller.go",
+        "start_line": 478,
+        "end_line": 484,
+        "content": "`getConnUnion` is now called before the controller-type switch, which means for `BlockController_Cmd` blocks with `cmd:nowsh` set, `getRemoteInfoAndShellType` is skipped (WshEnabled=false) — that's fine. But for shell blocks with wsh enabled on a remote, `RemoteGetInfoCommand` is invoked with a 2s timeout on every shell start. If the remote wsh is slow/unavailable, this will now fail the entire shell start with 'unable to obtain remote info from connserver' rather than falling back. Previously the shell would still start. Consider degrading gracefully (fall back to a default shell type) instead of hard-failing.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/shellexec/shellexec.go",
+        "start_line": 255,
+        "end_line": 265,
+        "content": "In `StartWslShellProc`, if `cmdOpts.SwapToken.PackForClient()` fails, the error is only logged and the command proceeds without the swap token env var. This will cause the shell integration to fail silently. Consider returning the error instead of continuing.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/shellexec/shellexec.go",
+        "start_line": 255,
+        "end_line": 265,
+        "content": "`cmdOpts.SwapToken` is dereferenced without a nil check. If a caller invokes `StartWslShellProc` without setting `SwapToken`, this will panic. Add a nil guard.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/waveobj/metamap.go",
+        "start_line": 17,
+        "end_line": 27,
+        "content": "`GetConnectionOverride` uses the raw `connName` as the map key (e.g. `\"[user@host]\"`). For SSH connections the meta key is likely the user-facing conn name, but for WSL the conn name is `wsl://distro`. Confirm the frontend writes the override key using the same string that `blockMeta.GetString(waveobj.MetaKey_Connection, \"\")` returns, otherwise overrides will never match.",
+        "side": "right"
+      },
+      {
+        "path": "pkg/blockcontroller/blockcontroller.go",
+        "start_line": 351,
+        "end_line": 358,
+        "content": "`getCustomInitScript` returns the first matching key from the cascade, but if the value is an empty string it will still return it and short-circuit lower-priority keys. Consider skipping empty values so a `cmd:initscript.bash: \"\"` doesn't shadow `cmd:initscript`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"pkg/blockcontroller/blockcontroller.go\",\n      \"start_line\": 351,\n      \"end_line\": 358,\n      \"content\": \"`resolveEnvMap` is called inside `makeSwapToken`, but the returned env map is only merged into `token.Env`. Previously, `cmdOpts.Env` was also populated and used by `StartLocalShellProc`/`StartRemoteShellProc`/`StartWslShellProc` to set environment variables directly on the process. Now that `cmdOpts.Env` has been removed from `CommandOptsType` and the `UpdateCmdEnv(ecmd, cmdOpts.Env)` / `session.Setenv` calls were deleted, the env vars from `cmd:env` and the block `env` file will only be applied if the swap token is actually consumed by the shell integration. For `cmd:nowsh` blocks (or when wsh is disabled), the swap token is not used, so `cmd:env` and the env file will silently be ignored. Please verify this is intended, or restore env propagation for the no-wsh path.\"\n    },\n    {\n      \"path\": \"pkg/blockcontroller/blockcontroller.go\",\n      \"start_line\": 351,\n      \"end_line\": 358,\n      \"content\": \"`resolveEnvMap` errors are logged but swallowed here. If reading the env file fails (e.g. permission error, not just ErrNotExist), the user's `cmd:env` will silently be missing. Consider returning the error from `makeSwapToken` (or at least surfacing it more prominently) so the failure isn't invisible.\"\n    },\n    {\n      \"path\": \"pkg/blockcontroller/blockcontroller.go\",\n      \"start_line\": 478,\n      \"end_line\": 484,\n      \"content\": \"`getConnUnion` is now called before the controller-type switch, which means for `BlockController_Cmd` blocks with `cmd:nowsh` set, `getRemoteInfoAndShellType` is skipped (WshEnabled=false) — that's fine. But for shell blocks with wsh enabled on a remote, `RemoteGetInfoCommand` is invoked with a 2s timeout on every shell start. If the remote wsh is slow/unavailable, this will now fail the entire shell start with 'unable to obtain remote info from connserver' rather than falling back. Previously the shell would still start. Consider degrading gracefully (fall back to a default shell type) instead of hard-failing.\"\n    },\n    {\n      \"path\": \"pkg/shellexec/shellexec.go\",\n      \"start_line\": 255,\n      \"end_line\": 265,\n      \"content\": \"In `StartWslShellProc`, if `cmdOpts.SwapToken.PackForClient()` fails, the error is only logged and the command proceeds without the swap token env var. This will cause the shell integration to fail silently. Consider returning the error instead of continuing.\"\n    },\n    {\n      \"path\": \"pkg/shellexec/shellexec.go\",\n      \"start_line\": 255,\n      \"end_line\": 265,\n      \"content\": \"`cmdOpts.SwapToken` is dereferenced without a nil check. If a caller invokes `StartWslShellProc` without setting `SwapToken`, this will panic. Add a nil guard.\"\n    },\n    {\n      \"path\": \"pkg/waveobj/metamap.go\",\n      \"start_line\": 17,\n      \"end_line\": 27,\n      \"content\": \"`GetConnectionOverride` uses the raw `connName` as the map key (e.g. `\\\"[user@host]\\\"`). For SSH connections the meta key is likely the user-facing conn name, but for WSL the conn name is `wsl://distro`. Confirm the frontend writes the override key using the same string that `blockMeta.GetString(waveobj.MetaKey_Connection, \\\"\\\")` returns, otherwise overrides will never match.\"\n    },\n    {\n      \"path\": \"pkg/blockcontroller/blockcontroller.go\",\n      \"start_line\": 351,\n      \"end_line\": 358,\n      \"content\": \"`getCustomInitScript` returns the first matching key from the cascade, but if the value is an empty string it will still return it and short-circuit lower-priority keys. Consider skipping empty values so a `cmd:initscript.bash: \\\"\\\"` doesn't shadow `cmd:initscript`.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

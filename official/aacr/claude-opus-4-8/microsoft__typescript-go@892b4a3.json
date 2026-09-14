@@ -1,0 +1,16 @@
+{
+  "instance_id": "microsoft__typescript-go@892b4a3",
+  "repo": "microsoft/typescript-go",
+  "base_commit": "a9efe52c52001ea5b49d2ae8d7b0fa32ec8339f3",
+  "head_commit": "892b4a3f6b701352047ceb019fc0683ab1146bb3",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:23:27.854627+00:00",
+  "duration_seconds": 34.37,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "Let me analyze this PR carefully.\n\nThe key concern is in `makeManual.mts`. The `testName` argument is used both as a filename (in `gen` directory) and pushed to `manualTests.txt`. But in `convertFourslash.mts`, the manual tests set is checked against `testName` which is derived from `test.name` with first letter uppercased, not the file name.\n\nLet me look at the mismatch:\n\nIn `convertFourslash.mts`:\n```js\nconst testName = test.name[0].toUpperCase() + test.name.substring(1);\nif (manualTests.has(testName)) {\n    return;\n}\n```\n\nThe test file is written as `${test.name}_test.go`. So the file is `foo_test.go` but manualTests must contain the uppercased Go test function name (e.g. `Foo`).\n\nIn `makeManual.mts`, `testName` is `args[0]` which is used directly as the filename in `gen` dir: `path.join(genDir, ${testFileName})`. So the user passes the full filename like `foo_test.go`. That gets pushed to manualTests.txt as `foo_test.go`.\n\nThis is a real mismatch: `convertFourslash` checks `manualTests.has(\"Foo\")` but `makeManual` writes `\"foo_test.go\"` to the file. These will never match.\n\nLet me confirm and report.\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"internal/fourslash/_scripts/makeManual.mts\",\n      \"start_line\": 15,\n      \"end_line\": 38,\n      \"content\": \"The value written to `manualTests.txt` is inconsistent with the value checked in `convertFourslash.mts`. Here `testName` is the CLI argument used as a filename (e.g. `foo_test.go`), and that raw string is pushed into `manualTests.txt`. However, `convertFourslash.mts` checks membership using `const testName = test.name[0].toUpperCase() + test.name.substring(1)` (e.g. `Foo`). These will never match, so tests moved to `manual` will be regenerated in `gen` on the next `convertfourslash` run. Normalize both sides to the same identifier (e.g. derive the capitalized `test.name` from the filename before writing, or have convertFourslash compare against the file basename).\"\n    },\n    {\n      \"path\": \"internal/fourslash/_scripts/makeManual.mts\",\n      \"start_line\": 10,\n      \"end_line\": 12,\n      \"content\": \"When `args.length === 0`, the script calls `process.exit(1)` without printing any usage/error message, making misuse hard to diagnose. Consider logging a usage message (e.g. the expected `<testFileName>` argument) before exiting.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

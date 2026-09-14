@@ -1,0 +1,66 @@
+{
+  "instance_id": "infiniflow__ragflow@f189316",
+  "repo": "infiniflow/ragflow",
+  "base_commit": "8362ab405c35d260dd2328dc207aefcf30778f66",
+  "head_commit": "f189316eae1c199a5891f7a8bc47d53bb1b5c818",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:34:46.896423+00:00",
+  "duration_seconds": 8.43,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "rag/utils/infinity_conn.py",
+        "start_line": 574,
+        "end_line": 580,
+        "content": "Bug: `ty.lower().find(\"cha\")` returns -1 when not found, which is truthy. This means the `if` branch executes for non-char columns too, and the `else` branch (setting `de = \"\"`) is unreachable. Should be `if ty.lower().find(\"cha\") >= 0:` or `if \"cha\" in ty.lower():`.",
+        "side": "right"
+      },
+      {
+        "path": "rag/utils/infinity_conn.py",
+        "start_line": 588,
+        "end_line": 597,
+        "content": "Potential bug: `old_v[k]` may not be a list (e.g. if the stored value is a string or None). Calling `.copy()` and `.remove()` on a non-list will raise. Also `remove_v in old_v[k]` will do substring matching for strings, which is likely unintended. Consider guarding with `isinstance(old_v[k], list)`.",
+        "side": "right"
+      },
+      {
+        "path": "rag/utils/infinity_conn.py",
+        "start_line": 601,
+        "end_line": 603,
+        "content": "Bug: `filter + \" AND id in (...)\"` — if `filter` is empty/None, this produces a leading `\" AND ...\"` which is invalid SQL. Also `table_instance.update` is called with a string filter here but with a dict filter elsewhere; verify the API accepts both forms. Additionally, the subsequent `table_instance.update(filter, newValue)` will overwrite the per-id updates if `newValue` contains the same column, since it runs after and matches a broader filter.",
+        "side": "right"
+      },
+      {
+        "path": "graphrag/utils.py",
+        "start_line": 414,
+        "end_line": 425,
+        "content": "Behavior change: previously when `res.total == 0` the function returned `None`; now it falls through to `rebuild_graph`. Confirm this is intentional — it changes the semantics of `get_graph` for the empty-result case and may trigger expensive rebuilds on every call when no graph exists.",
+        "side": "right"
+      },
+      {
+        "path": "graphrag/utils.py",
+        "start_line": 568,
+        "end_line": 578,
+        "content": "Bug: the loop now asserts `d[\"knowledge_graph_kwd\"] == \"entity\"`, but the search condition above (unchanged) filters on `knowledge_graph_kwd: [\"graph\"]`? Verify the search condition actually returns entity rows. If the condition still targets `\"graph\"` or `\"relation\"`, this assert will fail at runtime.",
+        "side": "right"
+      },
+      {
+        "path": "graphrag/utils.py",
+        "start_line": 585,
+        "end_line": 600,
+        "content": "Bug: `if len(es_res) == 0: break` is placed after `getFields`, but the previous code returned `None` when total was 0. More importantly, the first loop uses `break` on empty results while the second loop also uses `break` — but the second loop previously returned `None`. If the first loop breaks early (no entities), the second loop still runs and may add edges referencing non-existent nodes (guarded by `has_node`, so edges are skipped). Then `if len(graph.nodes) == 0: return None` handles the empty case. This seems okay, but verify the first loop's `break` doesn't prematurely terminate when there are more pages with entities after an empty page (unlikely with pagination, but worth confirming).",
+        "side": "right"
+      },
+      {
+        "path": "graphrag/utils.py",
+        "start_line": 573,
+        "end_line": 574,
+        "content": "Nit: `entity_kwd = d[\"entity_kwd\"][0] if isinstance(d[\"entity_kwd\"], list) else d[\"entity_kwd\"]` — if the list is empty, this raises IndexError. Consider guarding for empty lists.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "```json\n{\n  \"comments\": [\n    {\n      \"path\": \"rag/utils/infinity_conn.py\",\n      \"start_line\": 574,\n      \"end_line\": 580,\n      \"content\": \"Bug: `ty.lower().find(\\\"cha\\\")` returns -1 when not found, which is truthy. This means the `if` branch executes for non-char columns too, and the `else` branch (setting `de = \\\"\\\"`) is unreachable. Should be `if ty.lower().find(\\\"cha\\\") >= 0:` or `if \\\"cha\\\" in ty.lower():`.\"\n    },\n    {\n      \"path\": \"rag/utils/infinity_conn.py\",\n      \"start_line\": 588,\n      \"end_line\": 597,\n      \"content\": \"Potential bug: `old_v[k]` may not be a list (e.g. if the stored value is a string or None). Calling `.copy()` and `.remove()` on a non-list will raise. Also `remove_v in old_v[k]` will do substring matching for strings, which is likely unintended. Consider guarding with `isinstance(old_v[k], list)`.\"\n    },\n    {\n      \"path\": \"rag/utils/infinity_conn.py\",\n      \"start_line\": 601,\n      \"end_line\": 603,\n      \"content\": \"Bug: `filter + \\\" AND id in (...)\\\"` — if `filter` is empty/None, this produces a leading `\\\" AND ...\\\"` which is invalid SQL. Also `table_instance.update` is called with a string filter here but with a dict filter elsewhere; verify the API accepts both forms. Additionally, the subsequent `table_instance.update(filter, newValue)` will overwrite the per-id updates if `newValue` contains the same column, since it runs after and matches a broader filter.\"\n    },\n    {\n      \"path\": \"graphrag/utils.py\",\n      \"start_line\": 414,\n      \"end_line\": 425,\n      \"content\": \"Behavior change: previously when `res.total == 0` the function returned `None`; now it falls through to `rebuild_graph`. Confirm this is intentional — it changes the semantics of `get_graph` for the empty-result case and may trigger expensive rebuilds on every call when no graph exists.\"\n    },\n    {\n      \"path\": \"graphrag/utils.py\",\n      \"start_line\": 568,\n      \"end_line\": 578,\n      \"content\": \"Bug: the loop now asserts `d[\\\"knowledge_graph_kwd\\\"] == \\\"entity\\\"`, but the search condition above (unchanged) filters on `knowledge_graph_kwd: [\\\"graph\\\"]`? Verify the search condition actually returns entity rows. If the condition still targets `\\\"graph\\\"` or `\\\"relation\\\"`, this assert will fail at runtime.\"\n    },\n    {\n      \"path\": \"graphrag/utils.py\",\n      \"start_line\": 585,\n      \"end_line\": 600,\n      \"content\": \"Bug: `if len(es_res) == 0: break` is placed after `getFields`, but the previous code returned `None` when total was 0. More importantly, the first loop uses `break` on empty results while the second loop also uses `break` — but the second loop previously returned `None`. If the first loop breaks early (no entities), the second loop still runs and may add edges referencing non-existent nodes (guarded by `has_node`, so edges are skipped). Then `if len(graph.nodes) == 0: return None` handles the empty case. This seems okay, but verify the first loop's `break` doesn't prematurely terminate when there are more pages with entities after an empty page (unlikely with pagination, but worth confirming).\"\n    },\n    {\n      \"path\": \"graphrag/utils.py\",\n      \"start_line\": 573,\n      \"end_line\": 574,\n      \"content\": \"Nit: `entity_kwd = d[\\\"entity_kwd\\\"][0] if isinstance(d[\\\"entity_kwd\\\"], list) else d[\\\"entity_kwd\\\"]` — if the list is empty, this raises IndexError. Consider guarding for empty lists.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

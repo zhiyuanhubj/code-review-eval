@@ -1,0 +1,16 @@
+{
+  "instance_id": "valkey-io__valkey@1379171",
+  "repo": "valkey-io/valkey",
+  "base_commit": "b5c7743971df5476acbdbbbd3b378496e885e1e4",
+  "head_commit": "1379171021c18b009fa02c42088e82caf0e33203",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:24:30.026432+00:00",
+  "duration_seconds": 19.44,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "<think>\nLet me analyze the diff for potential issues.\n\n1. In `src/Makefile`, the RDMA section for `BUILD_RDMA=yes`:\n```\nifeq ($(BUILD_RDMA),yes)\n\tFINAL_CFLAGS+=-DUSE_RDMA=$(BUILD_YES) -DBUILD_RDMA_MODULE=$(BUILD_NO)\n\tFINAL_LIBS += $(RDMA_LIBS)\n\tFINAL_LIBS += ../deps/libvalkey/lib/libvalkey_rdma.a $(RDMA_LIBS)\nendif\n```\nThis adds `$(RDMA_LIBS)` twice, and now the libvalkey_rdma.a is added. The first `FINAL_LIBS += $(RDMA_LIBS)` line seems redundant now since the second line also adds `$(RDMA_LIBS)`. This is a minor duplicate. Worth mentioning.\n\n2. In `cli_common.c`, when `rdma` is true but `USE_RDMA` is not defined, the options struct is left as {0}, so no connection type set. But since `--rdma` flag is only available under `USE_RDMA`, `rdma` can't be 1 without USE_RDMA. Actually config.rdma is always 0 without USE_RDMA. So fine. But defensively, could be an issue. Low priority.\n\n3. In valkey-benchmark.c `resetClient`, it calls `writeHandler(el, c->context->fd, c, 0)` directly. Let me think whether writeHandler unconditionally works. This mirrors createClient logic. Probably fine.\n\n4. In valkey-cli.c `reconnectingValkeyCommand`, after reconnect with rdma, but there is no cliSecureConnection for RDMA - that's fine since RDMA doesn't use TLS.\n\nThe main real bug candidate is the duplicate `$(RDMA_LIBS)` in the Makefile. Let me report it.\n\nAlso check: in `resetClient` and `createClient`, for RDMA, calling writeHandler directly without registering a file event. But the readHandler registration? Let me look. Actually the diff doesn't show readHandler for RDMA. In idlemode==0 non-rdma, it creates writable event. writeHandler eventually registers readHandler. This is fine.\n\nLet me focus on the concrete duplicate RDMA_LIBS.\n</think>\n\n```json\n{\n  \"comments\": [\n    {\n      \"path\": \"src/Makefile\",\n      \"start_line\": 341,\n      \"end_line\": 344,\n      \"content\": \"`$(RDMA_LIBS)` is now added twice: once in the existing `FINAL_LIBS += $(RDMA_LIBS)` line and again in the new `FINAL_LIBS += ../deps/libvalkey/lib/libvalkey_rdma.a $(RDMA_LIBS)` line. Remove the now-redundant first line (or drop the trailing `$(RDMA_LIBS)` from the new line) to avoid duplicate linker flags.\"\n    }\n  ]\n}\n```",
+  "stderr": null
+}

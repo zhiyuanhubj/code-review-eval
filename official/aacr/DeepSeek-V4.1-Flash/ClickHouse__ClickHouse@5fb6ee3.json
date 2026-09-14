@@ -1,0 +1,45 @@
+{
+  "instance_id": "ClickHouse__ClickHouse@5fb6ee3",
+  "repo": "ClickHouse/ClickHouse",
+  "base_commit": "e29021aed71bfebb76c0305f554375061adb8bf9",
+  "head_commit": "5fb6ee38d2d7d2fc6e1a67005b12d3b9aaac418f",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T08:37:54.742401+00:00",
+  "duration_seconds": 30.07,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": [
+      {
+        "path": "src/Functions/array/arrayAggregation.cpp",
+        "start_line": 490,
+        "end_line": 490,
+        "content": "The syntax for `arraySum` incorrectly says `arrayMax`. It should be `arraySum([func(x[, y1, ..., yN])], source[, cond1, ... , condN])`.",
+        "side": "right"
+      },
+      {
+        "path": "src/Functions/array/arrayAggregation.cpp",
+        "start_line": 466,
+        "end_line": 466,
+        "content": "The returned value description for `arrayMax` says \"or the minimum element of the lambda results if provided\". It should say \"maximum\".",
+        "side": "right"
+      },
+      {
+        "path": "src/Functions/array/arrayFirstLast.cpp",
+        "start_line": 268,
+        "end_line": 268,
+        "content": "The \"No match\" example for `arrayLast` uses `arrayFirst` instead of `arrayLast`. It should be `SELECT arrayLast(x, y -> x=y, [0, 1, 2], [3, 3, 3]) AS res, toTypeName(res)`.",
+        "side": "right"
+      },
+      {
+        "path": "src/Functions/array/arrayFirstLastIndex.cpp",
+        "start_line": 165,
+        "end_line": 165,
+        "content": "The documentation for `arrayLastIndex` is created but never registered. The call should be `factory.registerFunction<FunctionArrayLastIndex>(documentation_last);`.",
+        "side": "right"
+      }
+    ]
+  },
+  "raw_output": "{\n  \"comments\": [\n    {\n      \"path\": \"src/Functions/array/arrayAggregation.cpp\",\n      \"start_line\": 490,\n      \"end_line\": 490,\n      \"content\": \"The syntax for `arraySum` incorrectly says `arrayMax`. It should be `arraySum([func(x[, y1, ..., yN])], source[, cond1, ... , condN])`.\"\n    },\n    {\n      \"path\": \"src/Functions/array/arrayAggregation.cpp\",\n      \"start_line\": 466,\n      \"end_line\": 466,\n      \"content\": \"The returned value description for `arrayMax` says \\\"or the minimum element of the lambda results if provided\\\". It should say \\\"maximum\\\".\"\n    },\n    {\n      \"path\": \"src/Functions/array/arrayFirstLast.cpp\",\n      \"start_line\": 268,\n      \"end_line\": 268,\n      \"content\": \"The \\\"No match\\\" example for `arrayLast` uses `arrayFirst` instead of `arrayLast`. It should be `SELECT arrayLast(x, y -> x=y, [0, 1, 2], [3, 3, 3]) AS res, toTypeName(res)`.\"\n    },\n    {\n      \"path\": \"src/Functions/array/arrayFirstLastIndex.cpp\",\n      \"start_line\": 165,\n      \"end_line\": 165,\n      \"content\": \"The documentation for `arrayLastIndex` is created but never registered. The call should be `factory.registerFunction<FunctionArrayLastIndex>(documentation_last);`.\"\n    }\n  ]\n}",
+  "stderr": null
+}

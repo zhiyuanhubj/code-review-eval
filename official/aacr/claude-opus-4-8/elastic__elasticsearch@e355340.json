@@ -1,0 +1,16 @@
+{
+  "instance_id": "elastic__elasticsearch@e355340",
+  "repo": "elastic/elasticsearch",
+  "base_commit": "fdfe63eb372a01b91a5b43eb5555c52731a69687",
+  "head_commit": "e355340162f24705db5e48ea2cf0a867490ae001",
+  "reviewer": "ocr",
+  "started_at": "2026-09-14T04:25:32.720453+00:00",
+  "duration_seconds": 16.6,
+  "ocr_exit_code": 0,
+  "ocr_format": "json",
+  "review": {
+    "comments": []
+  },
+  "raw_output": "Looking at this PR, let me analyze the changes carefully.\n\nThe key change is that `finalizeSnapshotEntry` now forks work onto the SNAPSHOT thread pool via `SnapshotFinalization` (an `AbstractRunnable`). Let me examine the correctness.\n\nOne concern: the previous code caught exceptions with a `try/catch` and called `handleFinalizationFailure`. Now `doRun` throws exceptions handled by `onFailure`. The `onFailure` includes `assert false`. Previously the try/catch also had `assert false` presumably. Let me check the `onRejection` handling and the `assert false` in `onFailure`.\n\nThe `onFailure` has `assert false` which will trip in tests for any exception during finalization. This matches previous behavior (the try/catch also had assert false based on the diff showing the same log/assert lines).\n\nLet me verify there aren't real bugs introduced.\n\nLet me look for actual issues rather than nits.\n\n```json\n{\n  \"comments\": []\n}\n```",
+  "stderr": null
+}
