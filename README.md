@@ -8,7 +8,7 @@ Official-protocol rerun of **SWR-Bench**, **AACR-Bench**, **Martian offline**, a
 - Muse-Glimmer
 - Nemotron-3-Ultra
 
-We call the **upstream harnesses**, not the old single-shot proxy in `run_openai_reviews.py`. Headline numbers are in [`official/SCORES.json`](official/SCORES.json) (snapshot **2026-09-14 17:15 UTC**). The jsonl under `results/` is the earlier unofficial proxy; **do not cite it**.
+This repo only contains the **official harness** rerun. Headline numbers: [`official/SCORES.json`](official/SCORES.json) (snapshot **2026-09-14 17:15 UTC**).
 
 Judge for SWR / AACR / Martian: **gpt-5.6**. SWE-Review DA is the official `compute_da.py` (no extra LLM judge).
 
@@ -44,7 +44,7 @@ Upstream: [`swrbench/generation.py`](https://github.com) `base_review` on `swr_d
 
 ### AACR-Bench
 
-Official dump used here is **196 PRs** (`dataset/positive_samples.json`), not the 2145-comment proxy task.
+Official dump used here is **196 PRs** (`dataset/positive_samples.json`). That is the PR-level OCR review set, not the 2145-row comment-classification table.
 
 - Clone the repo, checkout `source_commit..target_commit`, ask the model for OCR-schema comments (`path`, `start_line`, `end_line`, `content`).
 - Score with official `evaluation/evaluate.py --reviewer ocr` against human notes.
@@ -130,14 +130,15 @@ Uploaded here: `da_metrics.json` plus `produced_reviews.jsonl` for the three mod
 ## Repo layout
 
 ```
-official/                 # official-harness trajectories and scores
+official/                      # trajectories and scores
+official/SCORES.json           # headline metrics
+official/swrbench/<model>/     # generation.jsonl + metrics.json
+official/aacr/<model>/         # OCR reviews + evaluate.py metrics
+official/martian/<model>/      # candidates.json + judge evaluations
+official/swe-review/<model>/   # da_metrics.json + produced_reviews.jsonl
 official_martian_llm_review.py
 official_aacr_llm_reviewer.py
 launch_official_swr.sh
-continue_official_cr.sh
-results/                  # LEGACY unofficial proxy jsonl — do not cite
-run_openai_reviews.py     # that proxy runner
-score_cr_results.py
 ```
 
 Each SWR `generation.jsonl` row is one official `base_review` call (`instance_id`, prompt, response). AACR files are one OCR review per PR. Martian `candidates.json` is keyed by PR URL. SWE-Review `produced_reviews.jsonl` has `instance_id`, `decision`, and the `review_report` for trials that produced one.
@@ -148,15 +149,9 @@ Each SWR `generation.jsonl` row is one official `base_review` call (`instance_id
 
 1. Martian Glimmer / V4.1 and SWE-Review Glimmer / V4.1 are **not** comparable to the other three until generations actually produce comments / `review_report`s.
 2. Nemotron SWE-Review DA is computed on only 79 produced reviews; CR is 15.8%.
-3. AACR F1 is low for every model; this matches the official finding-match task, not the old binary proxy.
+3. AACR F1 is low for every model; that is the official finding-match task (semantic / line F1 against human notes), not a binary approve/reject score.
 4. Claude/GPT temperature is 1.0 because those APIs reject 0.2.
 5. We never put dataset dumps or Harbor sandbox trees in this repo.
-
----
-
-## Legacy unofficial proxy
-
-`results/*.jsonl` is a previous single-shot `{decision, findings}` proxy (truncated payloads, decision vs `gold_clean` only). It is kept so that failure mode is reproducible. **It is not SWR / AACR / Martian / SWE-Review-Bench.** The old README claimed Glimmer was 100% prompt-echo on that proxy; official SWR/AACR Glimmer numbers above are from the real harness.
 
 ---
 
