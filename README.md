@@ -116,7 +116,7 @@ Uploaded here: `da_metrics.json` plus `produced_reviews.jsonl` for models that w
 | gpt-5.6 | 66.7% | 12.7% | 21.4% | valid |
 | DeepSeek-V4.1-Flash | 0 | 0 | 0 | empty generation; not rerun |
 
-## SWE-Review detail (`glm5_500`)
+## SWE-Review detail (`500 PRs`)
 
 | Model | DA | DA(total,50) | CR | produced / 500 | TP / FP / TN / FN |
 |---|---:|---:|---:|---:|---|
