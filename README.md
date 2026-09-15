@@ -21,7 +21,7 @@ Judge for SWR / AACR / Martian: **gpt-5.6**. SWE-Review DA is the official `comp
 | **SWR** overall F1 (n=1000; Glimmer 990) | **0.666** | 0.654 | 0.576 | 0.542 | 0.422 |
 | **AACR** semantic / line F1 (n=196) | **0.105 / 0.292** | 0.041 / 0.077 | 0.066 / 0.129 | 0.046 / 0.096 | 0.060 / 0.184 |
 | **Martian** F1 (50 PRs) | 0 * | 21.4% | 37.8% | **40.8%** | 21.9% |
-| **SWE-Review** DA (`glm5_500`) | 0 * | 52.0% | **74.9%** | 88.7% † | 70.9% |
+| **SWE-Review** DA (`500 PRs`) | 0 * | 52.0% | **74.9%** | 88.7% † | 70.9% |
 
 \* DeepSeek-V4.1-Flash Martian / SWE-Review are **not usable** (empty generation / 500 env failures; not rerun).
 † Glimmer SWE-Review DA is on **53 produced** reviews (CR 10.6%). Opus DA is on 327 (CR 65.4%). Same caveat as Nemotron (DA 70.9% on 79 produced, CR 15.8%).
@@ -69,7 +69,7 @@ Upstream: real GitHub PR file diffs, model comments `{path, line, body}`, then `
 
 Files: [`official/martian/<model>/candidates.json`](official/martian/) and [`official/martian/judge_input/results/gpt-5.6/evaluations.json`](official/martian/judge_input/results/gpt-5.6/evaluations.json).
 
-### SWE-Review-Bench (`glm5_500`)
+### SWE-Review-Bench (`500 RPs`)
 
 This is **SWE-Review-Bench**, not SWE-Review-Traj.
 
